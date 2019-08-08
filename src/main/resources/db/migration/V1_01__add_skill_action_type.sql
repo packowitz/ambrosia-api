@@ -1,0 +1,1 @@
+alter table hero_skill_action add type varchar(25) not null;

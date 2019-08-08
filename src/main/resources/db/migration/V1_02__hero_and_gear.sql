@@ -1,0 +1,73 @@
+create table gear (
+  id bigserial,
+  player_id bigint not null,
+  equipped_to bigint,
+  set varchar(30) not null,
+  rarity varchar(20) not null,
+  type varchar(20) not null,
+  stat varchar(20) not null,
+  stat_value int not null,
+  jewel_slot1 varchar(20),
+  jewel1type varchar(25),
+  jewel1level int,
+  jewel_slot2 varchar(20),
+  jewel2type varchar(25),
+  jewel2level int,
+  jewel_slot3 varchar(20),
+  jewel3type varchar(25),
+  jewel3level int,
+  jewel_slot4 varchar(20),
+  jewel4type varchar(25),
+  jewel4level int,
+  special_jewel_slot boolean not null default false,
+  special_jewel_type varchar(25),
+  special_jewel_level int,
+  primary key (id)
+);
+
+create table hero (
+  id bigserial,
+  player_id bigint not null,
+  hero_base_id bigint not null,
+  stars int not null,
+  level int not null default 1,
+  xp int not null default 0,
+  max_xp int not null,
+  skill1 int not null default 0,
+  skill2 int not null default 0,
+  skill3 int not null default 0,
+  skill4 int not null default 0,
+  skill5 int not null default 0,
+  skill6 int not null default 0,
+  skill7 int not null default 0,
+  asc_lvl int not null default 0,
+  asc_points int not null default 0,
+  asc_points_max int not null,
+  weapon_id bigint,
+  bracers_id bigint,
+  helmet_id bigint,
+  armor_id bigint,
+  pants_id bigint,
+  boots_id bigint,
+  primary key (id)
+);
+
+create table jewelry (
+  id        bigserial,
+  player_id bigint      not null,
+  type      varchar(25) not null,
+  lvl1      int         not null default 0,
+  lvl2      int         not null default 0,
+  lvl3      int         not null default 0,
+  lvl4      int         not null default 0,
+  lvl5      int         not null default 0,
+  lvl6      int         not null default 0,
+  lvl7      int         not null default 0,
+  lvl8      int         not null default 0,
+  lvl9      int         not null default 0,
+  lvl10     int         not null default 0,
+  unique (player_id, type),
+  primary key (id)
+);
+
+alter table hero_base add recruitable boolean default false not null;

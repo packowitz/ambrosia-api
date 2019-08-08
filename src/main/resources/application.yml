@@ -1,0 +1,18 @@
+spring:
+    application:
+      name: ambrosia-api
+    datasource:
+        url: jdbc:postgresql://localhost:5432/ambrosia
+        username: ambrosia
+        password: ambrosiadb
+        driver-class-name: org.postgresql.Driver
+    jackson:
+        serialization.write_dates_as_timestamps: false
+        mapper.default-view-inclusion: true
+    jpa:
+      show-sql: false
+      properties:
+        hibernate:
+          jdbc:
+            lob:
+              non_contextual_creation: true
