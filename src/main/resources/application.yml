@@ -16,3 +16,8 @@ spring:
           jdbc:
             lob:
               non_contextual_creation: true
+
+ambrosia:
+  pw-salt-one: cslqwooiqz
+  pw-salt-two: ier23caop1
+  jwt-secret: qwpocani23j89dfwjjocwimnjn49
