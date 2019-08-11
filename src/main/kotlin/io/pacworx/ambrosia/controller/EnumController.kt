@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @CrossOrigin(maxAge = 3600)
-@RequestMapping("admin/enum")
+@RequestMapping("enum")
 class EnumController {
 
     @GetMapping("colors")

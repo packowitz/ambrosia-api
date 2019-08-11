@@ -15,13 +15,13 @@ class AuthController(private val playerService: PlayerService,
     @PostMapping("register")
     fun register(@RequestBody @Valid request: RegisterRequest): TokenResponse {
         val player = playerService.signup(request.name, request.email, request.password)
-        return TokenResponse(jwtService.generateToken(player))
+        return TokenResponse(jwtService.generateToken(player), player)
     }
 
     @PostMapping("login")
     fun login(@RequestBody @Valid request: LoginRequest): TokenResponse {
         val player = playerService.login(request.email, request.password)
-        return TokenResponse(jwtService.generateToken(player))
+        return TokenResponse(jwtService.generateToken(player), player)
     }
 }
 
@@ -29,4 +29,4 @@ data class RegisterRequest(val name: String, val email: String, val password: St
 
 data class LoginRequest(val email: String, val password: String)
 
-data class TokenResponse(val token: String)
+data class TokenResponse(val token: String, val player: Player)

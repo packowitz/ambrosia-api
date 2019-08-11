@@ -30,8 +30,8 @@ data class Hero(
     @JoinColumn(name = "weapon_id")
     var weapon: Gear? = null,
     @OneToOne
-    @JoinColumn(name = "bracers_id")
-    var bracers: Gear? = null,
+    @JoinColumn(name = "shield_id")
+    var shield: Gear? = null,
     @OneToOne
     @JoinColumn(name = "helmet_id")
     var helmet: Gear? = null,
@@ -56,7 +56,7 @@ data class Hero(
 
     fun getGear(type: GearType): Gear? = when (type) {
         GearType.WEAPON -> this.weapon
-        GearType.BRACERS -> this.bracers
+        GearType.SHIELD -> this.shield
         GearType.HELMET -> this.helmet
         GearType.ARMOR -> this.armor
         GearType.PANTS -> this.pants
@@ -70,7 +70,7 @@ data class Hero(
         }
         when (gear.type) {
             GearType.WEAPON -> this.weapon = gear
-            GearType.BRACERS -> this.bracers = gear
+            GearType.SHIELD -> this.shield = gear
             GearType.HELMET -> this.helmet = gear
             GearType.ARMOR -> this.armor = gear
             GearType.PANTS -> this.pants = gear

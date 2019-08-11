@@ -31,9 +31,10 @@ class JwtRequestFilter(private val jwtService: JwtService,
                     authorities.add(SimpleGrantedAuthority("ROLE_ADMIN"))
                 }
                 SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(player, null, authorities)
+                request.setAttribute("player", player)
             }
         } catch (e: Exception) {
-            log.warn(e.message, e)
+            log.warn(e.message)
         }
         chain.doFilter(request, response)
     }

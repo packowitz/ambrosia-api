@@ -5,6 +5,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.RecruitType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Hero
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroBaseRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import org.springframework.web.bind.annotation.*
 
@@ -16,7 +17,9 @@ class HeroController(val heroService: HeroService,
                           val heroBaseRepository: HeroBaseRepository) {
 
     @GetMapping("")
-    fun getHeroes(): List<Hero> = heroRepository.findAll()
+    fun getHeroes(@ModelAttribute("player") player: Player): List<Hero> {
+        return heroRepository.findAllByPlayerId(player.id)
+    }
 
     @PostMapping("recruit/{type}")
     fun recruitHero(@PathVariable type: RecruitType): Hero {

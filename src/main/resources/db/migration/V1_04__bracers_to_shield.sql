@@ -1,0 +1,1 @@
+alter table hero rename column bracers_id to shield_id;

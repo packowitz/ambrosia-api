@@ -11,10 +11,10 @@ import kotlin.random.Random
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("admin/gear")
-class GearController(val gearService: GearService,
-                     val gearRepository: GearRepository,
-                     val heroRepository: HeroRepository,
-                     val jewelryRepository: JewelryRepository) {
+class AdminGearController(val gearService: GearService,
+                          val gearRepository: GearRepository,
+                          val heroRepository: HeroRepository,
+                          val jewelryRepository: JewelryRepository) {
 
     @GetMapping("")
     fun getGears(): List<Gear> = gearRepository.findAll()

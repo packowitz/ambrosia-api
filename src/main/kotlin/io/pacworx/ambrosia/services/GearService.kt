@@ -70,6 +70,6 @@ class GearService {
     }
 
     private fun getJewelSlot(gearType: GearType): GearJewelSlot {
-        return GearJewelSlot.values().toList().filter { it.gearTypes.contains(gearType) }.random()
+        return GearJewelSlot.values().toList().filter { it != GearJewelSlot.SPECIAL && it.gearTypes.contains(gearType) }.random()
     }
 }
