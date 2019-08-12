@@ -65,6 +65,14 @@ enum class GearStat(val range: Map<Rarity, Pair<Int, Int>>) {
             Rarity.EPIC to Pair(32, 65),
             Rarity.LEGENDARY to Pair(53, 84)
     )),
+    INITIATIVE(mapOf(
+            Rarity.SIMPLE to Pair(5, 17),
+            Rarity.COMMON to Pair(10, 19),
+            Rarity.UNCOMMON to Pair(13, 22),
+            Rarity.RARE to Pair(18, 25),
+            Rarity.EPIC to Pair(21, 29),
+            Rarity.LEGENDARY to Pair(25, 34)
+    )),
     SPEED(mapOf(
             Rarity.SIMPLE to Pair(5, 17),
             Rarity.COMMON to Pair(10, 19),

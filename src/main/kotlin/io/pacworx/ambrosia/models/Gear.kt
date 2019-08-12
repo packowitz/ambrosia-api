@@ -52,7 +52,7 @@ data class Gear(
             GearStat.HP_PERC -> hero.hpPercBonus += statValue
             GearStat.ARMOR_ABS -> hero.armorAbsBonus += statValue
             GearStat.ARMOR_PERC -> hero.armorPercBonus += statValue
-            GearStat.SPEED -> hero.speedBonus += statValue
+            GearStat.SPEED -> hero.initiativeBonus += statValue
             GearStat.CRIT -> hero.critBonus += statValue
             GearStat.CRIT_MULT -> hero.critMultBonus += statValue
             GearStat.DEXTERITY -> hero.dexterityBonus += statValue

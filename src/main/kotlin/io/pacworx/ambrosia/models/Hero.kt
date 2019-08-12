@@ -75,10 +75,10 @@ data class Hero(
     }
 
     @Transient
-    val baseSpeed: Int = if (this.ascLvl >= 1) {
-        this.heroBase.speedAsc
+    val baseInitiative: Int = if (this.ascLvl >= 1) {
+        this.heroBase.initiativeAsc
     } else {
-        this.heroBase.speed
+        this.heroBase.initiative
     }
 
     @Transient
@@ -118,7 +118,7 @@ data class Hero(
     @Transient var hpPercBonus: Int = 0
     @Transient var armorAbsBonus: Int = 0
     @Transient var armorPercBonus: Int = 0
-    @Transient var speedBonus: Int = 0
+    @Transient var initiativeBonus: Int = 0
     @Transient var critBonus: Int = 0
     @Transient var critMultBonus: Int = 0
     @Transient var dexterityBonus: Int = 0
@@ -215,7 +215,7 @@ data class Hero(
     fun getArmorTotal(): Int =
             baseArmor + armorAbsBonus + (baseArmor * (armorPercBonus / 100.0)).roundToInt()
 
-    fun getSpeedTotal(): Int = baseSpeed + speedBonus
+    fun getInitiativeTotal(): Int = baseInitiative + initiativeBonus
 
     fun getCritTotal(): Int = baseCrit + critBonus
 

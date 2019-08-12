@@ -53,9 +53,14 @@ enum class JewelType(val slot: GearJewelSlot, val gearSet: GearSet? = null) {
             hero.dexterityBonus += lvl
         }
     },
+    INITIATIVE(GearJewelSlot.SPEED) {
+        override fun apply(hero: Hero, lvl: Int) {
+            hero.initiativeBonus += 10 * lvl
+        }
+    },
     SPEED(GearJewelSlot.SPEED) {
         override fun apply(hero: Hero, lvl: Int) {
-            hero.speedBonus += 10 * lvl
+            hero.speedBarFilling += 0.01 * lvl
         }
     },
     STONE_SKIN(GearJewelSlot.SPECIAL, GearSet.STONE_SKIN) {

@@ -5,6 +5,6 @@ enum class GearType(val stats: List<GearStat>) {
     SHIELD(listOf(GearStat.STRENGTH_ABS, GearStat.STRENGTH_PERC, GearStat.HP_ABS, GearStat.HP_PERC, GearStat.CRIT_MULT)),
     HELMET(listOf(GearStat.STRENGTH_ABS, GearStat.STRENGTH_PERC, GearStat.HP_ABS, GearStat.HP_PERC)),
     ARMOR(listOf(GearStat.HP_ABS, GearStat.HP_PERC, GearStat.ARMOR_ABS, GearStat.ARMOR_PERC)),
-    PANTS(listOf(GearStat.SPEED, GearStat.RESISTANCE, GearStat.DEXTERITY)),
-    BOOTS(listOf(GearStat.SPEED, GearStat.RESISTANCE, GearStat.DEXTERITY))
+    PANTS(listOf(GearStat.SPEED, GearStat.INITIATIVE, GearStat.RESISTANCE, GearStat.DEXTERITY)),
+    BOOTS(listOf(GearStat.SPEED, GearStat.INITIATIVE, GearStat.RESISTANCE, GearStat.DEXTERITY))
 }
