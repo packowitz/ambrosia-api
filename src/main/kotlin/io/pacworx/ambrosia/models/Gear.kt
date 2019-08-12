@@ -43,6 +43,28 @@ data class Gear(
     var specialJewelType: JewelType? = null,
     var specialJewelLevel: Int? = null
 ) {
+
+    fun apply(hero: Hero) {
+        when(stat) {
+            GearStat.STRENGTH_ABS -> hero.strengthAbsBonus += statValue
+            GearStat.STRENGTH_PERC -> hero.strengthPercBonus += statValue
+            GearStat.HP_ABS -> hero.hpAbsBonus += statValue
+            GearStat.HP_PERC -> hero.hpPercBonus += statValue
+            GearStat.ARMOR_ABS -> hero.armorAbsBonus += statValue
+            GearStat.ARMOR_PERC -> hero.armorPercBonus += statValue
+            GearStat.SPEED -> hero.speedBonus += statValue
+            GearStat.CRIT -> hero.critBonus += statValue
+            GearStat.CRIT_MULT -> hero.critMultBonus += statValue
+            GearStat.DEXTERITY -> hero.dexterityBonus += statValue
+            GearStat.RESISTANCE -> hero.resistanceBonus += statValue
+        }
+        jewel1Type?.apply(hero, jewel1Level!!)
+        jewel2Type?.apply(hero, jewel2Level!!)
+        jewel3Type?.apply(hero, jewel3Level!!)
+        jewel4Type?.apply(hero, jewel4Level!!)
+        specialJewelType?.apply(hero, specialJewelLevel!!)
+    }
+
     fun getJewel(slot: Int): Pair<JewelType, Int>? {
         return when(slot) {
             0 -> specialJewelType?.let { Pair(it, specialJewelLevel!!) }
