@@ -20,7 +20,7 @@ class GearController(private val gearRepository: GearRepository,
 
     @PostMapping("equip")
     @Transactional
-    fun equipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): EquipResponse {
+    fun equipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): PlayerActionResponse {
         val hero = heroRepository.getOne(request.heroId)
         val gear = gearRepository.getOne(request.gearId)
         if (hero.playerId != player.id || gear.playerId != player.id) {
@@ -30,13 +30,13 @@ class GearController(private val gearRepository: GearRepository,
             throw RuntimeException("You cannot equip gear of higher rarity than the hero stars has")
         }
         val unequipped = hero.equip(gear)
-        return EquipResponse(hero, gear.id!!, unequipped)
+        return PlayerActionResponse(hero = hero, gear = unequipped, gearIdsRemovedFromArmory = listOf(gear.id))
     }
 
 
     @PostMapping("plugin/jewel")
     @Transactional
-    fun pluginJewel(@ModelAttribute("player") player: Player, @RequestBody request: PluginJewelRequest): PluginJewelResponse {
+    fun pluginJewel(@ModelAttribute("player") player: Player, @RequestBody request: PluginJewelRequest): PlayerActionResponse {
         val gear = gearRepository.getOne(request.gearId)
         if (gear.playerId != player.id) {
             throw RuntimeException("You are only allowed to do actions on your own heroes")
@@ -62,19 +62,21 @@ class GearController(private val gearRepository: GearRepository,
         pluggedJewelry.increaseAmount(request.lvl, 1)
         gear.pluginJewel(request.slot, request.jewelType, request.lvl)
         gearRepository.save(gear)
-        val hero = gear.takeIf { it.equippedTo != null }?.let { heroRepository.getOne(it.equippedTo!!) }
+
         val modifiedJewelries = mutableListOf(pluggedJewelry)
         if (unpluggedJewelry != null && unpluggedJewelry.type != pluggedJewelry.type) {
             modifiedJewelries.add(unpluggedJewelry)
         }
-        return PluginJewelResponse(hero, gear, modifiedJewelries)
+
+        return if (gear.equippedTo != null) {
+            val hero = heroRepository.getOne(gear.equippedTo!!)
+            PlayerActionResponse(hero = hero, jewelries = modifiedJewelries)
+        } else {
+            PlayerActionResponse(gear = gear, jewelries = modifiedJewelries)
+        }
     }
 }
 
 data class EquipRequest(val heroId: Long, val gearId: Long)
 
-data class EquipResponse(val hero: Hero, val equipped: Long, val unequipped: Gear?)
-
 data class PluginJewelRequest(val gearId: Long, val slot: Int, val jewelType: JewelType, val lvl: Int)
-
-data class PluginJewelResponse(val hero: Hero?, val gear: Gear, val jewelries: List<Jewelry>)

@@ -20,7 +20,7 @@ class JewelryController(private val jewelryRepository: JewelryRepository) {
 
     @PostMapping("merge/{type}/{lvl}")
     @Transactional
-    fun mergeJewels(@ModelAttribute("player") player: Player, @PathVariable type: JewelType, @PathVariable lvl: Int): Jewelry {
+    fun mergeJewels(@ModelAttribute("player") player: Player, @PathVariable type: JewelType, @PathVariable lvl: Int): PlayerActionResponse {
         if (lvl == 10) {
             throw RuntimeException("You cannot merge jewels of level 10 as it is already highest level")
         }
@@ -30,6 +30,6 @@ class JewelryController(private val jewelryRepository: JewelryRepository) {
         }
         jewelry.increaseAmount(lvl, -4)
         jewelry.increaseAmount((lvl + 1), 1)
-        return jewelry
+        return PlayerActionResponse(jewelries = listOf(jewelry))
     }
 }

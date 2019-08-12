@@ -7,7 +7,7 @@ import javax.persistence.*
 @Entity
 data class Gear(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0,
     val playerId: Long,
     var equippedTo: Long? = null,
     @Enumerated(EnumType.STRING)
