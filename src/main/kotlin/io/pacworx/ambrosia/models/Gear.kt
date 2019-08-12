@@ -7,7 +7,7 @@ import javax.persistence.*
 @Entity
 data class Gear(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0,
+    val id: Long = 0,
     val playerId: Long,
     var equippedTo: Long? = null,
     @Enumerated(EnumType.STRING)
@@ -40,6 +40,7 @@ data class Gear(
     var jewel4Type: JewelType? = null,
     var jewel4Level: Int? = null,
     val specialJewelSlot: Boolean = false,
+    @Enumerated(EnumType.STRING)
     var specialJewelType: JewelType? = null,
     var specialJewelLevel: Int? = null
 ) {

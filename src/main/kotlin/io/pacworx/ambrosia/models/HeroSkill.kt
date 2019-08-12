@@ -7,7 +7,7 @@ import javax.persistence.*
 @Entity
 data class HeroSkill(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long?,
+    val id: Long = 0,
     val number: Int,
     var name: String,
     var passive: Boolean,

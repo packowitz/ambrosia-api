@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.GearService
@@ -20,7 +21,7 @@ class AdminGearController(val gearService: GearService,
     fun getGears(): List<Gear> = gearRepository.findAll()
 
     @PostMapping("open/{type}")
-    fun openGear(@ModelAttribute("player") player: Player, @PathVariable type: String): Gear {
+    fun openGear(@ModelAttribute("player") player: Player, @PathVariable type: String): PlayerActionResponse {
         //type can be the type of core to open. ignored for now
         val gear = gearService.createGear(
             player.id,
@@ -29,7 +30,7 @@ class AdminGearController(val gearService: GearService,
             GearType.values().toList()
         )
         gearRepository.save(gear)
-        return gear
+        return PlayerActionResponse(gear = gear)
     }
 }
 

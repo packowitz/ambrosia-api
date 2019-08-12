@@ -31,7 +31,6 @@ class HeroBaseController(val heroBaseRepository: HeroBaseRepository) {
 
     @PutMapping("{id}")
     fun updateHeroBase(@PathVariable id: Long, @RequestBody @Valid heroBaseRequest: HeroBase): HeroBase {
-        heroBaseRequest.id = id
         return heroBaseRepository.save(heroBaseRequest)
     }
 

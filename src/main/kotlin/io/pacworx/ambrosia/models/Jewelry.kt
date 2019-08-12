@@ -7,7 +7,7 @@ import javax.persistence.*
 @Entity
 data class Jewelry(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    val id: Long = 0,
     val playerId: Long,
     @Enumerated(EnumType.STRING)
     val type: JewelType,

@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Hero
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroBaseRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroRepository
@@ -13,10 +14,10 @@ class AdminHeroController(val heroRepository: HeroRepository,
                           val heroBaseRepository: HeroBaseRepository) {
 
     @PostMapping("recruit/{heroId}")
-    fun recruit(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): Hero {
+    fun recruit(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroBaseRepository.getOne(heroId).let { Hero(player.id, it) }
         heroRepository.save(hero)
-        return hero
+        return PlayerActionResponse(hero = hero)
     }
 
 }

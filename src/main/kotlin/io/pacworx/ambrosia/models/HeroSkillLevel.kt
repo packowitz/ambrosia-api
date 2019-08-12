@@ -8,7 +8,7 @@ import javax.persistence.Id
 @Entity
 data class HeroSkillLevel(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long?,
+    val id: Long = 0,
     val level: Int,
     val description: String
 )

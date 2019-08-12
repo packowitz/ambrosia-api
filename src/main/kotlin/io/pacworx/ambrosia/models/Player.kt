@@ -9,7 +9,7 @@ import javax.persistence.Id
 @Entity
 data class Player(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Long = 0,
+        val id: Long = 0,
         var name: String,
         @JsonIgnore val email: String,
         @JsonIgnore val password: String,

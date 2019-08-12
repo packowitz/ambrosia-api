@@ -47,11 +47,7 @@ class GearService {
             }
         }
 
-        var specialJewelType: JewelType? = null
-        if (Random.nextDouble() <= 0.1) {
-            specialJewelType = JewelType.values().toList()
-                .filter { it.slot == GearJewelSlot.SPECIAL && it.gearSet == gearSet }.random()
-        }
+        val specialJewelSlot = Random.nextDouble() <= 0.1
 
         return Gear(
             playerId = playerId,
@@ -64,8 +60,7 @@ class GearService {
             jewelSlot2 = jewelSlot2,
             jewelSlot3 = jewelSlot3,
             jewelSlot4 = jewelSlot4,
-            specialJewelSlot = specialJewelType != null,
-            specialJewelType = specialJewelType
+            specialJewelSlot = specialJewelSlot
         )
     }
 

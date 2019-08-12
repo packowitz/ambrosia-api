@@ -9,7 +9,7 @@ import javax.persistence.*
 @Entity
 data class HeroSkillAction(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long?,
+    val id: Long = 0,
     var position: Int,
     @Enumerated(EnumType.STRING)
     var trigger: SkillActionTrigger,

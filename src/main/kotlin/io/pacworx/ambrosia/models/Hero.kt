@@ -11,7 +11,7 @@ import kotlin.math.roundToInt
 @Entity
 data class Hero(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    val id: Long = 0,
     val playerId: Long,
     @ManyToOne
     @JoinColumn(name = "hero_base_id")
