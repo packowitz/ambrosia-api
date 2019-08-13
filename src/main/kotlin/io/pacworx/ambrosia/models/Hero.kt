@@ -138,6 +138,8 @@ data class Hero(
     @Transient var blueDamageInc: Int = 0
     @Transient var healingInc: Int = 0
     @Transient var superCritChance: Int = 0
+    @Transient var buffIntensityInc: Int = 0
+    @Transient var debuffIntensityInc: Int = 0
 
     constructor(playerId: Long, heroBase: HeroBase) : this(
         playerId = playerId,
