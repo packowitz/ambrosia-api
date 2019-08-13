@@ -13,12 +13,14 @@ data class HeroSkillAction(
     var position: Int,
     @Enumerated(EnumType.STRING)
     var trigger: SkillActionTrigger,
-    var triggerValue: String,
+    var triggerValue: String?,
+    var triggerChance: Int,
     @Enumerated(EnumType.STRING)
     var type: SkillActionType,
     @Enumerated(EnumType.STRING)
     var target: SkillActionTarget,
     @Enumerated(EnumType.STRING)
     var effect: SkillActionEffect,
-    var effectValue: Double
+    var effectValue: Double,
+    var efectDuration: Int
 )
