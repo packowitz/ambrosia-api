@@ -17,7 +17,6 @@ class GearController(private val gearRepository: GearRepository,
         return gearRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
     }
 
-
     @PostMapping("equip")
     @Transactional
     fun equipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): PlayerActionResponse {
@@ -31,6 +30,18 @@ class GearController(private val gearRepository: GearRepository,
         }
         val unequipped = hero.equip(gear)
         return PlayerActionResponse(hero = hero, gear = unequipped, gearIdsRemovedFromArmory = listOf(gear.id))
+    }
+
+    @PostMapping("unequip")
+    @Transactional
+    fun unequipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): PlayerActionResponse {
+        val hero = heroRepository.getOne(request.heroId)
+        val gear = gearRepository.getOne(request.gearId)
+        if (hero.playerId != player.id || gear.playerId != player.id || gear.equippedTo != hero.id) {
+            throw RuntimeException("You are only allowed to do actions on your own heroes")
+        }
+        val unequipped = hero.unequip(gear.type)
+        return PlayerActionResponse(hero = hero, gear = unequipped)
     }
 
 

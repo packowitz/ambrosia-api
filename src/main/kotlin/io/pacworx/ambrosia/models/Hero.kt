@@ -50,66 +50,16 @@ data class Hero(
     var boots: Gear? = null
 ) {
 
-    @Transient
-    val baseStrength: Int = if (this.level == 60) {
-        heroBase.strengthFull
-    } else {
-        val bonus = Math.floor((level - 1) * (heroBase.strengthFull - heroBase.strengthBase) / 59.0).toInt()
-        heroBase.strengthBase + bonus
-    }
+    @Transient var baseStrength: Int = 0
+    @Transient var baseHp: Int = 0
+    @Transient var baseArmor: Int = 0
+    @Transient var baseInitiative: Int = 0
+    @Transient var baseCrit: Int = 0
+    @Transient var baseCritMult: Int = 0
+    @Transient var baseDexterity: Int = 0
+    @Transient var baseResistance: Int = 0
 
-    @Transient
-    val baseHp: Int = if (this.level == 60) {
-        heroBase.hpFull
-    } else {
-        val bonus = Math.floor((level - 1) * (heroBase.hpFull - heroBase.hpBase) / 59.0).toInt()
-        heroBase.hpBase + bonus
-    }
-
-    @Transient
-    val baseArmor: Int = if (this.level == 60) {
-        heroBase.armorFull
-    } else {
-        val bonus = Math.floor((level - 1) * (heroBase.armorFull - heroBase.armorBase) / 59.0).toInt()
-        heroBase.armorBase + bonus
-    }
-
-    @Transient
-    val baseInitiative: Int = if (this.ascLvl >= 1) {
-        this.heroBase.initiativeAsc
-    } else {
-        this.heroBase.initiative
-    }
-
-    @Transient
-    val baseCrit: Int = if (this.ascLvl >= 1) {
-        this.heroBase.critAsc
-    } else {
-        this.heroBase.crit
-    }
-
-    @Transient
-    val baseCritMult: Int = if (this.ascLvl >= 1) {
-        this.heroBase.critMultAsc
-    } else {
-        this.heroBase.critMult
-    }
-
-    @Transient
-    val baseDexterity: Int = if (this.ascLvl >= 1) {
-        this.heroBase.dexterityAsc
-    } else {
-        this.heroBase.dexterity
-    }
-
-    @Transient
-    val baseResistance: Int = if (this.ascLvl >= 1) {
-        this.heroBase.resistanceAsc
-    } else {
-        this.heroBase.resistance
-    }
-
-    @Transient val sets = mutableListOf<GearSet>()
+    @Transient var sets = mutableListOf<GearSet>()
 
     // Stat bonuses
     @Transient var strengthAbsBonus: Int = 0
@@ -129,7 +79,7 @@ data class Hero(
     @Transient var counterChance: Int = 0
     @Transient var reflect: Int = 0
     @Transient var evasionChance: Int = 0
-    @Transient var speedBarFilling: Double = 1.0
+    @Transient var speedBarFilling: Int = 100
     @Transient var armorPiercing: Int = 0
     @Transient var armorExtraDmg: Int = 0
     @Transient var healthExtraDmg: Int = 0
@@ -149,10 +99,87 @@ data class Hero(
         ascPointsMax = 10000
     )
 
+    private fun initVars() {
+        baseStrength = if (this.level == 60) {
+            heroBase.strengthFull
+        } else {
+            val bonus = Math.floor((level - 1) * (heroBase.strengthFull - heroBase.strengthBase) / 59.0).toInt()
+            heroBase.strengthBase + bonus
+        }
+        baseHp = if (this.level == 60) {
+            heroBase.hpFull
+        } else {
+            val bonus = Math.floor((level - 1) * (heroBase.hpFull - heroBase.hpBase) / 59.0).toInt()
+            heroBase.hpBase + bonus
+        }
+        baseArmor = if (this.level == 60) {
+            heroBase.armorFull
+        } else {
+            val bonus = Math.floor((level - 1) * (heroBase.armorFull - heroBase.armorBase) / 59.0).toInt()
+            heroBase.armorBase + bonus
+        }
+        baseInitiative = if (this.ascLvl >= 1) {
+            this.heroBase.initiativeAsc
+        } else {
+            this.heroBase.initiative
+        }
+        baseCrit = if (this.ascLvl >= 1) {
+            this.heroBase.critAsc
+        } else {
+            this.heroBase.crit
+        }
+        baseCritMult = if (this.ascLvl >= 1) {
+            this.heroBase.critMultAsc
+        } else {
+            this.heroBase.critMult
+        }
+        baseDexterity = if (this.ascLvl >= 1) {
+            this.heroBase.dexterityAsc
+        } else {
+            this.heroBase.dexterity
+        }
+        baseResistance = if (this.ascLvl >= 1) {
+            this.heroBase.resistanceAsc
+        } else {
+            this.heroBase.resistance
+        }
+
+        sets = mutableListOf()
+        
+        strengthAbsBonus = 0
+        strengthPercBonus = 0
+        hpAbsBonus = 0
+        hpPercBonus = 0
+        armorAbsBonus = 0
+        armorPercBonus = 0
+        initiativeBonus = 0
+        critBonus = 0
+        critMultBonus = 0
+        dexterityBonus = 0
+        resistanceBonus = 0
+
+        lifesteal = 0
+        counterChance = 0
+        reflect = 0
+        evasionChance = 0
+        speedBarFilling = 100
+        armorPiercing = 0
+        armorExtraDmg = 0
+        healthExtraDmg = 0
+        redDamageInc = 0
+        greenDamageInc = 0
+        blueDamageInc = 0
+        healingInc = 0
+        superCritChance = 0
+        buffIntensityInc = 0
+        debuffIntensityInc = 0
+    }
+
     @PostConstruct
+    @PostLoad
     fun calcStats() {
+        initVars()
         getGears().forEach { it.apply(this) }
-        sets.clear()
         GearSet.values().asList().map { set ->
             var completeSets = getGears().filter { it.set == set }.size / set.number
             while (completeSets > 0) {
@@ -204,6 +231,14 @@ data class Hero(
     fun unequip(gearType: GearType): Gear? {
         val unequipped = getGear(gearType)
         unequipped?.equippedTo = null
+        when (gearType) {
+            GearType.WEAPON -> this.weapon = null
+            GearType.SHIELD -> this.shield = null
+            GearType.HELMET -> this.helmet = null
+            GearType.ARMOR -> this.armor = null
+            GearType.PANTS -> this.pants = null
+            GearType.BOOTS -> this.pants = null
+        }
         this.calcStats()
         return unequipped
     }

@@ -18,7 +18,7 @@ class HeroController(val heroService: HeroService,
 
     @GetMapping("")
     fun getHeroes(@ModelAttribute("player") player: Player): List<Hero> {
-        return heroRepository.findAllByPlayerId(player.id)
+        return heroRepository.findAllByPlayerIdOrderByStarsDescLevelDescHeroBase_IdAscIdAsc(player.id)
     }
 
     @PostMapping("recruit/{type}")
