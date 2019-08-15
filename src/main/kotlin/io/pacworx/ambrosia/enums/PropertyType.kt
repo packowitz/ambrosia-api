@@ -1,8 +1,10 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.PropertyCategory.*
 
-enum class PropertyType(category: PropertyCategory, description: String) {
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+enum class PropertyType(val category: PropertyCategory, val description: String) {
     HP_ABS_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
     HP_PERC_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
     ARMOR_ABS_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
@@ -40,5 +42,9 @@ enum class PropertyType(category: PropertyCategory, description: String) {
 
     STONE_SKIN_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored."),
     VITAL_AURA_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored."),
-    POWER_FIST_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored.")
+    POWER_FIST_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored.");
+
+    fun getName(): String {
+        return this.name
+    }
 }

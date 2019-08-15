@@ -1,6 +1,5 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Hero
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 
 enum class HeroStat {

@@ -17,8 +17,8 @@ class PropertyController(private val propertyService: PropertyService) {
     }
 
     @PostMapping("type/{type}")
-    fun saveProperties(@RequestBody property: DynamicProperty): List<DynamicProperty> {
-        return propertyService.upsertProperty(property)
+    fun saveProperties(@PathVariable("type") type: PropertyType, @RequestBody properties: List<DynamicProperty>): List<DynamicProperty> {
+        return propertyService.upsertProperties(type, properties)
     }
 
     @DeleteMapping("type/{type}/{id}")
