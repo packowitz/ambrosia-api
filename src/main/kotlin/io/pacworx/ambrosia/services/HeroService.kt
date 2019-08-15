@@ -1,15 +1,20 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.services
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Rarity
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Hero
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroBaseRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 @Service
 class HeroService(val heroBaseRepository: HeroBaseRepository,
-                  val heroRepository: HeroRepository) {
+                  val heroRepository: HeroRepository,
+                  val propertyService: PropertyService) {
+
+    fun asHeroDto(hero: Hero): HeroDto {
+        val heroDto = HeroDto(hero)
+        propertyService.applyBonuses(heroDto)
+        return heroDto
+    }
 
     fun recruitHero(simpleChance: Double? = null,
                     commonChance: Double? = null,

@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.controller
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.JewelType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
+import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
@@ -10,7 +11,8 @@ import javax.transaction.Transactional
 @RequestMapping("gear")
 class GearController(private val gearRepository: GearRepository,
                      private val jewelryRepository: JewelryRepository,
-                     private val heroRepository: HeroRepository) {
+                     private val heroRepository: HeroRepository,
+                     private val heroService: HeroService) {
 
     @GetMapping
     fun getAllGear(@ModelAttribute("player") player: Player): List<Gear> {
@@ -29,7 +31,7 @@ class GearController(private val gearRepository: GearRepository,
             throw RuntimeException("You cannot equip gear of higher rarity than the hero stars has")
         }
         val unequipped = hero.equip(gear)
-        return PlayerActionResponse(hero = hero, gear = unequipped, gearIdsRemovedFromArmory = listOf(gear.id))
+        return PlayerActionResponse(hero = heroService.asHeroDto(hero), gear = unequipped, gearIdsRemovedFromArmory = listOf(gear.id))
     }
 
     @PostMapping("unequip")
@@ -41,7 +43,7 @@ class GearController(private val gearRepository: GearRepository,
             throw RuntimeException("You are only allowed to do actions on your own heroes")
         }
         val unequipped = hero.unequip(gear.type)
-        return PlayerActionResponse(hero = hero, gear = unequipped)
+        return PlayerActionResponse(hero = heroService.asHeroDto(hero), gear = unequipped)
     }
 
 
@@ -81,7 +83,7 @@ class GearController(private val gearRepository: GearRepository,
 
         return if (gear.equippedTo != null) {
             val hero = heroRepository.getOne(gear.equippedTo!!)
-            PlayerActionResponse(hero = hero, jewelries = modifiedJewelries)
+            PlayerActionResponse(hero = heroService.asHeroDto(hero), jewelries = modifiedJewelries)
         } else {
             PlayerActionResponse(gear = gear, jewelries = modifiedJewelries)
         }

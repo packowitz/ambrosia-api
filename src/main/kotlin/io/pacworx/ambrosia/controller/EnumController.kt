@@ -37,4 +37,10 @@ class EnumController {
 
     @GetMapping("skill_targets")
     fun getSkillTargets(): List<SkillTarget> = SkillTarget.values().asList()
+
+    @GetMapping("property_categies")
+    fun getPropertyCategories(): List<PropertyCategory> = PropertyCategory.values().asList()
+
+    @GetMapping("property_types")
+    fun getPropertyTypes(): List<PropertyType> = PropertyType.values().asList()
 }
