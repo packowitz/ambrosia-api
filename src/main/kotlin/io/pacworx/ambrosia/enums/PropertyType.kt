@@ -44,7 +44,5 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
     VITAL_AURA_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored."),
     POWER_FIST_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored.");
 
-    fun getName(): String {
-        return this.name
-    }
+    fun getName(): String = name
 }

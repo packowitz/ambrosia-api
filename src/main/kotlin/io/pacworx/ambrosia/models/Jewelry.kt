@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.models
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.JewelType
 import java.lang.RuntimeException
 import javax.persistence.*
@@ -10,6 +11,7 @@ data class Jewelry(
     val id: Long = 0,
     val playerId: Long,
     @Enumerated(EnumType.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     val type: JewelType,
     var lvl1: Int = 0,
     var lvl2: Int = 0,

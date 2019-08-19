@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.models
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.HeroStat
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.PropertyCategory
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.PropertyType
@@ -11,6 +12,7 @@ data class DynamicProperty (@Id @GeneratedValue(strategy = GenerationType.IDENTI
                             @Enumerated(EnumType.STRING)
                             val category: PropertyCategory,
                             @Enumerated(EnumType.STRING)
+                            @JsonFormat(shape = JsonFormat.Shape.STRING)
                             val type: PropertyType,
                             val level: Int?,
                             @Enumerated(EnumType.STRING)

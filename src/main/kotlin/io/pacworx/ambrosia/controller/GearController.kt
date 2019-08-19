@@ -72,7 +72,7 @@ class GearController(private val gearRepository: GearRepository,
         if (pluggedJewelry.getAmount(request.lvl) < 1) {
             throw RuntimeException("You don't have any jewel ${request.jewelType} level ${request.lvl}")
         }
-        pluggedJewelry.increaseAmount(request.lvl, 1)
+        pluggedJewelry.increaseAmount(request.lvl, -1)
         gear.pluginJewel(request.slot, request.jewelType, request.lvl)
         gearRepository.save(gear)
 
@@ -83,7 +83,37 @@ class GearController(private val gearRepository: GearRepository,
 
         return if (gear.equippedTo != null) {
             val hero = heroRepository.getOne(gear.equippedTo!!)
-            PlayerActionResponse(hero = heroService.asHeroDto(hero), jewelries = modifiedJewelries)
+            PlayerActionResponse(hero = heroService.asHeroDto(hero), gear = gear, jewelries = modifiedJewelries)
+        } else {
+            PlayerActionResponse(gear = gear, jewelries = modifiedJewelries)
+        }
+    }
+
+    @PostMapping("unplug/jewel")
+    @Transactional
+    fun unplugJewel(@ModelAttribute("player") player: Player, @RequestBody request: UnplugJewelRequest): PlayerActionResponse {
+        val gear = gearRepository.getOne(request.gearId)
+        if (gear.playerId != player.id) {
+            throw RuntimeException("You are only allowed to do actions on your own heroes")
+        }
+
+        val unpluggedJewelry: Jewelry? = gear.getJewel(request.slot)?.let {
+            val jewelry = jewelryRepository.findByPlayerIdAndType(player.id, it.first)
+                ?: jewelryRepository.save(Jewelry(playerId = player.id, type = it.first))
+            jewelry.increaseAmount(it.second, 1)
+            jewelry
+        }
+        gear.unplugJewel(request.slot)
+        gearRepository.save(gear)
+
+        val modifiedJewelries = mutableListOf<Jewelry>()
+        if (unpluggedJewelry != null) {
+            modifiedJewelries.add(unpluggedJewelry)
+        }
+
+        return if (gear.equippedTo != null) {
+            val hero = heroRepository.getOne(gear.equippedTo!!)
+            PlayerActionResponse(hero = heroService.asHeroDto(hero), gear = gear, jewelries = modifiedJewelries)
         } else {
             PlayerActionResponse(gear = gear, jewelries = modifiedJewelries)
         }
@@ -93,3 +123,5 @@ class GearController(private val gearRepository: GearRepository,
 data class EquipRequest(val heroId: Long, val gearId: Long)
 
 data class PluginJewelRequest(val gearId: Long, val slot: Int, val jewelType: JewelType, val lvl: Int)
+
+data class UnplugJewelRequest(val gearId: Long, val slot: Int)

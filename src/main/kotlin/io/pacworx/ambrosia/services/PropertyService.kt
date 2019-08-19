@@ -35,11 +35,15 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
         init()
     }
 
+    fun getHeroMaxXp(level: Int): Int {
+        return properties.find { it.type == PropertyType.XP_MAX_HERO && it.level == level }?.let { it.value1 } ?: 10
+    }
+
     fun applyBonuses(hero: HeroDto) {
         hero.getGears().forEach { applyGear(hero, it) }
         hero.sets.clear()
         GearSet.values().asList().map { set ->
-            var completeSets = hero.getGears().filter { it.set == set }.size / set.number
+            var completeSets = hero.getGears().filter { it.set == set }.size / set.pieces
             while (completeSets > 0) {
                 hero.sets.add(set)
                 completeSets --

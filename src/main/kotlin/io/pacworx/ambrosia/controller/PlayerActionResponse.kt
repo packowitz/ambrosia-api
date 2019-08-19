@@ -8,10 +8,13 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PlayerActionResponse(
-        val player: Player? = null,
-        val hero: HeroDto? = null,
-        val heroIdsRemoved: List<Long>? = null,
-        val gear: Gear? = null,
-        val gearIdsRemovedFromArmory: List<Long>? = null,
-        val jewelries: List<Jewelry>? = null
+    val player: Player? = null,
+    val token: String? = null,
+    val hero: HeroDto? = null,
+    val heroes: List<HeroDto>? = null,
+    val heroIdsRemoved: List<Long>? = null,
+    val gear: Gear? = null,
+    val gears: List<Gear>? = null,
+    val gearIdsRemovedFromArmory: List<Long>? = null,
+    val jewelries: List<Jewelry>? = null
 )

@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.models
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.GearSet
 import io.pacworx.ambrosia.models.HeroBase
 import kotlin.math.roundToInt
@@ -71,6 +72,7 @@ data class HeroDto(val id: Long,
         this.heroBase.resistance
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     var sets = mutableListOf<GearSet>()
 
     // Stat bonuses
@@ -103,18 +105,7 @@ data class HeroDto(val id: Long,
     var buffIntensityInc: Int = 0
     var debuffIntensityInc: Int = 0
 
-    constructor(hero: Hero) : this(hero.id, hero.heroBase, hero.stars, hero.level, hero.xp, hero.maxXp, hero.skill1, hero.skill2, hero.skill3, hero.skill4, hero.skill5, hero.skill6, hero.skill7, hero.ascLvl, hero.ascPoints, hero.ascPointsMax, hero.weapon, hero.shield, hero.helmet, hero.armor, hero.pants, hero.boots) {
-//        getGears().forEach { it.apply(this) }
-//        GearSet.values().asList().map { set ->
-//            var completeSets = getGears().filter { it.set == set }.size / set.number
-//            while (completeSets > 0) {
-//                sets.add(set)
-//                completeSets --
-//            }
-//        }
-//        sets.forEach { it.apply(this) }
-//        //TODO passive skills
-    }
+    constructor(hero: Hero) : this(hero.id, hero.heroBase, hero.stars, hero.level, hero.xp, hero.maxXp, hero.skill1, hero.skill2, hero.skill3, hero.skill4, hero.skill5, hero.skill6, hero.skill7, hero.ascLvl, hero.ascPoints, hero.ascPointsMax, hero.weapon, hero.shield, hero.helmet, hero.armor, hero.pants, hero.boots)
 
     fun getGears(): List<Gear> {
         val gears = mutableListOf<Gear>()
