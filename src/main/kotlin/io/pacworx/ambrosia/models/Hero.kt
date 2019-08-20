@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.models
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.GearType
+import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActiveTrigger
 import io.pacworx.ambrosia.models.HeroBase
 import javax.persistence.*
 
@@ -52,7 +53,19 @@ data class Hero(
         stars = heroBase.rarity.stars,
         maxXp = 10000,
         ascPointsMax = 10000
-    )
+    ) {
+        heroBase.skills.filter { it.skillActiveTrigger == SkillActiveTrigger.ALWAYS }.forEach {
+            when (it.number) {
+                1 -> this.skill1 = 1
+                2 -> this.skill2 = 1
+                3 -> this.skill3 = 1
+                4 -> this.skill4 = 1
+                5 -> this.skill5 = 1
+                6 -> this.skill6 = 1
+                7 -> this.skill7 = 1
+            }
+        }
+    }
 
     fun getGear(type: GearType): Gear? = when (type) {
         GearType.WEAPON -> this.weapon
