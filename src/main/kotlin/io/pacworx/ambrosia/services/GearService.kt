@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 @Service
-class GearService {
+class GearService(private val propertyService: PropertyService) {
 
     fun createGear(playerId: Long,
                    sets: List<GearSet>,
@@ -20,8 +20,8 @@ class GearService {
         val gearSet: GearSet = sets.random()
         val rarity: Rarity = rarities.random()
         val type: GearType = gearTypes.random()
-        val stat: GearStat = type.stats.random()
-        val valueRange = stat.range.getValue(rarity)
+        val stat: HeroStat = propertyService.getPossibleGearStats(type, rarity).random()
+        val valueRange = propertyService.getGearValueRange(type, rarity, stat)
 
         var jewelSlot1: GearJewelSlot? = null
         var jewelSlot2: GearJewelSlot? = null
@@ -47,7 +47,7 @@ class GearService {
             }
         }
 
-        val specialJewelSlot = Random.nextDouble() <= 0.1
+        val specialJewelSlot = type == GearType.ARMOR && Random.nextDouble() <= 0.1
 
         return Gear(
             playerId = playerId,

@@ -19,7 +19,7 @@ data class Gear(
     @Enumerated(EnumType.STRING)
     val type: GearType,
     @Enumerated(EnumType.STRING)
-    val stat: GearStat,
+    val stat: HeroStat,
     val statValue: Int,
     @Enumerated(EnumType.STRING)
     val jewelSlot1: GearJewelSlot? = null,

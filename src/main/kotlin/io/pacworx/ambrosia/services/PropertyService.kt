@@ -39,6 +39,21 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
         return properties.find { it.type == PropertyType.XP_MAX_HERO && it.level == level }?.let { it.value1 } ?: 10
     }
 
+    fun getPossibleGearStats(gearType: GearType, rarity: Rarity): List<HeroStat> {
+        val propertyType = PropertyType.valueOf(gearType.name + "_GEAR")
+        return properties
+                .filter {
+                    it.category == PropertyCategory.GEAR && it.type == propertyType && it.level == rarity.stars && it.stat != null
+                }.map { it.stat!! }.distinct()
+    }
+
+    fun getGearValueRange(gearType: GearType, rarity: Rarity, stat: HeroStat): Pair<Int, Int> {
+        val propertyType = PropertyType.valueOf(gearType.name + "_GEAR")
+        return properties
+                .find { it.category == PropertyCategory.GEAR && it.type == propertyType && it.level == rarity.stars && it.stat == stat }!!
+                .let { it.value1 to it.value2!! }
+    }
+
     fun applyBonuses(hero: HeroDto) {
         hero.getGears().forEach { applyGear(hero, it) }
         hero.sets.clear()
@@ -54,17 +69,17 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
 
     fun applyGear(hero: HeroDto, gear: Gear) {
         when(gear.stat) {
-            GearStat.STRENGTH_ABS -> HeroStat.STRENGTH_ABS.apply(hero, gear.statValue)
-            GearStat.STRENGTH_PERC -> HeroStat.STRENGTH_PERC.apply(hero, gear.statValue)
-            GearStat.HP_ABS -> HeroStat.HP_ABS.apply(hero, gear.statValue)
-            GearStat.HP_PERC -> HeroStat.HP_PERC.apply(hero, gear.statValue)
-            GearStat.ARMOR_ABS -> HeroStat.ARMOR_ABS.apply(hero, gear.statValue)
-            GearStat.ARMOR_PERC -> HeroStat.ARMOR_PERC.apply(hero, gear.statValue)
-            GearStat.SPEED -> HeroStat.SPEED.apply(hero, gear.statValue)
-            GearStat.CRIT -> HeroStat.CRIT.apply(hero, gear.statValue)
-            GearStat.CRIT_MULT -> HeroStat.CRIT_MULT.apply(hero, gear.statValue)
-            GearStat.DEXTERITY -> HeroStat.DEXTERITY.apply(hero, gear.statValue)
-            GearStat.RESISTANCE -> HeroStat.RESISTANCE.apply(hero, gear.statValue)
+            HeroStat.STRENGTH_ABS -> HeroStat.STRENGTH_ABS.apply(hero, gear.statValue)
+            HeroStat.STRENGTH_PERC -> HeroStat.STRENGTH_PERC.apply(hero, gear.statValue)
+            HeroStat.HP_ABS -> HeroStat.HP_ABS.apply(hero, gear.statValue)
+            HeroStat.HP_PERC -> HeroStat.HP_PERC.apply(hero, gear.statValue)
+            HeroStat.ARMOR_ABS -> HeroStat.ARMOR_ABS.apply(hero, gear.statValue)
+            HeroStat.ARMOR_PERC -> HeroStat.ARMOR_PERC.apply(hero, gear.statValue)
+            HeroStat.SPEED -> HeroStat.SPEED.apply(hero, gear.statValue)
+            HeroStat.CRIT -> HeroStat.CRIT.apply(hero, gear.statValue)
+            HeroStat.CRIT_MULT -> HeroStat.CRIT_MULT.apply(hero, gear.statValue)
+            HeroStat.DEXTERITY -> HeroStat.DEXTERITY.apply(hero, gear.statValue)
+            HeroStat.RESISTANCE -> HeroStat.RESISTANCE.apply(hero, gear.statValue)
         }
         gear.jewel1Type?.let { applyJewel(hero, it, gear.jewel1Level!!) }
         gear.jewel2Type?.let { applyJewel(hero, it, gear.jewel2Level!!) }
