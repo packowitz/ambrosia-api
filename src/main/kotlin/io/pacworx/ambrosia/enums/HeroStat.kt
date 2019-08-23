@@ -18,7 +18,7 @@ enum class HeroStat {
     LIFESTEAL { override fun apply(hero: HeroDto, bonus: Int) { hero.lifesteal += bonus } },
     COUNTER_CHANCE { override fun apply(hero: HeroDto, bonus: Int) { hero.counterChance += bonus } },
     REFLECT { override fun apply(hero: HeroDto, bonus: Int) { hero.reflect += bonus } },
-    EVASION_CHANCE { override fun apply(hero: HeroDto, bonus: Int) { hero.evasionChance += bonus } },
+    DODGE_CHANCE { override fun apply(hero: HeroDto, bonus: Int) { hero.dodgeChance += bonus } },
     ARMOR_PIERCING { override fun apply(hero: HeroDto, bonus: Int) { hero.armorPiercing += bonus } },
     ARMOR_EXTRA_DMG { override fun apply(hero: HeroDto, bonus: Int) { hero.armorExtraDmg += bonus } },
     HEALTH_EXTRA_DMG { override fun apply(hero: HeroDto, bonus: Int) { hero.healthExtraDmg += bonus } },

@@ -1,5 +1,8 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import java.time.Instant
 import javax.persistence.*
 
 @Entity
@@ -8,8 +11,17 @@ data class Battle(
         val id: Long = 0,
         @Enumerated(EnumType.STRING)
         val type: BattleType,
+        @Enumerated(EnumType.STRING)
+        var status: BattleStatus = BattleStatus.INIT,
         val playerId: Long,
         val opponentId: Long?,
+        @field:CreatedDate
+        val started: Instant = Instant.now(),
+        @field:LastModifiedDate
+        var lastAction: Instant = Instant.now(),
+        @Enumerated(EnumType.STRING)
+        var heroTurn: HeroTurn = HeroTurn.NONE,
+        var turnsDone: Int = 0,
         @OneToOne
         @JoinColumn(name = "hero1id")
         val hero1: BattleHero?,
@@ -34,4 +46,6 @@ data class Battle(
         @OneToOne
         @JoinColumn(name = "opp_hero4id")
         val oppHero4: BattleHero?
-)
+) {
+
+}

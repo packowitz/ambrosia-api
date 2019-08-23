@@ -92,7 +92,7 @@ data class HeroDto(val id: Long,
     var lifesteal: Int = 0
     var counterChance: Int = 0
     var reflect: Int = 0
-    var evasionChance: Int = 0
+    var dodgeChance: Int = 0
     var speedBarFilling: Int = 100
     var armorPiercing: Int = 0
     var armorExtraDmg: Int = 0
