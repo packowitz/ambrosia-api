@@ -2,7 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import java.lang.RuntimeException
 
-enum class HeroTurn {
+enum class HeroPosition {
     NONE,
     HERO1 { override fun getBattleHero(battle: Battle): BattleHero = battle.hero1!! },
     HERO2 { override fun getBattleHero(battle: Battle): BattleHero = battle.hero2!! },

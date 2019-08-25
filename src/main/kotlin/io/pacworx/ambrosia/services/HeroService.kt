@@ -16,8 +16,8 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         return heroDto
     }
 
-    fun loadHeroes(heroIds: List<Long>): List<HeroDto> {
-        return heroRepository.findAllById(heroIds.distinct()).map { asHeroDto(it) }
+    fun loadHeroes(heroIds: List<Long>): List<Hero> {
+        return heroRepository.findAllById(heroIds.distinct())
     }
 
     fun recruitHero(simpleChance: Double? = null,

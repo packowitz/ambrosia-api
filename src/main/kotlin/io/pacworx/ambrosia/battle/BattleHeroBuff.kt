@@ -7,7 +7,6 @@ import javax.persistence.*
 data class BattleHeroBuff(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long = 0,
-        val battleHeroId: Long,
         @Enumerated(EnumType.STRING)
         val buff: Buff,
         var intensity: Int,
