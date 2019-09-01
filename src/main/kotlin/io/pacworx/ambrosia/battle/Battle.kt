@@ -52,4 +52,51 @@ data class Battle(
     val steps: MutableList<BattleStep> = mutableListOf()
 ) {
 
+    fun allHeroesAlive(): List<BattleHero> {
+        return listOfNotNull(hero1, hero2, hero3, hero4, oppHero1, oppHero2, oppHero3, oppHero4)
+            .filter { it.status != HeroStatus.DEAD }
+    }
+
+    fun setActiveHero(hero: BattleHero) {
+        hero1?.takeIf { it.id == hero.id }?.let {
+            active_hero = HeroPosition.HERO1
+            status = BattleStatus.PLAYER_TURN
+        }
+        hero2?.takeIf { it.id == hero.id }?.let {
+            active_hero = HeroPosition.HERO2
+            status = BattleStatus.PLAYER_TURN
+        }
+        hero3?.takeIf { it.id == hero.id }?.let {
+            active_hero = HeroPosition.HERO3
+            status = BattleStatus.PLAYER_TURN
+        }
+        hero4?.takeIf { it.id == hero.id }?.let {
+            active_hero = HeroPosition.HERO4
+            status = BattleStatus.PLAYER_TURN
+        }
+        oppHero1?.takeIf { it.id == hero.id }?.let {
+            active_hero = HeroPosition.OPP1
+            status = BattleStatus.OPP_TURN
+        }
+        oppHero2?.takeIf { it.id == hero.id }?.let {
+            active_hero = HeroPosition.OPP2
+            status = BattleStatus.OPP_TURN
+        }
+        oppHero3?.takeIf { it.id == hero.id }?.let {
+            active_hero = HeroPosition.OPP3
+            status = BattleStatus.OPP_TURN
+        }
+        oppHero4?.takeIf { it.id == hero.id }?.let {
+            active_hero = HeroPosition.OPP4
+            status = BattleStatus.OPP_TURN
+        }
+    }
+
+    fun heroBelongsToPlayer(hero: BattleHero): Boolean {
+        return hero.id == hero1?.id || hero.id == hero2?.id || hero.id == hero3?.id || hero.id == hero4?.id
+    }
+
+    fun heroBelongsToOpponent(hero: BattleHero): Boolean {
+        return hero.id == oppHero1?.id || hero.id == oppHero2?.id || hero.id == oppHero3?.id || hero.id == oppHero4?.id
+    }
 }
