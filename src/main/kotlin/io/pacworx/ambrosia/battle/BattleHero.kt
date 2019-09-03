@@ -8,12 +8,16 @@ import javax.persistence.*
 data class BattleHero(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
+    val playerId: Long,
     @Enumerated(EnumType.STRING)
     var status: HeroStatus = HeroStatus.ALIVE,
 
     @ManyToOne
     @JoinColumn(name = "hero_base_id")
     val heroBase: HeroBase,
+
+    @Enumerated(EnumType.STRING)
+    val position: HeroPosition,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "battle_hero_id")
@@ -38,7 +42,6 @@ data class BattleHero(
     val heroHp: Int,
     val heroArmor: Int,
     var armorBonus: Int = 0,
-    val heroInitiative: Int,
     val heroCrit: Int,
     var critBonus: Int = 0,
     val heroCritMult: Int,
@@ -50,7 +53,7 @@ data class BattleHero(
 
     var currentHp: Int = heroHp,
     var currentArmor: Int = heroArmor,
-    var currentSpeedBar: Int = heroInitiative,
+    var currentSpeedBar: Int,
 
     val heroLifesteal: Int,
     var lifestealBonus: Int = 0,
@@ -83,8 +86,10 @@ data class BattleHero(
     val heroDebuffIntensityInc: Int,
     var debuffIntensityIncBonus: Int = 0
 ) {
-    constructor(hero: HeroDto, heroBase: HeroBase) : this(
+    constructor(playerId: Long, hero: HeroDto, heroBase: HeroBase, position: HeroPosition) : this(
         heroBase = heroBase,
+        playerId = playerId,
+        position = position,
         skill1Lvl = hero.skill1,
         skill2Lvl = hero.skill2,
         skill2Cooldown = hero.skill2?.let { heroBase.skills.find { it.number == 2 }?.let { it.initCooldown } },
@@ -101,7 +106,7 @@ data class BattleHero(
         heroStrength = hero.getStrengthTotal(),
         heroHp = hero.getHpTotal(),
         heroArmor = hero.getArmorTotal(),
-        heroInitiative = hero.getInitiativeTotal(),
+        currentSpeedBar = hero.getInitiativeTotal(),
         heroCrit = hero.getCritTotal(),
         heroCritMult = hero.getCritMultTotal(),
         heroDexterity = hero.getDexterityTotal(),

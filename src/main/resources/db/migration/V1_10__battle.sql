@@ -34,8 +34,10 @@ create table battle (
 
 create table battle_hero (
   id bigserial,
+  player_id bigint not null,
   status varchar(25) not null,
   hero_base_id bigint not null,
+  position varchar(25) not null,
   skill1lvl int not null,
   skill2lvl int,
   skill2cooldown int,
@@ -54,7 +56,6 @@ create table battle_hero (
   hero_hp int not null,
   hero_armor int not null,
   armor_bonus int not null,
-  hero_initiative int not null,
   hero_crit int not null,
   crit_bonus int not null,
   hero_crit_mult int not null,

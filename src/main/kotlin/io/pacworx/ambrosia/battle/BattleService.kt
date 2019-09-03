@@ -22,14 +22,30 @@ class BattleService(private val heroService: HeroService,
             type = BattleType.DUELL,
             playerId = player.id,
             opponentId = request.oppPlayerId,
-            hero1 = request.hero1Id?.let { heroId -> heroes.find { it.id == heroId }?.let { BattleHero(heroService.asHeroDto(it), it.heroBase) } },
-            hero2 = request.hero2Id?.let { heroId -> heroes.find { it.id == heroId }?.let { BattleHero(heroService.asHeroDto(it), it.heroBase) } },
-            hero3 = request.hero3Id?.let { heroId -> heroes.find { it.id == heroId }?.let { BattleHero(heroService.asHeroDto(it), it.heroBase) } },
-            hero4 = request.hero4Id?.let { heroId -> heroes.find { it.id == heroId }?.let { BattleHero(heroService.asHeroDto(it), it.heroBase) } },
-            oppHero1 = request.oppHero1Id?.let { heroId -> heroes.find { it.id == heroId }?.let { BattleHero(heroService.asHeroDto(it), it.heroBase) } },
-            oppHero2 = request.oppHero2Id?.let { heroId -> heroes.find { it.id == heroId }?.let { BattleHero(heroService.asHeroDto(it), it.heroBase) } },
-            oppHero3 = request.oppHero3Id?.let { heroId -> heroes.find { it.id == heroId }?.let { BattleHero(heroService.asHeroDto(it), it.heroBase) } },
-            oppHero4 = request.oppHero4Id?.let { heroId -> heroes.find { it.id == heroId }?.let { BattleHero(heroService.asHeroDto(it), it.heroBase) } }
+            hero1 = request.hero1Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
+                BattleHero(player.id, heroService.asHeroDto(it), it.heroBase, HeroPosition.HERO1)
+            } },
+            hero2 = request.hero2Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
+                BattleHero(player.id, heroService.asHeroDto(it), it.heroBase, HeroPosition.HERO2)
+            } },
+            hero3 = request.hero3Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
+                BattleHero(player.id, heroService.asHeroDto(it), it.heroBase, HeroPosition.HERO3)
+            } },
+            hero4 = request.hero4Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
+                BattleHero(player.id, heroService.asHeroDto(it), it.heroBase, HeroPosition.HERO4)
+            } },
+            oppHero1 = request.oppHero1Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
+                BattleHero(request.oppPlayerId, heroService.asHeroDto(it), it.heroBase, HeroPosition.OPP1)
+            } },
+            oppHero2 = request.oppHero2Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
+                BattleHero(request.oppPlayerId, heroService.asHeroDto(it), it.heroBase, HeroPosition.OPP2)
+            } },
+            oppHero3 = request.oppHero3Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
+                BattleHero(request.oppPlayerId, heroService.asHeroDto(it), it.heroBase, HeroPosition.OPP3)
+            } },
+            oppHero4 = request.oppHero4Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
+                BattleHero(request.oppPlayerId, heroService.asHeroDto(it), it.heroBase, HeroPosition.OPP4)
+            } }
         ))
 
         nextTurn(battle)

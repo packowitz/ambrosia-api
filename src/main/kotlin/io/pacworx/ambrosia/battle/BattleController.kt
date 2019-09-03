@@ -1,7 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -12,6 +11,11 @@ class BattleController(private val battleService: BattleService) {
     @PostMapping
     fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartBattleRequest): Battle {
         return battleService.initBattle(player, request)
+    }
+
+    @PostMapping("{battleId}/")
+    fun useSkill(@ModelAttribute("player") player: Player) {
+
     }
 }
 
