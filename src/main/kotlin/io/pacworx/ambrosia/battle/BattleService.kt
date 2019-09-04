@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
+import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -9,7 +10,8 @@ import java.time.Instant
 class BattleService(private val heroService: HeroService,
                     private val battleRepository: BattleRepository,
                     private val battleHeroRepository: BattleHeroRepository,
-                    private val aiService: AiService) {
+                    private val aiService: AiService,
+                    private val propertyService: PropertyService) {
 
     private val SPEEDBAR_MAX: Int = 10000
     private val SPEEDBAR_TURN: Int = 100
@@ -56,11 +58,15 @@ class BattleService(private val heroService: HeroService,
     private fun nextTurn(battle: Battle): Battle {
         val activeHero = nextActiveHero(battle)
         if (activeHero != null) {
+
             battle.setActiveHero(activeHero)
-            if(battle.status == BattleStatus.PLAYER_TURN) {
+            activeHero.initTurn(battle, propertyService)
+            battle.checkStatus()
+
+            if (battle.status == BattleStatus.PLAYER_TURN) {
                 // awaiting player input
                 return battle
-            } else {
+            } else if (battle.status == BattleStatus.OPP_TURN) {
                 aiService.doAction(battle, activeHero)
             }
             battle.lastAction = Instant.now()

@@ -11,9 +11,5 @@ enum class Buff(val type: BuffType) {
 
     open fun preTurnAction(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {}
 
-    open fun decreaseDuration(buff: BattleHeroBuff, propertyService: PropertyService) {
-        buff.duration--
-    }
-
     open fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {}
 }

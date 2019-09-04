@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
+import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import io.pacworx.ambrosia.models.HeroBase
 import javax.persistence.*
 
@@ -128,7 +129,7 @@ data class BattleHero(
         heroDebuffIntensityInc = hero.debuffIntensityInc
     )
 
-    fun resetBonus() {
+    fun resetBonus(battle: Battle, propertyService: PropertyService) {
         if (currentHp > 0) {
             status = HeroStatus.ALIVE
         } else {
@@ -154,5 +155,46 @@ data class BattleHero(
         superCritChanceBonus = 0
         buffIntensityIncBonus = 0
         debuffIntensityIncBonus = 0
+
+        buffs.forEach { it.buff.applyEffect(battle, this, it, propertyService) }
+    }
+
+    fun initTurn(battle: Battle, propertyService: PropertyService) {
+        skill2Cooldown?.takeIf { it > 0 }?.dec()
+        skill3Cooldown?.takeIf { it > 0 }?.dec()
+        skill4Cooldown?.takeIf { it > 0 }?.dec()
+        skill5Cooldown?.takeIf { it > 0 }?.dec()
+        skill6Cooldown?.takeIf { it > 0 }?.dec()
+        skill7Cooldown?.takeIf { it > 0 }?.dec()
+
+        //Buffs
+        buffs.forEach {
+            it.buff.preTurnAction(battle, this, it, propertyService)
+        }
+        if (currentHp >= heroHp) {
+            currentHp = heroHp
+        }
+        if (currentHp <=0) {
+            status = HeroStatus.DEAD
+        }
+    }
+
+    fun afterTurn(battle: Battle, propertyService: PropertyService) {
+        buffs.forEach { it.decreaseDuration() }
+        buffs.removeIf { it.duration == 0 }
+        resetBonus(battle, propertyService)
+    }
+
+    fun getCooldown(skillNr: Int): Int {
+        return when(skillNr) {
+            1 -> 0
+            2 -> skill2Cooldown
+            3 -> skill3Cooldown
+            4 -> skill4Cooldown
+            5 -> skill5Cooldown
+            6 -> skill6Cooldown
+            7 -> skill7Cooldown
+            else -> null
+        } ?: 99
     }
 }

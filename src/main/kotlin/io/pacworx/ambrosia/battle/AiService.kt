@@ -1,15 +1,23 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import org.springframework.stereotype.Service
 
 @Service
-class AiService {
-
-    private val SPEEDBAR_REDUCTION: Int = 10000
+class AiService(private val skillService: SkillService) {
 
     fun doAction(battle: Battle, hero: BattleHero) {
-        //select skill
-        //use skill
-        hero.currentSpeedBar -= SPEEDBAR_REDUCTION
+        val skill = findSkillToUse(battle, hero)
+        val target = findTarget(battle, hero, skill)
+        skillService.useSkill(battle, hero, skill, target)
+    }
+
+    fun findSkillToUse(battle: Battle, hero: BattleHero): HeroSkill {
+        return hero.heroBase.skills.filter { hero.getCooldown(it.number) == 0 }.maxBy { it.number }
+                ?: throw RuntimeException("Found no skill to use")
+    }
+
+    fun findTarget(battle: Battle, hero: BattleHero, skill: HeroSkill): BattleHero {
+        return skill.target.resolve(battle, hero).random()
     }
 }

@@ -57,6 +57,46 @@ data class Battle(
             .filter { it.status != HeroStatus.DEAD }
     }
 
+    fun allPlayerHeroesAlive(): List<BattleHero> {
+        return listOfNotNull(hero1, hero2, hero3, hero4).filter { it.status != HeroStatus.DEAD }
+    }
+
+    fun allPlayerHeroesDead(): List<BattleHero> {
+        return listOfNotNull(hero1, hero2, hero3, hero4).filter { it.status == HeroStatus.DEAD }
+    }
+
+    fun allOppHeroesAlive(): List<BattleHero> {
+        return listOfNotNull(oppHero1, oppHero2, oppHero3, oppHero4).filter { it.status != HeroStatus.DEAD }
+    }
+
+    fun allOppHeroesDead(): List<BattleHero> {
+        return listOfNotNull(oppHero1, oppHero2, oppHero3, oppHero4).filter { it.status == HeroStatus.DEAD }
+    }
+
+    fun allAlliedHeroesAlive(hero: BattleHero): List<BattleHero> {
+        return if (hero.playerId == playerId) {
+            allPlayerHeroesAlive()
+        } else {
+            allOppHeroesAlive()
+        }
+    }
+
+    fun allAlliedHeroesDead(hero: BattleHero): List<BattleHero> {
+        return if (hero.playerId == playerId) {
+            allPlayerHeroesDead()
+        } else {
+            allOppHeroesDead()
+        }
+    }
+
+    fun allOtherHeroesAlive(hero: BattleHero): List<BattleHero> {
+        return if (hero.playerId == playerId) {
+            allOppHeroesAlive()
+        } else {
+            allPlayerHeroesAlive()
+        }
+    }
+
     fun setActiveHero(hero: BattleHero) {
         hero1?.takeIf { it.id == hero.id }?.let {
             active_hero = HeroPosition.HERO1
@@ -98,5 +138,13 @@ data class Battle(
 
     fun heroBelongsToOpponent(hero: BattleHero): Boolean {
         return hero.id == oppHero1?.id || hero.id == oppHero2?.id || hero.id == oppHero3?.id || hero.id == oppHero4?.id
+    }
+
+    fun checkStatus() {
+        if (allPlayerHeroesAlive().isEmpty()) {
+            status = BattleStatus.LOST
+        } else if (allOppHeroesAlive().isEmpty()) {
+            status = BattleStatus.WON
+        }
     }
 }
