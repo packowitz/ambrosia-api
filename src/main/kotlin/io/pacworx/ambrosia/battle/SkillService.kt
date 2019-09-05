@@ -6,6 +6,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkillAction
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service
+import kotlin.math.min
 import kotlin.random.Random
 
 @Service
@@ -153,7 +154,7 @@ class SkillService(private val propertyService: PropertyService) {
         )
     }
 
-    fun applyBuff(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
+    private fun applyBuff(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
         val buff = Buff.valueOf(action.effect.name)
         var intesity = action.effectValue
         if (action.type == SkillActionType.BUFF) {
@@ -180,21 +181,21 @@ class SkillService(private val propertyService: PropertyService) {
         )
     }
 
-    fun applySpeedbarAction(hero: BattleHero, action: HeroSkillAction) {
+    private fun applySpeedbarAction(hero: BattleHero, action: HeroSkillAction) {
         when(action.effect) {
             SkillActionEffect.PERCENTAGE -> hero.currentSpeedBar += (SPEEDBAR_MAX * action.effectValue) / 100
             else -> {}
         }
     }
 
-    fun applyHealingAction(hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
+    private fun applyHealingAction(hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
         var healing = when (action.effect) {
             SkillActionEffect.TARGET_MAX_HP -> (target.heroHp * action.effectValue) / 100
             SkillActionEffect.OWN_MAX_HP -> (hero.heroHp * action.effectValue) / 100
             else -> 0
         }
         healing += ((hero.heroHealingInc + hero.healingIncBonus) * healing) / 100
-        healing = Math.min(healing, target.heroHp - target.currentHp)
+        healing = min(healing, target.heroHp - target.currentHp)
 
         hero.currentHp += healing
 
