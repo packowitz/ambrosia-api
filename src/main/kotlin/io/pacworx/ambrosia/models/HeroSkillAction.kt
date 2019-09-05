@@ -21,6 +21,6 @@ data class HeroSkillAction(
     var target: SkillActionTarget,
     @Enumerated(EnumType.STRING)
     var effect: SkillActionEffect,
-    var effectValue: Double,
+    var effectValue: Int,
     var effectDuration: Int?
 )

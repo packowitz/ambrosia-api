@@ -98,6 +98,8 @@ data class Battle(
     }
 
     fun setActiveHero(hero: BattleHero) {
+        lastAction = Instant.now()
+        turnsDone ++
         hero1?.takeIf { it.id == hero.id }?.let {
             active_hero = HeroPosition.HERO1
             status = BattleStatus.PLAYER_TURN

@@ -22,6 +22,10 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
         return this.properties.filter { it.type == type }.sortedWith(compareBy({it.level}, {it.value1}))
     }
 
+    fun getProperties(type: PropertyType, level: Int): List<DynamicProperty> {
+        return this.properties.filter { it.type == type && it.level == level}
+    }
+
     fun upsertProperties(type: PropertyType, properties: List<DynamicProperty>): List<DynamicProperty> {
         dynamicPropertyRepository.saveAll(properties)
         init()

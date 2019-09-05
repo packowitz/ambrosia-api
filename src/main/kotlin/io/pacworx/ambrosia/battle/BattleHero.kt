@@ -19,6 +19,9 @@ data class BattleHero(
 
     @Enumerated(EnumType.STRING)
     val position: HeroPosition,
+    val level: Int,
+    val stars: Int,
+    val ascLvl: Int,
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "battle_hero_id")
@@ -91,6 +94,9 @@ data class BattleHero(
         heroBase = heroBase,
         playerId = playerId,
         position = position,
+        level = hero.level,
+        stars = hero.stars,
+        ascLvl = hero.ascLvl,
         skill1Lvl = hero.skill1,
         skill2Lvl = hero.skill2,
         skill2Cooldown = hero.skill2?.let { heroBase.skills.find { it.number == 2 }?.let { it.initCooldown } },
@@ -138,6 +144,7 @@ data class BattleHero(
         strengthBonus = 0
         armorBonus = 0
         critBonus = 0
+        critMultBonus = 0
         dexterityBonus = 0
         resistanceBonus = 0
         lifestealBonus = 0
@@ -170,6 +177,7 @@ data class BattleHero(
         //Buffs
         buffs.forEach {
             it.buff.preTurnAction(battle, this, it, propertyService)
+            it.decreaseDuration()
         }
         if (currentHp >= heroHp) {
             currentHp = heroHp
@@ -180,7 +188,6 @@ data class BattleHero(
     }
 
     fun afterTurn(battle: Battle, propertyService: PropertyService) {
-        buffs.forEach { it.decreaseDuration() }
         buffs.removeIf { it.duration == 0 }
         resetBonus(battle, propertyService)
     }
@@ -196,5 +203,33 @@ data class BattleHero(
             7 -> skill7Cooldown
             else -> null
         } ?: 99
+    }
+
+    fun getTotalStrength(): Int {
+        return heroStrength + ((heroStrength * strengthBonus) / 100)
+    }
+
+    fun getTotalArmor(): Int {
+        return currentArmor + ((heroArmor * armorBonus) / 100)
+    }
+
+    fun getTotalMaxArmor(): Int {
+        return heroArmor + ((heroArmor * armorBonus) / 100)
+    }
+
+    fun getTotalCrit(): Int {
+        return heroCrit + critBonus
+    }
+
+    fun getTotalCritMult(): Int {
+        return heroCritMult + critMultBonus
+    }
+
+    fun getTotalResistance(): Int {
+        return heroResistance + resistanceBonus
+    }
+
+    fun getTotalDexterity(): Int {
+        return heroDexterity + dexterityBonus
     }
 }

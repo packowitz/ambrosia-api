@@ -37,6 +37,9 @@ create table battle_hero (
   player_id bigint not null,
   status varchar(25) not null,
   hero_base_id bigint not null,
+  level int not null,
+  stars int not null,
+  asc_lvl int not null,
   position varchar(25) not null,
   skill1lvl int not null,
   skill2lvl int,
@@ -134,3 +137,25 @@ create table battle_step_action (
   buff_duration_change int,
   primary key (id)
 );
+
+ALTER TABLE hero_skill_action ALTER COLUMN effect_value TYPE int USING round(effect_value * 100)::int;
+
+
+insert into dynamic_property values (default, 'BUFF', 'STRENGTH_BUFF', 1, 'STRENGTH_PERC', 5);
+insert into dynamic_property values (default, 'BUFF', 'STRENGTH_BUFF', 2, 'STRENGTH_PERC', 10);
+insert into dynamic_property values (default, 'BUFF', 'STRENGTH_BUFF', 3, 'STRENGTH_PERC', 18);
+insert into dynamic_property values (default, 'BUFF', 'STRENGTH_BUFF', 4, 'STRENGTH_PERC', 30);
+insert into dynamic_property values (default, 'BUFF', 'STRENGTH_BUFF', 5, 'STRENGTH_PERC', 45);
+insert into dynamic_property values (default, 'BUFF', 'ARMOR_BUFF', 1, 'ARMOR_PERC', 5);
+insert into dynamic_property values (default, 'BUFF', 'ARMOR_BUFF', 2, 'ARMOR_PERC', 10);
+insert into dynamic_property values (default, 'BUFF', 'ARMOR_BUFF', 3, 'ARMOR_PERC', 18);
+insert into dynamic_property values (default, 'BUFF', 'ARMOR_BUFF', 4, 'ARMOR_PERC', 30);
+insert into dynamic_property values (default, 'BUFF', 'ARMOR_BUFF', 5, 'ARMOR_PERC', 45);
+
+insert into dynamic_property values (default, 'BATTLE', 'BATTLE_ARMOR', 30, null, 1, 0);
+insert into dynamic_property values (default, 'BATTLE', 'BATTLE_ARMOR', 75, null, 2, 5);
+insert into dynamic_property values (default, 'BATTLE', 'BATTLE_ARMOR', 150, null, 3, 20);
+insert into dynamic_property values (default, 'BATTLE', 'BATTLE_ARMOR', 300, null, 4, 30);
+insert into dynamic_property values (default, 'BATTLE', 'BATTLE_ARMOR', 600, null, 5, 40);
+insert into dynamic_property values (default, 'BATTLE', 'BATTLE_ARMOR', 1000, null, 7, 50);
+insert into dynamic_property values (default, 'BATTLE', 'BATTLE_ARMOR', 10000, null, 10, 70);
