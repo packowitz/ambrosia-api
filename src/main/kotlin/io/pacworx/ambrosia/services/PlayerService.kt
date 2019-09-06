@@ -1,6 +1,8 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.services
 
 import com.google.common.hash.Hashing
+import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleStatus
 import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
 import org.springframework.beans.factory.annotation.Value
@@ -13,7 +15,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
                     private val heroService: HeroService,
                     private val heroRepository: HeroRepository,
                     private val gearRepository: GearRepository,
-                    private val jewelryRepository: JewelryRepository) {
+                    private val jewelryRepository: JewelryRepository,
+                    private val battleRepository: BattleRepository) {
 
     @Value("\${ambrosia.pw-salt-one}")
     private lateinit var pwSalt1: String
@@ -35,7 +38,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
             .map { heroService.asHeroDto(it) }
         val gears = gearRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
         val jewelries = jewelryRepository.findAllByPlayerId(player.id)
-        return PlayerActionResponse(token = token, player = player, heroes = heroes, gears = gears, jewelries = jewelries)
+        val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusIn(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN))
+        return PlayerActionResponse(token = token, player = player, heroes = heroes, gears = gears, jewelries = jewelries, ongoingBattle = ongoingBattle)
     }
 
     private fun getHash(name: String, password: String): String {
