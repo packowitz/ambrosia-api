@@ -1,14 +1,16 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service
+import javax.transaction.Transactional
 
 @Service
 class BattleService(private val heroService: HeroService,
                     private val battleRepository: BattleRepository,
-                    private val battleHeroRepository: BattleHeroRepository,
+                    private val skillService: SkillService,
                     private val aiService: AiService,
                     private val propertyService: PropertyService) {
 
@@ -56,6 +58,16 @@ class BattleService(private val heroService: HeroService,
         return battleRepository.save(battle)
     }
 
+    @Transactional
+    fun takeTurn(battle: Battle, activeHero: BattleHero, skill: HeroSkill, target: BattleHero): Battle {
+        skillService.useSkill(battle, activeHero, skill, target)
+        return if (battle.hasEnded()) {
+            battle
+        } else {
+            nextTurn(battle)
+        }
+    }
+
     private fun nextTurn(battle: Battle): Battle {
         val activeHero = nextActiveHero(battle)
         if (activeHero != null) {
@@ -70,7 +82,7 @@ class BattleService(private val heroService: HeroService,
             } else if (battle.status == BattleStatus.OPP_TURN) {
                 aiService.doAction(battle, activeHero)
             }
-            if (battle.status == BattleStatus.LOST || battle.status == BattleStatus.WON) {
+            if (battle.hasEnded()) {
                 return battle
             }
         } else {

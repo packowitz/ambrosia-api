@@ -20,7 +20,7 @@ data class Battle(
     @field:LastModifiedDate
     var lastAction: Instant = Instant.now(),
     @Enumerated(EnumType.STRING)
-    var active_hero: HeroPosition = HeroPosition.NONE,
+    var activeHero: HeroPosition = HeroPosition.NONE,
     var turnsDone: Int = 0,
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "hero1id")
@@ -101,35 +101,35 @@ data class Battle(
         lastAction = Instant.now()
         turnsDone ++
         hero1?.takeIf { it.id == hero.id }?.let {
-            active_hero = HeroPosition.HERO1
+            activeHero = HeroPosition.HERO1
             status = BattleStatus.PLAYER_TURN
         }
         hero2?.takeIf { it.id == hero.id }?.let {
-            active_hero = HeroPosition.HERO2
+            activeHero = HeroPosition.HERO2
             status = BattleStatus.PLAYER_TURN
         }
         hero3?.takeIf { it.id == hero.id }?.let {
-            active_hero = HeroPosition.HERO3
+            activeHero = HeroPosition.HERO3
             status = BattleStatus.PLAYER_TURN
         }
         hero4?.takeIf { it.id == hero.id }?.let {
-            active_hero = HeroPosition.HERO4
+            activeHero = HeroPosition.HERO4
             status = BattleStatus.PLAYER_TURN
         }
         oppHero1?.takeIf { it.id == hero.id }?.let {
-            active_hero = HeroPosition.OPP1
+            activeHero = HeroPosition.OPP1
             status = BattleStatus.OPP_TURN
         }
         oppHero2?.takeIf { it.id == hero.id }?.let {
-            active_hero = HeroPosition.OPP2
+            activeHero = HeroPosition.OPP2
             status = BattleStatus.OPP_TURN
         }
         oppHero3?.takeIf { it.id == hero.id }?.let {
-            active_hero = HeroPosition.OPP3
+            activeHero = HeroPosition.OPP3
             status = BattleStatus.OPP_TURN
         }
         oppHero4?.takeIf { it.id == hero.id }?.let {
-            active_hero = HeroPosition.OPP4
+            activeHero = HeroPosition.OPP4
             status = BattleStatus.OPP_TURN
         }
     }
@@ -148,5 +148,9 @@ data class Battle(
         } else if (allOppHeroesAlive().isEmpty()) {
             status = BattleStatus.WON
         }
+    }
+
+    fun hasEnded(): Boolean {
+        return status == BattleStatus.LOST || status == BattleStatus.WON
     }
 }

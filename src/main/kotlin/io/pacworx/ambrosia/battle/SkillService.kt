@@ -6,6 +6,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkillAction
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service
+import java.lang.RuntimeException
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -23,6 +24,9 @@ class SkillService(private val propertyService: PropertyService) {
     }
 
     fun useSkill(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero) {
+        if (!isTargetEligible(battle, hero, skill, target)) {
+            throw RuntimeException("Target ${target.position} is not valid target for skill ${skill.number} of hero ${hero.position} in battle ${battle.id}")
+        }
         initProps()
         val step = BattleStep(
                 turn = battle.turnsDone,
@@ -59,6 +63,18 @@ class SkillService(private val propertyService: PropertyService) {
             }
         }
         hero.currentSpeedBar -= SPEEDBAR_MAX
+        battle.checkStatus()
+    }
+
+    private fun isTargetEligible(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero): Boolean {
+        val isPlayer = battle.heroBelongsToPlayer(hero)
+        return when(skill.target) {
+            SkillTarget.OPPONENT -> isPlayer == battle.heroBelongsToOpponent(target)
+            SkillTarget.SELF -> hero.position == target.position
+            SkillTarget.ALL_OWN -> isPlayer == battle.heroBelongsToPlayer(target)
+            SkillTarget.OPP_IGNORE_TAUNT -> isPlayer == battle.heroBelongsToOpponent(target)
+            SkillTarget.DEAD -> isPlayer == battle.heroBelongsToPlayer(target) && target.status == HeroStatus.DEAD
+        }
     }
 
     private fun actionTriggers(hero: BattleHero, action: HeroSkillAction, step: BattleStep): Boolean {
