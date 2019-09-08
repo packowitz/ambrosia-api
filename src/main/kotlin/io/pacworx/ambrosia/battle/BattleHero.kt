@@ -99,17 +99,17 @@ data class BattleHero(
         ascLvl = hero.ascLvl,
         skill1Lvl = hero.skill1,
         skill2Lvl = hero.skill2,
-        skill2Cooldown = hero.skill2?.let { heroBase.skills.find { it.number == 2 }?.let { it.initCooldown } },
+        skill2Cooldown = hero.skill2?.let { heroBase.skills.find { it.number == 2 }?.initCooldown },
         skill3Lvl = hero.skill3,
-        skill3Cooldown = hero.skill3?.let { heroBase.skills.find { it.number == 3 }?.let { it.initCooldown } },
+        skill3Cooldown = hero.skill3?.let { heroBase.skills.find { it.number == 3 }?.initCooldown },
         skill4Lvl = hero.skill4,
-        skill4Cooldown = hero.skill4?.let { heroBase.skills.find { it.number == 4 }?.let { it.initCooldown } },
+        skill4Cooldown = hero.skill4?.let { heroBase.skills.find { it.number == 4 }?.initCooldown },
         skill5Lvl = hero.skill5,
-        skill5Cooldown = hero.skill5?.let { heroBase.skills.find { it.number == 5 }?.let { it.initCooldown } },
+        skill5Cooldown = hero.skill5?.let { heroBase.skills.find { it.number == 5 }?.initCooldown },
         skill6Lvl = hero.skill6,
-        skill6Cooldown = hero.skill6?.let { heroBase.skills.find { it.number == 6 }?.let { it.initCooldown } },
+        skill6Cooldown = hero.skill6?.let { heroBase.skills.find { it.number == 6 }?.initCooldown },
         skill7Lvl = hero.skill7,
-        skill7Cooldown = hero.skill7?.let { heroBase.skills.find { it.number == 7 }?.let { it.initCooldown } },
+        skill7Cooldown = hero.skill7?.let { heroBase.skills.find { it.number == 7 }?.initCooldown },
         heroStrength = hero.getStrengthTotal(),
         heroHp = hero.getHpTotal(),
         heroArmor = hero.getArmorTotal(),
@@ -203,6 +203,17 @@ data class BattleHero(
             7 -> skill7Cooldown
             else -> null
         } ?: 99
+    }
+
+    fun skillUsed(skillNr: Int) {
+        when(skillNr) {
+            2 -> skill2Cooldown = heroBase.skills.find { it.number == 2 }?.cooldown
+            3 -> skill3Cooldown = heroBase.skills.find { it.number == 3 }?.cooldown
+            4 -> skill4Cooldown = heroBase.skills.find { it.number == 4 }?.cooldown
+            5 -> skill5Cooldown = heroBase.skills.find { it.number == 5 }?.cooldown
+            6 -> skill6Cooldown = heroBase.skills.find { it.number == 6 }?.cooldown
+            7 -> skill7Cooldown = heroBase.skills.find { it.number == 7 }?.cooldown
+        }
     }
 
     fun getTotalStrength(): Int {
