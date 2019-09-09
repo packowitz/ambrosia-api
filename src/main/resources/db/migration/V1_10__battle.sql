@@ -37,6 +37,7 @@ create table battle_hero (
   player_id bigint not null,
   status varchar(25) not null,
   hero_base_id bigint not null,
+  color varchar(10) not null,
   level int not null,
   stars int not null,
   asc_lvl int not null,

@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import io.pacworx.ambrosia.models.HeroBase
@@ -19,6 +20,8 @@ data class BattleHero(
 
     @Enumerated(EnumType.STRING)
     val position: HeroPosition,
+    @Enumerated(EnumType.STRING)
+    val color: Color,
     val level: Int,
     val stars: Int,
     val ascLvl: Int,
@@ -94,6 +97,7 @@ data class BattleHero(
         heroBase = heroBase,
         playerId = playerId,
         position = position,
+        color = heroBase.color,
         level = hero.level,
         stars = hero.stars,
         ascLvl = hero.ascLvl,

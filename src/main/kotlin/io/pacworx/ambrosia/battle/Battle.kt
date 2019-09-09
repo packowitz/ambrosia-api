@@ -74,7 +74,7 @@ data class Battle(
     }
 
     fun allAlliedHeroesAlive(hero: BattleHero): List<BattleHero> {
-        return if (hero.playerId == playerId) {
+        return if (heroBelongsToPlayer(hero)) {
             allPlayerHeroesAlive()
         } else {
             allOppHeroesAlive()
@@ -82,7 +82,7 @@ data class Battle(
     }
 
     fun allAlliedHeroesDead(hero: BattleHero): List<BattleHero> {
-        return if (hero.playerId == playerId) {
+        return if (heroBelongsToPlayer(hero)) {
             allPlayerHeroesDead()
         } else {
             allOppHeroesDead()
@@ -90,7 +90,7 @@ data class Battle(
     }
 
     fun allOtherHeroesAlive(hero: BattleHero): List<BattleHero> {
-        return if (hero.playerId == playerId) {
+        return if (heroBelongsToPlayer(hero)) {
             allOppHeroesAlive()
         } else {
             allPlayerHeroesAlive()
