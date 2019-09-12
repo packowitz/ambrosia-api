@@ -106,7 +106,7 @@ create table battle_hero (
 
 create table battle_hero_buff (
   id bigserial,
-  battle_hero_id bigint not null,
+  battle_hero_id bigint,
   buff varchar(25) not null,
   intensity int not null,
   duration int not null,
@@ -116,7 +116,7 @@ create table battle_hero_buff (
 
 create table battle_step (
   id bigserial,
-  battle_id bigint not null,
+  battle_id bigint,
   turn int not null,
   acting_hero varchar(25) not null,
   used_skill int not null,
@@ -126,12 +126,12 @@ create table battle_step (
 
 create table battle_step_action (
   id bigserial,
-  battle_step_id bigint not null,
+  battle_step_id bigint,
   hero_position varchar(25) not null,
   crit boolean,
   super_crit boolean,
   armor_diff int,
-  healthDiff int,
+  health_diff int,
   buff varchar(25),
   buff_intensity int,
   buff_duration int,
@@ -139,7 +139,7 @@ create table battle_step_action (
   primary key (id)
 );
 
-ALTER TABLE hero_skill_action ALTER COLUMN effect_value TYPE int USING round(effect_value * 100)::int;
+ALTER TABLE hero_skill_action ALTER COLUMN effect_value TYPE int;
 
 
 insert into dynamic_property values (default, 'BUFF', 'STRENGTH_BUFF', 1, 'STRENGTH_PERC', 5);

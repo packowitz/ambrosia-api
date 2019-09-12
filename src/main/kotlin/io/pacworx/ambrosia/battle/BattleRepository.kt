@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface BattleRepository : JpaRepository<Battle, Long> {
 
     fun findTopByPlayerIdAndStatusIn(playerId: Long, status: List<BattleStatus>): Battle?
+
+    fun findTopByPlayerIdAndStatusNotIn(playerId: Long, status: List<BattleStatus>): Battle?
 }

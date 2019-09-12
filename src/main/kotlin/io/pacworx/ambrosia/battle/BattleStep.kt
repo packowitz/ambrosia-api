@@ -12,7 +12,7 @@ data class BattleStep(
     val usedSkill: Int,
     @Enumerated(EnumType.STRING)
     val target: HeroPosition,
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "battle_step_id")
     val actions: MutableList<BattleStepAction> = mutableListOf()
 ) {

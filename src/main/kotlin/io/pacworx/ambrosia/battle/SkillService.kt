@@ -34,6 +34,7 @@ class SkillService(private val propertyService: PropertyService) {
                 usedSkill = skill.number,
                 target = target.position
         )
+        battle.steps.add(step)
         var damage = 0
         skill.actions.forEach { action ->
             if (actionTriggers(hero, action, step) && procs(action.triggerChance)) {

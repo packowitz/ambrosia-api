@@ -11,7 +11,7 @@ class BattleController(private val battleService: BattleService,
 
     @PostMapping
     fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartBattleRequest): Battle {
-        if (battleRepository.findTopByPlayerIdAndStatusIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
         return battleService.initBattle(player, request)
