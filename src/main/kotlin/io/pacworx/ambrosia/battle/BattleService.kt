@@ -61,14 +61,13 @@ class BattleService(private val heroService: HeroService,
     @Transactional
     fun takeTurn(battle: Battle, activeHero: BattleHero, skill: HeroSkill, target: BattleHero): Battle {
         skillService.useSkill(battle, activeHero, skill, target)
-        return if (battle.hasEnded()) {
-            battle
-        } else {
+        if (!battle.hasEnded()) {
             nextTurn(battle)
         }
+        return battleRepository.save(battle)
     }
 
-    private fun nextTurn(battle: Battle): Battle {
+    private fun nextTurn(battle: Battle) {
         val activeHero = nextActiveHero(battle)
         if (activeHero != null) {
 
@@ -78,17 +77,17 @@ class BattleService(private val heroService: HeroService,
 
             if (battle.status == BattleStatus.PLAYER_TURN) {
                 // awaiting player input
-                return battle
+                return
             } else if (battle.status == BattleStatus.OPP_TURN) {
                 aiService.doAction(battle, activeHero)
             }
             if (battle.hasEnded()) {
-                return battle
+                return
             }
         } else {
             battle.allHeroesAlive().forEach { it.currentSpeedBar += SPEEDBAR_TURN + it.speedBonus }
         }
-        return nextTurn(battle)
+        nextTurn(battle)
     }
 
     private fun nextActiveHero(battle: Battle): BattleHero? {
