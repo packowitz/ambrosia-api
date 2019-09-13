@@ -8,90 +8,90 @@ import javax.persistence.*
 
 @Entity
 data class BattleHero(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-    val playerId: Long,
-    @Enumerated(EnumType.STRING)
+        val playerId: Long,
+        @Enumerated(EnumType.STRING)
     var status: HeroStatus = HeroStatus.ALIVE,
 
-    @ManyToOne
+        @ManyToOne
     @JoinColumn(name = "hero_base_id")
     val heroBase: HeroBase,
 
-    @Enumerated(EnumType.STRING)
+        @Enumerated(EnumType.STRING)
     val position: HeroPosition,
-    @Enumerated(EnumType.STRING)
+        @Enumerated(EnumType.STRING)
     val color: Color,
-    val level: Int,
-    val stars: Int,
-    val ascLvl: Int,
+        val level: Int,
+        val stars: Int,
+        val ascLvl: Int,
 
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+        @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "battle_hero_id")
     var buffs: MutableList<BattleHeroBuff> = mutableListOf(),
 
-    val skill1Lvl: Int,
-    val skill2Lvl: Int?,
-    var skill2Cooldown: Int?,
-    val skill3Lvl: Int?,
-    var skill3Cooldown: Int?,
-    val skill4Lvl: Int?,
-    var skill4Cooldown: Int?,
-    val skill5Lvl: Int?,
-    var skill5Cooldown: Int?,
-    val skill6Lvl: Int?,
-    var skill6Cooldown: Int?,
-    val skill7Lvl: Int?,
-    var skill7Cooldown: Int?,
+        val skill1Lvl: Int,
+        val skill2Lvl: Int?,
+        var skill2Cooldown: Int?,
+        val skill3Lvl: Int?,
+        var skill3Cooldown: Int?,
+        val skill4Lvl: Int?,
+        var skill4Cooldown: Int?,
+        val skill5Lvl: Int?,
+        var skill5Cooldown: Int?,
+        val skill6Lvl: Int?,
+        var skill6Cooldown: Int?,
+        val skill7Lvl: Int?,
+        var skill7Cooldown: Int?,
 
-    val heroStrength: Int,
-    var strengthBonus: Int = 0,
-    val heroHp: Int,
-    val heroArmor: Int,
-    var armorBonus: Int = 0,
-    val heroCrit: Int,
-    var critBonus: Int = 0,
-    val heroCritMult: Int,
-    var critMultBonus: Int = 0,
-    val heroDexterity: Int,
-    var dexterityBonus: Int = 0,
-    val heroResistance: Int,
-    var resistanceBonus: Int = 0,
+        val heroStrength: Int,
+        @field:Transient var strengthBonus: Int = 0,
+        val heroHp: Int,
+        val heroArmor: Int,
+        @field:Transient var armorBonus: Int = 0,
+        val heroCrit: Int,
+        @field:Transient var critBonus: Int = 0,
+        val heroCritMult: Int,
+        @field:Transient var critMultBonus: Int = 0,
+        val heroDexterity: Int,
+        @field:Transient var dexterityBonus: Int = 0,
+        val heroResistance: Int,
+        @field:Transient var resistanceBonus: Int = 0,
 
-    var currentHp: Int = heroHp,
-    var currentArmor: Int = heroArmor,
-    var currentSpeedBar: Int,
+        var currentHp: Int = heroHp,
+        var currentArmor: Int = heroArmor,
+        var currentSpeedBar: Int,
 
-    val heroLifesteal: Int,
-    var lifestealBonus: Int = 0,
-    val heroCounterChance: Int,
-    var counterChanceBonus: Int = 0,
-    val heroReflect: Int,
-    var reflectBonus: Int = 0,
-    val heroDodgeChance: Int,
-    var dodgeChanceBonus: Int = 0,
-    val heroSpeed: Int,
-    var speedBonus: Int = 0,
-    val heroArmorPiercing: Int,
-    var armorPiercingBonus: Int = 0,
-    val heroArmorExtraDmg: Int,
-    var armorExtraDmgBonus: Int = 0,
-    val heroHealthExtraDmg: Int,
-    var healthExtraDmgBonus: Int = 0,
-    val heroRedDamageInc: Int,
-    var redDamageIncBonus: Int = 0,
-    val heroGreenDamageInc: Int,
-    var greenDamageIncBonus: Int = 0,
-    val heroBlueDamageInc: Int,
-    var blueDamageIncBonus: Int = 0,
-    val heroHealingInc: Int,
-    var healingIncBonus: Int = 0,
-    val heroSuperCritChance: Int,
-    var superCritChanceBonus: Int = 0,
-    val heroBuffIntensityInc: Int,
-    var buffIntensityIncBonus: Int = 0,
-    val heroDebuffIntensityInc: Int,
-    var debuffIntensityIncBonus: Int = 0
+        val heroLifesteal: Int,
+        @field:Transient var lifestealBonus: Int = 0,
+        val heroCounterChance: Int,
+        @field:Transient var counterChanceBonus: Int = 0,
+        val heroReflect: Int,
+        @field:Transient var reflectBonus: Int = 0,
+        val heroDodgeChance: Int,
+        @field:Transient var dodgeChanceBonus: Int = 0,
+        val heroSpeed: Int,
+        @field:Transient var speedBonus: Int = 0,
+        val heroArmorPiercing: Int,
+        @field:Transient var armorPiercingBonus: Int = 0,
+        val heroArmorExtraDmg: Int,
+        @field:Transient var armorExtraDmgBonus: Int = 0,
+        val heroHealthExtraDmg: Int,
+        @field:Transient var healthExtraDmgBonus: Int = 0,
+        val heroRedDamageInc: Int,
+        @field:Transient var redDamageIncBonus: Int = 0,
+        val heroGreenDamageInc: Int,
+        @field:Transient var greenDamageIncBonus: Int = 0,
+        val heroBlueDamageInc: Int,
+        @field:Transient var blueDamageIncBonus: Int = 0,
+        val heroHealingInc: Int,
+        @field:Transient var healingIncBonus: Int = 0,
+        val heroSuperCritChance: Int,
+        @field:Transient var superCritChanceBonus: Int = 0,
+        val heroBuffIntensityInc: Int,
+        @field:Transient var buffIntensityIncBonus: Int = 0,
+        val heroDebuffIntensityInc: Int,
+        @field:Transient var debuffIntensityIncBonus: Int = 0
 ) {
     constructor(playerId: Long, hero: HeroDto, heroBase: HeroBase, position: HeroPosition) : this(
         heroBase = heroBase,
@@ -193,7 +193,7 @@ data class BattleHero(
 
     fun afterTurn(battle: Battle, propertyService: PropertyService) {
         buffs.removeIf { it.duration == 0 }
-        resetBonus(battle, propertyService)
+        battle.allHeroesAlive().forEach { it.resetBonus(battle, propertyService) }
     }
 
     fun getCooldown(skillNr: Int): Int {

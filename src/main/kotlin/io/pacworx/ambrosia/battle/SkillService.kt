@@ -65,6 +65,7 @@ class SkillService(private val propertyService: PropertyService) {
         }
         hero.currentSpeedBar -= SPEEDBAR_MAX
         hero.skillUsed(skill.number)
+        hero.afterTurn(battle, propertyService)
         battle.checkStatus()
     }
 

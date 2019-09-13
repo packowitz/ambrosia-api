@@ -75,6 +75,12 @@ class BattleService(private val heroService: HeroService,
             activeHero.initTurn(battle, propertyService)
             battle.checkStatus()
 
+            if (battle.hasEnded()) {
+                return
+            }
+            if (activeHero.status == HeroStatus.DEAD) {
+                nextTurn(battle)
+            }
             if (battle.status == BattleStatus.PLAYER_TURN) {
                 // awaiting player input
                 return
