@@ -112,6 +112,7 @@ create table battle_step_action (
   armor_diff int,
   health_diff int,
   buff varchar(25),
+  buff_resisted boolean,
   buff_intensity int,
   buff_duration int,
   buff_duration_change int,

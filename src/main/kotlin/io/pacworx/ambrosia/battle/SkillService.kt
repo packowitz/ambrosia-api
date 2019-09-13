@@ -43,7 +43,7 @@ class SkillService(private val propertyService: PropertyService) {
                     SkillActionType.DEAL_DAMAGE ->
                         findTargets(battle, hero, action, target)
                                 .forEach {
-                                    step.addAction(dealDamage(it, action, damage))
+                                    step.addAction(dealDamage(it, hero, action, damage))
                                 }
                     SkillActionType.BUFF, SkillActionType.DEBUFF ->
                         findTargets(battle, hero, action, target)
@@ -140,7 +140,7 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
-    private fun dealDamage(hero: BattleHero, action: HeroSkillAction, baseDamage: Int): BattleStepAction {
+    private fun dealDamage(hero: BattleHero, damageDealer: BattleHero, action: HeroSkillAction, baseDamage: Int): BattleStepAction {
         val crit = Random.nextInt(100) < hero.getTotalCrit()
         val superCrit = crit && Random.nextInt(100) < hero.heroSuperCritChance + hero.superCritChanceBonus
 
@@ -184,17 +184,25 @@ class SkillService(private val propertyService: PropertyService) {
         }
         val duration = action.effectDuration!!
 
-        target.buffs.add(BattleHeroBuff(
-                buff = buff,
-                intensity = intesity,
-                duration = duration,
-                sourceHeroId = hero.id
-        ))
-        target.resetBonus(battle, propertyService)
+        var resisted = false
+        if (buff.type == BuffType.DEBUFF) {
+            //TODO
+        }
+
+        if (!resisted) {
+            target.buffs.add(BattleHeroBuff(
+                    buff = buff,
+                    intensity = intesity,
+                    duration = duration,
+                    sourceHeroId = hero.id
+            ))
+            target.resetBonus(battle, propertyService)
+        }
 
         return BattleStepAction(
                 heroPosition = target.position,
                 buff = buff,
+                buffResisted = resisted,
                 buffIntensity = intesity,
                 buffDuration = duration
         )
