@@ -151,7 +151,7 @@ class SkillService(private val propertyService: PropertyService) {
             damage += ((damage * (hero.getTotalCritMult() + 150)) / 100)
         }
 
-        val dmgArmorRatio: Int = 100 * damage / hero.currentArmor
+        val dmgArmorRatio: Int = 100 * damage / hero.getTotalArmor()
         val property = battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
 
         val armorLoss = (hero.currentArmor * property.value1) / 100
