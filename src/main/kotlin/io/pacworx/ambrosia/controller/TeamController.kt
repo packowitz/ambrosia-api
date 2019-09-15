@@ -36,7 +36,7 @@ class TeamController(private val teamRepository: TeamRepository,
     fun getAnyTeamsByType(@PathVariable type: TeamType): List<OtherTeam> {
         return teamRepository.getTeamsByType(type.name, 10).map { team ->
             OtherTeam(
-                    playerRepository.getOne(team.playerId).name,
+                    playerRepository.getOne(team.playerId),
                     team.hero1Id?.let { heroRepository.findByIdOrNull(it)?.let { heroService.asHeroDto(it) } },
                     team.hero2Id?.let { heroRepository.findByIdOrNull(it)?.let { heroService.asHeroDto(it) } },
                     team.hero3Id?.let { heroRepository.findByIdOrNull(it)?.let { heroService.asHeroDto(it) } },
@@ -47,7 +47,10 @@ class TeamController(private val teamRepository: TeamRepository,
 }
 
 data class OtherTeam(val playerName: String,
+                     val playerId: Long,
                      val hero1: HeroDto?,
                      val hero2: HeroDto?,
                      val hero3: HeroDto?,
-                     val hero4: HeroDto?)
+                     val hero4: HeroDto?) {
+    constructor(player: Player, hero1: HeroDto?, hero2: HeroDto?, hero3: HeroDto?, hero4: HeroDto?) :this(player.name, player.id, hero1, hero2, hero3, hero4)
+}

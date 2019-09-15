@@ -1,5 +1,5 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
 
 enum class SkillActionType {
-    DAMAGE, BUFF, DEBUFF, SPEEDBAR, HEAL
+    DAMAGE, DEAL_DAMAGE, BUFF, DEBUFF, SPEEDBAR, HEAL
 }

@@ -1,5 +1,5 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
 
-enum class TeamType {
-    DUELL
+enum class BuffType {
+    BUFF, DEBUFF
 }

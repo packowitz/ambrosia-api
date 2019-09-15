@@ -1,10 +1,5 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.controller
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.GearRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.JewelryRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.JwtService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PlayerService
 import org.springframework.web.bind.annotation.*

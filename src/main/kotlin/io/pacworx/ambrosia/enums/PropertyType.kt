@@ -36,7 +36,10 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
 
     STONE_SKIN_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored."),
     VITAL_AURA_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored."),
-    POWER_FIST_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored.");
+    POWER_FIST_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored."),
+
+    STRENGTH_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
+    ARMOR_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored.");
 
     fun getName(): String = name
 }

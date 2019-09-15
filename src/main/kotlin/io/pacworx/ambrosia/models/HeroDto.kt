@@ -12,12 +12,12 @@ data class HeroDto(val id: Long,
                    var xp: Int,
                    var maxXp: Int,
                    var skill1: Int,
-                   var skill2: Int,
-                   var skill3: Int,
-                   var skill4: Int,
-                   var skill5: Int,
-                   var skill6: Int,
-                   var skill7: Int,
+                   var skill2: Int?,
+                   var skill3: Int?,
+                   var skill4: Int?,
+                   var skill5: Int?,
+                   var skill6: Int?,
+                   var skill7: Int?,
                    var ascLvl: Int,
                    var ascPoints: Int,
                    var ascPointsMax: Int,
@@ -92,7 +92,7 @@ data class HeroDto(val id: Long,
     var lifesteal: Int = 0
     var counterChance: Int = 0
     var reflect: Int = 0
-    var evasionChance: Int = 0
+    var dodgeChance: Int = 0
     var speedBarFilling: Int = 100
     var armorPiercing: Int = 0
     var armorExtraDmg: Int = 0
