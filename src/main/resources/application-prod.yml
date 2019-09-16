@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_USER_PW}
+
+ambrosia:
+  pw-salt-one: ${PW_SALT_ONE}
+  pw-salt-two: ${PW_SALT_TWO}
+  jwt-secret: ${JWT_SECRET}
