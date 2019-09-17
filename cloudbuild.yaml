@@ -41,3 +41,8 @@ steps:
     volumes:
       - name: m2
         path: /root/.m2/
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    waitFor:
+      - build
+    args: ["app", "deploy"]
