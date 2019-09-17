@@ -19,12 +19,27 @@ steps:
       - name: m2
         path: /root/.m2/
 
+  # extract
+  - name: gcr.io/cloud-builders/gsutil
+    dir: /root
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        (
+          export _DB_URL=$$DB_URL
+          export _DB_USER=$$DB_USER
+          export _DB_USER_PW=$$DB_USER_PW
+          export _PW_SALT_ONE=$$PW_SALT_ONE
+          export _PW_SALT_TWO=$$PW_SALT_TWO
+          export _JWT_SECRET=$$JWT_SECRET
+        )
+    secretEnv: ['DB_URL', 'DB_USER', 'DB_USER_PW', 'PW_SALT_ONE', 'PW_SALT_TWO', 'JWT_SECRET']
+
 
   - name: gcr.io/cloud-builders/mvn:3.5.0-jdk-8
     id: build
-    entrypoint: bash
-    args: ['mvn', 'clean', 'install', '-Dmaven.test.skip=true', 'jib:build', '-Dimage=gcr.io/${PROJECT_ID}/${_IMAGE_NAME}', '-Ddb.url=$$DB_URL', '-Ddb.user=$$DB_USER', '-Ddb.user.pw=$$DB_USER_PW', '-Dpw.salt.one=$$PW_SALT_ONE', '-Dpw.salt.two=$$PW_SALT_TWO', '-Djwt.secret=$$JWT_SECRET']
-    secretEnv: ['DB_URL', 'DB_USER', 'DB_USER_PW', 'PW_SALT_ONE', 'PW_SALT_TWO', 'JWT_SECRET']
+    args: ['clean', 'install', '-Dmaven.test.skip=true', 'jib:build', '-Dimage=gcr.io/${PROJECT_ID}/${_IMAGE_NAME}', '-Ddb.url=${_DB_URL}', '-Ddb.user=${_DB_USER}', '-Ddb.user.pw=${_DB_USER_PW}', '-Dpw.salt.one=${_PW_SALT_ONE}', '-Dpw.salt.two=${_PW_SALT_TWO}', '-Djwt.secret=${_JWT_SECRET}']
     volumes:
       - name: m2
         path: /root/.m2/
