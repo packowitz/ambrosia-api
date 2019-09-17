@@ -22,7 +22,8 @@ steps:
 
   - name: gcr.io/cloud-builders/mvn:3.5.0-jdk-8
     id: build
-    args: ['clean', 'install', '-Dmaven.test.skip=true', 'appengine:deploy']
+    args: ['clean', 'install', '-Dmaven.test.skip=true', 'jib:build', '-Dimage=gcr.io/${PROJECT_ID}/${_IMAGE_NAME}', '-Ddb.url=$$DB_URL', '-Ddb.user=$$DB_USER', '-Ddb.user.pw=$$DB_USER_PW', '-Dpw.salt.one=$$PW_SALT_ONE', '-Dpw.salt.two=$$PW_SALT_TWO', '-Djwt.secret=$$JWT_SECRET']
+    secretEnv: ['DB_URL', 'DB_USER', 'DB_USER_PW', 'PW_SALT_ONE', 'PW_SALT_TWO', 'JWT_SECRET']
     volumes:
       - name: m2
         path: /root/.m2/
@@ -41,3 +42,24 @@ steps:
     volumes:
       - name: m2
         path: /root/.m2/
+
+  # Deploy to GAE
+  - name: 'gcr.io/cloud-builders/gcloud'
+    waitFor:
+      - build
+    args:
+      - 'app'
+      - 'deploy'
+      - 'app.yaml'
+      - '--image-url'
+      - 'gcr.io/$PROJECT_ID/${_IMAGE_NAME}:latest'
+
+secrets:
+  - kmsKeyName: projects/ambrosia-api/locations/global/keyRings/ambrosia-prod/cryptoKeys/secret
+    secretEnv:
+      DB_URL: CiQAZpIlhilagp92Yq2JXz6mMlr0nqiUoLuxA653NVR3Q1wkdS4SVQAJq+oDkYs4II3yZ84rA64xKywHLf3lXx2FjnTuaKuHvJtUF2uyKPJOJHSMgHqESS05JZ8pIkZ4lASQBKE0jWcBPvcPPxKK1FX8dzzqnd4HWNPRxyg=
+      DB_USER: CiQAZpIlhuGxmwJaqnVyoOmjiDZWx2yaC2TUE2oUGwnWxv8siFUSNgAJq+oD5qExXD0oPMaW23XodfbGICLL5X4qBmAKSZEbI1pA88vFB5MmY9aMmHNdWQxQZpOJNg==
+      DB_USER_PW: CiQAZpIlhju57qnVgtdNDZj2AnU8KPiOcvDFWMDhl69Elze+JfISRAAJq+oDoZaXtKnQMdUoASjRe4bbRueTNA/lE4+fdk2cbSfiMfa3BNxAwJ8tHMz0hoQw+/iVTz8/4ttBqxnMRJfF3nXh
+      PW_SALT_ONE: CiQAZpIlhuQke+UFKkeNAYs9KuRoGLEQNgN5ys1kLX90yXMjdAwSPQAJq+oD0U8/w3Rn+y1WkX9waWUkbJy/Vk8p14wqG8R68BrV8OCDOpeq7A/P4M51pZOgLrIh53fvefFiVOQ=
+      PW_SALT_TWO: CiQAZpIlhk1yPjxdxLzSMaZN4zG/uwgqBS+5wDQx8gzZ6n2V4FISPAAJq+oDoB0mGMiiOpMQqIbblW1/jqC28gfNi8fq+/7Nax7GMAZf19HMtNobJ2R60vVDsPrbZvzVRSOVSA==
+      JWT_SECRET: CiQAZpIlhsgDvBiHTdSus7QLl8v7r3MsObjAFKn70rgUsZJXwYUSSgAJq+oDXgwlcSsu2T1iIjWx3ovsUvwI+kEKCT6ykO7fL+/owS97qXiX7EsQFQjHTg8HhCm6JnLdcf54WwwHvN9tHcY97EmVAV0g

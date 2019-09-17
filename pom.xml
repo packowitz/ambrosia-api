@@ -128,6 +128,20 @@
 					</to>
 					<container>
 						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+						<ennvironment>
+							<!--suppress UnresolvedMavenProperty -->
+							<DB_URL>${db.url}</DB_URL>
+							<!--suppress UnresolvedMavenProperty -->
+							<DB_USER>${db.user}</DB_USER>
+							<!--suppress UnresolvedMavenProperty -->
+							<DB_USER_PW>${db.user.pw}</DB_USER_PW>
+							<!--suppress UnresolvedMavenProperty -->
+							<PW_SALT_ONE>${pw.salt.one}</PW_SALT_ONE>
+							<!--suppress UnresolvedMavenProperty -->
+							<PW_SALT_TWO>${pw.salt.two}</PW_SALT_TWO>
+							<!--suppress UnresolvedMavenProperty -->
+							<JWT_SECRET>${jwt.secret}</JWT_SECRET>
+						</ennvironment>
 					</container>
 				</configuration>
 			</plugin>
