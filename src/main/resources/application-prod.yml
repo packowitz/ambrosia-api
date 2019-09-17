@@ -1,10 +1,10 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_USER_PW}
+    url: @db.url@
+    username: @db.user@
+    password: @db.user.pw@
 
 ambrosia:
-  pw-salt-one: ${PW_SALT_ONE}
-  pw-salt-two: ${PW_SALT_TWO}
-  jwt-secret: ${JWT_SECRET}
+  pw-salt-one: @pw.salt.one@
+  pw-salt-two: @pw.salt.two@
+  jwt-secret: @jwt.secret@
