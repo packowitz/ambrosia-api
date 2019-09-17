@@ -1,0 +1,43 @@
+substitutions:
+  _IMAGE_NAME: docker-ambrosia-api
+  _GCS_CACHE_BUCKET: cloud-build-m2-cache
+
+steps:
+
+  # load the cache from GCS if it exists
+  - name: gcr.io/cloud-builders/gsutil
+    dir: /root
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        (
+          gsutil cp gs://${_GCS_CACHE_BUCKET}/m2-cache.tar.gz /tmp/m2-cache.tar.gz &&
+          tar -xzf /tmp/m2-cache.tar.gz
+        ) || echo 'Cache not found'
+    volumes:
+      - name: m2
+        path: /root/.m2/
+
+
+  - name: gcr.io/cloud-builders/mvn:3.5.0-jdk-8
+    id: build
+    args: ['clean', 'install', 'jib:build', '-Dimage=eu.gcr.io/${PROJECT_ID}/${_IMAGE_NAME}']
+    volumes:
+      - name: m2
+        path: /root/.m2/
+
+  # cache the /root/.m2 folder and upload it to GCS bucket
+  - name: gcr.io/cloud-builders/gsutil
+    waitFor:
+      - build
+    dir: /root
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        tar -czf /tmp/m2-cache.tar.gz .m2 &&
+        gsutil cp /tmp/m2-cache.tar.gz gs://${_GCS_CACHE_BUCKET}/m2-cache.tar.gz
+    volumes:
+      - name: m2
+        path: /root/.m2/
