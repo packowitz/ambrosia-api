@@ -128,7 +128,7 @@
 					</to>
 					<container>
 						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-						<ennvironment>
+						<environment>
 							<!--suppress UnresolvedMavenProperty -->
 							<DB_URL>${db.url}</DB_URL>
 							<!--suppress UnresolvedMavenProperty -->
@@ -141,7 +141,7 @@
 							<PW_SALT_TWO>${pw.salt.two}</PW_SALT_TWO>
 							<!--suppress UnresolvedMavenProperty -->
 							<JWT_SECRET>${jwt.secret}</JWT_SECRET>
-						</ennvironment>
+						</environment>
 					</container>
 				</configuration>
 			</plugin>
