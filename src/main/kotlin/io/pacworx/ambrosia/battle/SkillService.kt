@@ -186,7 +186,7 @@ class SkillService(private val propertyService: PropertyService) {
 
         var resisted = false
         if (buff.type == BuffType.DEBUFF) {
-            //TODO
+            resisted = !procs(100 + hero.getTotalDexterity() - target.getTotalResistance())
         }
 
         if (!resisted) {
