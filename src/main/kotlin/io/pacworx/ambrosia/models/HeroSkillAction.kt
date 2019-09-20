@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.models
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionEffect
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionTarget
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionTrigger
@@ -20,6 +21,7 @@ data class HeroSkillAction(
     @Enumerated(EnumType.STRING)
     var target: SkillActionTarget,
     @Enumerated(EnumType.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     var effect: SkillActionEffect,
     var effectValue: Int,
     var effectDuration: Int?

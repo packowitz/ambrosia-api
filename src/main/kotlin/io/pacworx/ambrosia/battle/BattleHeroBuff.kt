@@ -17,4 +17,6 @@ data class BattleHeroBuff(
     open fun decreaseDuration() {
         duration--
     }
+
+    fun getType(): String = buff.type.name
 }

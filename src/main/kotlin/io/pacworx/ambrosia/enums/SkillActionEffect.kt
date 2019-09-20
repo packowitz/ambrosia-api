@@ -1,8 +1,10 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionType.*
 
-enum class SkillActionEffect(type: SkillActionType, description: String) {
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+enum class SkillActionEffect(val type: SkillActionType, val description: String) {
     STRENGTH(DAMAGE, "Defines damage scaling with strength"),
     ARMOR(DAMAGE, "Defines damage scaling with current armor"),
     ARMOR_MAX(DAMAGE, "Defines damage scaling with max armor"),
@@ -12,11 +14,13 @@ enum class SkillActionEffect(type: SkillActionType, description: String) {
     RESISTANCE(DAMAGE, "Defines damage scaling with resistance"),
     MULTIPLIER(DAMAGE, "Adds percentage damage. E.g. 10 for +10% damage"),
     DEAL_PERCENTAGE(DEAL_DAMAGE, "Triggers dealing damage for the given percentage. 100 for full damage"),
-    STRENGTH_BUFF(BUFF, "Grants Strength Buff"),
-    ARMOR_BUFF(BUFF, "Grants Armor Buff"),
-    RESIST_BUFF(BUFF, "Grants Resist Buff"),
-    DEX_BUFF(BUFF, "Grants Dex Buff"),
-    PERCENTAGE(SPEEDBAR, "Fills speedbar by given percentage"),
-    TARGET_MAX_HP(HEAL, "Heals based on targets max HP"),
-    OWN_MAX_HP(HEAL, "Heals based on own max HP")
+    STRENGTH_BUFF(BUFF, "Grants Strength Buff with value intensity for duration turn"),
+    ARMOR_BUFF(BUFF, "Grants Armor Buff with value intensity for duration turn"),
+    RESIST_BUFF(BUFF, "Grants Resist Buff with value intensity for duration turn"),
+    DEX_BUFF(BUFF, "Grants Dex Buff with value intensity for duration turn"),
+    PERCENTAGE(SPEEDBAR, "Fills speedbar by value percentage (1-100)"),
+    TARGET_MAX_HP(HEAL, "Heals target(s) based on targets max HP by value percentage (1-100)"),
+    OWN_MAX_HP(HEAL, "Heals target(s) based on active heros max HP by value percentage (1-100)");
+
+    fun getName(): String = name
 }
