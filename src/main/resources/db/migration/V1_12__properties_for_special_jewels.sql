@@ -1,0 +1,32 @@
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 1, 'ARMOR_PERC', 3);
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 2, 'ARMOR_PERC', 5);
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 3, 'ARMOR_PERC', 7);
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 4, 'ARMOR_PERC', 10);
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 5, 'ARMOR_PERC', 13);
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 6, 'ARMOR_PERC', 16);
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 7, 'ARMOR_PERC', 20);
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 8, 'ARMOR_PERC', 25);
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 9, 'ARMOR_PERC', 33);
+insert into dynamic_property values (default, 'JEWEL', 'STONE_SKIN_JEWEL', 10, 'ARMOR_PERC', 50);
+
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 1, 'HP_PERC', 3);
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 2, 'HP_PERC', 5);
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 3, 'HP_PERC', 7);
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 4, 'HP_PERC', 10);
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 5, 'HP_PERC', 13);
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 6, 'HP_PERC', 16);
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 7, 'HP_PERC', 20);
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 8, 'HP_PERC', 25);
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 9, 'HP_PERC', 33);
+insert into dynamic_property values (default, 'JEWEL', 'VITAL_AURA_JEWEL', 10, 'HP_PERC', 50);
+
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 1, 'STRENGTH_PERC', 3);
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 2, 'STRENGTH_PERC', 5);
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 3, 'STRENGTH_PERC', 7);
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 4, 'STRENGTH_PERC', 10);
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 5, 'STRENGTH_PERC', 13);
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 6, 'STRENGTH_PERC', 16);
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 7, 'STRENGTH_PERC', 20);
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 8, 'STRENGTH_PERC', 25);
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 9, 'STRENGTH_PERC', 33);
+insert into dynamic_property values (default, 'JEWEL', 'POWER_FIST_JEWEL', 10, 'STRENGTH_PERC', 50);

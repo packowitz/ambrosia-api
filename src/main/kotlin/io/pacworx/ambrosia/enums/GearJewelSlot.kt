@@ -7,5 +7,5 @@ enum class GearJewelSlot(val gearTypes: List<GearType> = GearType.values().toLis
     BUFFING,
     SPEED(listOf(GearType.PANTS, GearType.BOOTS)),
     CRIT,
-    SPECIAL
+    SPECIAL(listOf(GearType.ARMOR))
 }
