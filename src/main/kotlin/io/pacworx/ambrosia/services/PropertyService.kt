@@ -57,11 +57,9 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
 
     fun applyBonuses(hero: HeroDto) {
         hero.getGears().forEach { applyGear(hero, it) }
-        hero.sets.clear()
-        hero.getGears().forEach { gear ->
-            val heroGearSet = hero.sets.find { it.gearSet == gear.set } ?: HeroGearSet(gear.set)
-            heroGearSet.number.inc()
-        }
+        hero.sets = GearSet.values()
+            .map { gearSet -> HeroGearSet(gearSet, hero.getGears().filter { it.set == gearSet }.size) }
+            .filter { it.number > 0 }
         hero.sets.forEach { applySet(hero, it) }
     }
 
@@ -93,7 +91,7 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
     }
 
     fun applySet(hero: HeroDto, set: HeroGearSet) {
-        properties.find { it.type.name == set.gearSet.name + "_SET" && it.level!! <= set.number }?.let {
+        properties.filter { it.type.name == set.gearSet.name + "_SET" && it.level!! <= set.number }.forEach {
             it.stat?.apply(hero, it.value1)
             if (set.description.length > 0) {
                 set.description += " "

@@ -72,7 +72,7 @@ data class HeroDto(val id: Long,
     }
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    var sets = mutableListOf<HeroGearSet>()
+    var sets = listOf<HeroGearSet>()
 
     // Stat bonuses
     var strengthAbsBonus: Int = 0
