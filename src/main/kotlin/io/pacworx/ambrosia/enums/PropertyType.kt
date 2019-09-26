@@ -34,9 +34,9 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
 
     BATTLE_ARMOR(BATTLE, "Level: 100*dmg/armor threshold. Value1: Percentage (0-100) armor reduction. Value2: Percentage of damage (0-100) that is going through armor (health reduction). Stat is ignored."),
 
-    STONE_SKIN_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored."),
-    VITAL_AURA_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored."),
-    POWER_FIST_SET(SET, "Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set. Level and Value2 are ignored."),
+    STONE_SKIN_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    VITAL_AURA_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    POWER_FIST_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
 
     STRENGTH_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
     ARMOR_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored.");

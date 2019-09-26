@@ -5,24 +5,36 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 
 enum class HeroStat {
     HP_ABS {
+        override fun desc(bonus: Int): String {
+            return "+$bonus hitpoints"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.hpAbsBonus += bonus
         }
         override fun apply(hero: BattleHero, bonus: Int) {}
     },
     HP_PERC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% hitpoints"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.hpPercBonus += bonus
         }
         override fun apply(hero: BattleHero, bonus: Int) {}
     },
     ARMOR_ABS {
+        override fun desc(bonus: Int): String {
+            return "+$bonus armor"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.armorAbsBonus += bonus
         }
         override fun apply(hero: BattleHero, bonus: Int) {}
     },
     ARMOR_PERC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% armor"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.armorPercBonus += bonus
         }
@@ -31,18 +43,27 @@ enum class HeroStat {
         }
     },
     STRENGTH_ABS {
+        override fun desc(bonus: Int): String {
+            return "+$bonus strength"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.strengthAbsBonus += bonus
         }
         override fun apply(hero: BattleHero, bonus: Int) {}
     },
     STRENGTH_PERC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% strength"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.strengthPercBonus += bonus
         }
         override fun apply(hero: BattleHero, bonus: Int) {}
     },
     CRIT {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% crit chance"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.critBonus += bonus
         }
@@ -51,6 +72,9 @@ enum class HeroStat {
         }
     },
     CRIT_MULT {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% rrit damage"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.critMultBonus += bonus
         }
@@ -59,6 +83,9 @@ enum class HeroStat {
         }
     },
     RESISTANCE {
+        override fun desc(bonus: Int): String {
+            return "+$bonus resistance"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.resistanceBonus += bonus
         }
@@ -67,6 +94,9 @@ enum class HeroStat {
         }
     },
     DEXTERITY {
+        override fun desc(bonus: Int): String {
+            return "+$bonus dexterity"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.dexterityBonus += bonus
         }
@@ -75,12 +105,18 @@ enum class HeroStat {
         }
     },
     INITIATIVE {
+        override fun desc(bonus: Int): String {
+            return "+$bonus initiative"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.initiativeBonus += bonus
         }
         override fun apply(hero: BattleHero, bonus: Int) {}
     },
     SPEED {
+        override fun desc(bonus: Int): String {
+            return "+$bonus speed"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.speedBarFilling += bonus
         }
@@ -89,6 +125,9 @@ enum class HeroStat {
         }
     },
     LIFESTEAL {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% lifesteal"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.lifesteal += bonus
         }
@@ -97,6 +136,9 @@ enum class HeroStat {
         }
     },
     COUNTER_CHANCE {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% counter chance"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.counterChance += bonus
         }
@@ -105,6 +147,9 @@ enum class HeroStat {
         }
     },
     REFLECT {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% reflect damage"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.reflect += bonus
         }
@@ -113,6 +158,9 @@ enum class HeroStat {
         }
     },
     DODGE_CHANCE {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% dodge chance"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.dodgeChance += bonus
         }
@@ -121,6 +169,9 @@ enum class HeroStat {
         }
     },
     ARMOR_PIERCING {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% armor piercing"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.armorPiercing += bonus
         }
@@ -129,6 +180,9 @@ enum class HeroStat {
         }
     },
     ARMOR_EXTRA_DMG {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% extra damage against armor"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.armorExtraDmg += bonus
         }
@@ -137,6 +191,9 @@ enum class HeroStat {
         }
     },
     HEALTH_EXTRA_DMG {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% extra damage after armor"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.healthExtraDmg += bonus
         }
@@ -145,6 +202,9 @@ enum class HeroStat {
         }
     },
     RED_DMG_INC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% damage against red heroes"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.redDamageInc += bonus
         }
@@ -153,6 +213,9 @@ enum class HeroStat {
         }
     },
     GREEN_DMG_INC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% damage against green heroes"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.greenDamageInc += bonus
         }
@@ -161,6 +224,9 @@ enum class HeroStat {
         }
     },
     BLUE_DMG_INC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% damage against blue heroes"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.blueDamageInc += bonus
         }
@@ -169,6 +235,9 @@ enum class HeroStat {
         }
     },
     HEALING_INC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% increased received healing"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.healingInc += bonus
         }
@@ -177,6 +246,9 @@ enum class HeroStat {
         }
     },
     SUPER_CRIT_CHANCE {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% chance to super crit"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.superCritChance += bonus
         }
@@ -185,6 +257,9 @@ enum class HeroStat {
         }
     },
     BUFF_INTENSITY_INC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus buff intesity"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.buffIntensityInc += bonus
         }
@@ -193,6 +268,9 @@ enum class HeroStat {
         }
     },
     DEBUFF_INTENSITY_INC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus debuff intesity"
+        }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.debuffIntensityInc += bonus
         }
@@ -201,6 +279,7 @@ enum class HeroStat {
         }
     };
 
+    abstract fun desc(bonus: Int): String
     abstract fun apply(hero: HeroDto, bonus: Int)
     abstract fun apply(hero: BattleHero, bonus: Int)
 }

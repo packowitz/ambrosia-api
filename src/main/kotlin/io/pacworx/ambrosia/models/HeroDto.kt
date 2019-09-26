@@ -1,7 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.models
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.GearSet
 import io.pacworx.ambrosia.models.HeroBase
 import kotlin.math.roundToInt
 
@@ -73,7 +72,7 @@ data class HeroDto(val id: Long,
     }
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    var sets = mutableListOf<GearSet>()
+    var sets = mutableListOf<HeroGearSet>()
 
     // Stat bonuses
     var strengthAbsBonus: Int = 0

@@ -1,10 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.services
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.DynamicProperty
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.DynamicPropertyRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Gear
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
 import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 
@@ -61,12 +58,9 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
     fun applyBonuses(hero: HeroDto) {
         hero.getGears().forEach { applyGear(hero, it) }
         hero.sets.clear()
-        GearSet.values().asList().map { set ->
-            var completeSets = hero.getGears().filter { it.set == set }.size / set.pieces
-            while (completeSets > 0) {
-                hero.sets.add(set)
-                completeSets --
-            }
+        hero.getGears().forEach { gear ->
+            val heroGearSet = hero.sets.find { it.gearSet == gear.set } ?: HeroGearSet(gear.set)
+            heroGearSet.number.inc()
         }
         hero.sets.forEach { applySet(hero, it) }
     }
@@ -98,9 +92,13 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
         }
     }
 
-    fun applySet(hero: HeroDto, set: GearSet) {
-        properties.find { it.type.name == set.name + "_SET" }?.let {
+    fun applySet(hero: HeroDto, set: HeroGearSet) {
+        properties.find { it.type.name == set.gearSet.name + "_SET" && it.level!! <= set.number }?.let {
             it.stat?.apply(hero, it.value1)
+            if (set.description.length > 0) {
+                set.description += " "
+            }
+            set.description += it.stat!!.desc(it.value1)
         }
     }
 }
