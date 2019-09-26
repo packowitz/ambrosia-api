@@ -5,6 +5,12 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleHero
 import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleHeroBuff
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 
+/**
+ * To add a new Buff you need to
+ * - add the buff to this enum and implement the effect
+ * - add dynamic properties to define the effect bonus
+ * - add buff to SkillActionEffect
+ */
 enum class Buff(val type: BuffType) {
     STRENGTH_BUFF(BuffType.BUFF) {
         override fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
