@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Buff
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
@@ -220,31 +221,19 @@ data class BattleHero(
         }
     }
 
-    fun getTotalStrength(): Int {
-        return heroStrength + ((heroStrength * strengthBonus) / 100)
-    }
+    fun getTotalStrength(): Int = heroStrength + ((heroStrength * strengthBonus) / 100)
 
-    fun getTotalArmor(): Int {
-        return currentArmor + ((heroArmor * armorBonus) / 100)
-    }
+    fun getTotalArmor(): Int = currentArmor + ((heroArmor * armorBonus) / 100)
 
-    fun getTotalMaxArmor(): Int {
-        return heroArmor + ((heroArmor * armorBonus) / 100)
-    }
+    fun getTotalMaxArmor(): Int = heroArmor + ((heroArmor * armorBonus) / 100)
 
-    fun getTotalCrit(): Int {
-        return heroCrit + critBonus
-    }
+    fun getTotalCrit(): Int = heroCrit + critBonus
 
-    fun getTotalCritMult(): Int {
-        return heroCritMult + critMultBonus
-    }
+    fun getTotalCritMult(): Int = heroCritMult + critMultBonus
 
-    fun getTotalResistance(): Int {
-        return heroResistance + resistanceBonus
-    }
+    fun getTotalResistance(): Int = heroResistance + resistanceBonus
 
-    fun getTotalDexterity(): Int {
-        return heroDexterity + dexterityBonus
-    }
+    fun getTotalDexterity(): Int = heroDexterity + dexterityBonus
+
+    fun isTaunting(): Boolean = buffs.any { it.buff == Buff.TAUNT_BUFF }
 }

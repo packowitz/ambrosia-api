@@ -72,7 +72,7 @@ class SkillService(private val propertyService: PropertyService) {
     private fun isTargetEligible(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero): Boolean {
         val isPlayer = battle.heroBelongsToPlayer(hero)
         return when(skill.target) {
-            SkillTarget.OPPONENT -> isPlayer == battle.heroBelongsToOpponent(target)
+            SkillTarget.OPPONENT -> isPlayer == battle.heroBelongsToOpponent(target) && (target.isTaunting() || battle.allAlliedHeroesAlive(target).none { it.isTaunting() })
             SkillTarget.SELF -> hero.position == target.position
             SkillTarget.ALL_OWN -> isPlayer == battle.heroBelongsToPlayer(target)
             SkillTarget.OPP_IGNORE_TAUNT -> isPlayer == battle.heroBelongsToOpponent(target)

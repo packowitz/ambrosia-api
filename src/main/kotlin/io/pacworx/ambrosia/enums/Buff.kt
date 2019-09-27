@@ -10,6 +10,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
  * - add the buff to this enum and implement the effect
  * - add dynamic properties to define the effect bonus
  * - add buff to SkillActionEffect
+ * - add icon to UI
  */
 enum class Buff(val type: BuffType) {
     STRENGTH_BUFF(BuffType.BUFF) {
@@ -25,7 +26,8 @@ enum class Buff(val type: BuffType) {
                 it.stat!!.apply(hero, it.value1)
             }
         }
-    };
+    },
+    TAUNT_BUFF(BuffType.BUFF);
 
     open fun preTurnAction(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {}
 
