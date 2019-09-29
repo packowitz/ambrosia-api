@@ -172,12 +172,12 @@ data class BattleHero(
     }
 
     fun initTurn(battle: Battle, propertyService: PropertyService) {
-        skill2Cooldown?.takeIf { it > 0 }?.dec()
-        skill3Cooldown?.takeIf { it > 0 }?.dec()
-        skill4Cooldown?.takeIf { it > 0 }?.dec()
-        skill5Cooldown?.takeIf { it > 0 }?.dec()
-        skill6Cooldown?.takeIf { it > 0 }?.dec()
-        skill7Cooldown?.takeIf { it > 0 }?.dec()
+        skill2Cooldown = skill2Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
+        skill3Cooldown = skill3Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
+        skill4Cooldown = skill4Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
+        skill5Cooldown = skill5Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
+        skill6Cooldown = skill6Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
+        skill7Cooldown = skill7Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
 
         //Buffs
         buffs.forEach {

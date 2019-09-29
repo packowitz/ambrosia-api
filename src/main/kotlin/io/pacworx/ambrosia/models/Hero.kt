@@ -105,4 +105,28 @@ data class Hero(
         return unequipped
     }
 
+    fun skillLevelUp(skillNumber: Int) {
+        when (skillNumber) {
+            1 -> this.skill1++
+            2 -> this.skill2 = this.skill2?.inc() ?: 1
+            3 -> this.skill3 = this.skill3?.inc() ?: 1
+            4 -> this.skill4 = this.skill4?.inc() ?: 1
+            5 -> this.skill5 = this.skill5?.inc() ?: 1
+            6 -> this.skill6 = this.skill6?.inc() ?: 1
+            7 -> this.skill7 = this.skill7?.inc() ?: 1
+        }
+    }
+
+    fun skillLevelDown(skillNumber: Int) {
+        when (skillNumber) {
+            1 -> if (skill1 > 1) { this.skill1-- }
+            2 -> this.skill2 = this.skill2?.takeIf { it > 1 }?.dec()
+            3 -> this.skill3 = this.skill3?.takeIf { it > 1 }?.dec()
+            4 -> this.skill4 = this.skill4?.takeIf { it > 1 }?.dec()
+            5 -> this.skill5 = this.skill5?.takeIf { it > 1 }?.dec()
+            6 -> this.skill6 = this.skill6?.takeIf { it > 1 }?.dec()
+            7 -> this.skill7 = this.skill7?.takeIf { it > 1 }?.dec()
+        }
+    }
+
 }

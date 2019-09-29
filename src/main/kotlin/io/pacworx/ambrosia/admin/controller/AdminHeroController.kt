@@ -61,4 +61,30 @@ class AdminHeroController(val heroRepository: HeroRepository,
         return PlayerActionResponse(hero = heroService.asHeroDto(hero))
     }
 
+    @PostMapping("{heroId}/skill_up/{skillNumber}")
+    fun skillUp(@ModelAttribute("player") player: Player, @PathVariable heroId: Long, @PathVariable skillNumber: Int): PlayerActionResponse {
+        val hero = heroRepository.getOne(heroId)
+        if (hero.playerId != player.id || !player.admin) {
+            throw RuntimeException("not allowed")
+        }
+        if (hero.heroBase.skills.any { it.number == skillNumber }) {
+            hero.skillLevelUp(skillNumber)
+            heroRepository.save(hero)
+        }
+        return PlayerActionResponse(hero = heroService.asHeroDto(hero))
+    }
+
+    @PostMapping("{heroId}/skill_down/{skillNumber}")
+    fun skillDown(@ModelAttribute("player") player: Player, @PathVariable heroId: Long, @PathVariable skillNumber: Int): PlayerActionResponse {
+        val hero = heroRepository.getOne(heroId)
+        if (hero.playerId != player.id || !player.admin) {
+            throw RuntimeException("not allowed")
+        }
+        if (hero.heroBase.skills.any { it.number == skillNumber }) {
+            hero.skillLevelDown(skillNumber)
+            heroRepository.save(hero)
+        }
+        return PlayerActionResponse(hero = heroService.asHeroDto(hero))
+    }
+
 }
