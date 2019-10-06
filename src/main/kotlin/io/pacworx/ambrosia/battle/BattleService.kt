@@ -67,6 +67,15 @@ class BattleService(private val heroService: HeroService,
         return battleRepository.save(battle)
     }
 
+    @Transactional
+    fun takeAutoTurn(battle: Battle, activeHero: BattleHero): Battle {
+        aiService.doAction(battle, activeHero)
+        if (!battle.hasEnded()) {
+            nextTurn(battle)
+        }
+        return battleRepository.save(battle)
+    }
+
     private fun nextTurn(battle: Battle) {
         val activeHero = nextActiveHero(battle)
         if (activeHero != null) {

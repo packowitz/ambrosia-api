@@ -120,7 +120,7 @@ class SkillService(private val propertyService: PropertyService) {
                 )
             }
             SkillActionTarget.SELF -> listOf(hero)
-            SkillActionTarget.ALL_ALLIES -> battle.allAlliedHeroesDead(hero)
+            SkillActionTarget.ALL_ALLIES -> battle.allAlliedHeroesAlive(hero)
             SkillActionTarget.ALL_OTHER_ALLIES ->
                 battle.allAlliedHeroesAlive(hero).filter { it.position != hero.position }
         }

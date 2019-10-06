@@ -38,6 +38,21 @@ class BattleController(private val battleService: BattleService,
         }
         return battleService.takeTurn(battle, activeHero, skill, target)
     }
+
+    @PostMapping("{battleId}/{heroPos}/auto")
+    fun takeAutoTurn(@ModelAttribute("player") player: Player,
+                 @PathVariable battleId: Long,
+                 @PathVariable heroPos: HeroPosition): Battle {
+        val battle = battleRepository.getOne(battleId)
+        if (battle.activeHero != heroPos) {
+            throw RuntimeException("It is not $heroPos's turn on battle $battleId")
+        }
+        val activeHero = battle.allHeroesAlive().find { it.position == battle.activeHero }
+        if (activeHero == null) {
+            throw RuntimeException("It is not Hero $heroPos 's turn on battle $battleId")
+        }
+        return battleService.takeAutoTurn(battle, activeHero)
+    }
 }
 
 data class StartBattleRequest(
