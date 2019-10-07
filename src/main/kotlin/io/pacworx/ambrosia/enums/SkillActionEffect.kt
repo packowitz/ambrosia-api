@@ -17,6 +17,8 @@ enum class SkillActionEffect(val type: SkillActionType, val description: String)
     STRENGTH_BUFF(BUFF, "Grants Strength Buff with value intensity for duration turn"),
     ARMOR_BUFF(BUFF, "Grants Armor Buff with value intensity for duration turn"),
     TAUNT_BUFF(BUFF, "Grants Taunt Buff with value intensity for duration turn"),
+    HOT_BUFF(BUFF, "Grants HoT Buff with value intensity for duration turn"),
+    DOT_DEBUFF(DEBUFF, "Applies DoT Debuff with value intensity for duration turn"),
     PERCENTAGE(SPEEDBAR, "Fills speedbar by value percentage (1-100)"),
     TARGET_MAX_HP(HEAL, "Heals target(s) based on targets max HP by value percentage (1-100)"),
     OWN_MAX_HP(HEAL, "Heals target(s) based on active heros max HP by value percentage (1-100)");

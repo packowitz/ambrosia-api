@@ -176,16 +176,18 @@ class SkillService(private val propertyService: PropertyService) {
     private fun applyBuff(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
         val buff = Buff.valueOf(action.effect.name)
         var intesity = action.effectValue
+        var duration = action.effectDuration!!
         if (action.type == SkillActionType.BUFF) {
             intesity += hero.buffIntensityIncBonus
+            duration += hero.buffDurationIncBonus
         }
         if (action.type == SkillActionType.DEBUFF) {
             intesity += hero.debuffIntensityIncBonus
+            duration += hero.debuffDurationIncBonus
         }
-        val duration = action.effectDuration!!
 
-        var resisted = false
-        if (buff.type == BuffType.DEBUFF) {
+        var resisted = duration <= 0
+        if (!resisted && buff.type == BuffType.DEBUFF) {
             resisted = !procs(100 + hero.getTotalDexterity() - target.getTotalResistance())
         }
 

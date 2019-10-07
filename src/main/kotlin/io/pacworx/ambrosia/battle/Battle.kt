@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.time.Instant
@@ -51,6 +52,17 @@ data class Battle(
     @OrderBy("turn asc")
     val steps: MutableList<BattleStep> = mutableListOf()
 ) {
+
+    fun applyBonuses(propertyService: PropertyService) {
+        hero1?.resetBonus(this, propertyService)
+        hero2?.resetBonus(this, propertyService)
+        hero3?.resetBonus(this, propertyService)
+        hero4?.resetBonus(this, propertyService)
+        oppHero1?.resetBonus(this, propertyService)
+        oppHero2?.resetBonus(this, propertyService)
+        oppHero3?.resetBonus(this, propertyService)
+        oppHero4?.resetBonus(this, propertyService)
+    }
 
     fun allHeroesAlive(): List<BattleHero> {
         return listOfNotNull(hero1, hero2, hero3, hero4, oppHero1, oppHero2, oppHero3, oppHero4)

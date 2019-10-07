@@ -92,7 +92,15 @@ data class BattleHero(
         val heroBuffIntensityInc: Int,
         @field:Transient var buffIntensityIncBonus: Int = 0,
         val heroDebuffIntensityInc: Int,
-        @field:Transient var debuffIntensityIncBonus: Int = 0
+        @field:Transient var debuffIntensityIncBonus: Int = 0,
+        val heroBuffDurationInc: Int,
+        @field:Transient var buffDurationIncBonus: Int = 0,
+        val heroDebuffDurationInc: Int,
+        @field:Transient var debuffDurationIncBonus: Int = 0,
+        val heroHealPerTurn: Int,
+        @field:Transient var healPerTurnBonus: Int = 0,
+        val heroDmgPerTurn: Int,
+        @field:Transient var dmgPerTurnBonus: Int = 0
 ) {
     constructor(playerId: Long, hero: HeroDto, heroBase: HeroBase, position: HeroPosition) : this(
         heroBase = heroBase,
@@ -137,7 +145,11 @@ data class BattleHero(
         heroHealingInc = hero.healingInc,
         heroSuperCritChance = hero.superCritChance,
         heroBuffIntensityInc = hero.buffIntensityInc,
-        heroDebuffIntensityInc = hero.debuffIntensityInc
+        heroDebuffIntensityInc = hero.debuffIntensityInc,
+        heroBuffDurationInc = hero.buffDurationInc,
+        heroDebuffDurationInc = hero.debuffDurationInc,
+        heroHealPerTurn = hero.healPerTurn,
+        heroDmgPerTurn = hero.dmgPerTurn
     )
 
     fun resetBonus(battle: Battle, propertyService: PropertyService) {
@@ -167,6 +179,10 @@ data class BattleHero(
         superCritChanceBonus = 0
         buffIntensityIncBonus = 0
         debuffIntensityIncBonus = 0
+        buffDurationIncBonus = 0
+        debuffDurationIncBonus = 0
+        healPerTurnBonus = 0
+        dmgPerTurnBonus = 0
 
         buffs.forEach { it.buff.applyEffect(battle, this, it, propertyService) }
     }
@@ -183,6 +199,18 @@ data class BattleHero(
         buffs.forEach {
             it.buff.preTurnAction(battle, this, it, propertyService)
             it.decreaseDuration()
+        }
+        if (heroDmgPerTurn + dmgPerTurnBonus > 0) {
+            val damage = heroHp * (heroDmgPerTurn + dmgPerTurnBonus) / 100
+            currentHp -= damage
+
+        }
+        if (heroHealPerTurn + healPerTurnBonus > 0) {
+            var healing = heroHp * (heroHealPerTurn + healPerTurnBonus) / 100
+            if (heroHealingInc + healingIncBonus > 0) {
+                healing *= (heroHealingInc + healingIncBonus) / 100
+            }
+            currentHp += healing
         }
         if (currentHp >= heroHp) {
             currentHp = heroHp

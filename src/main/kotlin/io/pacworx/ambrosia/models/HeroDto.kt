@@ -103,6 +103,10 @@ data class HeroDto(val id: Long,
     var superCritChance: Int = 0
     var buffIntensityInc: Int = 0
     var debuffIntensityInc: Int = 0
+    var buffDurationInc: Int = 0
+    var debuffDurationInc: Int = 0
+    var healPerTurn: Int = 0
+    var dmgPerTurn: Int = 0
 
     constructor(hero: Hero) : this(hero.id, hero.heroBase, hero.stars, hero.level, hero.xp, hero.maxXp, hero.skill1, hero.skill2, hero.skill3, hero.skill4, hero.skill5, hero.skill6, hero.skill7, hero.ascLvl, hero.ascPoints, hero.ascPointsMax, hero.weapon, hero.shield, hero.helmet, hero.armor, hero.pants, hero.boots)
 

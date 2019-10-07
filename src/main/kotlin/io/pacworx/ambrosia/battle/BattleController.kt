@@ -33,9 +33,7 @@ class BattleController(private val battleService: BattleService,
             throw RuntimeException("Hero $heroPos cannot use skill $skillNumber on battle $battleId")
         }
         val target = battle.allHeroesAlive().find { it.position == targetPos }
-        if (target == null) {
-            throw java.lang.RuntimeException("Target $targetPos is not valid on battle $battleId")
-        }
+                ?: throw java.lang.RuntimeException("Target $targetPos is not valid on battle $battleId")
         return battleService.takeTurn(battle, activeHero, skill, target)
     }
 
@@ -48,9 +46,7 @@ class BattleController(private val battleService: BattleService,
             throw RuntimeException("It is not $heroPos's turn on battle $battleId")
         }
         val activeHero = battle.allHeroesAlive().find { it.position == battle.activeHero }
-        if (activeHero == null) {
-            throw RuntimeException("It is not Hero $heroPos 's turn on battle $battleId")
-        }
+                ?: throw RuntimeException("It is not Hero $heroPos 's turn on battle $battleId")
         return battleService.takeAutoTurn(battle, activeHero)
     }
 }

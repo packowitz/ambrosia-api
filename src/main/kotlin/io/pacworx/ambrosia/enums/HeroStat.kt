@@ -277,6 +277,50 @@ enum class HeroStat {
         override fun apply(hero: BattleHero, bonus: Int) {
             hero.debuffIntensityIncBonus += bonus
         }
+    },
+    BUFF_DURATION_INC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus buff duration"
+        }
+        override fun apply(hero: HeroDto, bonus: Int) {
+            hero.buffDurationInc += bonus
+        }
+        override fun apply(hero: BattleHero, bonus: Int) {
+            hero.buffDurationIncBonus += bonus
+        }
+    },
+    DEBUFF_DURATION_INC {
+        override fun desc(bonus: Int): String {
+            return "+$bonus debuff duration"
+        }
+        override fun apply(hero: HeroDto, bonus: Int) {
+            hero.debuffDurationInc += bonus
+        }
+        override fun apply(hero: BattleHero, bonus: Int) {
+            hero.debuffDurationIncBonus += bonus
+        }
+    },
+    HEAL_PER_TURN {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% healing per turn"
+        }
+        override fun apply(hero: HeroDto, bonus: Int) {
+            hero.healPerTurn += bonus
+        }
+        override fun apply(hero: BattleHero, bonus: Int) {
+            hero.healPerTurnBonus += bonus
+        }
+    },
+    DMG_PER_TURN {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% damage per turn"
+        }
+        override fun apply(hero: HeroDto, bonus: Int) {
+            hero.dmgPerTurn += bonus
+        }
+        override fun apply(hero: BattleHero, bonus: Int) {
+            hero.dmgPerTurnBonus += bonus
+        }
     };
 
     abstract fun desc(bonus: Int): String

@@ -53,6 +53,7 @@ class BattleService(private val heroService: HeroService,
             } }
         ))
 
+        battle.applyBonuses(propertyService)
         nextTurn(battle)
 
         return battleRepository.save(battle)
@@ -60,6 +61,7 @@ class BattleService(private val heroService: HeroService,
 
     @Transactional
     fun takeTurn(battle: Battle, activeHero: BattleHero, skill: HeroSkill, target: BattleHero): Battle {
+        battle.applyBonuses(propertyService)
         skillService.useSkill(battle, activeHero, skill, target)
         if (!battle.hasEnded()) {
             nextTurn(battle)
@@ -69,6 +71,7 @@ class BattleService(private val heroService: HeroService,
 
     @Transactional
     fun takeAutoTurn(battle: Battle, activeHero: BattleHero): Battle {
+        battle.applyBonuses(propertyService)
         aiService.doAction(battle, activeHero)
         if (!battle.hasEnded()) {
             nextTurn(battle)

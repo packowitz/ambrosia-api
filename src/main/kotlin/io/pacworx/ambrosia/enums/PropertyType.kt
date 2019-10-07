@@ -39,7 +39,9 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
     POWER_FIST_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
 
     STRENGTH_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
-    ARMOR_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored.");
+    ARMOR_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
+    DOT_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
+    HOT_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored.");
 
     fun getName(): String = name
 }
