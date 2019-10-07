@@ -29,10 +29,11 @@ class SkillService(private val propertyService: PropertyService) {
         }
         initProps()
         val step = BattleStep(
-                turn = battle.turnsDone,
-                actingHero = hero.position,
-                usedSkill = skill.number,
-                target = target.position
+            turn = battle.turnsDone,
+            phase = BattleStepPhase.MAIN,
+            actingHero = hero.position,
+            usedSkill = skill.number,
+            target = target.position
         )
         battle.steps.add(step)
         var damage = 0
@@ -42,24 +43,24 @@ class SkillService(private val propertyService: PropertyService) {
                     SkillActionType.DAMAGE -> damage += handleDamageAction(hero, action, damage)
                     SkillActionType.DEAL_DAMAGE ->
                         findTargets(battle, hero, action, target)
-                                .forEach {
-                                    step.addAction(dealDamage(it, hero, action, damage))
-                                }
+                            .forEach {
+                                step.addAction(dealDamage(it, hero, action, damage))
+                            }
                     SkillActionType.BUFF, SkillActionType.DEBUFF ->
                         findTargets(battle, hero, action, target)
-                                .forEach {
-                                    step.addAction(applyBuff(battle, hero, action, it))
-                                }
+                            .forEach {
+                                step.addAction(applyBuff(battle, hero, action, it))
+                            }
                     SkillActionType.SPEEDBAR ->
                         findTargets(battle, hero, action, target)
-                                .forEach {
-                                    applySpeedbarAction(it, action)
-                                }
+                            .forEach {
+                                applySpeedbarAction(it, action)
+                            }
                     SkillActionType.HEAL ->
                         findTargets(battle, hero, action, target)
-                                .forEach {
-                                    step.addAction(applyHealingAction(hero, action, it))
-                                }
+                            .forEach {
+                                step.addAction(applyHealingAction(hero, action, it))
+                            }
                 }
             }
         }
@@ -71,7 +72,7 @@ class SkillService(private val propertyService: PropertyService) {
 
     private fun isTargetEligible(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero): Boolean {
         val isPlayer = battle.heroBelongsToPlayer(hero)
-        return when(skill.target) {
+        return when (skill.target) {
             SkillTarget.OPPONENT -> isPlayer == battle.heroBelongsToOpponent(target) && (target.isTaunting() || battle.allAlliedHeroesAlive(target).none { it.isTaunting() })
             SkillTarget.SELF -> hero.position == target.position
             SkillTarget.ALL_OWN -> isPlayer == battle.heroBelongsToPlayer(target)
@@ -81,7 +82,7 @@ class SkillService(private val propertyService: PropertyService) {
     }
 
     private fun actionTriggers(hero: BattleHero, action: HeroSkillAction, step: BattleStep): Boolean {
-        return when(action.trigger) {
+        return when (action.trigger) {
             SkillActionTrigger.ALWAYS -> true
             SkillActionTrigger.S1_LVL -> action.triggerValue!!.contains(hero.skill1Lvl.toString())
             SkillActionTrigger.S2_LVL -> action.triggerValue!!.contains(hero.skill2Lvl.toString())
@@ -107,16 +108,16 @@ class SkillService(private val propertyService: PropertyService) {
     }
 
     private fun findTargets(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): List<BattleHero> {
-        return when(action.target) {
+        return when (action.target) {
             SkillActionTarget.TARGET -> listOf(target)
             SkillActionTarget.ALL_OPP -> battle.allOtherHeroesAlive(hero)
             SkillActionTarget.RANDOM_OPP -> listOf(battle.allOtherHeroesAlive(hero).random())
             SkillActionTarget.RANDOM_OTHER_OPP -> {
                 listOfNotNull(
-                        battle.allOtherHeroesAlive(hero)
-                                .filter { it.position != target.position }
-                                .takeIf { it.isNotEmpty() }
-                                ?.random()
+                    battle.allOtherHeroesAlive(hero)
+                        .filter { it.position != target.position }
+                        .takeIf { it.isNotEmpty() }
+                        ?.random()
                 )
             }
             SkillActionTarget.SELF -> listOf(hero)
@@ -127,7 +128,7 @@ class SkillService(private val propertyService: PropertyService) {
     }
 
     private fun handleDamageAction(hero: BattleHero, action: HeroSkillAction, damage: Int): Int {
-        return when(action.effect) {
+        return when (action.effect) {
             SkillActionEffect.STRENGTH -> (hero.getTotalStrength() * action.effectValue) / 100
             SkillActionEffect.ARMOR -> (hero.getTotalArmor() * action.effectValue) / 100
             SkillActionEffect.ARMOR_MAX -> (hero.getTotalMaxArmor() * action.effectValue) / 100
@@ -165,11 +166,11 @@ class SkillService(private val propertyService: PropertyService) {
         }
 
         return BattleStepAction(
-                heroPosition = hero.position,
-                crit = crit,
-                superCrit = superCrit,
-                armorDiff = -armorLoss,
-                healthDiff = -healthLoss
+            heroPosition = hero.position,
+            crit = crit,
+            superCrit = superCrit,
+            armorDiff = -armorLoss,
+            healthDiff = -healthLoss
         )
     }
 
@@ -193,27 +194,28 @@ class SkillService(private val propertyService: PropertyService) {
 
         if (!resisted) {
             target.buffs.add(BattleHeroBuff(
-                    buff = buff,
-                    intensity = intesity,
-                    duration = duration,
-                    sourceHeroId = hero.id
+                buff = buff,
+                intensity = intesity,
+                duration = duration,
+                sourceHeroId = hero.id
             ))
             target.resetBonus(battle, propertyService)
         }
 
         return BattleStepAction(
-                heroPosition = target.position,
-                buff = buff,
-                buffResisted = resisted,
-                buffIntensity = intesity,
-                buffDuration = duration
+            heroPosition = target.position,
+            buff = buff,
+            buffResisted = resisted,
+            buffIntensity = intesity,
+            buffDuration = duration
         )
     }
 
     private fun applySpeedbarAction(hero: BattleHero, action: HeroSkillAction) {
-        when(action.effect) {
+        when (action.effect) {
             SkillActionEffect.PERCENTAGE -> hero.currentSpeedBar += (SPEEDBAR_MAX * action.effectValue) / 100
-            else -> {}
+            else -> {
+            }
         }
     }
 

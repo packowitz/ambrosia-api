@@ -8,8 +8,10 @@ data class BattleStep(
     val id: Long = 0,
     val turn: Int,
     @Enumerated(EnumType.STRING)
+    val phase: BattleStepPhase,
+    @Enumerated(EnumType.STRING)
     val actingHero: HeroPosition,
-    val usedSkill: Int,
+    val usedSkill: Int? = null,
     @Enumerated(EnumType.STRING)
     val target: HeroPosition,
     @OneToMany(cascade = [CascadeType.ALL])
