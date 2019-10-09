@@ -165,4 +165,14 @@ data class Battle(
     fun hasEnded(): Boolean {
         return status == BattleStatus.LOST || status == BattleStatus.WON
     }
+
+    fun getPreTurnStep(): BattleStep {
+        return steps.find { it.turn == this.turnsDone && it.phase == BattleStepPhase.PRE_TURN }
+                ?: BattleStep(
+                        turn = this.turnsDone,
+                        phase = BattleStepPhase.PRE_TURN,
+                        actingHero = this.activeHero,
+                        target = this.activeHero
+                )
+    }
 }
