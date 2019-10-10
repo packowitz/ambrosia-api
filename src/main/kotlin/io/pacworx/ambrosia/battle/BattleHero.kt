@@ -205,6 +205,7 @@ data class BattleHero(
             currentHp -= damage
             battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,
+                    type = BattleStepActionType.DOT,
                     healthDiff = -damage
             ))
         }
@@ -216,6 +217,7 @@ data class BattleHero(
             currentHp += healing
             battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,
+                    type = BattleStepActionType.HOT,
                     healthDiff = healing
             ))
         }

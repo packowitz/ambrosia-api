@@ -9,6 +9,8 @@ data class BattleStepAction(
     val id: Long = 0,
     @Enumerated(EnumType.STRING)
     val heroPosition: HeroPosition,
+    @Enumerated(EnumType.STRING)
+    val type: BattleStepActionType,
     val crit: Boolean? = null,
     val superCrit: Boolean? = null,
     val armorDiff: Int? = null,

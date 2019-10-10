@@ -167,6 +167,7 @@ class SkillService(private val propertyService: PropertyService) {
 
         return BattleStepAction(
             heroPosition = hero.position,
+            type = BattleStepActionType.DAMAGE,
             crit = crit,
             superCrit = superCrit,
             armorDiff = -armorLoss,
@@ -204,6 +205,7 @@ class SkillService(private val propertyService: PropertyService) {
 
         return BattleStepAction(
             heroPosition = target.position,
+            type = BattleStepActionType.BUFF,
             buff = buff,
             buffResisted = resisted,
             buffIntensity = intesity,
@@ -230,6 +232,6 @@ class SkillService(private val propertyService: PropertyService) {
 
         hero.currentHp += healing
 
-        return BattleStepAction(heroPosition = target.position, healthDiff = healing)
+        return BattleStepAction(heroPosition = target.position, type = BattleStepActionType.HEALING, healthDiff = healing)
     }
 }
