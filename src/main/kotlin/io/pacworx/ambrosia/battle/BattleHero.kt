@@ -226,6 +226,10 @@ data class BattleHero(
         }
         if (currentHp <=0) {
             status = HeroStatus.DEAD
+            battle.getPreTurnStep().addAction(BattleStepAction(
+                    heroPosition = this.position,
+                    type = BattleStepActionType.DEAD
+            ))
         }
     }
 

@@ -44,7 +44,7 @@ class SkillService(private val propertyService: PropertyService) {
                     SkillActionType.DEAL_DAMAGE ->
                         findTargets(battle, hero, action, target)
                             .forEach {
-                                step.addAction(dealDamage(it, hero, action, damage))
+                                dealDamage(it, hero, action, damage, step)
                             }
                     SkillActionType.BUFF, SkillActionType.DEBUFF ->
                         findTargets(battle, hero, action, target)
@@ -141,7 +141,7 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
-    private fun dealDamage(hero: BattleHero, damageDealer: BattleHero, action: HeroSkillAction, baseDamage: Int): BattleStepAction {
+    private fun dealDamage(hero: BattleHero, damageDealer: BattleHero, action: HeroSkillAction, baseDamage: Int, step: BattleStep) {
         val crit = Random.nextInt(100) < hero.getTotalCrit()
         val superCrit = crit && Random.nextInt(100) < hero.heroSuperCritChance + hero.superCritChanceBonus
 
@@ -161,18 +161,19 @@ class SkillService(private val propertyService: PropertyService) {
         hero.currentArmor -= armorLoss
         hero.currentHp -= healthLoss
 
-        if (hero.currentHp <= 0) {
-            hero.status = HeroStatus.DEAD
-        }
-
-        return BattleStepAction(
+        step.addAction(BattleStepAction(
             heroPosition = hero.position,
             type = BattleStepActionType.DAMAGE,
             crit = crit,
             superCrit = superCrit,
             armorDiff = -armorLoss,
             healthDiff = -healthLoss
-        )
+        ))
+
+        if (hero.currentHp <= 0) {
+            hero.status = HeroStatus.DEAD
+            step.addAction(BattleStepAction(heroPosition = hero.position, type = BattleStepActionType.DEAD))
+        }
     }
 
     private fun applyBuff(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
