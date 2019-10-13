@@ -1,0 +1,1 @@
+alter table battle_step_action drop column buff_resisted;

@@ -153,11 +153,6 @@ data class BattleHero(
     )
 
     fun resetBonus(battle: Battle, propertyService: PropertyService) {
-        if (currentHp > 0) {
-            status = HeroStatus.ALIVE
-        } else {
-            status = HeroStatus.DEAD
-        }
         strengthBonus = 0
         armorBonus = 0
         critBonus = 0

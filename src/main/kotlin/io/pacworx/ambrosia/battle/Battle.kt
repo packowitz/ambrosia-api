@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -166,13 +167,18 @@ data class Battle(
         return status == BattleStatus.LOST || status == BattleStatus.WON
     }
 
+    @JsonIgnore
     fun getPreTurnStep(): BattleStep {
         return steps.find { it.turn == this.turnsDone && it.phase == BattleStepPhase.PRE_TURN }
-                ?: BattleStep(
+                ?: run {
+                    val step = BattleStep(
                         turn = this.turnsDone,
                         phase = BattleStepPhase.PRE_TURN,
                         actingHero = this.activeHero,
                         target = this.activeHero
-                )
+                    )
+                    steps.add(step)
+                    step
+                }
     }
 }

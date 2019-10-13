@@ -28,6 +28,7 @@ class SkillService(private val propertyService: PropertyService) {
             throw RuntimeException("Target ${target.position} is not valid target for skill ${skill.number} of hero ${hero.position} in battle ${battle.id}")
         }
         initProps()
+        battle.applyBonuses(propertyService)
         val step = BattleStep(
             turn = battle.turnsDone,
             phase = BattleStepPhase.MAIN,
@@ -177,7 +178,7 @@ class SkillService(private val propertyService: PropertyService) {
     }
 
     private fun applyBuff(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
-        val buff = Buff.valueOf(action.effect.name)
+        val buff = action.effect.buff!!
         var intesity = action.effectValue
         var duration = action.effectDuration!!
         if (action.type == SkillActionType.BUFF) {
@@ -202,15 +203,20 @@ class SkillService(private val propertyService: PropertyService) {
                 sourceHeroId = hero.id
             ))
             target.resetBonus(battle, propertyService)
+
+            return BattleStepAction(
+                heroPosition = target.position,
+                type = BattleStepActionType.BUFF,
+                buff = buff,
+                buffIntensity = intesity,
+                buffDuration = duration
+            )
         }
 
         return BattleStepAction(
             heroPosition = target.position,
-            type = BattleStepActionType.BUFF,
-            buff = buff,
-            buffResisted = resisted,
-            buffIntensity = intesity,
-            buffDuration = duration
+            type = BattleStepActionType.BUFF_RESISTED,
+            buff = buff
         )
     }
 
