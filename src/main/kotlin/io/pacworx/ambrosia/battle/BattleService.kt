@@ -52,6 +52,9 @@ class BattleService(private val heroService: HeroService,
                 BattleHero(request.oppPlayerId, heroService.asHeroDto(it), it.heroBase, HeroPosition.OPP4)
             } }
         ))
+        battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
+            hero.priority = idx
+        }
 
         battle.applyBonuses(propertyService)
         nextTurn(battle)
@@ -111,7 +114,18 @@ class BattleService(private val heroService: HeroService,
         return battle.allHeroesAlive()
             .filter { it.currentSpeedBar >= SPEEDBAR_MAX }
             .takeIf { it.isNotEmpty() }
-            ?.random()
+            ?.maxWith(Comparator<BattleHero> { hero1, hero2 ->
+                when {
+                    hero1.currentSpeedBar > hero2.currentSpeedBar -> 1
+                    hero1.currentSpeedBar < hero2.currentSpeedBar -> -1
+                    else -> when {
+                        hero1.priority > hero2.priority -> 1
+                        hero1.priority < hero2.priority -> -1
+                        else -> 0
+                    }
+                }
+
+            })
     }
 
 

@@ -65,9 +65,12 @@ data class Battle(
         oppHero4?.resetBonus(this, propertyService)
     }
 
-    fun allHeroesAlive(): List<BattleHero> {
+    fun allHeroes(): List<BattleHero> {
         return listOfNotNull(hero1, hero2, hero3, hero4, oppHero1, oppHero2, oppHero3, oppHero4)
-            .filter { it.status != HeroStatus.DEAD }
+    }
+
+    fun allHeroesAlive(): List<BattleHero> {
+        return allHeroes().filter { it.status != HeroStatus.DEAD }
     }
 
     fun allPlayerHeroesAlive(): List<BattleHero> {
