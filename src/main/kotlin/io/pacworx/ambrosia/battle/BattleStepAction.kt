@@ -13,6 +13,9 @@ data class BattleStepAction(
     val type: BattleStepActionType,
     val crit: Boolean? = null,
     val superCrit: Boolean? = null,
+    val baseDamage: Int? = null,
+    val targetArmor: Int? = null,
+    val targetHealth: Int? = null,
     val armorDiff: Int? = null,
     val healthDiff: Int? = null,
     @Enumerated(EnumType.STRING)
