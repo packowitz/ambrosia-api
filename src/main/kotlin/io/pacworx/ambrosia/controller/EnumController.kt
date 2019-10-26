@@ -52,4 +52,7 @@ class EnumController {
 
     @GetMapping("jewel_types")
     fun getJewelTypes(): List<JewelType> = JewelType.values().asList()
+
+    @GetMapping("passive_skill_triggers")
+    fun getPassiveSkillTriggers():List<PassiveSkillTrigger> = PassiveSkillTrigger.values().asList()
 }

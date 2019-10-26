@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.models
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.PassiveSkillTrigger
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActiveTrigger
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillTarget
 import javax.persistence.*
@@ -11,6 +12,9 @@ data class HeroSkill(
     val number: Int,
     var name: String,
     var passive: Boolean,
+    @Enumerated(EnumType.STRING)
+    var passiveSkillTrigger: PassiveSkillTrigger? = null,
+    var passiveSkillTriggerValue: Int? = null,
     @Enumerated(EnumType.STRING)
     var skillActiveTrigger: SkillActiveTrigger,
     var initCooldown: Int,

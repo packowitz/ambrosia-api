@@ -61,6 +61,11 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
             .map { gearSet -> HeroGearSet(gearSet, hero.getGears().filter { it.set == gearSet }.size) }
             .filter { it.number > 0 }
         hero.sets.forEach { applySet(hero, it) }
+        hero.heroBase.skills.filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.STAT_CALC }.forEach { skill ->
+            skill.actions.filter { passiveActionTriggers(hero, it) }.forEach { action ->
+                action.effect.stat?.apply(hero, action.effectValue)
+            }
+        }
     }
 
     fun applyGear(hero: HeroDto, gear: Gear) {
@@ -93,10 +98,24 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
     fun applySet(hero: HeroDto, set: HeroGearSet) {
         properties.filter { it.type.name == set.gearSet.name + "_SET" && it.level!! <= set.number }.forEach {
             it.stat?.apply(hero, it.value1)
-            if (set.description.length > 0) {
+            if (set.description.isNotEmpty()) {
                 set.description += " "
             }
             set.description += it.stat!!.desc(it.value1)
+        }
+    }
+
+    private fun passiveActionTriggers(hero: HeroDto, action: HeroSkillAction): Boolean {
+        return when (action.trigger) {
+            SkillActionTrigger.ALWAYS -> true
+            SkillActionTrigger.S1_LVL -> action.triggerValue!!.contains(hero.skill1.toString())
+            SkillActionTrigger.S2_LVL -> hero.skill2?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S3_LVL -> hero.skill3?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S4_LVL -> hero.skill4?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S5_LVL -> hero.skill5?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S6_LVL -> hero.skill6?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S7_LVL -> hero.skill7?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            else -> false
         }
     }
 }

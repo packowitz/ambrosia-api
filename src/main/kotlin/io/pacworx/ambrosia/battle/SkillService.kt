@@ -86,12 +86,12 @@ class SkillService(private val propertyService: PropertyService) {
         return when (action.trigger) {
             SkillActionTrigger.ALWAYS -> true
             SkillActionTrigger.S1_LVL -> action.triggerValue!!.contains(hero.skill1Lvl.toString())
-            SkillActionTrigger.S2_LVL -> action.triggerValue!!.contains(hero.skill2Lvl.toString())
-            SkillActionTrigger.S3_LVL -> action.triggerValue!!.contains(hero.skill3Lvl.toString())
-            SkillActionTrigger.S4_LVL -> action.triggerValue!!.contains(hero.skill4Lvl.toString())
-            SkillActionTrigger.S5_LVL -> action.triggerValue!!.contains(hero.skill5Lvl.toString())
-            SkillActionTrigger.S6_LVL -> action.triggerValue!!.contains(hero.skill6Lvl.toString())
-            SkillActionTrigger.S7_LVL -> action.triggerValue!!.contains(hero.skill7Lvl.toString())
+            SkillActionTrigger.S2_LVL -> hero.skill2Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S3_LVL -> hero.skill3Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S4_LVL -> hero.skill4Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S5_LVL -> hero.skill5Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S6_LVL -> hero.skill6Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S7_LVL -> hero.skill7Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
             SkillActionTrigger.ANY_CRIT_DMG -> step.actions.any { it.crit == true }
             SkillActionTrigger.DMG_OVER -> step.actions.sumBy { it.healthDiff ?: 0 } > action.triggerValue!!.toInt()
             SkillActionTrigger.ASCENDED -> hero.ascLvl > 0
