@@ -125,6 +125,9 @@ class SkillService(private val propertyService: PropertyService) {
             SkillActionTarget.ALL_ALLIES -> battle.allAlliedHeroesAlive(hero)
             SkillActionTarget.ALL_OTHER_ALLIES ->
                 battle.allAlliedHeroesAlive(hero).filter { it.position != hero.position }
+            SkillActionTarget.RANDOM_ALLY -> listOfNotNull(battle.allAlliedHeroesAlive(hero).random())
+            SkillActionTarget.RANDOM_OTHER_ALLY ->
+                listOfNotNull(battle.allAlliedHeroesAlive(hero).filter { it.position != hero.position }.takeIf { it.isNotEmpty() }?.random())
         }
     }
 
