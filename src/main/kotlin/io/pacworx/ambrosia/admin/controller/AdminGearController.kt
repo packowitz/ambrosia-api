@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.services.GearService
 import org.springframework.web.bind.annotation.*
 import java.lang.RuntimeException
 import javax.transaction.Transactional
+import javax.validation.Valid
 import kotlin.random.Random
 
 @RestController
@@ -32,5 +33,40 @@ class AdminGearController(val gearService: GearService,
         gearRepository.save(gear)
         return PlayerActionResponse(gear = gear)
     }
+
+    @PostMapping("create")
+    fun createSpecificGear(@ModelAttribute("player") player: Player, @Valid @RequestBody request: CreateGearRequest): PlayerActionResponse {
+        if (!player.admin) {
+            throw RuntimeException("not allowed")
+        }
+        val gear = Gear(
+            playerId = player.id,
+            set = request.set,
+            rarity = request.rarity,
+            type = request.type,
+            stat = request.stat,
+            statValue = request.statValue,
+            jewelSlot1 = request.jewel1slot,
+            jewelSlot2 = request.jewel2slot,
+            jewelSlot3 = request.jewel3slot,
+            jewelSlot4 = request.jewel4slot,
+            specialJewelSlot = request.type == GearType.ARMOR && request.specialJewelSlot
+        )
+        gearRepository.save(gear)
+        return PlayerActionResponse(gear = gear)
+    }
+
+    data class CreateGearRequest(
+        val set: GearSet,
+        val rarity: Rarity,
+        val type: GearType,
+        val stat: HeroStat,
+        val statValue: Int,
+        val jewel1slot: GearJewelSlot?,
+        val jewel2slot: GearJewelSlot?,
+        val jewel3slot: GearJewelSlot?,
+        val jewel4slot: GearJewelSlot?,
+        val specialJewelSlot: Boolean = false
+    )
 }
 
