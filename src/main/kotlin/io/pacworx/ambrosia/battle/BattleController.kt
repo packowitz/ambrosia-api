@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
 import org.springframework.web.bind.annotation.*
+import javax.transaction.Transactional
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -24,6 +25,9 @@ class BattleController(private val battleService: BattleService,
                  @PathVariable skillNumber: Int,
                  @PathVariable targetPos: HeroPosition): Battle {
         val battle = battleRepository.getOne(battleId)
+        if (battle.playerId != player.id) {
+            throw RuntimeException("You don't own battle $battleId")
+        }
         if (battle.activeHero != heroPos) {
             throw RuntimeException("It is not $heroPos's turn on battle $battleId")
         }
@@ -42,12 +46,27 @@ class BattleController(private val battleService: BattleService,
                  @PathVariable battleId: Long,
                  @PathVariable heroPos: HeroPosition): Battle {
         val battle = battleRepository.getOne(battleId)
+        if (battle.playerId != player.id) {
+            throw RuntimeException("You don't own battle $battleId")
+        }
         if (battle.activeHero != heroPos) {
             throw RuntimeException("It is not $heroPos's turn on battle $battleId")
         }
         val activeHero = battle.allHeroesAlive().find { it.position == battle.activeHero }
                 ?: throw RuntimeException("It is not Hero $heroPos 's turn on battle $battleId")
         return battleService.takeAutoTurn(battle, activeHero)
+    }
+
+    @PostMapping("{battleId}/surrender")
+    @Transactional
+    fun surrender(@ModelAttribute("player") player: Player,
+                  @PathVariable battleId: Long): Battle {
+        val battle = battleRepository.getOne(battleId)
+        if (battle.playerId != player.id) {
+            throw RuntimeException("You don't own battle $battleId")
+        }
+        battle.status = BattleStatus.LOST
+        return battle
     }
 }
 
