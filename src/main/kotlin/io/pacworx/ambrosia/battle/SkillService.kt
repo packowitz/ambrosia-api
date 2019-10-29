@@ -30,11 +30,11 @@ class SkillService(private val propertyService: PropertyService) {
         initProps()
         battle.applyBonuses(propertyService)
         val step = BattleStep(
-            turn = battle.turnsDone,
-            phase = BattleStepPhase.MAIN,
-            actingHero = hero.position,
-            usedSkill = skill.number,
-            target = target.position
+                turn = battle.turnsDone,
+                phase = BattleStepPhase.MAIN,
+                actingHero = hero.position,
+                usedSkill = skill.number,
+                target = target.position
         )
         battle.steps.add(step)
         var damage = 0
@@ -44,24 +44,29 @@ class SkillService(private val propertyService: PropertyService) {
                     SkillActionType.DAMAGE -> damage += handleDamageAction(hero, action, damage)
                     SkillActionType.DEAL_DAMAGE ->
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                dealDamage(it, hero, action, damage, step)
-                            }
+                                .forEach {
+                                    dealDamage(it, hero, action, damage, step)
+                                }
                     SkillActionType.BUFF, SkillActionType.DEBUFF ->
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                step.addAction(applyBuff(battle, hero, action, it))
-                            }
+                                .forEach {
+                                    step.addAction(applyBuff(battle, hero, action, it))
+                                }
                     SkillActionType.SPEEDBAR ->
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                applySpeedbarAction(it, action)
-                            }
+                                .forEach {
+                                    applySpeedbarAction(it, action)
+                                }
                     SkillActionType.HEAL ->
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                step.addAction(applyHealingAction(hero, action, it))
-                            }
+                                .forEach {
+                                    step.addAction(applyHealingAction(hero, action, it))
+                                }
+                    SkillActionType.PASSIVE_STAT ->
+                        findTargets(battle, hero, action, target)
+                                .forEach {
+                                    action.effect.stat?.apply(it, action.effectValue)
+                                }
                 }
             }
         }
@@ -115,10 +120,10 @@ class SkillService(private val propertyService: PropertyService) {
             SkillActionTarget.RANDOM_OPP -> listOf(battle.allOtherHeroesAlive(hero).random())
             SkillActionTarget.RANDOM_OTHER_OPP -> {
                 listOfNotNull(
-                    battle.allOtherHeroesAlive(hero)
-                        .filter { it.position != target.position }
-                        .takeIf { it.isNotEmpty() }
-                        ?.random()
+                        battle.allOtherHeroesAlive(hero)
+                                .filter { it.position != target.position }
+                                .takeIf { it.isNotEmpty() }
+                                ?.random()
                 )
             }
             SkillActionTarget.SELF -> listOf(hero)
@@ -168,15 +173,15 @@ class SkillService(private val propertyService: PropertyService) {
         hero.currentHp -= healthLoss
 
         step.addAction(BattleStepAction(
-            heroPosition = hero.position,
-            type = BattleStepActionType.DAMAGE,
-            crit = crit,
-            superCrit = superCrit,
-            baseDamage = damage,
-            targetArmor = targetArmor,
-            targetHealth = targetHealth,
-            armorDiff = -armorLoss,
-            healthDiff = -healthLoss
+                heroPosition = hero.position,
+                type = BattleStepActionType.DAMAGE,
+                crit = crit,
+                superCrit = superCrit,
+                baseDamage = damage,
+                targetArmor = targetArmor,
+                targetHealth = targetHealth,
+                armorDiff = -armorLoss,
+                healthDiff = -healthLoss
         ))
 
         if (hero.currentHp <= 0) {
@@ -205,26 +210,26 @@ class SkillService(private val propertyService: PropertyService) {
 
         if (!resisted) {
             target.buffs.add(BattleHeroBuff(
-                buff = buff,
-                intensity = intesity,
-                duration = duration,
-                sourceHeroId = hero.id
+                    buff = buff,
+                    intensity = intesity,
+                    duration = duration,
+                    sourceHeroId = hero.id
             ))
             target.resetBonus(battle, propertyService)
 
             return BattleStepAction(
-                heroPosition = target.position,
-                type = BattleStepActionType.BUFF,
-                buff = buff,
-                buffIntensity = intesity,
-                buffDuration = duration
+                    heroPosition = target.position,
+                    type = BattleStepActionType.BUFF,
+                    buff = buff,
+                    buffIntensity = intesity,
+                    buffDuration = duration
             )
         }
 
         return BattleStepAction(
-            heroPosition = target.position,
-            type = BattleStepActionType.BUFF_RESISTED,
-            buff = buff
+                heroPosition = target.position,
+                type = BattleStepActionType.BUFF_RESISTED,
+                buff = buff
         )
     }
 
