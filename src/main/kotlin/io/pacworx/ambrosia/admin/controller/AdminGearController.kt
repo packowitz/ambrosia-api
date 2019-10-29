@@ -39,6 +39,7 @@ class AdminGearController(val gearService: GearService,
         if (!player.admin) {
             throw RuntimeException("not allowed")
         }
+
         val gear = Gear(
             playerId = player.id,
             set = request.set,
@@ -46,10 +47,10 @@ class AdminGearController(val gearService: GearService,
             type = request.type,
             stat = request.stat,
             statValue = request.statValue,
-            jewelSlot1 = request.jewel1slot,
-            jewelSlot2 = request.jewel2slot,
-            jewelSlot3 = request.jewel3slot,
-            jewelSlot4 = request.jewel4slot,
+            jewelSlot1 = request.jewelSlot1,
+            jewelSlot2 = request.jewelSlot2,
+            jewelSlot3 = request.jewelSlot3,
+            jewelSlot4 = request.jewelSlot4,
             specialJewelSlot = request.type == GearType.ARMOR && request.specialJewelSlot
         )
         gearRepository.save(gear)
@@ -62,10 +63,10 @@ class AdminGearController(val gearService: GearService,
         val type: GearType,
         val stat: HeroStat,
         val statValue: Int,
-        val jewel1slot: GearJewelSlot?,
-        val jewel2slot: GearJewelSlot?,
-        val jewel3slot: GearJewelSlot?,
-        val jewel4slot: GearJewelSlot?,
+        var jewelSlot1: GearJewelSlot?,
+        val jewelSlot2: GearJewelSlot?,
+        val jewelSlot3: GearJewelSlot?,
+        val jewelSlot4: GearJewelSlot?,
         val specialJewelSlot: Boolean = false
     )
 }
