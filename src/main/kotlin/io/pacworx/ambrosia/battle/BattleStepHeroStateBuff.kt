@@ -12,4 +12,6 @@ data class BattleStepHeroStateBuff(
         val buff: Buff,
         var intensity: Int,
         var duration: Int
-)
+) {
+        fun getType(): String = buff.type.name
+}

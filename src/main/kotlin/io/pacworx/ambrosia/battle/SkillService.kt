@@ -187,6 +187,7 @@ class SkillService(private val propertyService: PropertyService) {
 
         if (hero.currentHp <= 0) {
             hero.status = HeroStatus.DEAD
+            hero.buffs.clear()
             step.addAction(BattleStepAction(heroPosition = hero.position, type = BattleStepActionType.DEAD))
         }
     }

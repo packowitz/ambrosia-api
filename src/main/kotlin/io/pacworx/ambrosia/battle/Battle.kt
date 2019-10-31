@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate
 import java.time.Instant
 import javax.persistence.*
 import kotlin.math.max
+import kotlin.math.min
 
 @Entity
 data class Battle(
@@ -192,9 +193,10 @@ data class Battle(
         return allHeroes().map { hero ->
             BattleStepHeroState(
                     position = hero.position,
-                    hpPerc = max((100 * hero.currentHp) / hero.heroHp, 100),
-                    armorPerc = max((100 * hero.currentArmor) / hero.heroHp, 100),
-                    speedbarPerc = hero.currentSpeedBar / 100,
+                    status = hero.status,
+                    hpPerc = max(min((100 * hero.currentHp) / hero.heroHp, 100), 0),
+                    armorPerc = max(min((100 * hero.currentArmor) / hero.heroArmor, 100), 0),
+                    speedbarPerc = min(hero.currentSpeedBar / 100, 100),
                     buffs = hero.buffs.map { buff ->
                         BattleStepHeroStateBuff(
                                 buff = buff.buff,

@@ -19,8 +19,6 @@ enum class Buff(val type: BuffType, val propertyType: PropertyType? = null) {
     DAMAGE_OVER_TIME(BuffType.DEBUFF, PropertyType.DOT_DEBUFF),
     HEAL_OVER_TIME(BuffType.BUFF, PropertyType.HOT_BUFF);
 
-    open fun preTurnAction(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {}
-
     open fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
         propertyType?.let {
             propertyService.getProperties(propertyType, buff.intensity).forEach {

@@ -86,7 +86,7 @@ class BattleService(private val heroService: HeroService,
 
             battle.setActiveHero(activeHero)
             battle.applyBonuses(propertyService)
-            activeHero.initTurn(battle, propertyService)
+            activeHero.initTurn(battle)
             battle.checkStatus()
 
             if (battle.hasEnded()) {

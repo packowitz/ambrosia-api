@@ -183,7 +183,7 @@ data class BattleHero(
         buffs.forEach { it.buff.applyEffect(battle, this, it, propertyService) }
     }
 
-    fun initTurn(battle: Battle, propertyService: PropertyService) {
+    fun initTurn(battle: Battle) {
         skill2Cooldown = skill2Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
         skill3Cooldown = skill3Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
         skill4Cooldown = skill4Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
@@ -191,11 +191,6 @@ data class BattleHero(
         skill6Cooldown = skill6Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
         skill7Cooldown = skill7Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
 
-        //Buffs
-        buffs.forEach {
-            it.buff.preTurnAction(battle, this, it, propertyService)
-            it.decreaseDuration()
-        }
         if (heroDmgPerTurn + dmgPerTurnBonus > 0) {
             val damage = heroHp * (heroDmgPerTurn + dmgPerTurnBonus) / 100
             battle.getPreTurnStep().addAction(BattleStepAction(
@@ -226,6 +221,11 @@ data class BattleHero(
                     type = BattleStepActionType.DEAD
             ))
             status = HeroStatus.DEAD
+            buffs.clear()
+        }
+
+        buffs.forEach {
+            it.decreaseDuration()
         }
     }
 
