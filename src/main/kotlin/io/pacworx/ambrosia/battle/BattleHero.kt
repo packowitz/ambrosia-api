@@ -198,34 +198,34 @@ data class BattleHero(
         }
         if (heroDmgPerTurn + dmgPerTurnBonus > 0) {
             val damage = heroHp * (heroDmgPerTurn + dmgPerTurnBonus) / 100
-            currentHp -= damage
             battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,
                     type = BattleStepActionType.DOT,
                     healthDiff = -damage
             ))
+            currentHp -= damage
         }
         if (heroHealPerTurn + healPerTurnBonus > 0) {
             var healing = heroHp * (heroHealPerTurn + healPerTurnBonus) / 100
             if (heroHealingInc + healingIncBonus > 0) {
                 healing *= (heroHealingInc + healingIncBonus) / 100
             }
-            currentHp += healing
             battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,
                     type = BattleStepActionType.HOT,
                     healthDiff = healing
             ))
+            currentHp += healing
         }
         if (currentHp >= heroHp) {
             currentHp = heroHp
         }
         if (currentHp <= 0) {
-            status = HeroStatus.DEAD
             battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,
                     type = BattleStepActionType.DEAD
             ))
+            status = HeroStatus.DEAD
         }
     }
 

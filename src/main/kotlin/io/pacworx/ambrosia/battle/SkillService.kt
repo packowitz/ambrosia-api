@@ -34,7 +34,8 @@ class SkillService(private val propertyService: PropertyService) {
                 phase = BattleStepPhase.MAIN,
                 actingHero = hero.position,
                 usedSkill = skill.number,
-                target = target.position
+                target = target.position,
+                heroStates = battle.getBattleStepHeroStates()
         )
         battle.steps.add(step)
         var damage = 0

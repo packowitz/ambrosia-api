@@ -16,7 +16,10 @@ data class BattleStep(
     val target: HeroPosition,
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "battle_step_id")
-    val actions: MutableList<BattleStepAction> = mutableListOf()
+    val actions: MutableList<BattleStepAction> = mutableListOf(),
+    @OneToMany(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "battle_step_id")
+    val heroStates: List<BattleStepHeroState>
 ) {
     fun addAction(action: BattleStepAction) {
         actions.add(action)

@@ -6,6 +6,7 @@ import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.time.Instant
 import javax.persistence.*
+import kotlin.math.max
 
 @Entity
 data class Battle(
@@ -178,10 +179,30 @@ data class Battle(
                         turn = this.turnsDone,
                         phase = BattleStepPhase.PRE_TURN,
                         actingHero = this.activeHero,
-                        target = this.activeHero
+                        target = this.activeHero,
+                        heroStates = getBattleStepHeroStates()
                     )
                     steps.add(step)
                     step
                 }
+    }
+
+    @JsonIgnore
+    fun getBattleStepHeroStates(): List<BattleStepHeroState> {
+        return allHeroes().map { hero ->
+            BattleStepHeroState(
+                    position = hero.position,
+                    hpPerc = max((100 * hero.currentHp) / hero.heroHp, 100),
+                    armorPerc = max((100 * hero.currentArmor) / hero.heroHp, 100),
+                    speedbarPerc = hero.currentSpeedBar / 100,
+                    buffs = hero.buffs.map { buff ->
+                        BattleStepHeroStateBuff(
+                                buff = buff.buff,
+                                intensity = buff.intensity,
+                                duration = buff.duration
+                        )
+                    }
+            )
+        }
     }
 }
