@@ -1,11 +1,11 @@
-runtime: java11
+runtime: java
+env: flex
+runtime_config:
+  jdk: openjdk8
 env_variables:
   SPRING_PROFILES_ACTIVE: "prod"
 handlers:
   - url: /.*
     script: this field is required, but ignored
 automatic_scaling:
-  min_instances: 0
-  max_instances: 1
-  min_idle_instances: 0
-  max_idle_instances: 1
+  max_num_instances: 1
