@@ -1,4 +1,4 @@
-runtime: java11
+runtime: java8
 env_variables:
   SPRING_PROFILES_ACTIVE: "prod"
 handlers:
