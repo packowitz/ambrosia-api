@@ -272,6 +272,10 @@ data class BattleHero(
 
     fun getTotalDexterity(): Int = heroDexterity + dexterityBonus
 
+    fun getTotalLifesteal(): Int = heroLifesteal + lifestealBonus
+
+    fun getTotalReflect(): Int = heroReflect + reflectBonus
+
     fun getTotalArmorExtraDamage(): Int = heroArmorExtraDmg + armorExtraDmgBonus
 
     fun getTotalHealthExtraDamage(): Int = heroHealthExtraDmg + healthExtraDmgBonus
@@ -281,6 +285,8 @@ data class BattleHero(
     fun getTotalGreenDamageInc(): Int = heroGreenDamageInc + greenDamageIncBonus
 
     fun getTotalBlueDamageInc(): Int = heroBlueDamageInc + blueDamageIncBonus
+
+    fun getTotalHealingInc(): Int = heroHealingInc + healingIncBonus
 
     fun isTaunting(): Boolean = buffs.any { it.buff == Buff.TAUNT_BUFF }
 }

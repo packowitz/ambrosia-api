@@ -13,7 +13,7 @@ class AiService(private val skillService: SkillService) {
     }
 
     fun findSkillToUse(battle: Battle, hero: BattleHero): HeroSkill {
-        return hero.heroBase.skills.filter { hero.getCooldown(it.number) == 0 }.maxBy { it.number }
+        return hero.heroBase.skills.filter { !it.passive && hero.getCooldown(it.number) == 0 }.maxBy { it.number }
                 ?: throw RuntimeException("Found no skill to use")
     }
 
