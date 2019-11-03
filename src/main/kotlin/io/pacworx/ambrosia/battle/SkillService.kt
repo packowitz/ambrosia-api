@@ -152,6 +152,14 @@ class SkillService(private val propertyService: PropertyService) {
     }
 
     private fun dealDamage(hero: BattleHero, damageDealer: BattleHero, action: HeroSkillAction, baseDamage: Int, step: BattleStep) {
+        if (procs(hero.getTotalDodgeChance())) {
+            step.addAction(BattleStepAction(
+                heroPosition = hero.position,
+                type = BattleStepActionType.DODGED
+            ))
+            return
+        }
+
         val crit = Random.nextInt(100) < hero.getTotalCrit()
         val superCrit = crit && Random.nextInt(100) < hero.heroSuperCritChance + hero.superCritChanceBonus
 
@@ -169,20 +177,22 @@ class SkillService(private val propertyService: PropertyService) {
         damage *= damageDealer.getTotalGreenDamageInc().takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 } ?: 1
         damage *= damageDealer.getTotalBlueDamageInc().takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 } ?: 1
 
-        val lifeStolen = damageDealer.getTotalLifesteal().takeIf { it > 0 }?.let { damage * it / 100 } ?: 0
+        val armorPiercedDamage = damageDealer.getTotalArmorPiercing().takeIf { it > 0 }?.let { (damage * it) / 100 } ?: 0
 
         val targetArmor = hero.getTotalArmor()
         val targetHealth = hero.currentHp
-        val dmgArmorRatio: Int = 100 * damage / targetArmor
+        val dmgArmorRatio: Int = 100 * (damage - armorPiercedDamage) / targetArmor
         val property = battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
 
         var armorLoss = (hero.currentArmor * property.value1) / 100
         armorLoss *= (100 + damageDealer.getTotalArmorExtraDamage()) / 100
-        var healthLoss = (damage * property.value2!!) / 100
+        var healthLoss = armorPiercedDamage + ((damage - armorPiercedDamage) * property.value2!!) / 100
         healthLoss *= (100 + damageDealer.getTotalHealthExtraDamage()) / 100
 
         hero.currentArmor -= armorLoss
         hero.currentHp -= healthLoss
+
+        val lifeSteal = damageDealer.getTotalLifesteal().takeIf { it > 0 }?.let { (healthLoss * it) / 100 } ?: 0
 
         step.addAction(BattleStepAction(
                 heroPosition = hero.position,
@@ -202,8 +212,8 @@ class SkillService(private val propertyService: PropertyService) {
             step.addAction(BattleStepAction(heroPosition = hero.position, type = BattleStepActionType.DEAD))
         }
 
-        if (lifeStolen > 0 && damageDealer.currentHp < damageDealer.heroHp) {
-            var healing = lifeStolen * (100 + damageDealer.getTotalHealingInc()) / 100
+        if (lifeSteal > 0 && damageDealer.currentHp < damageDealer.heroHp) {
+            var healing = lifeSteal * (100 + damageDealer.getTotalHealingInc()) / 100
             healing = min(healing, damageDealer.heroHp - damageDealer.currentHp)
             damageDealer.currentHp += healing
             step.addAction(BattleStepAction(heroPosition = damageDealer.position, type = BattleStepActionType.HEALING, healthDiff = healing))

@@ -276,6 +276,10 @@ data class BattleHero(
 
     fun getTotalReflect(): Int = heroReflect + reflectBonus
 
+    fun getTotalDodgeChance(): Int = heroDodgeChance + dodgeChanceBonus
+
+    fun getTotalArmorPiercing(): Int = heroArmorPiercing + armorPiercingBonus
+
     fun getTotalArmorExtraDamage(): Int = heroArmorExtraDmg + armorExtraDmgBonus
 
     fun getTotalHealthExtraDamage(): Int = heroHealthExtraDmg + healthExtraDmgBonus
