@@ -20,6 +20,11 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
     STONE_SKIN_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
     VITAL_AURA_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
     POWER_FIST_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    BUFFS_BLESSING_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    BERSERKERS_AXE_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    MYTHICAL_MIRROR_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    WARHORN_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    REVERSED_REALITY_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
 
     XP_MAX_HERO(HERO, "Level: hero level (1-60). Value1: max xp to reach next level. Stat and Value2 are ignored."),
     ASC_POINTS_MAX_HERO(HERO, "Level: hero ascension level (1-??). Value1: max asc points to reach next level. Stat and Value2 are ignored."),
@@ -37,6 +42,11 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
     STONE_SKIN_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
     VITAL_AURA_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
     POWER_FIST_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    BUFFS_BLESSING_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    BERSERKERS_AXE_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    MYTHICAL_MIRROR_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    WARHORN_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    REVERSED_REALITY_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
 
     STRENGTH_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
     ARMOR_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
