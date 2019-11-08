@@ -52,7 +52,7 @@ data class Battle(
     val oppHero4: BattleHero?,
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "battle_id")
-    @OrderBy("id asc")
+    @OrderBy("turn asc, phase asc")
     val steps: MutableList<BattleStep> = mutableListOf()
 ) {
 
@@ -174,11 +174,11 @@ data class Battle(
 
     @JsonIgnore
     fun getPreTurnStep(): BattleStep {
-        return steps.find { it.turn == this.turnsDone && it.phase == BattleStepPhase.PRE_TURN }
+        return steps.find { it.turn == this.turnsDone && it.phase == BattleStepPhase.A_PRE_TURN }
                 ?: run {
                     val step = BattleStep(
                         turn = this.turnsDone,
-                        phase = BattleStepPhase.PRE_TURN,
+                        phase = BattleStepPhase.A_PRE_TURN,
                         actingHero = this.activeHero,
                         target = this.activeHero,
                         heroStates = getBattleStepHeroStates()

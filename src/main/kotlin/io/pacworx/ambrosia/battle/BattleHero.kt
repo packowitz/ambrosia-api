@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Buff
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
@@ -101,7 +102,8 @@ data class BattleHero(
         val heroHealPerTurn: Int,
         @field:Transient var healPerTurnBonus: Int = 0,
         val heroDmgPerTurn: Int,
-        @field:Transient var dmgPerTurnBonus: Int = 0
+        @field:Transient var dmgPerTurnBonus: Int = 0,
+        @field:Transient @field:JsonIgnore var willCounter: Boolean = false
 ) {
     constructor(playerId: Long, hero: HeroDto, heroBase: HeroBase, position: HeroPosition) : this(
             heroBase = heroBase,
@@ -150,7 +152,8 @@ data class BattleHero(
             heroBuffDurationInc = hero.buffDurationInc,
             heroDebuffDurationInc = hero.debuffDurationInc,
             heroHealPerTurn = hero.healPerTurn,
-            heroDmgPerTurn = hero.dmgPerTurn
+            heroDmgPerTurn = hero.dmgPerTurn,
+            willCounter = false
     )
 
     fun resetBonus(battle: Battle, propertyService: PropertyService) {
@@ -179,6 +182,7 @@ data class BattleHero(
         debuffDurationIncBonus = 0
         healPerTurnBonus = 0
         dmgPerTurnBonus = 0
+        willCounter = false
 
         buffs.forEach { it.buff.applyEffect(battle, this, it, propertyService) }
     }
@@ -258,39 +262,60 @@ data class BattleHero(
         }
     }
 
+    @JsonIgnore
     fun getTotalStrength(): Int = heroStrength + ((heroStrength * strengthBonus) / 100)
 
+    @JsonIgnore
     fun getTotalArmor(): Int = currentArmor + ((heroArmor * armorBonus) / 100)
 
+    @JsonIgnore
     fun getTotalMaxArmor(): Int = heroArmor + ((heroArmor * armorBonus) / 100)
 
+    @JsonIgnore
     fun getTotalCrit(): Int = heroCrit + critBonus
 
+    @JsonIgnore
     fun getTotalCritMult(): Int = heroCritMult + critMultBonus
 
+    @JsonIgnore
     fun getTotalResistance(): Int = heroResistance + resistanceBonus
 
+    @JsonIgnore
     fun getTotalDexterity(): Int = heroDexterity + dexterityBonus
 
+    @JsonIgnore
     fun getTotalLifesteal(): Int = heroLifesteal + lifestealBonus
 
+    @JsonIgnore
+    fun getTotalCounterChance(): Int = heroCounterChance + counterChanceBonus
+
+    @JsonIgnore
     fun getTotalReflect(): Int = heroReflect + reflectBonus
 
+    @JsonIgnore
     fun getTotalDodgeChance(): Int = heroDodgeChance + dodgeChanceBonus
 
+    @JsonIgnore
     fun getTotalArmorPiercing(): Int = heroArmorPiercing + armorPiercingBonus
 
+    @JsonIgnore
     fun getTotalArmorExtraDamage(): Int = heroArmorExtraDmg + armorExtraDmgBonus
 
+    @JsonIgnore
     fun getTotalHealthExtraDamage(): Int = heroHealthExtraDmg + healthExtraDmgBonus
 
+    @JsonIgnore
     fun getTotalRedDamageInc(): Int = heroRedDamageInc + redDamageIncBonus
 
+    @JsonIgnore
     fun getTotalGreenDamageInc(): Int = heroGreenDamageInc + greenDamageIncBonus
 
+    @JsonIgnore
     fun getTotalBlueDamageInc(): Int = heroBlueDamageInc + blueDamageIncBonus
 
+    @JsonIgnore
     fun getTotalHealingInc(): Int = heroHealingInc + healingIncBonus
 
+    @JsonIgnore
     fun isTaunting(): Boolean = buffs.any { it.buff == Buff.TAUNT_BUFF }
 }
