@@ -42,41 +42,48 @@ class SkillService(private val propertyService: PropertyService) {
         )
         battle.steps.add(mainStep)
         var damage = 0
+        var lastActionProced: Boolean? = null
         skill.actions.forEach { action ->
-            if (actionTriggers(hero, action, mainStep) && procs(action.triggerChance)) {
-                when (action.type) {
-                    SkillActionType.DAMAGE -> damage += handleDamageAction(hero, action, damage)
-                    SkillActionType.DEAL_DAMAGE ->
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    dealDamage(it, hero, action, damage, mainStep)
-                                }
-                    SkillActionType.BUFF, SkillActionType.DEBUFF ->
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    mainStep.addAction(applyBuff(battle, hero, action, it))
-                                }
-                    SkillActionType.SPEEDBAR ->
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    applySpeedbarAction(it, action)
-                                }
-                    SkillActionType.HEAL ->
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    mainStep.addAction(applyHealingAction(hero, action, it))
-                                }
-                    SkillActionType.PASSIVE_STAT ->
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    action.effect.stat?.apply(it, action.effectValue)
-                                }
-                    SkillActionType.SPECIAL ->
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    applySpecialAction(battle, mainStep, hero, action, it)
-                                }
-                }
+            if (!actionTriggers(hero, action, mainStep, lastActionProced)) {
+                lastActionProced = null
+                return@forEach
+            }
+            if (!procs(action.triggerChance)) {
+                lastActionProced = false
+            }
+            lastActionProced = true
+            when (action.type) {
+                SkillActionType.DAMAGE -> damage += handleDamageAction(hero, action, damage)
+                SkillActionType.DEAL_DAMAGE ->
+                    findTargets(battle, hero, action, target)
+                            .forEach {
+                                dealDamage(it, hero, action, damage, mainStep)
+                            }
+                SkillActionType.BUFF, SkillActionType.DEBUFF ->
+                    findTargets(battle, hero, action, target)
+                            .forEach {
+                                mainStep.addAction(applyBuff(battle, hero, action, it))
+                            }
+                SkillActionType.SPEEDBAR ->
+                    findTargets(battle, hero, action, target)
+                            .forEach {
+                                applySpeedbarAction(it, action)
+                            }
+                SkillActionType.HEAL ->
+                    findTargets(battle, hero, action, target)
+                            .forEach {
+                                mainStep.addAction(applyHealingAction(hero, action, it))
+                            }
+                SkillActionType.PASSIVE_STAT ->
+                    findTargets(battle, hero, action, target)
+                            .forEach {
+                                action.effect.stat?.apply(it, action.effectValue)
+                            }
+                SkillActionType.SPECIAL ->
+                    findTargets(battle, hero, action, target)
+                            .forEach {
+                                applySpecialAction(battle, mainStep, hero, action, it)
+                            }
             }
         }
 
@@ -108,7 +115,7 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
-    private fun actionTriggers(hero: BattleHero, action: HeroSkillAction, step: BattleStep): Boolean {
+    private fun actionTriggers(hero: BattleHero, action: HeroSkillAction, step: BattleStep, lastActionProced: Boolean?): Boolean {
         return when (action.trigger) {
             SkillActionTrigger.ALWAYS -> true
             SkillActionTrigger.S1_LVL -> action.triggerValue!!.contains(hero.skill1Lvl.toString())
@@ -118,6 +125,8 @@ class SkillService(private val propertyService: PropertyService) {
             SkillActionTrigger.S5_LVL -> hero.skill5Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
             SkillActionTrigger.S6_LVL -> hero.skill6Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
             SkillActionTrigger.S7_LVL -> hero.skill7Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.PREV_ACTION_PROCED -> lastActionProced == true
+            SkillActionTrigger.PREV_ACTION_NOT_PROCED -> lastActionProced == false
             SkillActionTrigger.ANY_CRIT_DMG -> step.actions.any { it.crit == true }
             SkillActionTrigger.DMG_OVER -> step.actions.sumBy { it.healthDiff ?: 0 } > action.triggerValue!!.toInt()
             SkillActionTrigger.ASCENDED -> hero.ascLvl > 0
