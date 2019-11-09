@@ -85,7 +85,7 @@ data class Hero(
             GearType.HELMET -> this.helmet = gear
             GearType.ARMOR -> this.armor = gear
             GearType.PANTS -> this.pants = gear
-            GearType.BOOTS -> this.pants = gear
+            GearType.BOOTS -> this.boots = gear
         }
         gear.equippedTo = this.id
         return unequipped

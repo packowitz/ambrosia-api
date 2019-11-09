@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionEffect.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.DynamicProperty
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkillAction
@@ -70,50 +71,24 @@ class SkillService(private val propertyService: PropertyService) {
                                 .forEach {
                                     action.effect.stat?.apply(it, action.effectValue)
                                 }
+                    SkillActionType.SPECIAL ->
+                        findTargets(battle, hero, action, target)
+                                .forEach {
+                                    applySpecialAction(battle, mainStep, hero, action, it)
+                                }
                 }
             }
         }
 
         battle.allOtherHeroesAlive(hero).filter { it.willCounter }.forEachIndexed { idx, counterHero ->
-            var damage = 0
             val phase = when(idx) {
                 0 -> BattleStepPhase.Z_COUNTER_1
                 1 -> BattleStepPhase.Z_COUNTER_2
                 2 -> BattleStepPhase.Z_COUNTER_3
                 3 -> BattleStepPhase.Z_COUNTER_4
-                else -> throw RuntimeException("Unknwon index $idx when resolving counter phase")
+                else -> throw RuntimeException("Unknown index $idx when resolving counter phase")
             }
-            counterHero.heroBase.skills.find { it.number == 1 }?.let { skill ->
-                val step = BattleStep(
-                    turn = battle.turnsDone,
-                    phase = phase,
-                    actingHero = counterHero.position,
-                    usedSkill = skill.number,
-                    target = hero.position,
-                    heroStates = battle.getBattleStepHeroStates()
-                )
-                battle.steps.add(step)
-                skill.actions.forEach { action ->
-                    when (action.type) {
-                        SkillActionType.DAMAGE -> damage += handleDamageAction(counterHero, action, damage)
-                        SkillActionType.DEAL_DAMAGE ->
-                            findTargets(battle, counterHero, action, hero)
-                                .forEach {
-                                    dealDamage(it, counterHero, action, damage, step, true)
-                                }
-                        SkillActionType.HEAL ->
-                            findTargets(battle, counterHero, action, hero)
-                                .forEach {
-                                    step.addAction(applyHealingAction(counterHero, action, it))
-                                }
-                        SkillActionType.PASSIVE_STAT ->
-                            findTargets(battle, counterHero, action, hero)
-                                .forEach {
-                                    action.effect.stat?.apply(it, action.effectValue)
-                                }
-                    }
-                }
-            }
+            doCounter(battle, counterHero, hero, phase)
         }
 
         hero.currentSpeedBar -= SPEEDBAR_MAX
@@ -184,14 +159,14 @@ class SkillService(private val propertyService: PropertyService) {
 
     private fun handleDamageAction(hero: BattleHero, action: HeroSkillAction, damage: Int): Int {
         return when (action.effect) {
-            SkillActionEffect.STRENGTH -> (hero.getTotalStrength() * action.effectValue) / 100
-            SkillActionEffect.ARMOR -> (hero.getTotalArmor() * action.effectValue) / 100
-            SkillActionEffect.ARMOR_MAX -> (hero.getTotalMaxArmor() * action.effectValue) / 100
-            SkillActionEffect.HP -> (hero.currentHp * action.effectValue) / 100
-            SkillActionEffect.HP_MAX -> (hero.heroHp * action.effectValue) / 100
-            SkillActionEffect.DEXTERITY -> (hero.getTotalDexterity() * action.effectValue) / 100
-            SkillActionEffect.RESISTANCE -> (hero.getTotalResistance() * action.effectValue) / 100
-            SkillActionEffect.MULTIPLIER -> (damage * action.effectValue) / 100
+            STRENGTH -> (hero.getTotalStrength() * action.effectValue) / 100
+            ARMOR -> (hero.getTotalArmor() * action.effectValue) / 100
+            ARMOR_MAX -> (hero.getTotalMaxArmor() * action.effectValue) / 100
+            HP -> (hero.currentHp * action.effectValue) / 100
+            HP_MAX -> (hero.heroHp * action.effectValue) / 100
+            DEXTERITY -> (hero.getTotalDexterity() * action.effectValue) / 100
+            RESISTANCE -> (hero.getTotalResistance() * action.effectValue) / 100
+            MULTIPLIER -> (damage * action.effectValue) / 100
             else -> 0
         }
     }
@@ -273,6 +248,46 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
+    private fun doCounter(battle: Battle, counterHero: BattleHero, hero: BattleHero, phase: BattleStepPhase) {
+        var damage = 0
+        counterHero.heroBase.skills.find { it.number == 1 }?.let { skill ->
+            val step = BattleStep(
+                turn = battle.turnsDone,
+                phase = phase,
+                actingHero = counterHero.position,
+                usedSkill = skill.number,
+                target = hero.position,
+                heroStates = battle.getBattleStepHeroStates()
+            )
+            battle.steps.add(step)
+            skill.actions.forEach { action ->
+                when (action.type) {
+                    SkillActionType.DAMAGE -> damage += handleDamageAction(counterHero, action, damage)
+                    SkillActionType.DEAL_DAMAGE ->
+                        findTargets(battle, counterHero, action, hero)
+                            .forEach {
+                                dealDamage(it, counterHero, action, damage, step, true)
+                            }
+                    SkillActionType.HEAL ->
+                        findTargets(battle, counterHero, action, hero)
+                            .forEach {
+                                step.addAction(applyHealingAction(counterHero, action, it))
+                            }
+                    SkillActionType.PASSIVE_STAT ->
+                        findTargets(battle, counterHero, action, hero)
+                            .forEach {
+                                action.effect.stat?.apply(it, action.effectValue)
+                            }
+                    SkillActionType.SPECIAL ->
+                        findTargets(battle, counterHero, action, hero)
+                            .forEach {
+                                applySpecialAction(battle, step, hero, action, it)
+                            }
+                }
+            }
+        }
+    }
+
     private fun applyReflectDamage(hero: BattleHero, step: BattleStep, reflectDamage: Int) {
         val targetArmor = hero.getTotalArmor()
         val targetHealth = hero.currentHp
@@ -342,16 +357,50 @@ class SkillService(private val propertyService: PropertyService) {
 
         return BattleStepAction(
                 heroPosition = target.position,
-                type = BattleStepActionType.BUFF_RESISTED,
+                type = BattleStepActionType.BLOCKED,
                 buff = buff
         )
     }
 
     private fun applySpeedbarAction(hero: BattleHero, action: HeroSkillAction) {
         when (action.effect) {
-            SkillActionEffect.PERCENTAGE -> hero.currentSpeedBar += (SPEEDBAR_MAX * action.effectValue) / 100
-            else -> {
+            PERCENTAGE -> hero.currentSpeedBar += (SPEEDBAR_MAX * action.effectValue) / 100
+            else -> {}
+        }
+    }
+
+    private fun applySpecialAction(battle: Battle, step: BattleStep, hero: BattleHero, action: HeroSkillAction, target: BattleHero) {
+        when (action.effect) {
+            REMOVE_BUFF -> {
+                val buff = target.buffs.takeIf { it.isNotEmpty() }?.random()
+                if (buff != null) {
+                    val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance())
+                    if (!resisted) {
+                        target.buffs.remove(buff)
+                    }
+                    step.addAction(BattleStepAction(
+                        heroPosition = target.position,
+                        type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
+                        buff = buff.buff
+                    ))
+                }
             }
+            REMOVE_ALL_BUFFS -> {
+                val buffsRemoved = mutableListOf<BattleHeroBuff>()
+                target.buffs.forEach { buff ->
+                    val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance())
+                    if (!resisted) {
+                        buffsRemoved.add(buff)
+                    }
+                    step.addAction(BattleStepAction(
+                        heroPosition = target.position,
+                        type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
+                        buff = buff.buff
+                    ))
+                }
+                target.buffs.removeAll(buffsRemoved)
+            }
+            else -> {}
         }
     }
 
