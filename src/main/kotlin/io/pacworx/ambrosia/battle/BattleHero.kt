@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import io.pacworx.ambrosia.models.HeroBase
 import javax.persistence.*
+import kotlin.math.min
 
 @Entity
 data class BattleHero(
@@ -187,7 +188,7 @@ data class BattleHero(
         buffs.forEach { it.buff.applyEffect(battle, this, it, propertyService) }
     }
 
-    fun initTurn(battle: Battle) {
+    fun initTurn(skillService: SkillService, battle: Battle) {
         skill2Cooldown = skill2Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
         skill3Cooldown = skill3Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
         skill4Cooldown = skill4Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
@@ -195,6 +196,7 @@ data class BattleHero(
         skill6Cooldown = skill6Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
         skill7Cooldown = skill7Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
 
+        var healthDiff = 0
         if (heroDmgPerTurn + dmgPerTurnBonus > 0) {
             val damage = heroHp * (heroDmgPerTurn + dmgPerTurnBonus) / 100
             battle.getPreTurnStep().addAction(BattleStepAction(
@@ -202,7 +204,7 @@ data class BattleHero(
                     type = BattleStepActionType.DOT,
                     healthDiff = -damage
             ))
-            currentHp -= damage
+            healthDiff -= damage
         }
         if (heroHealPerTurn + healPerTurnBonus > 0) {
             var healing = heroHp * (heroHealPerTurn + healPerTurnBonus) / 100
@@ -214,18 +216,19 @@ data class BattleHero(
                     type = BattleStepActionType.HOT,
                     healthDiff = healing
             ))
-            currentHp += healing
+            healthDiff += healing
         }
-        if (currentHp >= heroHp) {
-            currentHp = heroHp
+        if (healthDiff > 0) {
+            currentHp += min(currentHp + healthDiff, heroHp)
         }
-        if (currentHp <= 0) {
-            battle.getPreTurnStep().addAction(BattleStepAction(
+        if (healthDiff < 0) {
+            skillService.receiveDamage(battle, this, 0, -healthDiff)
+            if (status == HeroStatus.DEAD) {
+                battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,
                     type = BattleStepActionType.DEAD
-            ))
-            status = HeroStatus.DEAD
-            buffs.clear()
+                ))
+            }
         }
 
         buffs.forEach {

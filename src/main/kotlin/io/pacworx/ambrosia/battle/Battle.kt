@@ -52,7 +52,7 @@ data class Battle(
     val oppHero4: BattleHero?,
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "battle_id")
-    @OrderBy("turn asc, phase asc")
+    @OrderBy("turn asc, phase asc, id asc")
     val steps: MutableList<BattleStep> = mutableListOf()
 ) {
 

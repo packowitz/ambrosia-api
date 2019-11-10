@@ -22,7 +22,7 @@ class BattleService(private val heroService: HeroService,
     fun initBattle(player: Player, request: StartBattleRequest): Battle {
         val heroes = heroService.loadHeroes(listOfNotNull(
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
-            request.oppHero1Id, request.oppHero1Id, request.oppHero1Id, request.oppHero4Id))
+            request.oppHero1Id, request.oppHero2Id, request.oppHero3Id, request.oppHero4Id))
         val battle = battleRepository.save(Battle(
             type = BattleType.DUELL,
             playerId = player.id,
@@ -86,7 +86,7 @@ class BattleService(private val heroService: HeroService,
 
             battle.setActiveHero(activeHero)
             battle.applyBonuses(propertyService)
-            activeHero.initTurn(battle)
+            activeHero.initTurn(skillService, battle)
             battle.checkStatus()
 
             if (battle.hasEnded()) {

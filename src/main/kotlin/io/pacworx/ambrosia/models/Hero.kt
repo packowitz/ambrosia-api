@@ -4,6 +4,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.GearType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActiveTrigger
 import io.pacworx.ambrosia.models.HeroBase
 import javax.persistence.*
+import kotlin.math.min
 
 @Entity
 data class Hero(
@@ -108,24 +109,24 @@ data class Hero(
     fun skillLevelUp(skillNumber: Int) {
         when (skillNumber) {
             1 -> this.skill1++
-            2 -> this.skill2 = this.skill2?.inc() ?: 1
-            3 -> this.skill3 = this.skill3?.inc() ?: 1
-            4 -> this.skill4 = this.skill4?.inc() ?: 1
-            5 -> this.skill5 = this.skill5?.inc() ?: 1
-            6 -> this.skill6 = this.skill6?.inc() ?: 1
-            7 -> this.skill7 = this.skill7?.inc() ?: 1
+            2 -> this.skill2 = min(this.skill2?.inc() ?: 1, heroBase.skills.find { it.number == 2 }!!.maxLevel)
+            3 -> this.skill3 = min(this.skill3?.inc() ?: 1, heroBase.skills.find { it.number == 3 }!!.maxLevel)
+            4 -> this.skill4 = min(this.skill4?.inc() ?: 1, heroBase.skills.find { it.number == 4 }!!.maxLevel)
+            5 -> this.skill5 = min(this.skill5?.inc() ?: 1, heroBase.skills.find { it.number == 5 }!!.maxLevel)
+            6 -> this.skill6 = min(this.skill6?.inc() ?: 1, heroBase.skills.find { it.number == 6 }!!.maxLevel)
+            7 -> this.skill7 = min(this.skill7?.inc() ?: 1, heroBase.skills.find { it.number == 7 }!!.maxLevel)
         }
     }
 
     fun skillLevelDown(skillNumber: Int) {
         when (skillNumber) {
             1 -> if (skill1 > 1) { this.skill1-- }
-            2 -> this.skill2 = this.skill2?.takeIf { it > 1 }?.dec()
-            3 -> this.skill3 = this.skill3?.takeIf { it > 1 }?.dec()
-            4 -> this.skill4 = this.skill4?.takeIf { it > 1 }?.dec()
-            5 -> this.skill5 = this.skill5?.takeIf { it > 1 }?.dec()
-            6 -> this.skill6 = this.skill6?.takeIf { it > 1 }?.dec()
-            7 -> this.skill7 = this.skill7?.takeIf { it > 1 }?.dec()
+            2 -> this.skill2 = this.skill2?.dec()?.takeIf { it > 0 }
+            3 -> this.skill3 = this.skill3?.dec()?.takeIf { it > 0 }
+            4 -> this.skill4 = this.skill4?.dec()?.takeIf { it > 0 }
+            5 -> this.skill5 = this.skill5?.dec()?.takeIf { it > 0 }
+            6 -> this.skill6 = this.skill6?.dec()?.takeIf { it > 0 }
+            7 -> this.skill7 = this.skill7?.dec()?.takeIf { it > 0 }
         }
     }
 
