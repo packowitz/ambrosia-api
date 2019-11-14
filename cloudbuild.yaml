@@ -61,7 +61,7 @@ steps:
 timeout: 900s
 
 secrets:
-  - kmsKeyName: projects/ambrosia/locations/global/keyRings/ambrosia-prod/cryptoKeys/secret
+  - kmsKeyName: projects/ambrosia-259011/locations/global/keyRings/ambrosia-prod/cryptoKeys/secret
     secretEnv:
       DB_URL: CiQAew1wY4K+l+oY2I6DLaWnMAI9hrSZJuuW9EZNal0YND/4kQgSWACq0ITPdMl6VpXYvTd/6AQOT1evGGMddcIahuRvOi0apidy0ex72SFN7WMwJkUqGmaan2Z0zS5fdd3UEe5f9Fxb4OJCBSD5QjkFq6ubhGtrAu7m75lVHLU=
       DB_USER: CiQAew1wY36MAyOFSaY9Kg6pgHv+mCJ3p0JOFYv6suRiey64XroSNgCq0ITPHckE600ACZv6pI/0VKoDUK3Z5WsFEsL8fXS5tH8zLnfshPwJiwyWpo/OfnnsiFmi1Q==
