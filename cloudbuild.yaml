@@ -1,6 +1,6 @@
 substitutions:
   _IMAGE_NAME: docker-ambrosia
-  _GCS_CACHE_BUCKET: cloud-build-m2-cache
+  _GCS_CACHE_BUCKET: ambrosis-cloud-build-m2-cache
 
 steps:
 
