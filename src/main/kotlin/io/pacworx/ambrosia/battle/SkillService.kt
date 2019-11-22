@@ -230,11 +230,16 @@ class SkillService(private val propertyService: PropertyService) {
 
         val targetArmor = hero.getTotalArmor()
         val targetHealth = hero.currentHp
-        val dmgArmorRatio: Int = 100 * (damage - armorPiercedDamage) / targetArmor
-        val property = battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
+        val property = if (targetArmor > 0) {
+            val dmgArmorRatio: Int = 100 * (damage - armorPiercedDamage) / targetArmor
+            battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
+        } else {
+            battleProps.last()
+        }
 
         var armorLoss = (hero.currentArmor * property.value1) / 100
         armorLoss *= (100 + damageDealer.getTotalArmorExtraDamage()) / 100
+        armorLoss = min(armorLoss, targetArmor)
         var healthLoss = armorPiercedDamage + ((damage - armorPiercedDamage) * property.value2!!) / 100
         healthLoss *= (100 + damageDealer.getTotalHealthExtraDamage()) / 100
 
