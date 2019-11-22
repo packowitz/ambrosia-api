@@ -219,7 +219,7 @@ data class BattleHero(
             healthDiff += healing
         }
         if (healthDiff > 0) {
-            currentHp += min(currentHp + healthDiff, heroHp)
+            currentHp = min(currentHp + healthDiff, heroHp)
         }
         if (healthDiff < 0) {
             skillService.receiveDamage(battle, this, 0, -healthDiff)

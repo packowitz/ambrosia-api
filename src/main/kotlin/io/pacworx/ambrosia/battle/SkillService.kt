@@ -8,6 +8,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkillAction
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service
 import java.lang.RuntimeException
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -264,8 +265,9 @@ class SkillService(private val propertyService: PropertyService) {
         }
 
         if (lifeSteal > 0 && damageDealer.currentHp < damageDealer.heroHp) {
+            val maxHealing = max(damageDealer.heroHp - damageDealer.currentHp, 0)
             var healing = lifeSteal * (100 + damageDealer.getTotalHealingInc()) / 100
-            healing = min(healing, damageDealer.heroHp - damageDealer.currentHp)
+            healing = min(healing, maxHealing)
             damageDealer.currentHp += healing
             step.addAction(BattleStepAction(heroPosition = damageDealer.position, type = BattleStepActionType.HEALING, healthDiff = healing))
         }
@@ -349,6 +351,7 @@ class SkillService(private val propertyService: PropertyService) {
         hero.currentHp -= healthLoss
         if (hero.currentHp <= 0) {
             hero.status = HeroStatus.DEAD
+            hero.currentHp = 0
             hero.buffs.clear()
 
             // PassiveSkillTrigger.KILLED_OPP
@@ -566,8 +569,9 @@ class SkillService(private val propertyService: PropertyService) {
             SkillActionEffect.OWN_MAX_HP -> (hero.heroHp * action.effectValue) / 100
             else -> 0
         }
+        val maxHealing = max(target.heroHp - target.currentHp, 0)
         healing += (hero.getTotalHealingInc() * healing) / 100
-        healing = min(healing, target.heroHp - target.currentHp)
+        healing = min(healing, maxHealing)
 
         hero.currentHp += healing
 
