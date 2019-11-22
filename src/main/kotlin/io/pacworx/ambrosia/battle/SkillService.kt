@@ -37,8 +37,11 @@ class SkillService(private val propertyService: PropertyService) {
                 turn = battle.turnsDone,
                 phase = BattleStepPhase.MAIN,
                 actingHero = hero.position,
+                actingHeroName = hero.heroBase.name,
                 usedSkill = skill.number,
+                usedSkillName = skill.name,
                 target = target.position,
+                targetName = target.heroBase.name,
                 heroStates = battle.getBattleStepHeroStates()
         )
         battle.steps.add(step)
@@ -201,6 +204,7 @@ class SkillService(private val propertyService: PropertyService) {
         if (procs(hero.getTotalDodgeChance())) {
             step.addAction(BattleStepAction(
                 heroPosition = hero.position,
+                heroName = hero.heroBase.name,
                 type = BattleStepActionType.DODGED
             ))
             return
@@ -250,6 +254,7 @@ class SkillService(private val propertyService: PropertyService) {
 
         step.addAction(BattleStepAction(
                 heroPosition = hero.position,
+                heroName = hero.heroBase.name,
                 type = BattleStepActionType.DAMAGE,
                 crit = crit,
                 superCrit = superCrit,
@@ -261,7 +266,10 @@ class SkillService(private val propertyService: PropertyService) {
         ))
 
         if (hero.status == HeroStatus.DEAD) {
-            step.addAction(BattleStepAction(heroPosition = hero.position, type = BattleStepActionType.DEAD))
+            step.addAction(BattleStepAction(
+                heroPosition = hero.position,
+                heroName = hero.heroBase.name,
+                type = BattleStepActionType.DEAD))
         }
 
         if (lifeSteal > 0 && damageDealer.currentHp < damageDealer.heroHp) {
@@ -269,7 +277,7 @@ class SkillService(private val propertyService: PropertyService) {
             var healing = lifeSteal * (100 + damageDealer.getTotalHealingInc()) / 100
             healing = min(healing, maxHealing)
             damageDealer.currentHp += healing
-            step.addAction(BattleStepAction(heroPosition = damageDealer.position, type = BattleStepActionType.HEALING, healthDiff = healing))
+            step.addAction(BattleStepAction(heroPosition = damageDealer.position, heroName = damageDealer.heroBase.name, type = BattleStepActionType.HEALING, healthDiff = healing))
         }
 
         if (reflectDamage > 0) {
@@ -284,8 +292,11 @@ class SkillService(private val propertyService: PropertyService) {
                 turn = battle.turnsDone,
                 phase = phase,
                 actingHero = counterHero.position,
+                actingHeroName = counterHero.heroBase.name,
                 usedSkill = skill.number,
+                usedSkillName = skill.name,
                 target = hero.position,
+                targetName = hero.heroBase.name,
                 heroStates = battle.getBattleStepHeroStates()
             )
             battle.steps.add(step)
@@ -331,6 +342,7 @@ class SkillService(private val propertyService: PropertyService) {
 
         step.addAction(BattleStepAction(
             heroPosition = hero.position,
+            heroName = hero.heroBase.name,
             type = BattleStepActionType.DAMAGE,
             crit = false,
             superCrit = false,
@@ -342,7 +354,10 @@ class SkillService(private val propertyService: PropertyService) {
         ))
 
         if (hero.status == HeroStatus.DEAD) {
-            step.addAction(BattleStepAction(heroPosition = hero.position, type = BattleStepActionType.DEAD))
+            step.addAction(BattleStepAction(
+                heroPosition = hero.position,
+                heroName = hero.heroBase.name,
+                type = BattleStepActionType.DEAD))
         }
     }
 
@@ -364,8 +379,11 @@ class SkillService(private val propertyService: PropertyService) {
                                 turn = battle.turnsDone,
                                 phase = BattleStepPhase.PASSIVE,
                                 actingHero = executer.position,
+                                actingHeroName = executer.heroBase.name,
                                 usedSkill = skill.number,
+                                usedSkillName = skill.name,
                                 target = hero.position,
+                                targetName = hero.heroBase.name,
                                 heroStates = battle.getBattleStepHeroStates()
                             )
                             battle.steps.add(step)
@@ -385,8 +403,11 @@ class SkillService(private val propertyService: PropertyService) {
                                 turn = battle.turnsDone,
                                 phase = BattleStepPhase.PASSIVE,
                                 actingHero = oppHero.position,
+                                actingHeroName = oppHero.heroBase.name,
                                 usedSkill = skill.number,
+                                usedSkillName = skill.name,
                                 target = hero.position,
+                                targetName = hero.heroBase.name,
                                 heroStates = battle.getBattleStepHeroStates()
                             )
                             battle.steps.add(step)
@@ -405,8 +426,11 @@ class SkillService(private val propertyService: PropertyService) {
                             turn = battle.turnsDone,
                             phase = BattleStepPhase.PASSIVE,
                             actingHero = hero.position,
+                            actingHeroName = hero.heroBase.name,
                             usedSkill = skill.number,
+                            usedSkillName = skill.name,
                             target = hero.position,
+                            targetName = hero.heroBase.name,
                             heroStates = battle.getBattleStepHeroStates()
                         )
                         battle.steps.add(step)
@@ -425,8 +449,11 @@ class SkillService(private val propertyService: PropertyService) {
                                 turn = battle.turnsDone,
                                 phase = BattleStepPhase.PASSIVE,
                                 actingHero = alliedHero.position,
+                                actingHeroName = alliedHero.heroBase.name,
                                 usedSkill = skill.number,
+                                usedSkillName = skill.name,
                                 target = hero.position,
+                                targetName = hero.heroBase.name,
                                 heroStates = battle.getBattleStepHeroStates()
                             )
                             battle.steps.add(step)
@@ -445,8 +472,11 @@ class SkillService(private val propertyService: PropertyService) {
                             turn = battle.turnsDone,
                             phase = BattleStepPhase.PASSIVE,
                             actingHero = hero.position,
+                            actingHeroName = hero.heroBase.name,
                             usedSkill = skill.number,
+                            usedSkillName = skill.name,
                             target = hero.position,
+                            targetName = hero.heroBase.name,
                             heroStates = battle.getBattleStepHeroStates()
                         )
                         battle.steps.add(step)
@@ -465,8 +495,11 @@ class SkillService(private val propertyService: PropertyService) {
                                 turn = battle.turnsDone,
                                 phase = BattleStepPhase.PASSIVE,
                                 actingHero = alliedHero.position,
+                                actingHeroName = alliedHero.heroBase.name,
                                 usedSkill = skill.number,
+                                usedSkillName = skill.name,
                                 target = hero.position,
+                                targetName = hero.heroBase.name,
                                 heroStates = battle.getBattleStepHeroStates()
                             )
                             battle.steps.add(step)
@@ -507,6 +540,7 @@ class SkillService(private val propertyService: PropertyService) {
 
             return BattleStepAction(
                     heroPosition = target.position,
+                    heroName = target.heroBase.name,
                     type = BattleStepActionType.BUFF,
                     buff = buff,
                     buffIntensity = intesity,
@@ -516,6 +550,7 @@ class SkillService(private val propertyService: PropertyService) {
 
         return BattleStepAction(
                 heroPosition = target.position,
+                heroName = target.heroBase.name,
                 type = BattleStepActionType.BLOCKED,
                 buff = buff
         )
@@ -539,6 +574,7 @@ class SkillService(private val propertyService: PropertyService) {
                     }
                     step.addAction(BattleStepAction(
                         heroPosition = target.position,
+                        heroName = target.heroBase.name,
                         type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
                         buff = buff.buff
                     ))
@@ -553,6 +589,7 @@ class SkillService(private val propertyService: PropertyService) {
                     }
                     step.addAction(BattleStepAction(
                         heroPosition = target.position,
+                        heroName = target.heroBase.name,
                         type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
                         buff = buff.buff
                     ))
@@ -575,7 +612,11 @@ class SkillService(private val propertyService: PropertyService) {
 
         hero.currentHp += healing
 
-        return BattleStepAction(heroPosition = target.position, type = BattleStepActionType.HEALING, healthDiff = healing)
+        return BattleStepAction(
+            heroPosition = target.position,
+            heroName = target.heroBase.name,
+            type = BattleStepActionType.HEALING,
+            healthDiff = healing)
     }
 
     private fun areOpponents(hero1: BattleHero, hero2: BattleHero): Boolean {

@@ -18,7 +18,9 @@ data class Battle(
     @Enumerated(EnumType.STRING)
     var status: BattleStatus = BattleStatus.INIT,
     val playerId: Long,
+    val playerName: String,
     val opponentId: Long?,
+    val opponentName: String,
     @field:CreatedDate
     val started: Instant = Instant.now(),
     @field:LastModifiedDate
@@ -172,6 +174,20 @@ data class Battle(
         return status == BattleStatus.LOST || status == BattleStatus.WON
     }
 
+    fun resolveHeroName(position: HeroPosition): String {
+        return when(position) {
+            HeroPosition.HERO1 -> hero1
+            HeroPosition.HERO2 -> hero2
+            HeroPosition.HERO3 -> hero3
+            HeroPosition.HERO4 -> hero4
+            HeroPosition.OPP1 -> oppHero1
+            HeroPosition.OPP2 -> oppHero2
+            HeroPosition.OPP3 -> oppHero3
+            HeroPosition.OPP4 -> oppHero4
+            else -> null
+        }?.heroBase?.name ?: "unknown"
+    }
+
     @JsonIgnore
     fun getPreTurnStep(): BattleStep {
         return steps.find { it.turn == this.turnsDone && it.phase == BattleStepPhase.A_PRE_TURN }
@@ -180,7 +196,9 @@ data class Battle(
                         turn = this.turnsDone,
                         phase = BattleStepPhase.A_PRE_TURN,
                         actingHero = this.activeHero,
+                        actingHeroName = resolveHeroName(this.activeHero),
                         target = this.activeHero,
+                        targetName = resolveHeroName(this.activeHero),
                         heroStates = getBattleStepHeroStates()
                     )
                     steps.add(step)

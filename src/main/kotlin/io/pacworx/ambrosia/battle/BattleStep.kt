@@ -11,9 +11,12 @@ data class BattleStep(
     val phase: BattleStepPhase,
     @Enumerated(EnumType.STRING)
     val actingHero: HeroPosition,
+    val actingHeroName: String,
     val usedSkill: Int? = null,
+    val usedSkillName: String? = null,
     @Enumerated(EnumType.STRING)
     val target: HeroPosition,
+    val targetName: String,
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn(name = "battle_step_id")
     val actions: MutableList<BattleStepAction> = mutableListOf(),

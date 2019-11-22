@@ -2,13 +2,15 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.PlayerRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 
 @Service
-class BattleService(private val heroService: HeroService,
+class BattleService(private val playerRepository: PlayerRepository,
+                    private val heroService: HeroService,
                     private val battleRepository: BattleRepository,
                     private val skillService: SkillService,
                     private val aiService: AiService,
@@ -20,13 +22,16 @@ class BattleService(private val heroService: HeroService,
     }
 
     fun initBattle(player: Player, request: StartBattleRequest): Battle {
+        val opponent = playerRepository.getOne(request.oppPlayerId)
         val heroes = heroService.loadHeroes(listOfNotNull(
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
             request.oppHero1Id, request.oppHero2Id, request.oppHero3Id, request.oppHero4Id))
         val battle = battleRepository.save(Battle(
             type = BattleType.DUELL,
             playerId = player.id,
+            playerName = player.name,
             opponentId = request.oppPlayerId,
+            opponentName = opponent.name,
             hero1 = request.hero1Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
                 BattleHero(player.id, heroService.asHeroDto(it), it.heroBase, HeroPosition.HERO1)
             } },
