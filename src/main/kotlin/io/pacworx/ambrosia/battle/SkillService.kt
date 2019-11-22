@@ -56,7 +56,7 @@ class SkillService(private val propertyService: PropertyService) {
         hero.afterTurn(battle, propertyService)
         battle.checkStatus()
     }
-    
+
     private fun executeSkillActions(battle: Battle, step: BattleStep, hero: BattleHero, skill: HeroSkill, target: BattleHero, excludedActionTypes: List<SkillActionType> = listOf()) {
         var damage = 0
         var lastActionProced: Boolean? = null
@@ -523,7 +523,7 @@ class SkillService(private val propertyService: PropertyService) {
     private fun applySpecialAction(battle: Battle, step: BattleStep, hero: BattleHero, action: HeroSkillAction, target: BattleHero) {
         when (action.effect) {
             REMOVE_BUFF -> {
-                val buff = target.buffs.takeIf { it.isNotEmpty() }?.random()
+                val buff = target.buffs.filter { it.buff.type == BuffType.BUFF }.takeIf { it.isNotEmpty() }?.random()
                 if (buff != null) {
                     val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance())
                     if (!resisted) {
