@@ -36,7 +36,7 @@ class BattleController(private val battleService: BattleService,
         if (activeHero == null || activeHero.getCooldown(skillNumber) > 0 || skill == null || skill.passive) {
             throw RuntimeException("Hero $heroPos cannot use skill $skillNumber on battle $battleId")
         }
-        val target = battle.allHeroesAlive().find { it.position == targetPos }
+        val target = battle.allHeroes().find { it.position == targetPos }
                 ?: throw java.lang.RuntimeException("Target $targetPos is not valid on battle $battleId")
         return battleService.takeTurn(battle, activeHero, skill, target)
     }

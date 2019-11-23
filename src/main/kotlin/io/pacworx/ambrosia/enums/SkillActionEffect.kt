@@ -58,6 +58,7 @@ enum class SkillActionEffect(val type: SkillActionType,
     HEAL_PER_TURN_PASSIVE(PASSIVE_STAT, "Increases passively the percentage of self healing per turn by value", stat = HeroStat.HEAL_PER_TURN),
     DMG_PER_TURN_PASSIVE(PASSIVE_STAT, "Increases passively the percentage of self damage per turn by value", stat = HeroStat.DMG_PER_TURN),
 
+    RESURRECT(SPECIAL, "Resurrects target with value percent of hitpoints"),
     REMOVE_BUFF(SPECIAL, "Removes up to value amount of buffs from target(s); value 1 means that this action cannot be resisted; put value 0 for normal resistance calculation"),
     REMOVE_ALL_BUFFS(SPECIAL, "Removes all buffs from target(s); value 1 means that this action cannot be resisted; put value 0 for normal resistance calculation")
     ;

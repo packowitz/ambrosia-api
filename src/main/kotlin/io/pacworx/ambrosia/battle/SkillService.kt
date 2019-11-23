@@ -596,6 +596,16 @@ class SkillService(private val propertyService: PropertyService) {
                 }
                 target.buffs.removeAll(buffsRemoved)
             }
+            RESURRECT -> {
+                target.status = HeroStatus.ALIVE
+                target.currentHp = (action.effectValue * target.heroHp) / 100
+                step.addAction(BattleStepAction(
+                    heroPosition = target.position,
+                    heroName = target.heroBase.name,
+                    type = BattleStepActionType.RESURRECTED,
+                    healthDiff = target.currentHp
+                ))
+            }
             else -> {}
         }
     }

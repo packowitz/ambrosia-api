@@ -1,0 +1,1 @@
+alter table battle_step alter column used_skill_name drop not null;
