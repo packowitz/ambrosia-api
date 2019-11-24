@@ -96,12 +96,18 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
     }
 
     fun applySet(hero: HeroDto, set: HeroGearSet) {
-        properties.filter { it.type.name == set.gearSet.name + "_SET" && it.level!! <= set.number }.forEach {
+        var setNumber = set.number
+        val prop = mutableListOf<DynamicProperty>()
+        while (setNumber > 0 && prop.isEmpty()) {
+            prop.addAll(properties.filter { it.type.name == set.gearSet.name + "_SET" && it.level!! == set.number })
+            setNumber --
+        }
+        prop.takeIf { it.isNotEmpty() }?.forEach {
             it.stat?.apply(hero, it.value1)
             if (set.description.isNotEmpty()) {
                 set.description += " "
             }
-            set.description += it.stat!!.desc(it.value1)
+            set.description = it.stat!!.desc(it.value1)
         }
     }
 
