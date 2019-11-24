@@ -14,12 +14,10 @@ import javax.transaction.Transactional
 @RequestMapping("admin/jewelry")
 class AdminJewelryController(val jewelryRepository: JewelryRepository) {
 
-    @PostMapping("open/{type}")
-    fun openJewel(@ModelAttribute("player") player: Player, @PathVariable type: String): PlayerActionResponse {
-        //type can be the type of core to open. ignored for now
-        val type: JewelType = JewelType.values().toList().random()
+    @PostMapping("open/{type}/{amount}")
+    fun openJewel(@ModelAttribute("player") player: Player, @PathVariable type: JewelType, @PathVariable amount: Int): PlayerActionResponse {
         val jewelry = jewelryRepository.findByPlayerIdAndType(player.id, type) ?: Jewelry(playerId = player.id, type = type)
-        jewelry.lvl1++
+        jewelry.lvl1 += amount
         jewelryRepository.save(jewelry)
         return PlayerActionResponse(jewelries = listOf(jewelry))
     }
