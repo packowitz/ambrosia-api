@@ -25,6 +25,11 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
     MYTHICAL_MIRROR_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
     WARHORN_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
     REVERSED_REALITY_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    MARK_1_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    MARK_2_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    MARK_3_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    MARK_4_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
+    MARK_5_JEWEL(JEWEL, "Level: jewel level (1-10). Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a jewel. Value2 is ignored"),
 
     XP_MAX_HERO(HERO, "Level: hero level (1-60). Value1: max xp to reach next level. Stat and Value2 are ignored."),
     ASC_POINTS_MAX_HERO(HERO, "Level: hero ascension level (1-??). Value1: max asc points to reach next level. Stat and Value2 are ignored."),
@@ -47,6 +52,11 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
     MYTHICAL_MIRROR_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
     WARHORN_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
     REVERSED_REALITY_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    MARK_1_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    MARK_2_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    MARK_3_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    MARK_4_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
+    MARK_5_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
 
     STRENGTH_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
     ARMOR_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
