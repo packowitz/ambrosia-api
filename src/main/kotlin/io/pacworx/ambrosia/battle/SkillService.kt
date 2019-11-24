@@ -167,6 +167,7 @@ class SkillService(private val propertyService: PropertyService) {
         return when (action.target) {
             SkillActionTarget.TARGET -> listOf(target)
             SkillActionTarget.ALL_OPP -> battle.allOtherHeroesAlive(hero)
+            SkillActionTarget.ALL_OTHER_OPP -> battle.allOtherHeroesAlive(hero).filter { it.position != target.position }
             SkillActionTarget.RANDOM_OPP -> listOf(battle.allOtherHeroesAlive(hero).random())
             SkillActionTarget.RANDOM_OTHER_OPP -> {
                 listOfNotNull(

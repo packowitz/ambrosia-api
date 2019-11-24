@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
 enum class SkillActionTarget {
     TARGET,
     ALL_OPP,
+    ALL_OTHER_OPP,
     RANDOM_OPP,
     RANDOM_OTHER_OPP,
     SELF,
