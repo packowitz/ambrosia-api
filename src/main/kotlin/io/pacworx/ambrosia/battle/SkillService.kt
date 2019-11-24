@@ -618,10 +618,10 @@ class SkillService(private val propertyService: PropertyService) {
             else -> 0
         }
         val maxHealing = max(target.heroHp - target.currentHp, 0)
-        healing += (hero.getTotalHealingInc() * healing) / 100
+        healing += (target.getTotalHealingInc() * healing) / 100
         healing = min(healing, maxHealing)
 
-        hero.currentHp += healing
+        target.currentHp += healing
 
         return BattleStepAction(
             heroPosition = target.position,
