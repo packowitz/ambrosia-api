@@ -19,6 +19,7 @@ data class BattleStepAction(
     val targetHealth: Int? = null,
     val armorDiff: Int? = null,
     val healthDiff: Int? = null,
+    val shieldAbsorb: Int? = null,
     @Enumerated(EnumType.STRING)
     val buff: Buff? = null,
     val buffIntensity: Int? = null,

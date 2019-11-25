@@ -324,4 +324,7 @@ data class BattleHero(
 
     @JsonIgnore
     fun isTaunting(): Boolean = buffs.any { it.buff == Buff.TAUNT_BUFF }
+
+    @JsonIgnore
+    fun getShield(): BattleHeroBuff? = buffs.filter { it.buff == Buff.SHIELD }.minBy { it.duration }
 }

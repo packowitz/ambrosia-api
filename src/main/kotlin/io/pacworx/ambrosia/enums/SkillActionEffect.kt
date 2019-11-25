@@ -59,8 +59,11 @@ enum class SkillActionEffect(val type: SkillActionType,
     DMG_PER_TURN_PASSIVE(PASSIVE_STAT, "Increases passively the percentage of self damage per turn by value", stat = HeroStat.DMG_PER_TURN),
 
     RESURRECT(SPECIAL, "Resurrects target with value percent of hitpoints"),
-    REMOVE_BUFF(SPECIAL, "Removes up to value amount of buffs from target(s); value 1 means that this action cannot be resisted; put value 0 for normal resistance calculation"),
-    REMOVE_ALL_BUFFS(SPECIAL, "Removes all buffs from target(s); value 1 means that this action cannot be resisted; put value 0 for normal resistance calculation")
+    REMOVE_BUFF(SPECIAL, "Removes one buff from target(s); value 1 means that this action cannot be resisted; put value 0 for normal resistance calculation"),
+    REMOVE_ALL_BUFFS(SPECIAL, "Removes all buffs from target(s); value 1 means that this action cannot be resisted; put value 0 for normal resistance calculation"),
+    SMALL_SHIELD(SPECIAL, "Grants target(s) a small shield worth of 25% of his HP with value intensity for duration turns"),
+    MEDIUM_SHIELD(SPECIAL, "Grants target(s) a medium shield worth of 50% of his HP with value intensity for duration turns"),
+    LARGE_SHIELD(SPECIAL, "Grants target(s) a large shield worth of 100% of his HP with value intensity for duration turns")
     ;
 
     fun getName(): String = name

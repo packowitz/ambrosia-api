@@ -218,19 +218,31 @@ class SkillService(private val propertyService: PropertyService) {
         val crit = Random.nextInt(100) < hero.getTotalCrit()
         val superCrit = crit && Random.nextInt(100) < hero.heroSuperCritChance + hero.superCritChanceBonus
 
-        var damage = (baseDamage * action.effectValue) / 100
+        var baseDamage = (baseDamage * action.effectValue) / 100
         if (superCrit) {
-            damage += ((damage * (hero.getTotalCritMult() + 150)) / 100)
+            baseDamage += ((baseDamage * (hero.getTotalCritMult() + 150)) / 100)
         } else if (crit) {
-            damage += ((damage * hero.getTotalCritMult()) / 100)
+            baseDamage += ((baseDamage * hero.getTotalCritMult()) / 100)
         }
 
-        val reflectDamage = hero.getTotalReflect().takeIf { it > 0 }?.let { damage * it / 100 } ?: 0
-        damage -= reflectDamage
+        val reflectDamage = hero.getTotalReflect().takeIf { it > 0 }?.let { baseDamage * it / 100 } ?: 0
+        baseDamage -= reflectDamage
 
-        damage *= damageDealer.getTotalRedDamageInc().takeIf { hero.color == Color.RED && it != 0 }?.let { (100 + it) / 100 } ?: 1
-        damage *= damageDealer.getTotalGreenDamageInc().takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 } ?: 1
-        damage *= damageDealer.getTotalBlueDamageInc().takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 } ?: 1
+        baseDamage *= damageDealer.getTotalRedDamageInc().takeIf { hero.color == Color.RED && it != 0 }?.let { (100 + it) / 100 } ?: 1
+        baseDamage *= damageDealer.getTotalGreenDamageInc().takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 } ?: 1
+        baseDamage *= damageDealer.getTotalBlueDamageInc().takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 } ?: 1
+
+        var damage = baseDamage
+        while (damage > 0 && hero.getShield() != null) {
+            val shield = hero.getShield()!!
+            if (shield.value!! > damage) {
+                shield.value = shield.value!! - damage
+                damage = 0
+            } else {
+                damage -= shield.value!!
+                hero.buffs.remove(shield)
+            }
+        }
 
         val armorPiercedDamage = damageDealer.getTotalArmorPiercing().takeIf { it > 0 }?.let { (damage * it) / 100 } ?: 0
 
@@ -259,7 +271,8 @@ class SkillService(private val propertyService: PropertyService) {
                 type = BattleStepActionType.DAMAGE,
                 crit = crit,
                 superCrit = superCrit,
-                baseDamage = damage,
+                baseDamage = baseDamage,
+                shieldAbsorb = baseDamage - damage,
                 targetArmor = targetArmor,
                 targetHealth = targetHealth,
                 armorDiff = -armorLoss,
@@ -605,6 +618,27 @@ class SkillService(private val propertyService: PropertyService) {
                     heroName = target.heroBase.name,
                     type = BattleStepActionType.RESURRECTED,
                     healthDiff = target.currentHp
+                ))
+            }
+            SMALL_SHIELD, MEDIUM_SHIELD, LARGE_SHIELD -> {
+                val value = when(action.effect) {
+                    SMALL_SHIELD -> (target.heroHp * 0.25).toInt()
+                    MEDIUM_SHIELD -> (target.heroHp * 0.50).toInt()
+                    LARGE_SHIELD -> target.heroHp
+                    else -> { throw RuntimeException("Unreachable code") }
+                }
+                target.buffs.add(BattleHeroBuff(
+                        buff = Buff.SHIELD,
+                        intensity = action.effectValue,
+                        duration = action.effectDuration!!,
+                        value = value,
+                        sourceHeroId = hero.id
+                ))
+                step.addAction(BattleStepAction(
+                        heroPosition = target.position,
+                        heroName = target.heroBase.name,
+                        type = BattleStepActionType.BUFF,
+                        buff = Buff.SHIELD
                 ))
             }
             else -> {}
