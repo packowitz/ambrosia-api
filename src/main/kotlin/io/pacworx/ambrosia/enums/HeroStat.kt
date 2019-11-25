@@ -321,6 +321,11 @@ enum class HeroStat {
         override fun apply(hero: BattleHero, bonus: Int) {
             hero.dmgPerTurnBonus += bonus
         }
+    },
+    BUFF_RESISTANCE {
+        override fun desc(bonus: Int): String = ""
+        override fun apply(hero: HeroDto, bonus: Int) {}
+        override fun apply(hero: BattleHero, bonus: Int) {}
     };
 
     abstract fun desc(bonus: Int): String

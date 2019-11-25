@@ -12,7 +12,8 @@ data class BattleHeroBuff(
         var intensity: Int,
         var duration: Int,
         val sourceHeroId: Long,
-        var value: Int? = null
+        var value: Int? = null,
+        var resistance: Int
 ) {
 
     open fun decreaseDuration() {

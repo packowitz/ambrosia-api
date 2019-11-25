@@ -12,20 +12,18 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
  * - add buff to SkillActionEffect
  * - add icon to UI
  */
-enum class Buff(val type: BuffType, val propertyType: PropertyType? = null) {
+enum class Buff(val type: BuffType, val propertyType: PropertyType) {
     ARMOR_BUFF(BuffType.BUFF, PropertyType.ARMOR_BUFF),
     HEAL_OVER_TIME(BuffType.BUFF, PropertyType.HOT_BUFF),
-    SHIELD(BuffType.BUFF),
+    SHIELD(BuffType.BUFF, PropertyType.SHIELD_BUFF),
     STRENGTH_BUFF(BuffType.BUFF, PropertyType.STRENGTH_BUFF),
-    TAUNT_BUFF(BuffType.BUFF),
+    TAUNT_BUFF(BuffType.BUFF, PropertyType.TAUNT_BUFF),
 
     DAMAGE_OVER_TIME(BuffType.DEBUFF, PropertyType.DOT_DEBUFF);
 
     open fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
-        propertyType?.let {
-            propertyService.getProperties(propertyType, buff.intensity).forEach {
-                it.stat?.apply(hero, it.value1)
-            }
+        propertyService.getProperties(propertyType, buff.intensity).forEach {
+            it.stat?.apply(hero, it.value1)
         }
     }
 }

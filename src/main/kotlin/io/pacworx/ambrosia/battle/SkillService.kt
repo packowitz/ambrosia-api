@@ -527,14 +527,14 @@ class SkillService(private val propertyService: PropertyService) {
 
     private fun applyBuff(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
         val buff = action.effect.buff!!
-        var intesity = action.effectValue
+        var intensity = action.effectValue
         var duration = action.effectDuration!!
         if (action.type == SkillActionType.BUFF) {
-            intesity += hero.buffIntensityIncBonus
+            intensity += hero.buffIntensityIncBonus
             duration += hero.buffDurationIncBonus
         }
         if (action.type == SkillActionType.DEBUFF) {
-            intesity += hero.debuffIntensityIncBonus
+            intensity += hero.debuffIntensityIncBonus
             duration += hero.debuffDurationIncBonus
         }
 
@@ -543,11 +543,13 @@ class SkillService(private val propertyService: PropertyService) {
             resisted = !procs(100 + hero.getTotalDexterity() - target.getTotalResistance())
         }
 
+
         if (!resisted) {
             target.buffs.add(BattleHeroBuff(
                     buff = buff,
-                    intensity = intesity,
+                    intensity = intensity,
                     duration = duration,
+                    resistance = propertyService.getProperties(buff.propertyType, intensity).filter { it.stat == HeroStat.BUFF_RESISTANCE }.sumBy { it.value1 },
                     sourceHeroId = hero.id
             ))
             target.resetBonus(battle, propertyService)
@@ -557,7 +559,7 @@ class SkillService(private val propertyService: PropertyService) {
                     heroName = target.heroBase.name,
                     type = BattleStepActionType.BUFF,
                     buff = buff,
-                    buffIntensity = intesity,
+                    buffIntensity = intensity,
                     buffDuration = duration
             )
         }
@@ -582,7 +584,7 @@ class SkillService(private val propertyService: PropertyService) {
             REMOVE_BUFF -> {
                 val buff = target.buffs.filter { it.buff.type == BuffType.BUFF }.takeIf { it.isNotEmpty() }?.random()
                 if (buff != null) {
-                    val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance())
+                    val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance() - buff.resistance)
                     if (!resisted) {
                         target.buffs.remove(buff)
                     }
@@ -597,7 +599,7 @@ class SkillService(private val propertyService: PropertyService) {
             REMOVE_ALL_BUFFS -> {
                 val buffsRemoved = mutableListOf<BattleHeroBuff>()
                 target.buffs.forEach { buff ->
-                    val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance())
+                    val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance() - buff.resistance)
                     if (!resisted) {
                         buffsRemoved.add(buff)
                     }
@@ -627,11 +629,14 @@ class SkillService(private val propertyService: PropertyService) {
                     LARGE_SHIELD -> target.heroHp
                     else -> { throw RuntimeException("Unreachable code") }
                 }
+                val intensity = action.effectValue + hero.buffIntensityIncBonus
+                val duration = action.effectDuration!! + hero.buffDurationIncBonus
                 target.buffs.add(BattleHeroBuff(
                         buff = Buff.SHIELD,
-                        intensity = action.effectValue,
-                        duration = action.effectDuration!!,
+                        intensity = intensity,
+                        duration = duration,
                         value = value,
+                        resistance = propertyService.getProperties(PropertyType.SHIELD_BUFF, intensity).filter { it.stat == HeroStat.BUFF_RESISTANCE }.sumBy { it.value1 },
                         sourceHeroId = hero.id
                 ))
                 step.addAction(BattleStepAction(
