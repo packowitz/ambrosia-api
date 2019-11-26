@@ -232,17 +232,7 @@ class SkillService(private val propertyService: PropertyService) {
         baseDamage *= damageDealer.getTotalGreenDamageInc().takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 } ?: 1
         baseDamage *= damageDealer.getTotalBlueDamageInc().takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 } ?: 1
 
-        var damage = baseDamage
-        while (damage > 0 && hero.getShield() != null) {
-            val shield = hero.getShield()!!
-            if (shield.value!! > damage) {
-                shield.value = shield.value!! - damage
-                damage = 0
-            } else {
-                damage -= shield.value!!
-                hero.buffs.remove(shield)
-            }
-        }
+        val damage = shieldCalculation(hero, baseDamage)
 
         val armorPiercedDamage = damageDealer.getTotalArmorPiercing().takeIf { it > 0 }?.let { (damage * it) / 100 } ?: 0
 
@@ -346,11 +336,12 @@ class SkillService(private val propertyService: PropertyService) {
     private fun applyReflectDamage(battle: Battle, hero: BattleHero, step: BattleStep, reflectDamage: Int) {
         val targetArmor = hero.getTotalArmor()
         val targetHealth = hero.currentHp
-        val dmgArmorRatio: Int = 100 * reflectDamage / targetArmor
+        val damage = shieldCalculation(hero, reflectDamage)
+        val dmgArmorRatio: Int = 100 * damage / targetArmor
         val property = battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
 
         val armorLoss = (hero.currentArmor * property.value1) / 100
-        val healthLoss = (reflectDamage * property.value2!!) / 100
+        val healthLoss = (damage * property.value2!!) / 100
 
         receiveDamage(battle, hero, armorLoss, healthLoss)
 
@@ -364,7 +355,8 @@ class SkillService(private val propertyService: PropertyService) {
             targetArmor = targetArmor,
             targetHealth = targetHealth,
             armorDiff = -armorLoss,
-            healthDiff = -healthLoss
+            healthDiff = -healthLoss,
+            shieldAbsorb = reflectDamage - damage
         ))
 
         if (hero.status == HeroStatus.DEAD) {
@@ -373,6 +365,21 @@ class SkillService(private val propertyService: PropertyService) {
                 heroName = hero.heroBase.name,
                 type = BattleStepActionType.DEAD))
         }
+    }
+
+    fun shieldCalculation(hero: BattleHero, baseDamage: Int): Int {
+        var damage = baseDamage
+        while (damage > 0 && hero.getShield() != null) {
+            val shield = hero.getShield()!!
+            if (shield.value!! > damage) {
+                shield.value = shield.value!! - damage
+                damage = 0
+            } else {
+                damage -= shield.value!!
+                hero.buffs.remove(shield)
+            }
+        }
+        return damage
     }
 
     fun receiveDamage(battle: Battle, hero: BattleHero, armorLoss: Int, healthLoss: Int, executer: BattleHero? = null) {
