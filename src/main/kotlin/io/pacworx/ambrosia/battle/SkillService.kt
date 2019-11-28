@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionEffect.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.DynamicProperty
@@ -16,7 +17,6 @@ import kotlin.random.Random
 class SkillService(private val propertyService: PropertyService) {
 
     companion object {
-        private const val SPEEDBAR_MAX: Int = 10000
         private val hero_positions = listOf(HeroPosition.HERO1, HeroPosition.HERO2, HeroPosition.HERO3, HeroPosition.HERO4)
         private val opp_positions = listOf(HeroPosition.OPP1, HeroPosition.OPP2, HeroPosition.OPP3, HeroPosition.OPP4)
     }
@@ -55,7 +55,6 @@ class SkillService(private val propertyService: PropertyService) {
             }
         }
 
-        hero.currentSpeedBar -= SPEEDBAR_MAX
         hero.skillUsed(skill.number)
         hero.afterTurn(battle, propertyService)
         battle.checkStatus()

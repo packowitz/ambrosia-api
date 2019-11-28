@@ -1,7 +1,9 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleHero
+import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
+import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 
 enum class HeroStat {
     HP_ABS {
@@ -322,13 +324,15 @@ enum class HeroStat {
             hero.dmgPerTurnBonus += bonus
         }
     },
-    BUFF_RESISTANCE {
-        override fun desc(bonus: Int): String = ""
-        override fun apply(hero: HeroDto, bonus: Int) {}
-        override fun apply(hero: BattleHero, bonus: Int) {}
+    BUFF_RESISTANCE,
+    INIT_SPEEDBAR_GAIN {
+        override fun initTurn(hero: BattleHero, bonus: Int) {
+            hero.currentSpeedBar += (bonus * SPEEDBAR_MAX) / 100
+        }
     };
 
-    abstract fun desc(bonus: Int): String
-    abstract fun apply(hero: HeroDto, bonus: Int)
-    abstract fun apply(hero: BattleHero, bonus: Int)
+    open fun desc(bonus: Int): String = ""
+    open fun apply(hero: HeroDto, bonus: Int) {}
+    open fun apply(hero: BattleHero, bonus: Int) {}
+    open fun initTurn(hero: BattleHero, bonus: Int) {}
 }

@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Buff
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
@@ -188,7 +189,7 @@ data class BattleHero(
         buffs.forEach { it.buff.applyEffect(battle, this, it, propertyService) }
     }
 
-    fun initTurn(skillService: SkillService, battle: Battle) {
+    fun initTurn(propertyService: PropertyService, skillService: SkillService, battle: Battle) {
         skill2Cooldown = skill2Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
         skill3Cooldown = skill3Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
         skill4Cooldown = skill4Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
@@ -235,11 +236,13 @@ data class BattleHero(
         }
 
         buffs.forEach {
+            it.buff.initTurnEffect(this, it, propertyService)
             it.decreaseDuration()
         }
     }
 
     fun afterTurn(battle: Battle, propertyService: PropertyService) {
+        currentSpeedBar -= SPEEDBAR_MAX
         buffs.removeIf { it.duration == 0 }
         battle.allHeroesAlive().forEach { it.resetBonus(battle, propertyService) }
     }

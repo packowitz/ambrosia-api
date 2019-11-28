@@ -17,7 +17,7 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val propertyService: PropertyService) {
 
     companion object {
-        private const val SPEEDBAR_MAX: Int = 10000
+        const val SPEEDBAR_MAX: Int = 10000
         private const val SPEEDBAR_TURN: Int = 100
     }
 
@@ -91,7 +91,7 @@ class BattleService(private val playerRepository: PlayerRepository,
 
             battle.setActiveHero(activeHero)
             battle.applyBonuses(propertyService)
-            activeHero.initTurn(skillService, battle)
+            activeHero.initTurn(propertyService, skillService, battle)
             battle.checkStatus()
 
             if (battle.hasEnded()) {

@@ -21,6 +21,12 @@ enum class Buff(val type: BuffType, val propertyType: PropertyType) {
 
     DAMAGE_OVER_TIME(BuffType.DEBUFF, PropertyType.DOT_DEBUFF);
 
+    open fun initTurnEffect(hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
+        propertyService.getProperties(propertyType, buff.intensity).forEach {
+            it.stat?.initTurn(hero, it.value1)
+        }
+    }
+
     open fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
         propertyService.getProperties(propertyType, buff.intensity).forEach {
             it.stat?.apply(hero, it.value1)
