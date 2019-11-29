@@ -99,12 +99,27 @@ class BattleService(private val playerRepository: PlayerRepository,
             }
             if (activeHero.status == HeroStatus.DEAD) {
                 nextTurn(battle)
-            }
-            if (battle.status == BattleStatus.PLAYER_TURN) {
-                // awaiting player input
-                return
-            } else if (battle.status == BattleStatus.OPP_TURN) {
-                aiService.doAction(battle, activeHero)
+            } else {
+                if (activeHero.status == HeroStatus.STUNNED) {
+                    battle.steps.add(BattleStep(
+                            turn = battle.turnsDone,
+                            phase = BattleStepPhase.MAIN,
+                            actingHero = activeHero.position,
+                            actingHeroName = activeHero.heroBase.name,
+                            target = HeroPosition.NONE,
+                            targetName = "STUNNED",
+                            heroStates = battle.getBattleStepHeroStates()
+                    ))
+                    activeHero.afterTurn(battle, propertyService)
+                    nextTurn(battle)
+                } else {
+                    if (battle.status == BattleStatus.PLAYER_TURN) {
+                        // awaiting player input
+                        return
+                    } else if (battle.status == BattleStatus.OPP_TURN) {
+                        aiService.doAction(battle, activeHero)
+                    }
+                }
             }
             if (battle.hasEnded()) {
                 return

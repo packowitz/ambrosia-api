@@ -26,6 +26,7 @@ enum class SkillActionEffect(val type: SkillActionType,
     HOT_BUFF(BUFF, "Grants HoT Buff with value intensity for duration turn", Buff.HEAL_OVER_TIME),
 
     DOT_DEBUFF(DEBUFF, "Applies DoT Debuff with value intensity for duration turn", Buff.DAMAGE_OVER_TIME),
+    STUN_DEBUFF(DEBUFF, "Applies Stun Debuff with value intensity for duration turn", Buff.STUN),
 
     PERCENTAGE(SPEEDBAR, "Fills speedbar by value percentage (1-100)"),
 
