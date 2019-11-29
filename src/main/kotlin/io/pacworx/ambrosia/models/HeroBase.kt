@@ -25,6 +25,7 @@ data class HeroBase(
     @field:NotNull
     @Enumerated(EnumType.STRING)
     var heroType: HeroType,
+    var avatar: String = "default",
     var strengthBase: Int = 500,
     var strengthFull: Int = 1000,
     var hpBase: Int = 1000,

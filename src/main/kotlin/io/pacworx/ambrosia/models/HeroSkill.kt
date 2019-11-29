@@ -11,6 +11,7 @@ data class HeroSkill(
     val id: Long = 0,
     val number: Int,
     var name: String,
+    var icon: String,
     var passive: Boolean,
     @Enumerated(EnumType.STRING)
     var passiveSkillTrigger: PassiveSkillTrigger? = null,
