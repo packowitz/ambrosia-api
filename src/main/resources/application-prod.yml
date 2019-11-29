@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_USER_PW}
+    url: jdbc:postgresql://google/ambrosia?cloudSqlInstance=ambrosia-259011:us-central1:ambrosia-db&socketFactory=com.google.cloud.sql.postgres.SocketFactory&user=${DB_USER}&password=${DB_USER_PW}
+#    username: ${DB_USER}
+#    password: ${DB_USER_PW}
 
 ambrosia:
   pw-salt-one: ${PW_SALT_ONE}
