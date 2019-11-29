@@ -105,6 +105,11 @@ data class BattleHero(
         @field:Transient var healPerTurnBonus: Int = 0,
         val heroDmgPerTurn: Int,
         @field:Transient var dmgPerTurnBonus: Int = 0,
+        val heroConfuseChance: Int,
+        @field:Transient var confuseChanceBonus: Int = 0,
+        val heroDamageReduction: Int,
+        @field:Transient var damageReductionBonus: Int = 0,
+
         @field:Transient @field:JsonIgnore var willCounter: Boolean = false
 ) {
     constructor(playerId: Long, hero: HeroDto, heroBase: HeroBase, position: HeroPosition) : this(
@@ -155,6 +160,8 @@ data class BattleHero(
             heroDebuffDurationInc = hero.debuffDurationInc,
             heroHealPerTurn = hero.healPerTurn,
             heroDmgPerTurn = hero.dmgPerTurn,
+            heroConfuseChance = hero.confuseChance,
+            heroDamageReduction = hero.damageReduction,
             willCounter = false
     )
 
@@ -184,6 +191,8 @@ data class BattleHero(
         debuffDurationIncBonus = 0
         healPerTurnBonus = 0
         dmgPerTurnBonus = 0
+        confuseChanceBonus = 0
+        damageReductionBonus = 0
         willCounter = false
 
         buffs.forEach { it.buff.applyEffect(battle, this, it, propertyService) }

@@ -324,6 +324,28 @@ enum class HeroStat {
             hero.dmgPerTurnBonus += bonus
         }
     },
+    CONFUSE_CHANCE {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% chance of being confused"
+        }
+        override fun apply(hero: HeroDto, bonus: Int) {
+            hero.confuseChance += bonus
+        }
+        override fun apply(hero: BattleHero, bonus: Int) {
+            hero.confuseChanceBonus += bonus
+        }
+    },
+    DAMAGE_REDUCTION {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% damage reduction"
+        }
+        override fun apply(hero: HeroDto, bonus: Int) {
+            hero.damageReduction += bonus
+        }
+        override fun apply(hero: BattleHero, bonus: Int) {
+            hero.damageReductionBonus += bonus
+        }
+    },
     BUFF_RESISTANCE,
     INIT_SPEEDBAR_GAIN {
         override fun initTurn(hero: BattleHero, bonus: Int) {
