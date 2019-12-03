@@ -29,7 +29,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
     }
 
     fun login(email: String, password: String): Player {
-        return playerRepository.findByEmail(email)?.takeIf { getHash(it.name, password) == it.password }
+        return playerRepository.findByEmailIgnoreCase(email.trim())?.takeIf { getHash(it.name, password) == it.password }
                 ?: throw RuntimeException("Auth failed")
     }
 
