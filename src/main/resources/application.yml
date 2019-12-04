@@ -17,6 +17,12 @@ spring:
             lob:
               non_contextual_creation: true
 
+springdoc:
+  api-docs:
+    path: /swagger/api-docs
+  swagger-ui:
+    path: /swagger/swagger.html
+
 ambrosia:
   pw-salt-one: cslqwooiqz
   pw-salt-two: ier23caop1

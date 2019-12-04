@@ -20,6 +20,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .and()
                 .cors().and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/swagger/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/enum/**").permitAll()
