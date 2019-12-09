@@ -74,7 +74,7 @@ data class Hero(
         GearType.HELMET -> this.helmet
         GearType.ARMOR -> this.armor
         GearType.PANTS -> this.pants
-        GearType.BOOTS -> this.pants
+        GearType.BOOTS -> this.boots
     }
 
     fun equip(gear: Gear): Gear? {
