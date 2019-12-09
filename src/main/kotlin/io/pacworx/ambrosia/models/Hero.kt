@@ -101,7 +101,7 @@ data class Hero(
             GearType.HELMET -> this.helmet = null
             GearType.ARMOR -> this.armor = null
             GearType.PANTS -> this.pants = null
-            GearType.BOOTS -> this.pants = null
+            GearType.BOOTS -> this.boots = null
         }
         return unequipped
     }
