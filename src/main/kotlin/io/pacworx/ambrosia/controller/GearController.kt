@@ -30,6 +30,9 @@ class GearController(private val gearRepository: GearRepository,
         if (hero.stars < gear.rarity.stars) {
             throw RuntimeException("You cannot equip gear of higher rarity than the hero stars has")
         }
+        if (gear.equippedTo != null) {
+            throw RuntimeException("You cannot equip a gear that is already equipped")
+        }
         val unequipped = hero.equip(gear)
         return PlayerActionResponse(hero = heroService.asHeroDto(hero), gear = unequipped, gearIdsRemovedFromArmory = listOf(gear.id))
     }
