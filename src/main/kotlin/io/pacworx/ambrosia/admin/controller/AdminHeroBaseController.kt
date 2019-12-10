@@ -10,7 +10,7 @@ import javax.validation.Valid
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("admin/hero_base")
-class HeroBaseController(val heroBaseRepository: HeroBaseRepository) {
+class AdminHeroBaseController(val heroBaseRepository: HeroBaseRepository) {
 
     @GetMapping("")
     fun getHeroBases(): List<HeroBase> = heroBaseRepository.findAll()
