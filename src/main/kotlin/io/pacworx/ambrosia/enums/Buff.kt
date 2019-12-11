@@ -21,6 +21,14 @@ enum class Buff(val type: BuffType, val propertyType: PropertyType) {
     STRENGTH_BUFF(BuffType.BUFF, PropertyType.STRENGTH_BUFF),
     TAUNT_BUFF(BuffType.BUFF, PropertyType.TAUNT_BUFF),
 
+    CONFUSE(BuffType.DEBUFF, PropertyType.CONFUSE_DEBUFF) {
+        override fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
+            super.applyEffect(battle, hero, buff, propertyService)
+            if (hero.status != HeroStatus.DEAD && hero.status != HeroStatus.STUNNED) {
+                hero.status = HeroStatus.CONFUSED
+            }
+        }
+    },
     DAMAGE_OVER_TIME(BuffType.DEBUFF, PropertyType.DOT_DEBUFF),
     STUN(BuffType.DEBUFF, PropertyType.STUN_DEBUFF) {
         override fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {

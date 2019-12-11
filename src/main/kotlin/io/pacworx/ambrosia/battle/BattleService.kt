@@ -100,6 +100,9 @@ class BattleService(private val playerRepository: PlayerRepository,
             if (activeHero.status == HeroStatus.DEAD) {
                 nextTurn(battle)
             } else {
+                if (activeHero.status == HeroStatus.CONFUSED && battle.allAlliedHeroesAlive(activeHero).filter { it.position != activeHero.position }.isEmpty()) {
+                    activeHero.status = HeroStatus.STUNNED
+                }
                 if (activeHero.status == HeroStatus.STUNNED) {
                     battle.steps.add(BattleStep(
                             turn = battle.turnsDone,
@@ -112,6 +115,10 @@ class BattleService(private val playerRepository: PlayerRepository,
                     ))
                     activeHero.afterTurn(battle, propertyService)
                     nextTurn(battle)
+                } else if (activeHero.status == HeroStatus.CONFUSED) {
+                    val target = battle.allAlliedHeroesAlive(activeHero).filter { it.position != activeHero.position }.random()
+                    val skill = activeHero.heroBase.skills.find { it.number == 1 }!!
+                    skillService.useSkill(battle, activeHero, skill, target)
                 } else {
                     if (battle.status == BattleStatus.PLAYER_TURN) {
                         // awaiting player input

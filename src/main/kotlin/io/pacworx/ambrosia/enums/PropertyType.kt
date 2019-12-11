@@ -65,6 +65,7 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
     SHIELD_BUFF(BUFF, "Please select only BUFF_RESISTANCE as bonus and level is intensity (1-5). Value2 is ignored."),
     TAUNT_BUFF(BUFF, "Please select only BUFF_RESISTANCE as bonus and level is intensity (1-5). Value2 is ignored."),
 
+    CONFUSE_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
     DOT_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
     STUN_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored.")
     ;

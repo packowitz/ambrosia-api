@@ -25,6 +25,7 @@ enum class SkillActionEffect(val type: SkillActionType,
     TAUNT_BUFF(BUFF, "Grants Taunt Buff with value intensity for duration turn", Buff.TAUNT_BUFF),
     HOT_BUFF(BUFF, "Grants HoT Buff with value intensity for duration turn", Buff.HEAL_OVER_TIME),
 
+    CONFUSE_DEBUFF(DEBUFF, "Applies Confuse Debuff with value intensity for duration turn", Buff.CONFUSE),
     DOT_DEBUFF(DEBUFF, "Applies DoT Debuff with value intensity for duration turn", Buff.DAMAGE_OVER_TIME),
     STUN_DEBUFF(DEBUFF, "Applies Stun Debuff with value intensity for duration turn", Buff.STUN),
 
