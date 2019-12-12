@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillTarget
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
@@ -37,7 +39,10 @@ class BattleController(private val battleService: BattleService,
             throw RuntimeException("Hero $heroPos cannot use skill $skillNumber on battle $battleId")
         }
         val target = battle.allHeroes().find { it.position == targetPos }
-                ?: throw java.lang.RuntimeException("Target $targetPos is not valid on battle $battleId")
+                ?: throw RuntimeException("Target $targetPos is not valid on battle $battleId")
+        if (!isTargetEligible(battle, activeHero, skill, target)) {
+            throw RuntimeException("Target ${target.position} is not valid target for skill ${skill.number} of hero ${activeHero.position} in battle ${battle.id}")
+        }
         return battleService.takeTurn(battle, activeHero, skill, target)
     }
 
@@ -67,6 +72,17 @@ class BattleController(private val battleService: BattleService,
         }
         battle.status = BattleStatus.LOST
         return battle
+    }
+
+    private fun isTargetEligible(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero): Boolean {
+        val isPlayer = battle.heroBelongsToPlayer(hero)
+        return when (skill.target) {
+            SkillTarget.OPPONENT -> isPlayer == battle.heroBelongsToOpponent(target) && (target.isTaunting() || battle.allAlliedHeroesAlive(target).none { it.isTaunting() })
+            SkillTarget.SELF -> hero.position == target.position
+            SkillTarget.ALL_OWN -> isPlayer == battle.heroBelongsToPlayer(target)
+            SkillTarget.OPP_IGNORE_TAUNT -> isPlayer == battle.heroBelongsToOpponent(target)
+            SkillTarget.DEAD -> isPlayer == battle.heroBelongsToPlayer(target) && target.status == HeroStatus.DEAD
+        }
     }
 }
 

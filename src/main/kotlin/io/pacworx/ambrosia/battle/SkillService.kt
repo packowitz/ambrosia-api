@@ -28,9 +28,6 @@ class SkillService(private val propertyService: PropertyService) {
     }
 
     fun useSkill(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero) {
-        if (!isTargetEligible(battle, hero, skill, target)) {
-            throw RuntimeException("Target ${target.position} is not valid target for skill ${skill.number} of hero ${hero.position} in battle ${battle.id}")
-        }
         initProps()
         battle.applyBonuses(propertyService)
         val step = BattleStep(
@@ -120,17 +117,6 @@ class SkillService(private val propertyService: PropertyService) {
                             }
                     }
             }
-        }
-    }
-
-    private fun isTargetEligible(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero): Boolean {
-        val isPlayer = battle.heroBelongsToPlayer(hero)
-        return when (skill.target) {
-            SkillTarget.OPPONENT -> isPlayer == battle.heroBelongsToOpponent(target) && (target.isTaunting() || battle.allAlliedHeroesAlive(target).none { it.isTaunting() })
-            SkillTarget.SELF -> hero.position == target.position
-            SkillTarget.ALL_OWN -> isPlayer == battle.heroBelongsToPlayer(target)
-            SkillTarget.OPP_IGNORE_TAUNT -> isPlayer == battle.heroBelongsToOpponent(target)
-            SkillTarget.DEAD -> isPlayer == battle.heroBelongsToPlayer(target) && target.status == HeroStatus.DEAD
         }
     }
 
