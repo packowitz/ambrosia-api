@@ -604,7 +604,7 @@ class SkillService(private val propertyService: PropertyService) {
             }
             REMOVE_ALL_BUFFS -> {
                 val buffsRemoved = mutableListOf<BattleHeroBuff>()
-                target.buffs.forEach { buff ->
+                target.buffs.filter { it.buff.type == BuffType.BUFF }.forEach { buff ->
                     val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance() - buff.resistance)
                     if (!resisted) {
                         buffsRemoved.add(buff)
