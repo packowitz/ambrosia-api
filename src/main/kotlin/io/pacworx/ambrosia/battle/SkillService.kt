@@ -370,6 +370,9 @@ class SkillService(private val propertyService: PropertyService) {
     fun receiveDamage(battle: Battle, hero: BattleHero, armorLoss: Int, healthLoss: Int, executer: BattleHero? = null) {
         hero.currentArmor -= armorLoss
         hero.currentHp -= healthLoss
+        if (hero.currentHp <= 0 && hero.hasDeathshield()) {
+            hero.currentHp = 1
+        }
         if (hero.currentHp <= 0) {
             hero.status = HeroStatus.DEAD
             hero.currentHp = 0
@@ -651,6 +654,7 @@ class SkillService(private val propertyService: PropertyService) {
         val maxHealing = max(target.heroHp - target.currentHp, 0)
         healing += (target.getTotalHealingInc() * healing) / 100
         healing = min(healing, maxHealing)
+        healing = max(healing, 0)
 
         target.currentHp += healing
 
