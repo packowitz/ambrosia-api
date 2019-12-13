@@ -77,44 +77,44 @@ class SkillService(private val propertyService: PropertyService) {
                 SkillActionType.DEAL_DAMAGE ->
                     if (!excludedActionTypes.contains(SkillActionType.DEAL_DAMAGE)) {
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                dealDamage(battle, it, hero, action, damage, step)
-                            }
+                                .forEach {
+                                    dealDamage(battle, it, hero, action, damage, step)
+                                }
                     }
                 SkillActionType.BUFF, SkillActionType.DEBUFF ->
                     if (!excludedActionTypes.contains(SkillActionType.DEBUFF)) {
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                step.addAction(applyBuff(battle, hero, action, it))
-                            }
+                                .forEach {
+                                    step.addAction(applyBuff(battle, hero, action, it))
+                                }
                     }
                 SkillActionType.SPEEDBAR ->
                     if (!excludedActionTypes.contains(SkillActionType.SPEEDBAR)) {
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                applySpeedbarAction(it, action)
-                            }
+                                .forEach {
+                                    applySpeedbarAction(it, action)
+                                }
                     }
                 SkillActionType.HEAL ->
                     if (!excludedActionTypes.contains(SkillActionType.HEAL)) {
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                step.addAction(applyHealingAction(hero, action, it))
-                            }
+                                .forEach {
+                                    step.addAction(applyHealingAction(hero, action, it))
+                                }
                     }
                 SkillActionType.PASSIVE_STAT ->
                     if (!excludedActionTypes.contains(SkillActionType.PASSIVE_STAT)) {
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                action.effect.stat?.apply(it, action.effectValue)
-                            }
+                                .forEach {
+                                    action.effect.stat?.apply(it, action.effectValue)
+                                }
                     }
                 SkillActionType.SPECIAL ->
                     if (!excludedActionTypes.contains(SkillActionType.SPECIAL)) {
                         findTargets(battle, hero, action, target)
-                            .forEach {
-                                applySpecialAction(battle, step, hero, action, it)
-                            }
+                                .forEach {
+                                    applySpecialAction(battle, step, hero, action, it)
+                                }
                     }
             }
         }
@@ -189,9 +189,9 @@ class SkillService(private val propertyService: PropertyService) {
     private fun dealDamage(battle: Battle, hero: BattleHero, damageDealer: BattleHero, action: HeroSkillAction, baseDamage: Int, step: BattleStep, isFreeAttack: Boolean = false) {
         if (procs(hero.getTotalDodgeChance())) {
             step.addAction(BattleStepAction(
-                heroPosition = hero.position,
-                heroName = hero.heroBase.name,
-                type = BattleStepActionType.DODGED
+                    heroPosition = hero.position,
+                    heroName = hero.heroBase.name,
+                    type = BattleStepActionType.DODGED
             ))
             return
         }
@@ -213,13 +213,17 @@ class SkillService(private val propertyService: PropertyService) {
         val reflectDamage = hero.getTotalReflect().takeIf { it > 0 }?.let { baseDamage * it / 100 } ?: 0
         baseDamage -= reflectDamage
 
-        baseDamage *= damageDealer.getTotalRedDamageInc().takeIf { hero.color == Color.RED && it != 0 }?.let { (100 + it) / 100 } ?: 1
-        baseDamage *= damageDealer.getTotalGreenDamageInc().takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 } ?: 1
-        baseDamage *= damageDealer.getTotalBlueDamageInc().takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 } ?: 1
+        baseDamage *= damageDealer.getTotalRedDamageInc().takeIf { hero.color == Color.RED && it != 0 }?.let { (100 + it) / 100 }
+                ?: 1
+        baseDamage *= damageDealer.getTotalGreenDamageInc().takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 }
+                ?: 1
+        baseDamage *= damageDealer.getTotalBlueDamageInc().takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 }
+                ?: 1
 
         val damage = shieldCalculation(hero, baseDamage)
 
-        val armorPiercedDamage = damageDealer.getTotalArmorPiercing().takeIf { it > 0 }?.let { (damage * it) / 100 } ?: 0
+        val armorPiercedDamage = damageDealer.getTotalArmorPiercing().takeIf { it > 0 }?.let { (damage * it) / 100 }
+                ?: 0
 
         val targetArmor = hero.getTotalArmor()
         val targetHealth = hero.currentHp
@@ -256,9 +260,9 @@ class SkillService(private val propertyService: PropertyService) {
 
         if (hero.status == HeroStatus.DEAD) {
             step.addAction(BattleStepAction(
-                heroPosition = hero.position,
-                heroName = hero.heroBase.name,
-                type = BattleStepActionType.DEAD))
+                    heroPosition = hero.position,
+                    heroName = hero.heroBase.name,
+                    type = BattleStepActionType.DEAD))
         }
 
         if (lifeSteal > 0 && damageDealer.currentHp < damageDealer.heroHp) {
@@ -278,15 +282,15 @@ class SkillService(private val propertyService: PropertyService) {
         var damage = 0
         counterHero.heroBase.skills.find { it.number == 1 }?.let { skill ->
             val step = BattleStep(
-                turn = battle.turnsDone,
-                phase = phase,
-                actingHero = counterHero.position,
-                actingHeroName = counterHero.heroBase.name,
-                usedSkill = skill.number,
-                usedSkillName = skill.name,
-                target = hero.position,
-                targetName = hero.heroBase.name,
-                heroStates = battle.getBattleStepHeroStates()
+                    turn = battle.turnsDone,
+                    phase = phase,
+                    actingHero = counterHero.position,
+                    actingHeroName = counterHero.heroBase.name,
+                    usedSkill = skill.number,
+                    usedSkillName = skill.name,
+                    target = hero.position,
+                    targetName = hero.heroBase.name,
+                    heroStates = battle.getBattleStepHeroStates()
             )
             battle.steps.add(step)
             skill.actions.forEach { action ->
@@ -294,25 +298,26 @@ class SkillService(private val propertyService: PropertyService) {
                     SkillActionType.DAMAGE -> damage += handleDamageAction(counterHero, action, damage)
                     SkillActionType.DEAL_DAMAGE ->
                         findTargets(battle, counterHero, action, hero)
-                            .forEach {
-                                dealDamage(battle, it, counterHero, action, damage, step, true)
-                            }
+                                .forEach {
+                                    dealDamage(battle, it, counterHero, action, damage, step, true)
+                                }
                     SkillActionType.HEAL ->
                         findTargets(battle, counterHero, action, hero)
-                            .forEach {
-                                step.addAction(applyHealingAction(counterHero, action, it))
-                            }
+                                .forEach {
+                                    step.addAction(applyHealingAction(counterHero, action, it))
+                                }
                     SkillActionType.PASSIVE_STAT ->
                         findTargets(battle, counterHero, action, hero)
-                            .forEach {
-                                action.effect.stat?.apply(it, action.effectValue)
-                            }
+                                .forEach {
+                                    action.effect.stat?.apply(it, action.effectValue)
+                                }
                     SkillActionType.SPECIAL ->
                         findTargets(battle, counterHero, action, hero)
-                            .forEach {
-                                applySpecialAction(battle, step, hero, action, it)
-                            }
-                    else -> {}
+                                .forEach {
+                                    applySpecialAction(battle, step, hero, action, it)
+                                }
+                    else -> {
+                    }
                 }
             }
         }
@@ -331,24 +336,24 @@ class SkillService(private val propertyService: PropertyService) {
         receiveDamage(battle, hero, armorLoss, healthLoss)
 
         step.addAction(BattleStepAction(
-            heroPosition = hero.position,
-            heroName = hero.heroBase.name,
-            type = BattleStepActionType.DAMAGE,
-            crit = false,
-            superCrit = false,
-            baseDamage = reflectDamage,
-            targetArmor = targetArmor,
-            targetHealth = targetHealth,
-            armorDiff = -armorLoss,
-            healthDiff = -healthLoss,
-            shieldAbsorb = reflectDamage - damage
+                heroPosition = hero.position,
+                heroName = hero.heroBase.name,
+                type = BattleStepActionType.DAMAGE,
+                crit = false,
+                superCrit = false,
+                baseDamage = reflectDamage,
+                targetArmor = targetArmor,
+                targetHealth = targetHealth,
+                armorDiff = -armorLoss,
+                healthDiff = -healthLoss,
+                shieldAbsorb = reflectDamage - damage
         ))
 
         if (hero.status == HeroStatus.DEAD) {
             step.addAction(BattleStepAction(
-                heroPosition = hero.position,
-                heroName = hero.heroBase.name,
-                type = BattleStepActionType.DEAD))
+                    heroPosition = hero.position,
+                    heroName = hero.heroBase.name,
+                    type = BattleStepActionType.DEAD))
         }
     }
 
@@ -381,141 +386,141 @@ class SkillService(private val propertyService: PropertyService) {
             // PassiveSkillTrigger.KILLED_OPP
             executer?.let {
                 executer.heroBase.skills
-                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.KILLED_OPP && executer.getCooldown(it.number) <= 0 }
-                    .forEach { skill ->
-                        if (hero.status == HeroStatus.DEAD) {
-                            val step = BattleStep(
-                                turn = battle.turnsDone,
-                                phase = BattleStepPhase.PASSIVE,
-                                actingHero = executer.position,
-                                actingHeroName = executer.heroBase.name,
-                                usedSkill = skill.number,
-                                usedSkillName = skill.name,
-                                target = hero.position,
-                                targetName = hero.heroBase.name,
-                                heroStates = battle.getBattleStepHeroStates()
-                            )
-                            battle.steps.add(step)
-                            executeSkillActions(battle, step, executer, skill, hero)
-                            executer.skillUsed(skill.number)
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.KILLED_OPP && executer.getCooldown(it.number) <= 0 }
+                        .forEach { skill ->
+                            if (hero.status == HeroStatus.DEAD) {
+                                val step = BattleStep(
+                                        turn = battle.turnsDone,
+                                        phase = BattleStepPhase.PASSIVE,
+                                        actingHero = executer.position,
+                                        actingHeroName = executer.heroBase.name,
+                                        usedSkill = skill.number,
+                                        usedSkillName = skill.name,
+                                        target = hero.position,
+                                        targetName = hero.heroBase.name,
+                                        heroStates = battle.getBattleStepHeroStates()
+                                )
+                                battle.steps.add(step)
+                                executeSkillActions(battle, step, executer, skill, hero)
+                                executer.skillUsed(skill.number)
+                            }
                         }
-                    }
             }
 
             // PassiveSkillTrigger.ANY_OPP_DIED
             battle.allOtherHeroesAlive(hero).forEach { oppHero ->
                 oppHero.heroBase.skills
-                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ANY_OPP_DIED && oppHero.getCooldown(it.number) <= 0 }
-                    .forEach { skill ->
-                        if (hero.status == HeroStatus.DEAD) {
-                            val step = BattleStep(
-                                turn = battle.turnsDone,
-                                phase = BattleStepPhase.PASSIVE,
-                                actingHero = oppHero.position,
-                                actingHeroName = oppHero.heroBase.name,
-                                usedSkill = skill.number,
-                                usedSkillName = skill.name,
-                                target = hero.position,
-                                targetName = hero.heroBase.name,
-                                heroStates = battle.getBattleStepHeroStates()
-                            )
-                            battle.steps.add(step)
-                            executeSkillActions(battle, step, oppHero, skill, hero)
-                            oppHero.skillUsed(skill.number)
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ANY_OPP_DIED && oppHero.getCooldown(it.number) <= 0 }
+                        .forEach { skill ->
+                            if (hero.status == HeroStatus.DEAD) {
+                                val step = BattleStep(
+                                        turn = battle.turnsDone,
+                                        phase = BattleStepPhase.PASSIVE,
+                                        actingHero = oppHero.position,
+                                        actingHeroName = oppHero.heroBase.name,
+                                        usedSkill = skill.number,
+                                        usedSkillName = skill.name,
+                                        target = hero.position,
+                                        targetName = hero.heroBase.name,
+                                        heroStates = battle.getBattleStepHeroStates()
+                                )
+                                battle.steps.add(step)
+                                executeSkillActions(battle, step, oppHero, skill, hero)
+                                oppHero.skillUsed(skill.number)
+                            }
                         }
-                    }
             }
 
             // PassiveSkillTrigger.SELF_DIED
             hero.heroBase.skills
-                .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DIED && hero.getCooldown(it.number) <= 0 }
-                .forEach { skill ->
-                    if (hero.status == HeroStatus.DEAD) {
-                        val step = BattleStep(
-                            turn = battle.turnsDone,
-                            phase = BattleStepPhase.PASSIVE,
-                            actingHero = hero.position,
-                            actingHeroName = hero.heroBase.name,
-                            usedSkill = skill.number,
-                            usedSkillName = skill.name,
-                            target = hero.position,
-                            targetName = hero.heroBase.name,
-                            heroStates = battle.getBattleStepHeroStates()
-                        )
-                        battle.steps.add(step)
-                        executeSkillActions(battle, step, hero, skill, hero)
-                        hero.skillUsed(skill.number)
+                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DIED && hero.getCooldown(it.number) <= 0 }
+                    .forEach { skill ->
+                        if (hero.status == HeroStatus.DEAD) {
+                            val step = BattleStep(
+                                    turn = battle.turnsDone,
+                                    phase = BattleStepPhase.PASSIVE,
+                                    actingHero = hero.position,
+                                    actingHeroName = hero.heroBase.name,
+                                    usedSkill = skill.number,
+                                    usedSkillName = skill.name,
+                                    target = hero.position,
+                                    targetName = hero.heroBase.name,
+                                    heroStates = battle.getBattleStepHeroStates()
+                            )
+                            battle.steps.add(step)
+                            executeSkillActions(battle, step, hero, skill, hero)
+                            hero.skillUsed(skill.number)
+                        }
                     }
-                }
 
             // PassiveSkillTrigger.ALLY_DIED
             battle.allAlliedHeroesAlive(hero).forEach { alliedHero ->
                 alliedHero.heroBase.skills
-                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DIED && alliedHero.getCooldown(it.number) <= 0 }
-                    .forEach { skill ->
-                        if (hero.status == HeroStatus.DEAD) {
-                            val step = BattleStep(
-                                turn = battle.turnsDone,
-                                phase = BattleStepPhase.PASSIVE,
-                                actingHero = alliedHero.position,
-                                actingHeroName = alliedHero.heroBase.name,
-                                usedSkill = skill.number,
-                                usedSkillName = skill.name,
-                                target = hero.position,
-                                targetName = hero.heroBase.name,
-                                heroStates = battle.getBattleStepHeroStates()
-                            )
-                            battle.steps.add(step)
-                            executeSkillActions(battle, step, alliedHero, skill, hero)
-                            alliedHero.skillUsed(skill.number)
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DIED && alliedHero.getCooldown(it.number) <= 0 }
+                        .forEach { skill ->
+                            if (hero.status == HeroStatus.DEAD) {
+                                val step = BattleStep(
+                                        turn = battle.turnsDone,
+                                        phase = BattleStepPhase.PASSIVE,
+                                        actingHero = alliedHero.position,
+                                        actingHeroName = alliedHero.heroBase.name,
+                                        usedSkill = skill.number,
+                                        usedSkillName = skill.name,
+                                        target = hero.position,
+                                        targetName = hero.heroBase.name,
+                                        heroStates = battle.getBattleStepHeroStates()
+                                )
+                                battle.steps.add(step)
+                                executeSkillActions(battle, step, alliedHero, skill, hero)
+                                alliedHero.skillUsed(skill.number)
+                            }
                         }
-                    }
             }
         } else {
             // PassiveSkillTrigger.OWN_HEALTH_UNDER
             hero.heroBase.skills
-                .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OWN_HEALTH_UNDER && hero.getCooldown(it.number) <= 0 }
-                .forEach { skill ->
-                    if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
-                        val step = BattleStep(
-                            turn = battle.turnsDone,
-                            phase = BattleStepPhase.PASSIVE,
-                            actingHero = hero.position,
-                            actingHeroName = hero.heroBase.name,
-                            usedSkill = skill.number,
-                            usedSkillName = skill.name,
-                            target = hero.position,
-                            targetName = hero.heroBase.name,
-                            heroStates = battle.getBattleStepHeroStates()
-                        )
-                        battle.steps.add(step)
-                        executeSkillActions(battle, step, hero, skill, hero)
-                        hero.skillUsed(skill.number)
+                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OWN_HEALTH_UNDER && hero.getCooldown(it.number) <= 0 }
+                    .forEach { skill ->
+                        if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
+                            val step = BattleStep(
+                                    turn = battle.turnsDone,
+                                    phase = BattleStepPhase.PASSIVE,
+                                    actingHero = hero.position,
+                                    actingHeroName = hero.heroBase.name,
+                                    usedSkill = skill.number,
+                                    usedSkillName = skill.name,
+                                    target = hero.position,
+                                    targetName = hero.heroBase.name,
+                                    heroStates = battle.getBattleStepHeroStates()
+                            )
+                            battle.steps.add(step)
+                            executeSkillActions(battle, step, hero, skill, hero)
+                            hero.skillUsed(skill.number)
+                        }
                     }
-                }
 
             // PassiveSkillTrigger.ALLY_HEALTH_UNDER
             battle.allAlliedHeroesAlive(hero).forEach { alliedHero ->
                 alliedHero.heroBase.skills
-                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_HEALTH_UNDER && alliedHero.getCooldown(it.number) <= 0 }
-                    .forEach { skill ->
-                        if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
-                            val step = BattleStep(
-                                turn = battle.turnsDone,
-                                phase = BattleStepPhase.PASSIVE,
-                                actingHero = alliedHero.position,
-                                actingHeroName = alliedHero.heroBase.name,
-                                usedSkill = skill.number,
-                                usedSkillName = skill.name,
-                                target = hero.position,
-                                targetName = hero.heroBase.name,
-                                heroStates = battle.getBattleStepHeroStates()
-                            )
-                            battle.steps.add(step)
-                            executeSkillActions(battle, step, alliedHero, skill, hero)
-                            alliedHero.skillUsed(skill.number)
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_HEALTH_UNDER && alliedHero.getCooldown(it.number) <= 0 }
+                        .forEach { skill ->
+                            if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
+                                val step = BattleStep(
+                                        turn = battle.turnsDone,
+                                        phase = BattleStepPhase.PASSIVE,
+                                        actingHero = alliedHero.position,
+                                        actingHeroName = alliedHero.heroBase.name,
+                                        usedSkill = skill.number,
+                                        usedSkillName = skill.name,
+                                        target = hero.position,
+                                        targetName = hero.heroBase.name,
+                                        heroStates = battle.getBattleStepHeroStates()
+                                )
+                                battle.steps.add(step)
+                                executeSkillActions(battle, step, alliedHero, skill, hero)
+                                alliedHero.skillUsed(skill.number)
+                            }
                         }
-                    }
             }
         }
     }
@@ -570,7 +575,8 @@ class SkillService(private val propertyService: PropertyService) {
     private fun applySpeedbarAction(hero: BattleHero, action: HeroSkillAction) {
         when (action.effect) {
             PERCENTAGE -> hero.currentSpeedBar += (SPEEDBAR_MAX * action.effectValue) / 100
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -584,10 +590,10 @@ class SkillService(private val propertyService: PropertyService) {
                         target.buffs.remove(buff)
                     }
                     step.addAction(BattleStepAction(
-                        heroPosition = target.position,
-                        heroName = target.heroBase.name,
-                        type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
-                        buff = buff.buff
+                            heroPosition = target.position,
+                            heroName = target.heroBase.name,
+                            type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
+                            buff = buff.buff
                     ))
                 }
             }
@@ -599,30 +605,63 @@ class SkillService(private val propertyService: PropertyService) {
                         buffsRemoved.add(buff)
                     }
                     step.addAction(BattleStepAction(
-                        heroPosition = target.position,
-                        heroName = target.heroBase.name,
-                        type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
-                        buff = buff.buff
+                            heroPosition = target.position,
+                            heroName = target.heroBase.name,
+                            type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
+                            buff = buff.buff
                     ))
                 }
                 target.buffs.removeAll(buffsRemoved)
+            }
+            REMOVE_DEBUFF -> {
+                val debuff = target.buffs.filter { it.buff.type == BuffType.DEBUFF }.takeIf { it.isNotEmpty() }?.random()
+                if (debuff != null) {
+                    val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - debuff.resistance)
+                    if (!resisted) {
+                        target.buffs.remove(debuff)
+                    }
+                    step.addAction(BattleStepAction(
+                            heroPosition = target.position,
+                            heroName = target.heroBase.name,
+                            type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
+                            buff = debuff.buff
+                    ))
+                }
+            }
+            REMOVE_ALL_DEBUFFS -> {
+                val debuffsRemoved = mutableListOf<BattleHeroBuff>()
+                target.buffs.filter { it.buff.type == BuffType.DEBUFF }.forEach { debuff ->
+                    val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - debuff.resistance)
+                    if (!resisted) {
+                        debuffsRemoved.add(debuff)
+                    }
+                    step.addAction(BattleStepAction(
+                            heroPosition = target.position,
+                            heroName = target.heroBase.name,
+                            type = if (resisted) BattleStepActionType.BLOCKED else BattleStepActionType.BUFF_CLEANED,
+                            buff = debuff.buff
+                    ))
+                }
+                target.buffs.removeAll(debuffsRemoved)
             }
             RESURRECT -> {
                 target.status = HeroStatus.ALIVE
                 target.currentHp = (action.effectValue * target.heroHp) / 100
                 step.addAction(BattleStepAction(
-                    heroPosition = target.position,
-                    heroName = target.heroBase.name,
-                    type = BattleStepActionType.RESURRECTED,
-                    healthDiff = target.currentHp
+                        heroPosition = target.position,
+                        heroName = target.heroBase.name,
+                        type = BattleStepActionType.RESURRECTED,
+                        healthDiff = target.currentHp
                 ))
             }
             SMALL_SHIELD, MEDIUM_SHIELD, LARGE_SHIELD -> {
-                val value = when(action.effect) {
+                val value = when (action.effect) {
                     SMALL_SHIELD -> (target.heroHp * 0.25).toInt()
                     MEDIUM_SHIELD -> (target.heroHp * 0.50).toInt()
                     LARGE_SHIELD -> target.heroHp
-                    else -> { throw RuntimeException("Unreachable code") }
+                    else -> {
+                        throw RuntimeException("Unreachable code")
+                    }
                 }
                 val intensity = action.effectValue + hero.buffIntensityIncBonus
                 val duration = action.effectDuration!! + hero.buffDurationIncBonus
@@ -641,7 +680,8 @@ class SkillService(private val propertyService: PropertyService) {
                         buff = Buff.SHIELD
                 ))
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -659,10 +699,10 @@ class SkillService(private val propertyService: PropertyService) {
         target.currentHp += healing
 
         return BattleStepAction(
-            heroPosition = target.position,
-            heroName = target.heroBase.name,
-            type = BattleStepActionType.HEALING,
-            healthDiff = healing)
+                heroPosition = target.position,
+                heroName = target.heroBase.name,
+                type = BattleStepActionType.HEALING,
+                healthDiff = healing)
     }
 
     private fun areOpponents(hero1: BattleHero, hero2: BattleHero): Boolean {
