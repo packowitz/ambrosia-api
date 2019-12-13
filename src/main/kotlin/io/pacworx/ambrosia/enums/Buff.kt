@@ -16,6 +16,8 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
  */
 enum class Buff(val type: BuffType, val propertyType: PropertyType) {
     ARMOR_BUFF(BuffType.BUFF, PropertyType.ARMOR_BUFF),
+    COUNTERATTACK(BuffType.BUFF, PropertyType.COUNTERATTACK_BUFF),
+    DEATHSHIELD(BuffType.BUFF, PropertyType.DEATHSHIELD_BUFF),
     HEAL_OVER_TIME(BuffType.BUFF, PropertyType.HOT_BUFF),
     SHIELD(BuffType.BUFF, PropertyType.SHIELD_BUFF),
     STRENGTH_BUFF(BuffType.BUFF, PropertyType.STRENGTH_BUFF),
@@ -30,6 +32,7 @@ enum class Buff(val type: BuffType, val propertyType: PropertyType) {
         }
     },
     DAMAGE_OVER_TIME(BuffType.DEBUFF, PropertyType.DOT_DEBUFF),
+    HEAL_BLOCK(BuffType.DEBUFF, PropertyType.HEAL_BLOCK_DEBUFF),
     STUN(BuffType.DEBUFF, PropertyType.STUN_DEBUFF) {
         override fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
             super.applyEffect(battle, hero, buff, propertyService)
@@ -37,7 +40,8 @@ enum class Buff(val type: BuffType, val propertyType: PropertyType) {
                 hero.status = HeroStatus.STUNNED
             }
         }
-    };
+    },
+    WEAK(BuffType.DEBUFF, PropertyType.WEAK_DEBUFF);
 
     open fun initTurnEffect(hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
         propertyService.getProperties(propertyType, buff.intensity).forEach {

@@ -20,14 +20,18 @@ enum class SkillActionEffect(val type: SkillActionType,
 
     DEAL_PERCENTAGE(DEAL_DAMAGE, "Triggers dealing damage for the given percentage. 100 for full damage"),
 
-    STRENGTH_BUFF(BUFF, "Grants Strength Buff with value intensity for duration turn", Buff.STRENGTH_BUFF),
     ARMOR_BUFF(BUFF, "Grants Armor Buff with value intensity for duration turn", Buff.ARMOR_BUFF),
-    TAUNT_BUFF(BUFF, "Grants Taunt Buff with value intensity for duration turn", Buff.TAUNT_BUFF),
+    COUNTERATTACK_BUFF(BUFF, "Grants Counterattack Buff with value intensity for duration turn", Buff.COUNTERATTACK),
+    DEATHSHIELD_BUFF(BUFF, "Grants Deathshield Buff with value intensity for duration turn", Buff.COUNTERATTACK),
     HOT_BUFF(BUFF, "Grants HoT Buff with value intensity for duration turn", Buff.HEAL_OVER_TIME),
+    STRENGTH_BUFF(BUFF, "Grants Strength Buff with value intensity for duration turn", Buff.STRENGTH_BUFF),
+    TAUNT_BUFF(BUFF, "Grants Taunt Buff with value intensity for duration turn", Buff.TAUNT_BUFF),
 
     CONFUSE_DEBUFF(DEBUFF, "Applies Confuse Debuff with value intensity for duration turn", Buff.CONFUSE),
     DOT_DEBUFF(DEBUFF, "Applies DoT Debuff with value intensity for duration turn", Buff.DAMAGE_OVER_TIME),
+    HEAL_BLOCK_DEBUFF(DEBUFF, "Applies HealBlock Debuff with value intensity for duration turn", Buff.HEAL_BLOCK),
     STUN_DEBUFF(DEBUFF, "Applies Stun Debuff with value intensity for duration turn", Buff.STUN),
+    WEAK_DEBUFF(DEBUFF, "Applies Weak Debuff with value intensity for duration turn", Buff.WEAK),
 
     PERCENTAGE(SPEEDBAR, "Fills speedbar by value percentage (1-100)"),
 

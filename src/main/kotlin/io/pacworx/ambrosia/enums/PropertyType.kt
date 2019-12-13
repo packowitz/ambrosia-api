@@ -59,15 +59,19 @@ enum class PropertyType(val category: PropertyCategory, val description: String)
     MARK_5_SET(SET, "Level: number of items to gain the bonus. Stat defines the bonus and value1 how high that bonus is. You can have multiple bonuses on a set per level. Value2 are ignored."),
 
     ARMOR_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
+    COUNTERATTACK_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
     HOT_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
     STRENGTH_BUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
 
+    DEATHSHIELD_BUFF(BUFF, "Please select only BUFF_RESISTANCE as bonus and level is intensity (1-5). Value2 is ignored."),
     SHIELD_BUFF(BUFF, "Please select only BUFF_RESISTANCE as bonus and level is intensity (1-5). Value2 is ignored."),
     TAUNT_BUFF(BUFF, "Please select only BUFF_RESISTANCE as bonus and level is intensity (1-5). Value2 is ignored."),
 
     CONFUSE_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
     DOT_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
-    STUN_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored.")
+    HEAL_BLOCK_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
+    STUN_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored."),
+    WEAK_DEBUFF(BUFF, "Stat defines the granted bonus and level the intensity (1-5). Value2 is ignored.")
     ;
 
     fun getName(): String = name
