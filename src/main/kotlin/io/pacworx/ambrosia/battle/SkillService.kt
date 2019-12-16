@@ -554,6 +554,74 @@ class SkillService(private val propertyService: PropertyService) {
             ))
             target.resetBonus(battle, propertyService)
 
+            if (buff.type == BuffType.DEBUFF) {
+                // PassiveSkillTrigger.SELF_DEBUFF
+                target.heroBase.skills
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DEBUFF && target.getCooldown(it.number) <= 0 }
+                        .forEach { skill ->
+                            val step = BattleStep(
+                                    turn = battle.turnsDone,
+                                    phase = BattleStepPhase.PASSIVE,
+                                    actingHero = target.position,
+                                    actingHeroName = target.heroBase.name,
+                                    usedSkill = skill.number,
+                                    usedSkillName = skill.name,
+                                    target = target.position,
+                                    targetName = target.heroBase.name,
+                                    heroStates = battle.getBattleStepHeroStates()
+                            )
+                            battle.steps.add(step)
+                            executeSkillActions(battle, step, target, skill, target)
+                            target.skillUsed(skill.number)
+                        }
+
+                // PassiveSkillTrigger.ALLY_DEBUFF
+                battle.allAlliedHeroesAlive(target).forEach { ally ->
+                    ally.heroBase.skills
+                            .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DEBUFF && ally.getCooldown(it.number) <= 0 }
+                            .forEach { skill ->
+                                val step = BattleStep(
+                                        turn = battle.turnsDone,
+                                        phase = BattleStepPhase.PASSIVE,
+                                        actingHero = ally.position,
+                                        actingHeroName = ally.heroBase.name,
+                                        usedSkill = skill.number,
+                                        usedSkillName = skill.name,
+                                        target = target.position,
+                                        targetName = target.heroBase.name,
+                                        heroStates = battle.getBattleStepHeroStates()
+                                )
+                                battle.steps.add(step)
+                                executeSkillActions(battle, step, ally, skill, target)
+                                ally.skillUsed(skill.number)
+                            }
+                }
+            }
+
+            if (buff.type == BuffType.BUFF) {
+                // PassiveSkillTrigger.OPP_BUFF
+                battle.allOtherHeroesAlive(target).forEach { opp ->
+                    opp.heroBase.skills
+                            .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OPP_BUFF && opp.getCooldown(it.number) <= 0 }
+                            .forEach { skill ->
+                                val step = BattleStep(
+                                        turn = battle.turnsDone,
+                                        phase = BattleStepPhase.PASSIVE,
+                                        actingHero = opp.position,
+                                        actingHeroName = opp.heroBase.name,
+                                        usedSkill = skill.number,
+                                        usedSkillName = skill.name,
+                                        target = target.position,
+                                        targetName = target.heroBase.name,
+                                        heroStates = battle.getBattleStepHeroStates()
+                                )
+                                battle.steps.add(step)
+                                executeSkillActions(battle, step, opp, skill, target)
+                                opp.skillUsed(skill.number)
+                            }
+                }
+            }
+
             return BattleStepAction(
                     heroPosition = target.position,
                     heroName = target.heroBase.name,
