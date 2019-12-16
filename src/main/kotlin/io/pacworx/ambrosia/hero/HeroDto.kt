@@ -1,7 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.models
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.pacworx.ambrosia.models.HeroBase
+import io.pacworx.ambrosia.team.HeroBase
 import kotlin.math.roundToInt
 
 data class HeroDto(val id: Long,

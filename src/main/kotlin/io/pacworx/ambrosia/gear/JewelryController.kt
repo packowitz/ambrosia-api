@@ -1,5 +1,6 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.controller
+package io.pacworx.ambrosia.gear
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.JewelType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Jewelry
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.JewelryRepository

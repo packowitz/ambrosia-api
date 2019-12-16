@@ -1,7 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroBaseRepository
-import io.pacworx.ambrosia.models.HeroBase
+import io.pacworx.ambrosia.team.HeroBase
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException

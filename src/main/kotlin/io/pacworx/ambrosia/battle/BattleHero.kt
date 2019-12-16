@@ -6,7 +6,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Buff
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
-import io.pacworx.ambrosia.models.HeroBase
+import io.pacworx.ambrosia.team.HeroBase
 import javax.persistence.*
 import kotlin.math.min
 

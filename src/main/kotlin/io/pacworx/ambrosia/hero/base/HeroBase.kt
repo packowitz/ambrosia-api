@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.models
+package io.pacworx.ambrosia.team
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.HeroType

@@ -2,7 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.models
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.GearType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActiveTrigger
-import io.pacworx.ambrosia.models.HeroBase
+import io.pacworx.ambrosia.team.HeroBase
 import javax.persistence.*
 import kotlin.math.min
 
