@@ -5,6 +5,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.PlayerRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.JwtService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PlayerService
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -18,6 +19,7 @@ class AdminServiceAccountController(val playerRepository: PlayerRepository,
     fun getServiceAccounts(): List<Player> = playerRepository.findByServiceAccountIsTrueOrderByName()
 
     @PostMapping("new/{name}")
+    @Transactional
     fun createServiceAccount(@PathVariable name: String): Player {
         val serviceAccount = Player(
                 name = name,
