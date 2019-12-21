@@ -16,6 +16,10 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         return heroDto
     }
 
+    fun getHeroDto(heroId: Long): HeroDto {
+        return heroRepository.getOne(heroId).let { asHeroDto(it) }
+    }
+
     fun loadHeroes(heroIds: List<Long>): List<Hero> {
         return heroRepository.findAllById(heroIds.distinct())
     }

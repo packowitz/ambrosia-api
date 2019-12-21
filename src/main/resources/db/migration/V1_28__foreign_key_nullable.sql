@@ -1,0 +1,1 @@
+alter table dungeon_stage alter column dungeon_id drop not null;
