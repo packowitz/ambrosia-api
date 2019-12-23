@@ -3,7 +3,13 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillTarget
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import javax.transaction.Transactional
 
 @RestController
@@ -13,11 +19,21 @@ class BattleController(private val battleService: BattleService,
                        private val battleRepository: BattleRepository) {
 
     @PostMapping
-    fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartBattleRequest): Battle {
+    fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): Battle {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
-        return battleService.initBattle(player, request)
+        return battleService.initDuell(player, request)
+    }
+
+    @PostMapping("dungeon/{dungeonId}")
+    fun startDungeon(@ModelAttribute("player") player: Player,
+                     @PathVariable dungeonId: Long,
+                     @RequestBody request: StartBattleRequest): Battle {
+        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+            throw RuntimeException("Finish your ongoing battle before starting a new one")
+        }
+        return battleService.initDungeon(player, dungeonId, request)
     }
 
     @PostMapping("{battleId}/{heroPos}/{skillNumber}/{targetPos}")
@@ -86,7 +102,7 @@ class BattleController(private val battleService: BattleService,
     }
 }
 
-data class StartBattleRequest(
+data class StartDuellRequest(
     val hero1Id: Long?,
     val hero2Id: Long?,
     val hero3Id: Long?,
@@ -96,4 +112,11 @@ data class StartBattleRequest(
     val oppHero2Id: Long?,
     val oppHero3Id: Long?,
     val oppHero4Id: Long?
+)
+
+data class StartBattleRequest(
+    val hero1Id: Long?,
+    val hero2Id: Long?,
+    val hero3Id: Long?,
+    val hero4Id: Long?
 )

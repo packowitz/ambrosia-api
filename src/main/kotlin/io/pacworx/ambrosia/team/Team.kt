@@ -10,8 +10,8 @@ data class Team(
     val playerId: Long,
     @Enumerated(EnumType.STRING)
     val type: TeamType,
-    val hero1Id: Long?,
-    val hero2Id: Long?,
-    val hero3Id: Long?,
-    val hero4Id: Long?
+    var hero1Id: Long? = null,
+    var hero2Id: Long? = null,
+    var hero3Id: Long? = null,
+    var hero4Id: Long? = null
 )

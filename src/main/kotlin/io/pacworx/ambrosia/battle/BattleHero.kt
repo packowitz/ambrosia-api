@@ -14,7 +14,7 @@ import kotlin.math.min
 data class BattleHero(
         @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long = 0,
-        val playerId: Long,
+        val playerId: Long? = null,
         @Enumerated(EnumType.STRING)
         var status: HeroStatus = HeroStatus.ALIVE,
         var priority: Int = 0,
@@ -112,7 +112,7 @@ data class BattleHero(
 
         @field:Transient @field:JsonIgnore var willCounter: Boolean = false
 ) {
-    constructor(playerId: Long, hero: HeroDto, heroBase: HeroBase, position: HeroPosition) : this(
+    constructor(playerId: Long?, hero: HeroDto, heroBase: HeroBase, position: HeroPosition) : this(
             heroBase = heroBase,
             playerId = playerId,
             position = position,

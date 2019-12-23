@@ -1,8 +1,14 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons.Dungeon
+import io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons.DungeonRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.TeamType
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Hero
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.PlayerRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Team
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.TeamRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service
@@ -14,14 +20,17 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val battleRepository: BattleRepository,
                     private val skillService: SkillService,
                     private val aiService: AiService,
-                    private val propertyService: PropertyService) {
+                    private val propertyService: PropertyService,
+                    private val dungeonRepository: DungeonRepository,
+                    private val teamRepository: TeamRepository) {
 
     companion object {
         const val SPEEDBAR_MAX: Int = 10000
         private const val SPEEDBAR_TURN: Int = 100
     }
 
-    fun initBattle(player: Player, request: StartBattleRequest): Battle {
+    @Transactional
+    fun initDuell(player: Player, request: StartDuellRequest): Battle {
         val opponent = playerRepository.getOne(request.oppPlayerId)
         val heroes = heroService.loadHeroes(listOfNotNull(
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
@@ -32,30 +41,14 @@ class BattleService(private val playerRepository: PlayerRepository,
             playerName = player.name,
             opponentId = request.oppPlayerId,
             opponentName = opponent.name,
-            hero1 = request.hero1Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
-                BattleHero(player.id, heroService.asHeroDto(it), it.heroBase, HeroPosition.HERO1)
-            } },
-            hero2 = request.hero2Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
-                BattleHero(player.id, heroService.asHeroDto(it), it.heroBase, HeroPosition.HERO2)
-            } },
-            hero3 = request.hero3Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
-                BattleHero(player.id, heroService.asHeroDto(it), it.heroBase, HeroPosition.HERO3)
-            } },
-            hero4 = request.hero4Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
-                BattleHero(player.id, heroService.asHeroDto(it), it.heroBase, HeroPosition.HERO4)
-            } },
-            oppHero1 = request.oppHero1Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
-                BattleHero(request.oppPlayerId, heroService.asHeroDto(it), it.heroBase, HeroPosition.OPP1)
-            } },
-            oppHero2 = request.oppHero2Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
-                BattleHero(request.oppPlayerId, heroService.asHeroDto(it), it.heroBase, HeroPosition.OPP2)
-            } },
-            oppHero3 = request.oppHero3Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
-                BattleHero(request.oppPlayerId, heroService.asHeroDto(it), it.heroBase, HeroPosition.OPP3)
-            } },
-            oppHero4 = request.oppHero4Id?.let { heroId -> heroes.find { it.id == heroId }?.let {
-                BattleHero(request.oppPlayerId, heroService.asHeroDto(it), it.heroBase, HeroPosition.OPP4)
-            } }
+            hero1 = asBattleHero(player.id, request.hero1Id, HeroPosition.HERO1, heroes),
+            hero2 = asBattleHero(player.id, request.hero2Id, HeroPosition.HERO2, heroes),
+            hero3 = asBattleHero(player.id, request.hero3Id, HeroPosition.HERO3, heroes),
+            hero4 = asBattleHero(player.id, request.hero4Id, HeroPosition.HERO4, heroes),
+            oppHero1 = asBattleHero(request.oppPlayerId, request.oppHero1Id, HeroPosition.OPP1, heroes),
+            oppHero2 = asBattleHero(request.oppPlayerId, request.oppHero2Id, HeroPosition.OPP2, heroes),
+            oppHero3 = asBattleHero(request.oppPlayerId, request.oppHero3Id, HeroPosition.OPP3, heroes),
+            oppHero4 = asBattleHero(request.oppPlayerId, request.oppHero4Id, HeroPosition.OPP4, heroes)
         ))
         battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
             hero.priority = idx
@@ -64,7 +57,47 @@ class BattleService(private val playerRepository: PlayerRepository,
         battle.applyBonuses(propertyService)
         nextTurn(battle)
 
-        return battleRepository.save(battle)
+        return battle
+    }
+
+    @Transactional
+    fun initDungeon(player: Player, dungeonId: Long, request: StartBattleRequest): Battle {
+        val dungeon = dungeonRepository.getOne(dungeonId)
+        val team = teamRepository.findByPlayerIdAndType(player.id, TeamType.CAMPAIGN) ?: teamRepository.save(Team ( playerId = player.id, type = TeamType.CAMPAIGN))
+        team.apply {
+            hero1Id = request.hero1Id
+            hero2Id = request.hero2Id
+            hero3Id = request.hero3Id
+            hero4Id = request.hero4Id
+        }
+        val dungeonStage = dungeon.stages.find { it.stage == 1 } ?: throw RuntimeException("Dungeon " + dungeon.name + " has no stages defined.")
+        val heroes = heroService.loadHeroes(listOfNotNull(
+            request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
+            dungeonStage.hero1Id, dungeonStage.hero2Id, dungeonStage.hero3Id, dungeonStage.hero4Id))
+        val battle = battleRepository.save(Battle(
+            type = BattleType.CAMPAIGN,
+            dungeon = dungeon,
+            dungeonStage = dungeonStage.stage,
+            playerId = player.id,
+            playerName = player.name,
+            opponentName = dungeon.name + " Stage-" + dungeonStage.stage,
+            hero1 = asBattleHero(player.id, request.hero1Id, HeroPosition.HERO1, heroes),
+            hero2 = asBattleHero(player.id, request.hero2Id, HeroPosition.HERO2, heroes),
+            hero3 = asBattleHero(player.id, request.hero3Id, HeroPosition.HERO3, heroes),
+            hero4 = asBattleHero(player.id, request.hero4Id, HeroPosition.HERO4, heroes),
+            oppHero1 = asBattleHero(heroId = dungeonStage.hero1Id, position = HeroPosition.OPP1, heroes = heroes),
+            oppHero2 = asBattleHero(heroId = dungeonStage.hero2Id, position = HeroPosition.OPP2, heroes = heroes),
+            oppHero3 = asBattleHero(heroId = dungeonStage.hero3Id, position = HeroPosition.OPP3, heroes = heroes),
+            oppHero4 = asBattleHero(heroId = dungeonStage.hero4Id, position = HeroPosition.OPP4, heroes = heroes)
+        ))
+        battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
+            hero.priority = idx
+        }
+
+        battle.applyBonuses(propertyService)
+        nextTurn(battle)
+
+        return battle
     }
 
     @Transactional
@@ -84,6 +117,11 @@ class BattleService(private val playerRepository: PlayerRepository,
         }
         return battleRepository.save(battle)
     }
+
+    private fun asBattleHero(playerId: Long? = null, heroId: Long?, position: HeroPosition, heroes: List<Hero>): BattleHero? =
+        heroId?.let { heroId -> heroes.find { it.id == heroId }?.let {
+            BattleHero(playerId, heroService.asHeroDto(it), it.heroBase, position)
+        }}
 
     private fun nextTurn(battle: Battle) {
         val activeHero = nextActiveHero(battle)
