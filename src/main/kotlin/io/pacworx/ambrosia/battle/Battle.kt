@@ -19,6 +19,7 @@ data class Battle(
     @Enumerated(EnumType.STRING)
     var status: BattleStatus = BattleStatus.INIT,
     var previousBattleId: Long? = null,
+    var nextBattleId: Long? = null,
     @ManyToOne
     @JoinColumn(name = "dungeon_id")
     var dungeon: Dungeon? = null,
@@ -172,12 +173,8 @@ data class Battle(
         if (allPlayerHeroesAlive().isEmpty()) {
             status = BattleStatus.LOST
         } else if (allOppHeroesAlive().isEmpty()) {
-            status = BattleStatus.WON
+            status = dungeon?.stages?.find { it.stage > dungeonStage!! }?.let { BattleStatus.STAGE_PASSED } ?: BattleStatus.WON
         }
-    }
-
-    fun hasEnded(): Boolean {
-        return status == BattleStatus.LOST || status == BattleStatus.WON
     }
 
     fun resolveHeroName(position: HeroPosition): String {

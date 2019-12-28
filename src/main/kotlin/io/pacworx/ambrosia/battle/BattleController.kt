@@ -3,13 +3,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillTarget
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
 @RestController
@@ -17,6 +11,16 @@ import javax.transaction.Transactional
 @RequestMapping("battle")
 class BattleController(private val battleService: BattleService,
                        private val battleRepository: BattleRepository) {
+
+    @GetMapping("{battleId}")
+    fun getBattle(@PathVariable battleId: Long): Battle {
+        val battle = battleRepository.getOne(battleId)
+        return if (battle.status == BattleStatus.INIT) {
+            battleService.startBattle(battle)
+        } else {
+            battle
+        }
+    }
 
     @PostMapping
     fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): Battle {

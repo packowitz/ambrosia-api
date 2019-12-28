@@ -1,14 +1,8 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons.Dungeon
 import io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons.DungeonRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.TeamType
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Hero
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.PlayerRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Team
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.TeamRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service
@@ -53,11 +47,7 @@ class BattleService(private val playerRepository: PlayerRepository,
         battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
             hero.priority = idx
         }
-
-        battle.applyBonuses(propertyService)
-        nextTurn(battle)
-
-        return battle
+        return startBattle(battle)
     }
 
     @Transactional
@@ -93,17 +83,48 @@ class BattleService(private val playerRepository: PlayerRepository,
         battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
             hero.priority = idx
         }
+        return startBattle(battle)
+    }
 
+    @Transactional
+    fun startBattle(battle: Battle): Battle {
         battle.applyBonuses(propertyService)
         nextTurn(battle)
-
         return battle
+    }
+
+    private fun initNextStage(battle: Battle) {
+        val dungeon = dungeonRepository.getOne(battle.dungeon!!.id)
+        val nextStage = dungeon.stages.find { it.stage > battle.dungeonStage!! } ?: throw RuntimeException("Dungeon " + dungeon.name + " has no next stage defined.")
+        val heroes = heroService.loadHeroes(listOfNotNull(
+            nextStage.hero1Id, nextStage.hero2Id, nextStage.hero3Id, nextStage.hero4Id))
+        val nextBattle = battleRepository.save(Battle(
+            type = BattleType.CAMPAIGN,
+            previousBattleId = battle.id,
+            dungeon = dungeon,
+            dungeonStage = nextStage.stage,
+            playerId = battle.playerId,
+            playerName = battle.playerName,
+            opponentName = dungeon.name + " Stage-" + nextStage.stage,
+            hero1 = battle.hero1,
+            hero2 = battle.hero2,
+            hero3 = battle.hero3,
+            hero4 = battle.hero4,
+            oppHero1 = asBattleHero(heroId = nextStage.hero1Id, position = HeroPosition.OPP1, heroes = heroes),
+            oppHero2 = asBattleHero(heroId = nextStage.hero2Id, position = HeroPosition.OPP2, heroes = heroes),
+            oppHero3 = asBattleHero(heroId = nextStage.hero3Id, position = HeroPosition.OPP3, heroes = heroes),
+            oppHero4 = asBattleHero(heroId = nextStage.hero4Id, position = HeroPosition.OPP4, heroes = heroes)
+        ))
+        battle.nextBattleId = nextBattle.id
+        nextBattle.allHeroes().shuffled().forEachIndexed { idx, hero ->
+            hero.priority = idx
+        }
     }
 
     @Transactional
     fun takeTurn(battle: Battle, activeHero: BattleHero, skill: HeroSkill, target: BattleHero): Battle {
         skillService.useSkill(battle, activeHero, skill, target)
-        if (!battle.hasEnded()) {
+        if (!battleEnded(battle)) {
             nextTurn(battle)
         }
         return battleRepository.save(battle)
@@ -112,7 +133,7 @@ class BattleService(private val playerRepository: PlayerRepository,
     @Transactional
     fun takeAutoTurn(battle: Battle, activeHero: BattleHero): Battle {
         aiService.doAction(battle, activeHero)
-        if (!battle.hasEnded()) {
+        if (!battleEnded(battle)) {
             nextTurn(battle)
         }
         return battleRepository.save(battle)
@@ -132,7 +153,7 @@ class BattleService(private val playerRepository: PlayerRepository,
             activeHero.initTurn(propertyService, skillService, battle)
             battle.checkStatus()
 
-            if (battle.hasEnded()) {
+            if (battleEnded(battle)) {
                 return
             }
             if (activeHero.status == HeroStatus.DEAD) {
@@ -166,7 +187,7 @@ class BattleService(private val playerRepository: PlayerRepository,
                     }
                 }
             }
-            if (battle.hasEnded()) {
+            if (battleEnded(battle)) {
                 return
             }
         } else {
@@ -179,7 +200,7 @@ class BattleService(private val playerRepository: PlayerRepository,
         return battle.allHeroesAlive()
             .filter { it.currentSpeedBar >= SPEEDBAR_MAX }
             .takeIf { it.isNotEmpty() }
-            ?.maxWith(Comparator<BattleHero> { hero1, hero2 ->
+            ?.maxWith(Comparator { hero1, hero2 ->
                 when {
                     hero1.currentSpeedBar > hero2.currentSpeedBar -> 1
                     hero1.currentSpeedBar < hero2.currentSpeedBar -> -1
@@ -189,9 +210,23 @@ class BattleService(private val playerRepository: PlayerRepository,
                         else -> 0
                     }
                 }
-
             })
     }
 
+    private fun battleEnded(battle: Battle): Boolean {
+        if (battle.status == BattleStatus.STAGE_PASSED && battle.nextBattleId == null) {
+            initNextStage(battle)
+            return true
+        }
+        if (battle.status == BattleStatus.LOST || battle.status == BattleStatus.WON) {
+            var tmpBattle = battle
+            while (tmpBattle.previousBattleId != null) {
+                tmpBattle = battleRepository.getOne(tmpBattle.previousBattleId!!)
+                tmpBattle.status = battle.status
+            }
+            return true
+        }
+        return false
+    }
 
 }
