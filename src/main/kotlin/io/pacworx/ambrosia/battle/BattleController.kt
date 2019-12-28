@@ -12,12 +12,32 @@ import javax.transaction.Transactional
 class BattleController(private val battleService: BattleService,
                        private val battleRepository: BattleRepository) {
 
+    @GetMapping("{battleId}")
+    fun getBattle(@PathVariable battleId: Long): Battle {
+        val battle = battleRepository.getOne(battleId)
+        return if (battle.status == BattleStatus.INIT) {
+            battleService.startBattle(battle)
+        } else {
+            battle
+        }
+    }
+
     @PostMapping
-    fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartBattleRequest): Battle {
+    fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): Battle {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
-        return battleService.initBattle(player, request)
+        return battleService.initDuell(player, request)
+    }
+
+    @PostMapping("dungeon/{dungeonId}")
+    fun startDungeon(@ModelAttribute("player") player: Player,
+                     @PathVariable dungeonId: Long,
+                     @RequestBody request: StartBattleRequest): Battle {
+        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+            throw RuntimeException("Finish your ongoing battle before starting a new one")
+        }
+        return battleService.initDungeon(player, dungeonId, request)
     }
 
     @PostMapping("{battleId}/{heroPos}/{skillNumber}/{targetPos}")
@@ -86,7 +106,7 @@ class BattleController(private val battleService: BattleService,
     }
 }
 
-data class StartBattleRequest(
+data class StartDuellRequest(
     val hero1Id: Long?,
     val hero2Id: Long?,
     val hero3Id: Long?,
@@ -96,4 +116,11 @@ data class StartBattleRequest(
     val oppHero2Id: Long?,
     val oppHero3Id: Long?,
     val oppHero4Id: Long?
+)
+
+data class StartBattleRequest(
+    val hero1Id: Long?,
+    val hero2Id: Long?,
+    val hero3Id: Long?,
+    val hero4Id: Long?
 )

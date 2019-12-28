@@ -38,7 +38,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
             .map { heroService.asHeroDto(it) }
         val gears = gearRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
         val jewelries = jewelryRepository.findAllByPlayerId(player.id)
-        val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusIn(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN))
+        val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusInAndPreviousBattleIdNull(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN, BattleStatus.STAGE_PASSED))
         return PlayerActionResponse(token = token, player = player, heroes = heroes, gears = gears, jewelries = jewelries, ongoingBattle = ongoingBattle)
     }
 
