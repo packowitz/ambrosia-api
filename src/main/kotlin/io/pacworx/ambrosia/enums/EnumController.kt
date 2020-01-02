@@ -1,6 +1,9 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.FightIcon
+import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapTileStructure
+import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapTileType
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -55,4 +58,13 @@ class EnumController {
 
     @GetMapping("passive_skill_triggers")
     fun getPassiveSkillTriggers():List<PassiveSkillTrigger> = PassiveSkillTrigger.values().asList()
+
+    @GetMapping("map_tile_types")
+    fun getMapTileTypes():List<MapTileType> = MapTileType.values().asList()
+
+    @GetMapping("map_tile_structures")
+    fun getMapTileStructures():List<MapTileStructure> = MapTileStructure.values().asList()
+
+    @GetMapping("map_tile_fight_icons")
+    fun getMapTileFights():List<FightIcon> = FightIcon.values().asList()
 }
