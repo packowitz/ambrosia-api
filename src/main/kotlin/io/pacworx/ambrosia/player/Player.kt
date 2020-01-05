@@ -1,10 +1,8 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.models
+package io.pacworx.ambrosia.io.pacworx.ambrosia.player
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
+import javax.persistence.*
 
 @Entity
 data class Player(
@@ -17,4 +15,8 @@ data class Player(
         val serviceAccount: Boolean = false,
         var xp: Int = 0,
         var maxXp: Int = 100,
-        var level: Int = 1)
+        var level: Int = 1,
+        @Enumerated(EnumType.STRING)
+        var color: Color? = null,
+        var currentMapId: Long? = null
+)

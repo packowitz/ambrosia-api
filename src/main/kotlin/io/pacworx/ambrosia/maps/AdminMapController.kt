@@ -1,12 +1,7 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons
+package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.Map
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapTile
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapTileType
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
-import java.lang.RuntimeException
 import javax.validation.Valid
 import javax.validation.constraints.Min
 
@@ -14,6 +9,9 @@ import javax.validation.constraints.Min
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("admin/map")
 class AdminMapController(private val mapRepository: MapRepository) {
+
+    @GetMapping
+    fun getAllMaps(): List<Map> = mapRepository.findAll()
 
     @PostMapping("new")
     @Transactional
@@ -23,7 +21,8 @@ class AdminMapController(private val mapRepository: MapRepository) {
             minX = 1,
             maxX = request.width,
             minY = 1,
-            maxY = request.height
+            maxY = request.height,
+            background = MapBackground.BLUE_SKY
         )
         map.tiles = (map.minX..map.maxX).map { x ->
             (map.minY..map.maxY).map { y ->

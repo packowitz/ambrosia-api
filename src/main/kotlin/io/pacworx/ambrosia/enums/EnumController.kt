@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.FightIcon
+import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapBackground
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapTileStructure
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapTileType
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -67,4 +68,7 @@ class EnumController {
 
     @GetMapping("map_tile_fight_icons")
     fun getMapTileFights():List<FightIcon> = FightIcon.values().asList()
+
+    @GetMapping("map_backgrounds")
+    fun getMapBackgrounds():List<MapBackground> = MapBackground.values().asList()
 }

@@ -5,7 +5,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Gear
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Jewelry
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PlayerActionResponse(

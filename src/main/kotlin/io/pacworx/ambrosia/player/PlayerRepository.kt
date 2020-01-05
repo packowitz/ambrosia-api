@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.models
+package io.pacworx.ambrosia.io.pacworx.ambrosia.player
 
 import org.springframework.data.jpa.repository.JpaRepository
 

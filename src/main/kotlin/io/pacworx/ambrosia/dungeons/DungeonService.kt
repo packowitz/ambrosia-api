@@ -1,8 +1,8 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.PlayerRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import org.springframework.stereotype.Service
 

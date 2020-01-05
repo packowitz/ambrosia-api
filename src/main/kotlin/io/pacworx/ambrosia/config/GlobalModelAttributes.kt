@@ -1,6 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.config
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ModelAttribute
 import javax.servlet.http.HttpServletRequest

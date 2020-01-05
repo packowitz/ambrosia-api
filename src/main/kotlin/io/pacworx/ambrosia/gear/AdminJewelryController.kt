@@ -4,10 +4,8 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.JewelType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Jewelry
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.JewelryRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.*
-import java.lang.RuntimeException
-import javax.transaction.Transactional
 
 @RestController
 @CrossOrigin(maxAge = 3600)

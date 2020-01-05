@@ -2,7 +2,7 @@ package io.pacworx.ambrosia.player
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.JwtService
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PlayerService
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerService
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 

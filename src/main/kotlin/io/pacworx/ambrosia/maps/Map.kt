@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
+import org.hibernate.annotations.UpdateTimestamp
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity(name = "map")
@@ -11,7 +13,9 @@ data class Map(
     @Column(name = "min_x") val minX: Int,
     @Column(name = "max_x") val maxX: Int,
     @Column(name = "min_y") val minY: Int,
-    @Column(name = "max_y") val maxY: Int
+    @Column(name = "max_y") val maxY: Int,
+    @Enumerated(EnumType.STRING) val background: MapBackground,
+    @UpdateTimestamp val lastModified: LocalDateTime = LocalDateTime.now()
 ) {
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "map_id")

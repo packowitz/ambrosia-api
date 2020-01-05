@@ -2,7 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillTarget
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
@@ -68,8 +68,8 @@ class BattleController(private val battleService: BattleService,
 
     @PostMapping("{battleId}/{heroPos}/auto")
     fun takeAutoTurn(@ModelAttribute("player") player: Player,
-                 @PathVariable battleId: Long,
-                 @PathVariable heroPos: HeroPosition): Battle {
+                     @PathVariable battleId: Long,
+                     @PathVariable heroPos: HeroPosition): Battle {
         val battle = battleRepository.getOne(battleId)
         if (battle.playerId != player.id) {
             throw RuntimeException("You don't own battle $battleId")

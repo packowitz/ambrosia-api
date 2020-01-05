@@ -12,4 +12,6 @@ interface MapRepository: JpaRepository<Map, Long> {
     @Query(value = "update map set starting_map = false where id <> :id", nativeQuery = true)
     @Modifying
     fun markStartingMap(@Param("id") mapId: Long): Int
+
+    fun getByStartingMapTrue(): Map
 }

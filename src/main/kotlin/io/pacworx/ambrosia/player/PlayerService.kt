@@ -1,10 +1,11 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.services
+package io.pacworx.ambrosia.io.pacworx.ambrosia.player
 
 import com.google.common.hash.Hashing
 import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleStatus
 import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
+import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
@@ -31,6 +32,10 @@ class PlayerService(private val playerRepository: PlayerRepository,
     fun login(email: String, password: String): Player {
         return playerRepository.findByEmailIgnoreCase(email.trim())?.takeIf { getHash(it.name, password) == it.password }
                 ?: throw RuntimeException("Auth failed")
+    }
+
+    fun save(player: Player): Player {
+        return playerRepository.save(player)
     }
 
     fun response(player: Player, token: String? = null): PlayerActionResponse {

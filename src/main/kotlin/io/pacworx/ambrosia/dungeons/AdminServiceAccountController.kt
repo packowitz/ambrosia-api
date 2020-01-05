@@ -3,11 +3,11 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
 import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.PlayerRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.JwtService
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PlayerService
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerService
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 

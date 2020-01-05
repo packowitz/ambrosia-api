@@ -3,6 +3,8 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 import io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons.DungeonRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.TeamType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service

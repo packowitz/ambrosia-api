@@ -4,7 +4,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Hero
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroBaseRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.web.bind.annotation.*

@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.gear
 import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.JewelType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional

@@ -3,8 +3,8 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.controller
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Rarity
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.RecruitType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.web.bind.annotation.*
 
 @RestController
