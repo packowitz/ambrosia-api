@@ -15,13 +15,12 @@ class MapController(private val mapService: MapService,
     @GetMapping
     @Transactional
     fun getAllPlayerMaps(@ModelAttribute("player") player: Player): List<PlayerMapResolved> {
-        val playerMaps = playerMapRepository.getAllByPlayerId(player.id).map {
-            PlayerMapResolved(it)
+        val playerMaps = playerMapRepository.getAllByPlayerId(player.id).takeIf { it.isNotEmpty() }
+            ?: listOf(mapService.discoverPlayerMap(player, mapRepository.getByStartingMapTrue()))
+        playerMaps.filter { it.mapCheckedTimestamp.isBefore(it.map.lastModified) }.forEach {
+            mapService.checkMapForUpdates(it)
         }
-        if (playerMaps.isEmpty()) {
-            return listOf(PlayerMapResolved(mapService.discoverPlayerMap(player, mapRepository.getByStartingMapTrue())))
-        }
-        return playerMaps
+        return playerMaps.map { PlayerMapResolved(it) }
     }
 
     @PostMapping("discover")
@@ -68,6 +67,7 @@ data class PlayerMapTileResolved(
     val discoverable: Boolean,
     val structure: MapTileStructure? = null,
     val fightIcon: FightIcon? = null,
+    val fightId: Long? = null,
     val fightRepeatable: Boolean? = null,
     val portalToMapId: Long? = null
 ) {
@@ -77,10 +77,11 @@ data class PlayerMapTileResolved(
         tile.type,
         playerTile?.discovered ?: false,
         playerTile?.discoverable ?: false,
-        playerTile?.discovered?.takeIf { it }.let { tile.structure },
-        playerTile?.discovered?.takeIf { it }.let { tile.fightIcon },
-        playerTile?.discovered?.takeIf { it }.let { tile.fightRepeatable },
-        playerTile?.discovered?.takeIf { it }.let { tile.portalToMapId }
+        playerTile?.discovered?.takeIf { it }?.let { tile.structure },
+        playerTile?.discovered?.takeIf { it && tile.fightRepeatable || playerTile.victoriousFight }?.let { tile.fightIcon },
+        playerTile?.discovered?.takeIf { it && tile.fightRepeatable || playerTile.victoriousFight }?.let { tile.dungeonId },
+        playerTile?.discovered?.takeIf { it }?.let { tile.fightRepeatable },
+        playerTile?.discovered?.takeIf { it }?.let { tile.portalToMapId }
     )
 }
 

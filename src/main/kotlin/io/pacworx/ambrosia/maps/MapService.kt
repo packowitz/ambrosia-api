@@ -50,7 +50,19 @@ class MapService(val playerRepository: PlayerRepository,
         }
     }
 
-    fun undiscoveredNeighbors(tiles: List<PlayerMapTile>, x: Int, y: Int): List<PlayerMapTile> {
+    fun checkMapForUpdates(playerMap: PlayerMap) {
+        // remove playerMapTiles that now doesn't exist anymore or have type NONE
+        // create undiscovered playerMapTiles for all tiles with type other than NONE
+        playerMap.playerTiles = playerMap.playerTiles
+            .filter { tile -> playerMap.map.tiles.any { tile.posX == it.posX && tile.posY == it.posY && it.type != MapTileType.NONE } } +
+                playerMap.map.tiles.filter { tile -> tile.type != MapTileType.NONE && playerMap.playerTiles.none { tile.posX == it.posX && tile.posY == it.posY } }.map { PlayerMapTile(posX = it.posX, posY = it.posY) }
+
+        // set all tiles to not discoverable and recalculate discoverable tiles
+        playerMap.playerTiles.forEach { it.discoverable = false }
+        playerMap.playerTiles.filter { it.discovered }.forEach { discoverMapTile(playerMap, it) }
+    }
+
+    private fun undiscoveredNeighbors(tiles: List<PlayerMapTile>, x: Int, y: Int): List<PlayerMapTile> {
         val even = y % 2 == 0
         val evenDiff = if (even) { 1 } else { -1 }
         return tiles.filter {
