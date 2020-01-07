@@ -8,5 +8,5 @@ interface PlayerMapRepository: JpaRepository<PlayerMap, Long> {
 
     fun getAllByPlayerId(playerId: Long): List<PlayerMap>
 
-    fun getByPlayerIdAndMapId(playerId: Long, mapId: Long): PlayerMap
+    fun getByPlayerIdAndMapId(playerId: Long, mapId: Long): PlayerMap?
 }

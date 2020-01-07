@@ -2,7 +2,9 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
 import org.springframework.web.bind.annotation.*
 import javax.persistence.Column
 import javax.persistence.Entity
@@ -15,6 +17,7 @@ import javax.transaction.Transactional
 class MapController(private val mapService: MapService,
                     private val playerMapRepository: PlayerMapRepository,
                     private val mapRepository: MapRepository,
+                    private val playerRepository: PlayerRepository,
                     private val simplePlayerMapRepository: SimplePlayerMapRepository) {
 
     @GetMapping
@@ -37,13 +40,14 @@ class MapController(private val mapService: MapService,
     @GetMapping("current")
     @Transactional
     fun getStartingMap(@ModelAttribute("player") player: Player): PlayerMapResolved {
-        return player.currentMapId?.let {PlayerMapResolved(playerMapRepository.getByPlayerIdAndMapId(player.id, it))}
+        return player.currentMapId?.let {PlayerMapResolved(playerMapRepository.getByPlayerIdAndMapId(player.id, it)!!)}
             ?: PlayerMapResolved(mapService.discoverPlayerMap(player, mapRepository.getByStartingMapTrue()))
     }
 
     @GetMapping("{mapId}")
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
-        return PlayerMapResolved(playerMapRepository.getByPlayerIdAndMapId(player.id, mapId))
+        return playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)?.let { PlayerMapResolved(it) }
+            ?: throw RuntimeException("Map $mapId is unknown to player ${player.id}")
     }
 
     @PostMapping("{mapId}/discover")
@@ -56,10 +60,20 @@ class MapController(private val mapService: MapService,
     @Transactional
     fun discoverTile(@ModelAttribute("player") player: Player, @RequestBody request: DiscoverRequest): PlayerMapResolved {
         val map = playerMapRepository.getByPlayerIdAndMapId(player.id, request.mapId)
+            ?: throw RuntimeException("Map ${request.mapId} is unknown to player ${player.id}")
         val tile = map.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discoverable }
             ?: throw RuntimeException("Cannot discover tile ${request.posX}/${request.posY} on map ${request.mapId} for player ${player.id}")
         mapService.discoverMapTile(map, tile)
         return PlayerMapResolved(playerMapRepository.save(map))
+    }
+
+    @PostMapping("{mapId}/current")
+    @Transactional
+    fun setCurrentMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerActionResponse {
+        return playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)?.let {
+            player.currentMapId = it.id
+            PlayerActionResponse(player = playerRepository.save(player))
+        } ?: throw RuntimeException("Map $mapId is unknown to player ${player.id}")
     }
 
 }
