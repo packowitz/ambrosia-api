@@ -40,6 +40,12 @@ class MapController(private val mapService: MapService,
         return PlayerMapResolved(playerMapRepository.getByPlayerIdAndMapId(player.id, mapId))
     }
 
+    @PostMapping("{mapId}/discover")
+    @Transactional
+    fun discoverMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
+        return PlayerMapResolved(mapService.discoverPlayerMap(player, mapRepository.getOne(mapId)))
+    }
+
     @PostMapping("discover")
     @Transactional
     fun discoverTile(@ModelAttribute("player") player: Player, @RequestBody request: DiscoverRequest): PlayerMapResolved {
