@@ -34,6 +34,12 @@ class MapController(private val mapService: MapService,
         return simplePlayerMapRepository.findAllByPlayerId(player.id)
     }
 
+    @GetMapping("starting")
+    @Transactional
+    fun getStartingMap(@ModelAttribute("player") player: Player): PlayerMapResolved {
+        return PlayerMapResolved(mapService.discoverPlayerMap(player, mapRepository.getByStartingMapTrue()))
+    }
+
     @GetMapping("{mapId}")
     @Transactional
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
