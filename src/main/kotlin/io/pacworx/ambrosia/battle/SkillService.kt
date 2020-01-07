@@ -742,14 +742,15 @@ class SkillService(private val propertyService: PropertyService) {
                         sourceHeroId = hero.id
                 ))
                 step.addAction(BattleStepAction(
-                        heroPosition = target.position,
-                        heroName = target.heroBase.name,
-                        type = BattleStepActionType.BUFF,
-                        buff = Buff.SHIELD
+                    heroPosition = target.position,
+                    heroName = target.heroBase.name,
+                    type = BattleStepActionType.BUFF,
+                    buff = Buff.SHIELD,
+                    buffDuration = duration,
+                    buffIntensity = intensity
                 ))
             }
-            else -> {
-            }
+            else -> {}
         }
     }
 
