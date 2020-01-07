@@ -1,8 +1,12 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.Id
 import javax.transaction.Transactional
 
 @RestController
@@ -10,7 +14,8 @@ import javax.transaction.Transactional
 @RequestMapping("map")
 class MapController(private val mapService: MapService,
                     private val playerMapRepository: PlayerMapRepository,
-                    private val mapRepository: MapRepository) {
+                    private val mapRepository: MapRepository,
+                    private val simplePlayerMapRepository: SimplePlayerMapRepository) {
 
     @GetMapping
     @Transactional
@@ -21,6 +26,18 @@ class MapController(private val mapService: MapService,
             mapService.checkMapForUpdates(it)
         }
         return playerMaps.map { PlayerMapResolved(it) }
+    }
+
+    @GetMapping("simple")
+    @Transactional
+    fun getSimplePlayerMaps(@ModelAttribute("player") player: Player): List<PlayerMapResolved> {
+        return simplePlayerMapRepository.findAllByPlayerId(player.id)
+    }
+
+    @GetMapping("{mapId}")
+    @Transactional
+    fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
+        return PlayerMapResolved(playerMapRepository.getByPlayerIdAndMapId(player.id, mapId))
     }
 
     @PostMapping("discover")
@@ -35,17 +52,21 @@ class MapController(private val mapService: MapService,
 
 }
 
+@Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class PlayerMapResolved(
+    @Id @JsonIgnore val id: String,
     val mapId: Long,
     val name: String,
     val background: String,
-    val minX: Int,
-    val maxX: Int,
-    val minY: Int,
-    val maxY: Int,
-    val tiles: List<PlayerMapTileResolved> = mutableListOf()
+    @Column(name = "min_x") val minX: Int,
+    @Column(name = "max_x") val maxX: Int,
+    @Column(name = "min_y") val minY: Int,
+    @Column(name = "max_y") val maxY: Int,
+    @Transient val tiles: List<PlayerMapTileResolved>? = null
 ) {
     constructor(playerMap: PlayerMap): this(
+        "${playerMap.playerId}_${playerMap.map.id}",
         playerMap.map.id,
         playerMap.map.name,
         playerMap.map.background.name,
