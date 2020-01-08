@@ -22,3 +22,4 @@ interface SimplePlayerMapRepository: JpaRepository<PlayerMapResolved, String> {
     """, nativeQuery = true)
     fun findAllByPlayerId(@Param("playerId") playerId: Long): List<PlayerMapResolved>
 }
+

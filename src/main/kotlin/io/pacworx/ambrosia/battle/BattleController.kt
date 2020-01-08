@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillTarget
+import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.*
@@ -10,7 +11,8 @@ import javax.transaction.Transactional
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("battle")
 class BattleController(private val battleService: BattleService,
-                       private val battleRepository: BattleRepository) {
+                       private val battleRepository: BattleRepository,
+                       private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository) {
 
     @GetMapping("{battleId}")
     fun getBattle(@PathVariable battleId: Long): Battle {
@@ -38,6 +40,22 @@ class BattleController(private val battleService: BattleService,
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
         return battleService.initDungeon(player, dungeonId, request)
+    }
+
+    @PostMapping("campaign/{mapId}/{posX}/{posY}")
+    fun startCampaign(@ModelAttribute("player") player: Player,
+                     @PathVariable mapId: Long,
+                     @PathVariable posX: Int,
+                     @PathVariable posY: Int,
+                     @RequestBody request: StartBattleRequest): Battle {
+        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+            throw RuntimeException("Finish your ongoing battle before starting a new one")
+        }
+        val mapTile = simplePlayerMapTileRepository.findPlayerMapTile(player.id, mapId, posX, posY)
+        if (mapTile == null || !mapTile.discovered || mapTile.dungeonId == null || (mapTile.victoriousFight && !mapTile.fightRepeatable)) {
+            throw RuntimeException("You cannot fight on that map tile.")
+        }
+        return battleService.initDungeon(player, mapTile.dungeonId, request)
     }
 
     @PostMapping("{battleId}/{heroPos}/{skillNumber}/{targetPos}")

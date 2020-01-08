@@ -125,8 +125,8 @@ data class PlayerMapTileResolved(
         playerTile?.discovered ?: false,
         playerTile?.discoverable ?: false,
         playerTile?.discovered?.takeIf { it }?.let { tile.structure },
-        playerTile?.discovered?.takeIf { it && tile.fightRepeatable || playerTile.victoriousFight }?.let { tile.fightIcon },
-        playerTile?.discovered?.takeIf { it && tile.fightRepeatable || playerTile.victoriousFight }?.let { tile.dungeonId },
+        playerTile?.discovered?.takeIf { it && (tile.fightRepeatable || !playerTile.victoriousFight) }?.let { tile.fightIcon },
+        playerTile?.discovered?.takeIf { it && (tile.fightRepeatable || !playerTile.victoriousFight) }?.let { tile.dungeonId },
         playerTile?.discovered?.takeIf { it }?.let { tile.fightRepeatable },
         playerTile?.discovered?.takeIf { it }?.let { tile.portalToMapId }
     )
