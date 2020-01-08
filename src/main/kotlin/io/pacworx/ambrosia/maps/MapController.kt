@@ -71,7 +71,7 @@ class MapController(private val mapService: MapService,
     @Transactional
     fun setCurrentMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerActionResponse {
         return playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)?.let {
-            player.currentMapId = it.id
+            player.currentMapId = it.map.id
             PlayerActionResponse(player = playerRepository.save(player))
         } ?: throw RuntimeException("Map $mapId is unknown to player ${player.id}")
     }
