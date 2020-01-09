@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons.DungeonRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.TeamType
+import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.SimplePlayerMapTile
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
@@ -53,8 +54,8 @@ class BattleService(private val playerRepository: PlayerRepository,
     }
 
     @Transactional
-    fun initDungeon(player: Player, dungeonId: Long, request: StartBattleRequest): Battle {
-        val dungeon = dungeonRepository.getOne(dungeonId)
+    fun initCampaign(player: Player, mapTile: SimplePlayerMapTile, request: StartBattleRequest): Battle {
+        val dungeon = dungeonRepository.getOne(mapTile.fightId!!)
         val team = teamRepository.findByPlayerIdAndType(player.id, TeamType.CAMPAIGN) ?: teamRepository.save(Team ( playerId = player.id, type = TeamType.CAMPAIGN))
         team.apply {
             hero1Id = request.hero1Id
@@ -70,6 +71,9 @@ class BattleService(private val playerRepository: PlayerRepository,
             type = BattleType.CAMPAIGN,
             dungeon = dungeon,
             dungeonStage = dungeonStage.stage,
+            mapId = mapTile.mapId,
+            mapPosX = mapTile.posX,
+            mapPosY = mapTile.posY,
             playerId = player.id,
             playerName = player.name,
             opponentName = dungeon.name + " Stage-" + dungeonStage.stage,
@@ -105,6 +109,9 @@ class BattleService(private val playerRepository: PlayerRepository,
             previousBattleId = battle.id,
             dungeon = dungeon,
             dungeonStage = nextStage.stage,
+            mapId = battle.mapId,
+            mapPosX = battle.mapPosX,
+            mapPosY = battle.mapPosY,
             playerId = battle.playerId,
             playerName = battle.playerName,
             opponentName = dungeon.name + " Stage-" + nextStage.stage,
