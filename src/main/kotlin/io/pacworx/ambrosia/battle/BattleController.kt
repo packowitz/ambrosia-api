@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillTarget
+import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
@@ -13,27 +14,33 @@ import javax.transaction.Transactional
 @RequestMapping("battle")
 class BattleController(private val battleService: BattleService,
                        private val battleRepository: BattleRepository,
-                       private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository) {
+                       private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository,
+                       private val mapService: MapService) {
 
     @GetMapping("{battleId}")
-    fun getBattle(@PathVariable battleId: Long): Battle {
+    @Transactional
+    fun getBattle(@ModelAttribute("player") player: Player, @PathVariable battleId: Long): PlayerActionResponse {
         val battle = battleRepository.getOne(battleId)
-        return if (battle.status == BattleStatus.INIT) {
-            battleService.startBattle(battle)
-        } else {
-            battle
-        }
+        return afterBattleAction(player,
+            if (battle.status == BattleStatus.INIT) {
+                battleService.startBattle(battle)
+            } else {
+                battle
+            }
+        )
     }
 
     @PostMapping
+    @Transactional
     fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
-        return PlayerActionResponse(ongoingBattle = battleService.initDuell(player, request))
+        return afterBattleAction(player, battleService.initDuell(player, request))
     }
 
     @PostMapping("campaign/{mapId}/{posX}/{posY}")
+    @Transactional
     fun startCampaign(@ModelAttribute("player") player: Player,
                      @PathVariable mapId: Long,
                      @PathVariable posX: Int,
@@ -43,13 +50,14 @@ class BattleController(private val battleService: BattleService,
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
         val mapTile = simplePlayerMapTileRepository.findPlayerMapTile(player.id, mapId, posX, posY)
-        if (mapTile == null || !mapTile.discovered || mapTile.dungeonId == null || (mapTile.victoriousFight && !mapTile.fightRepeatable)) {
+        if (mapTile == null || !mapTile.discovered || mapTile.fightId == null || (mapTile.victoriousFight && !mapTile.fightRepeatable)) {
             throw RuntimeException("You cannot fight on that map tile.")
         }
-        return PlayerActionResponse(ongoingBattle = battleService.initDungeon(player, mapTile.dungeonId, request))
+        return afterBattleAction(player, battleService.initCampaign(player, mapTile, request))
     }
 
     @PostMapping("{battleId}/{heroPos}/{skillNumber}/{targetPos}")
+    @Transactional
     fun takeTurn(@ModelAttribute("player") player: Player,
                  @PathVariable battleId: Long,
                  @PathVariable heroPos: HeroPosition,
@@ -72,10 +80,11 @@ class BattleController(private val battleService: BattleService,
         if (!isTargetEligible(battle, activeHero, skill, target)) {
             throw RuntimeException("Target ${target.position} is not valid target for skill ${skill.number} of hero ${activeHero.position} in battle ${battle.id}")
         }
-        return PlayerActionResponse(ongoingBattle = battleService.takeTurn(battle, activeHero, skill, target))
+        return afterBattleAction(player, battleService.takeTurn(battle, activeHero, skill, target))
     }
 
     @PostMapping("{battleId}/{heroPos}/auto")
+    @Transactional
     fun takeAutoTurn(@ModelAttribute("player") player: Player,
                      @PathVariable battleId: Long,
                      @PathVariable heroPos: HeroPosition): PlayerActionResponse {
@@ -88,7 +97,7 @@ class BattleController(private val battleService: BattleService,
         }
         val activeHero = battle.allHeroesAlive().find { it.position == battle.activeHero }
                 ?: throw RuntimeException("It is not Hero $heroPos 's turn on battle $battleId")
-        return PlayerActionResponse(ongoingBattle = battleService.takeAutoTurn(battle, activeHero))
+        return afterBattleAction(player, battleService.takeAutoTurn(battle, activeHero))
     }
 
     @PostMapping("{battleId}/surrender")
@@ -100,7 +109,7 @@ class BattleController(private val battleService: BattleService,
             throw RuntimeException("You don't own battle $battleId")
         }
         battle.status = BattleStatus.LOST
-        return PlayerActionResponse(ongoingBattle = battle)
+        return afterBattleAction(player, battle)
     }
 
     private fun isTargetEligible(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero): Boolean {
@@ -111,6 +120,17 @@ class BattleController(private val battleService: BattleService,
             SkillTarget.ALL_OWN -> isPlayer == battle.heroBelongsToPlayer(target)
             SkillTarget.OPP_IGNORE_TAUNT -> isPlayer == battle.heroBelongsToOpponent(target)
             SkillTarget.DEAD -> isPlayer == battle.heroBelongsToPlayer(target) && target.status == HeroStatus.DEAD
+        }
+    }
+
+    private fun afterBattleAction(player: Player, battle: Battle): PlayerActionResponse {
+        return if (battle.status == BattleStatus.WON) {
+            val map = battle.mapId?.let {
+                mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
+            }
+            PlayerActionResponse(player = player, currentMap = map, ongoingBattle = battle)
+        } else {
+            PlayerActionResponse(ongoingBattle = battle)
         }
     }
 }

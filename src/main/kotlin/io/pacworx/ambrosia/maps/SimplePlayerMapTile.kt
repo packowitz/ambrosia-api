@@ -14,7 +14,7 @@ data class SimplePlayerMapTile(
     val mapId: Long,
     @Column(name = "pos_x") val posX: Int,
     @Column(name = "pos_y") val posY: Int,
-    val dungeonId: Long? = null,
+    val fightId: Long? = null,
     val fightRepeatable: Boolean = false,
     var discovered: Boolean = false,
     var victoriousFight: Boolean = false
@@ -27,7 +27,7 @@ interface SimplePlayerMapTileRepository: JpaRepository<SimplePlayerMapTile, Stri
             pm.map_id as map_id,
             pmt.pos_x as pos_x,
             pmt.pos_y as pos_y,
-            mt.dungeon_id as dungeon_id,
+            mt.fight_id as fight_id,
             mt.fight_repeatable as fight_repeatable,
             pmt.discovered as discovered,
             pmt.victorious_fight as victorious_fight

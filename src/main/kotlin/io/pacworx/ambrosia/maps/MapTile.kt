@@ -13,7 +13,7 @@ data class MapTile(
     val greenAlwaysRevealed: Boolean = false,
     val blueAlwaysRevealed: Boolean = false,
     @Enumerated(EnumType.STRING) val structure: MapTileStructure? = null,
-    val dungeonId: Long? = null,
+    val fightId: Long? = null,
     @Enumerated(EnumType.STRING) val fightIcon: FightIcon? = null,
     val fightRepeatable: Boolean = false,
     val portalToMapId: Long? = null

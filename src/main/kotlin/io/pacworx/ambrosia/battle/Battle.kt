@@ -24,6 +24,9 @@ data class Battle(
     @JoinColumn(name = "dungeon_id")
     var dungeon: Dungeon? = null,
     var dungeonStage: Int? = null,
+    val mapId: Long? = null,
+    @Column(name = "map_pos_x") val mapPosX: Int? = null,
+    @Column(name = "map_pos_y") val mapPosY: Int? = null,
     val playerId: Long,
     val playerName: String,
     val opponentId: Long? = null,

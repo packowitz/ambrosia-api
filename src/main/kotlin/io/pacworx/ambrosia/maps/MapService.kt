@@ -5,20 +5,27 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
+import javax.transaction.Transactional
 import kotlin.math.abs
 
 @Service
 class MapService(val playerRepository: PlayerRepository,
                  val playerMapRepository: PlayerMapRepository,
                  val mapRepository: MapRepository) {
+    private val log = KotlinLogging.logger {}
 
+    @Transactional
     fun getCurrentPlayerMap(player: Player): PlayerMapResolved {
-        return player.currentMapId?.let {PlayerMapResolved(playerMapRepository.getByPlayerIdAndMapId(player.id, it)!!)}
-            ?: PlayerMapResolved(discoverPlayerMap(player, mapRepository.getByStartingMapTrue()))
+        return player.currentMapId?.let {
+            val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, it)!!
+            checkMapForUpdates(playerMap)
+            PlayerMapResolved(playerMap)
+        } ?: PlayerMapResolved(discoverPlayerMap(player, mapRepository.getByStartingMapTrue()))
     }
 
     fun discoverPlayerMap(player: Player, map: Map): PlayerMap {
@@ -55,23 +62,39 @@ class MapService(val playerRepository: PlayerRepository,
     fun discoverMapTile(playerMap: PlayerMap, playerMapTile: PlayerMapTile, tile: MapTile) {
         playerMapTile.discovered = true
         playerMapTile.discoverable = false
-        if (tile.dungeonId == null) {
+        if (tile.fightId == null || playerMapTile.victoriousFight) {
             undiscoveredNeighbors(playerMap.playerTiles, playerMapTile.posX, playerMapTile.posY).forEach {
                 it.discoverable = true
             }
         }
+        checkMapForUpdates(playerMap)
+    }
+
+    fun victoriousFight(player: Player, mapId: Long, posX: Int, posY: Int): PlayerMapResolved? {
+        log.info("player ${player.id} was victorious on map $mapId $posX/$posY")
+        val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)!!
+        val playerTile = playerMap.playerTiles.find { it.posX == posX && it.posY == posY }!!
+        return if (!playerTile.victoriousFight) {
+            playerTile.victoriousFight = true
+            discoverMapTile(playerMap, playerTile)
+            PlayerMapResolved(playerMap)
+        } else {
+            null
+        }
     }
 
     fun checkMapForUpdates(playerMap: PlayerMap) {
-        // remove playerMapTiles that now doesn't exist anymore or have type NONE
-        // create undiscovered playerMapTiles for all tiles with type other than NONE
-        playerMap.playerTiles = playerMap.playerTiles
-            .filter { tile -> playerMap.map.tiles.any { tile.posX == it.posX && tile.posY == it.posY && it.type != MapTileType.NONE } } +
+        if (playerMap.map.lastModified.isAfter(playerMap.mapCheckedTimestamp)) {
+            // remove playerMapTiles that now doesn't exist anymore or have type NONE
+            // create undiscovered playerMapTiles for all tiles with type other than NONE
+            playerMap.playerTiles = playerMap.playerTiles
+                .filter { tile -> playerMap.map.tiles.any { tile.posX == it.posX && tile.posY == it.posY && it.type != MapTileType.NONE } } +
                 playerMap.map.tiles.filter { tile -> tile.type != MapTileType.NONE && playerMap.playerTiles.none { tile.posX == it.posX && tile.posY == it.posY } }.map { PlayerMapTile(posX = it.posX, posY = it.posY) }
 
-        // set all tiles to not discoverable and recalculate discoverable tiles
-        playerMap.playerTiles.forEach { it.discoverable = false }
-        playerMap.playerTiles.filter { it.discovered }.forEach { discoverMapTile(playerMap, it) }
+            // set all tiles to not discoverable and recalculate discoverable tiles
+            playerMap.playerTiles.forEach { it.discoverable = false }
+            playerMap.playerTiles.filter { it.discovered }.forEach { discoverMapTile(playerMap, it) }
+        }
     }
 
     private fun undiscoveredNeighbors(tiles: List<PlayerMapTile>, x: Int, y: Int): List<PlayerMapTile> {
@@ -138,10 +161,10 @@ data class PlayerMapTileResolved(
         tile.type,
         playerTile?.discovered ?: false,
         playerTile?.discoverable ?: false,
-        playerTile?.discovered?.takeIf { it }?.let { tile.structure },
-        playerTile?.discovered?.takeIf { it && (tile.fightRepeatable || !playerTile.victoriousFight) }?.let { tile.fightIcon },
-        playerTile?.discovered?.takeIf { it && (tile.fightRepeatable || !playerTile.victoriousFight) }?.let { tile.dungeonId },
-        playerTile?.discovered?.takeIf { it }?.let { tile.fightRepeatable },
-        playerTile?.discovered?.takeIf { it }?.let { tile.portalToMapId }
+        playerTile?.takeIf { it.discovered }?.let { tile.structure },
+        playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightIcon },
+        playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightId },
+        playerTile?.takeIf { it.discovered }?.let { tile.fightRepeatable },
+        playerTile?.takeIf { it.discovered }?.let { tile.portalToMapId }
     )
 }

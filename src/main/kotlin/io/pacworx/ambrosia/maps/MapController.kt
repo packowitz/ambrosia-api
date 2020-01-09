@@ -21,6 +21,12 @@ class MapController(private val mapService: MapService,
                     private val mapRepository: MapRepository,
                     private val playerRepository: PlayerRepository) {
 
+    @GetMapping("{mapId}")
+    fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
+        return playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)?.let { PlayerMapResolved(it) }
+            ?: throw RuntimeException("Map $mapId is unknown to player ${player.id}")
+    }
+
     @PostMapping("{mapId}/discover")
     @Transactional
     fun discoverMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerActionResponse {
