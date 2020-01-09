@@ -4,6 +4,8 @@ import com.google.common.hash.Hashing
 import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleStatus
 import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
+import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapService
+import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.SimplePlayerMapRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import org.springframework.beans.factory.annotation.Value
@@ -17,7 +19,9 @@ class PlayerService(private val playerRepository: PlayerRepository,
                     private val heroRepository: HeroRepository,
                     private val gearRepository: GearRepository,
                     private val jewelryRepository: JewelryRepository,
-                    private val battleRepository: BattleRepository) {
+                    private val battleRepository: BattleRepository,
+                    private val simplePlayerMapRepository: SimplePlayerMapRepository,
+                    private val mapService: MapService) {
 
     @Value("\${ambrosia.pw-salt-one}")
     private lateinit var pwSalt1: String
@@ -43,8 +47,18 @@ class PlayerService(private val playerRepository: PlayerRepository,
             .map { heroService.asHeroDto(it) }
         val gears = gearRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
         val jewelries = jewelryRepository.findAllByPlayerId(player.id)
+        val playerMaps = simplePlayerMapRepository.findAllByPlayerId(player.id)
+        val currentMap = mapService.getCurrentPlayerMap(player)
         val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusInAndPreviousBattleIdNull(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN, BattleStatus.STAGE_PASSED))
-        return PlayerActionResponse(token = token, player = player, heroes = heroes, gears = gears, jewelries = jewelries, ongoingBattle = ongoingBattle)
+        return PlayerActionResponse(
+            token = token,
+            player = player,
+            heroes = heroes,
+            gears = gears,
+            jewelries = jewelries,
+            playerMaps = playerMaps,
+            currentMap = currentMap,
+            ongoingBattle = ongoingBattle)
     }
 
     private fun getHash(name: String, password: String): String {

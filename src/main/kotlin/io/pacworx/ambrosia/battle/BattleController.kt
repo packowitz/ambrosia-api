@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillTarget
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
@@ -25,21 +26,11 @@ class BattleController(private val battleService: BattleService,
     }
 
     @PostMapping
-    fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): Battle {
+    fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
-        return battleService.initDuell(player, request)
-    }
-
-    @PostMapping("dungeon/{dungeonId}")
-    fun startDungeon(@ModelAttribute("player") player: Player,
-                     @PathVariable dungeonId: Long,
-                     @RequestBody request: StartBattleRequest): Battle {
-        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
-            throw RuntimeException("Finish your ongoing battle before starting a new one")
-        }
-        return battleService.initDungeon(player, dungeonId, request)
+        return PlayerActionResponse(ongoingBattle = battleService.initDuell(player, request))
     }
 
     @PostMapping("campaign/{mapId}/{posX}/{posY}")
@@ -47,7 +38,7 @@ class BattleController(private val battleService: BattleService,
                      @PathVariable mapId: Long,
                      @PathVariable posX: Int,
                      @PathVariable posY: Int,
-                     @RequestBody request: StartBattleRequest): Battle {
+                     @RequestBody request: StartBattleRequest): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
@@ -55,7 +46,7 @@ class BattleController(private val battleService: BattleService,
         if (mapTile == null || !mapTile.discovered || mapTile.dungeonId == null || (mapTile.victoriousFight && !mapTile.fightRepeatable)) {
             throw RuntimeException("You cannot fight on that map tile.")
         }
-        return battleService.initDungeon(player, mapTile.dungeonId, request)
+        return PlayerActionResponse(ongoingBattle = battleService.initDungeon(player, mapTile.dungeonId, request))
     }
 
     @PostMapping("{battleId}/{heroPos}/{skillNumber}/{targetPos}")
@@ -63,7 +54,7 @@ class BattleController(private val battleService: BattleService,
                  @PathVariable battleId: Long,
                  @PathVariable heroPos: HeroPosition,
                  @PathVariable skillNumber: Int,
-                 @PathVariable targetPos: HeroPosition): Battle {
+                 @PathVariable targetPos: HeroPosition): PlayerActionResponse {
         val battle = battleRepository.getOne(battleId)
         if (battle.playerId != player.id) {
             throw RuntimeException("You don't own battle $battleId")
@@ -81,13 +72,13 @@ class BattleController(private val battleService: BattleService,
         if (!isTargetEligible(battle, activeHero, skill, target)) {
             throw RuntimeException("Target ${target.position} is not valid target for skill ${skill.number} of hero ${activeHero.position} in battle ${battle.id}")
         }
-        return battleService.takeTurn(battle, activeHero, skill, target)
+        return PlayerActionResponse(ongoingBattle = battleService.takeTurn(battle, activeHero, skill, target))
     }
 
     @PostMapping("{battleId}/{heroPos}/auto")
     fun takeAutoTurn(@ModelAttribute("player") player: Player,
                      @PathVariable battleId: Long,
-                     @PathVariable heroPos: HeroPosition): Battle {
+                     @PathVariable heroPos: HeroPosition): PlayerActionResponse {
         val battle = battleRepository.getOne(battleId)
         if (battle.playerId != player.id) {
             throw RuntimeException("You don't own battle $battleId")
@@ -97,19 +88,19 @@ class BattleController(private val battleService: BattleService,
         }
         val activeHero = battle.allHeroesAlive().find { it.position == battle.activeHero }
                 ?: throw RuntimeException("It is not Hero $heroPos 's turn on battle $battleId")
-        return battleService.takeAutoTurn(battle, activeHero)
+        return PlayerActionResponse(ongoingBattle = battleService.takeAutoTurn(battle, activeHero))
     }
 
     @PostMapping("{battleId}/surrender")
     @Transactional
     fun surrender(@ModelAttribute("player") player: Player,
-                  @PathVariable battleId: Long): Battle {
+                  @PathVariable battleId: Long): PlayerActionResponse {
         val battle = battleRepository.getOne(battleId)
         if (battle.playerId != player.id) {
             throw RuntimeException("You don't own battle $battleId")
         }
         battle.status = BattleStatus.LOST
-        return battle
+        return PlayerActionResponse(ongoingBattle = battle)
     }
 
     private fun isTargetEligible(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero): Boolean {
