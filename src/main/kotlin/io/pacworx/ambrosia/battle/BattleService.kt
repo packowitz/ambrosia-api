@@ -1,7 +1,10 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.fights.FightRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.BuffType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.TeamType
+import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.SimplePlayerMapTile
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
@@ -10,6 +13,9 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.round
 
 @Service
 class BattleService(private val playerRepository: PlayerRepository,
@@ -97,37 +103,6 @@ class BattleService(private val playerRepository: PlayerRepository,
         battle.applyBonuses(propertyService)
         nextTurn(battle)
         return battle
-    }
-
-    private fun initNextStage(battle: Battle) {
-        val fight = fightRepository.getOne(battle.fight!!.id)
-        val nextStage = fight.stages.find { it.stage > battle.fightStage!! } ?: throw RuntimeException("Fight " + fight.name + " has no next stage defined.")
-        val heroes = heroService.loadHeroes(listOfNotNull(
-            nextStage.hero1Id, nextStage.hero2Id, nextStage.hero3Id, nextStage.hero4Id))
-        val nextBattle = battleRepository.save(Battle(
-            type = BattleType.CAMPAIGN,
-            previousBattleId = battle.id,
-            fight = fight,
-            fightStage = nextStage.stage,
-            mapId = battle.mapId,
-            mapPosX = battle.mapPosX,
-            mapPosY = battle.mapPosY,
-            playerId = battle.playerId,
-            playerName = battle.playerName,
-            opponentName = fight.name + " Stage-" + nextStage.stage,
-            hero1 = battle.hero1,
-            hero2 = battle.hero2,
-            hero3 = battle.hero3,
-            hero4 = battle.hero4,
-            oppHero1 = asBattleHero(heroId = nextStage.hero1Id, position = HeroPosition.OPP1, heroes = heroes),
-            oppHero2 = asBattleHero(heroId = nextStage.hero2Id, position = HeroPosition.OPP2, heroes = heroes),
-            oppHero3 = asBattleHero(heroId = nextStage.hero3Id, position = HeroPosition.OPP3, heroes = heroes),
-            oppHero4 = asBattleHero(heroId = nextStage.hero4Id, position = HeroPosition.OPP4, heroes = heroes)
-        ))
-        battle.nextBattleId = nextBattle.id
-        nextBattle.allHeroes().shuffled().forEachIndexed { idx, hero ->
-            hero.priority = idx
-        }
     }
 
     @Transactional
@@ -236,6 +211,86 @@ class BattleService(private val playerRepository: PlayerRepository,
             return true
         }
         return false
+    }
+
+    private fun initNextStage(battle: Battle) {
+        val fight = fightRepository.getOne(battle.fight!!.id)
+        applyStageFinishedEffects(battle, fight)
+        val nextStage = fight.stages.find { it.stage > battle.fightStage!! } ?: throw RuntimeException("Fight " + fight.name + " has no next stage defined.")
+        val heroes = heroService.loadHeroes(listOfNotNull(
+            nextStage.hero1Id, nextStage.hero2Id, nextStage.hero3Id, nextStage.hero4Id))
+        val nextBattle = battleRepository.save(Battle(
+            type = BattleType.CAMPAIGN,
+            previousBattleId = battle.id,
+            fight = fight,
+            fightStage = nextStage.stage,
+            mapId = battle.mapId,
+            mapPosX = battle.mapPosX,
+            mapPosY = battle.mapPosY,
+            playerId = battle.playerId,
+            playerName = battle.playerName,
+            opponentName = fight.name + " Stage-" + nextStage.stage,
+            hero1 = battle.hero1,
+            hero2 = battle.hero2,
+            hero3 = battle.hero3,
+            hero4 = battle.hero4,
+            oppHero1 = asBattleHero(heroId = nextStage.hero1Id, position = HeroPosition.OPP1, heroes = heroes),
+            oppHero2 = asBattleHero(heroId = nextStage.hero2Id, position = HeroPosition.OPP2, heroes = heroes),
+            oppHero3 = asBattleHero(heroId = nextStage.hero3Id, position = HeroPosition.OPP3, heroes = heroes),
+            oppHero4 = asBattleHero(heroId = nextStage.hero4Id, position = HeroPosition.OPP4, heroes = heroes)
+        ))
+        battle.nextBattleId = nextBattle.id
+        nextBattle.allHeroes().shuffled().forEachIndexed { idx, hero ->
+            hero.priority = idx
+        }
+    }
+
+    private fun applyStageFinishedEffects(battle: Battle, fight: Fight) {
+        val config = fight.stageConfig
+        if (config.debuffsRemoved) {
+            battle.allPlayerHeroesAlive().forEach { hero -> hero.buffs.removeIf { it.buff.type == BuffType.DEBUFF } }
+        } else if (config.debuffDurationChange != 0) {
+            battle.allPlayerHeroesAlive().forEach { hero ->
+                hero.buffs.filter { it.buff.type == BuffType.DEBUFF }.forEach { it.duration += config.debuffDurationChange }
+            }
+            battle.allPlayerHeroesAlive().forEach { hero -> hero.buffs.removeIf { it.duration <= 0 } }
+        }
+        if (config.buffsRemoved) {
+            battle.allPlayerHeroesAlive().forEach { hero -> hero.buffs.removeIf { it.buff.type == BuffType.BUFF } }
+        } else if (config.buffDurationChange != 0) {
+            battle.allPlayerHeroesAlive().forEach { hero ->
+                hero.buffs.filter { it.buff.type == BuffType.BUFF }.forEach { it.duration += config.buffDurationChange }
+            }
+            battle.allPlayerHeroesAlive().forEach { hero -> hero.buffs.removeIf { it.duration <= 0 } }
+        }
+        if (config.hpHealing > 0) {
+            battle.allPlayerHeroesAlive().forEach { hero ->
+                hero.currentHp = min(hero.currentHp + (hero.heroHp * config.hpHealing / 100), hero.heroHp)
+            }
+        }
+        if (config.armorRepair > 0) {
+            battle.allPlayerHeroesAlive().forEach { hero ->
+                hero.currentArmor = min(hero.currentArmor + (hero.heroArmor * config.armorRepair / 100), hero.heroArmor)
+            }
+        }
+        when (config.speedBarChange) {
+            SpeedBarChange.NONE -> {}
+            SpeedBarChange.INITIATIVE -> {
+                battle.allPlayerHeroesAlive().forEach { hero ->
+                    hero.currentSpeedBar = hero.heroInitiative
+                }
+            }
+            SpeedBarChange.REMOVE -> {
+                battle.allPlayerHeroesAlive().forEach { hero ->
+                    hero.currentSpeedBar = 0
+                }
+            }
+            SpeedBarChange.HALF -> {
+                battle.allPlayerHeroesAlive().forEach { hero ->
+                    hero.currentSpeedBar = (0.5 * hero.currentSpeedBar).toInt()
+                }
+            }
+        }
     }
 
 }
