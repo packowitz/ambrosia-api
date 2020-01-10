@@ -1,6 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons.DungeonRepository
+import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.TeamType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.SimplePlayerMapTile
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
@@ -18,7 +18,7 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val skillService: SkillService,
                     private val aiService: AiService,
                     private val propertyService: PropertyService,
-                    private val dungeonRepository: DungeonRepository,
+                    private val fightRepository: FightRepository,
                     private val teamRepository: TeamRepository) {
 
     companion object {
@@ -55,7 +55,7 @@ class BattleService(private val playerRepository: PlayerRepository,
 
     @Transactional
     fun initCampaign(player: Player, mapTile: SimplePlayerMapTile, request: StartBattleRequest): Battle {
-        val dungeon = dungeonRepository.getOne(mapTile.fightId!!)
+        val fight = fightRepository.getOne(mapTile.fightId!!)
         val team = teamRepository.findByPlayerIdAndType(player.id, TeamType.CAMPAIGN) ?: teamRepository.save(Team ( playerId = player.id, type = TeamType.CAMPAIGN))
         team.apply {
             hero1Id = request.hero1Id
@@ -63,28 +63,28 @@ class BattleService(private val playerRepository: PlayerRepository,
             hero3Id = request.hero3Id
             hero4Id = request.hero4Id
         }
-        val dungeonStage = dungeon.stages.find { it.stage == 1 } ?: throw RuntimeException("Dungeon " + dungeon.name + " has no stages defined.")
+        val fightStage = fight.stages.find { it.stage == 1 } ?: throw RuntimeException("Fight " + fight.name + " has no stages defined.")
         val heroes = heroService.loadHeroes(listOfNotNull(
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
-            dungeonStage.hero1Id, dungeonStage.hero2Id, dungeonStage.hero3Id, dungeonStage.hero4Id))
+            fightStage.hero1Id, fightStage.hero2Id, fightStage.hero3Id, fightStage.hero4Id))
         val battle = battleRepository.save(Battle(
             type = BattleType.CAMPAIGN,
-            dungeon = dungeon,
-            dungeonStage = dungeonStage.stage,
+            fight = fight,
+            fightStage = fightStage.stage,
             mapId = mapTile.mapId,
             mapPosX = mapTile.posX,
             mapPosY = mapTile.posY,
             playerId = player.id,
             playerName = player.name,
-            opponentName = dungeon.name + " Stage-" + dungeonStage.stage,
+            opponentName = fight.name + " Stage-" + fightStage.stage,
             hero1 = asBattleHero(player.id, request.hero1Id, HeroPosition.HERO1, heroes),
             hero2 = asBattleHero(player.id, request.hero2Id, HeroPosition.HERO2, heroes),
             hero3 = asBattleHero(player.id, request.hero3Id, HeroPosition.HERO3, heroes),
             hero4 = asBattleHero(player.id, request.hero4Id, HeroPosition.HERO4, heroes),
-            oppHero1 = asBattleHero(heroId = dungeonStage.hero1Id, position = HeroPosition.OPP1, heroes = heroes),
-            oppHero2 = asBattleHero(heroId = dungeonStage.hero2Id, position = HeroPosition.OPP2, heroes = heroes),
-            oppHero3 = asBattleHero(heroId = dungeonStage.hero3Id, position = HeroPosition.OPP3, heroes = heroes),
-            oppHero4 = asBattleHero(heroId = dungeonStage.hero4Id, position = HeroPosition.OPP4, heroes = heroes)
+            oppHero1 = asBattleHero(heroId = fightStage.hero1Id, position = HeroPosition.OPP1, heroes = heroes),
+            oppHero2 = asBattleHero(heroId = fightStage.hero2Id, position = HeroPosition.OPP2, heroes = heroes),
+            oppHero3 = asBattleHero(heroId = fightStage.hero3Id, position = HeroPosition.OPP3, heroes = heroes),
+            oppHero4 = asBattleHero(heroId = fightStage.hero4Id, position = HeroPosition.OPP4, heroes = heroes)
         ))
         battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
             hero.priority = idx
@@ -100,21 +100,21 @@ class BattleService(private val playerRepository: PlayerRepository,
     }
 
     private fun initNextStage(battle: Battle) {
-        val dungeon = dungeonRepository.getOne(battle.dungeon!!.id)
-        val nextStage = dungeon.stages.find { it.stage > battle.dungeonStage!! } ?: throw RuntimeException("Dungeon " + dungeon.name + " has no next stage defined.")
+        val fight = fightRepository.getOne(battle.fight!!.id)
+        val nextStage = fight.stages.find { it.stage > battle.fightStage!! } ?: throw RuntimeException("Fight " + fight.name + " has no next stage defined.")
         val heroes = heroService.loadHeroes(listOfNotNull(
             nextStage.hero1Id, nextStage.hero2Id, nextStage.hero3Id, nextStage.hero4Id))
         val nextBattle = battleRepository.save(Battle(
             type = BattleType.CAMPAIGN,
             previousBattleId = battle.id,
-            dungeon = dungeon,
-            dungeonStage = nextStage.stage,
+            fight = fight,
+            fightStage = nextStage.stage,
             mapId = battle.mapId,
             mapPosX = battle.mapPosX,
             mapPosY = battle.mapPosY,
             playerId = battle.playerId,
             playerName = battle.playerName,
-            opponentName = dungeon.name + " Stage-" + nextStage.stage,
+            opponentName = fight.name + " Stage-" + nextStage.stage,
             hero1 = battle.hero1,
             hero2 = battle.hero2,
             hero3 = battle.hero3,

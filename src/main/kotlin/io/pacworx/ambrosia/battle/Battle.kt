@@ -1,7 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons.Dungeon
+import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -21,9 +21,9 @@ data class Battle(
     var previousBattleId: Long? = null,
     var nextBattleId: Long? = null,
     @ManyToOne
-    @JoinColumn(name = "dungeon_id")
-    var dungeon: Dungeon? = null,
-    var dungeonStage: Int? = null,
+    @JoinColumn(name = "fight_id")
+    var fight: Fight? = null,
+    var fightStage: Int? = null,
     val mapId: Long? = null,
     @Column(name = "map_pos_x") val mapPosX: Int? = null,
     @Column(name = "map_pos_y") val mapPosY: Int? = null,
@@ -176,7 +176,7 @@ data class Battle(
         if (allPlayerHeroesAlive().isEmpty()) {
             status = BattleStatus.LOST
         } else if (allOppHeroesAlive().isEmpty()) {
-            status = dungeon?.stages?.find { it.stage > dungeonStage!! }?.let { BattleStatus.STAGE_PASSED } ?: BattleStatus.WON
+            status = fight?.stages?.find { it.stage > fightStage!! }?.let { BattleStatus.STAGE_PASSED } ?: BattleStatus.WON
         }
     }
 

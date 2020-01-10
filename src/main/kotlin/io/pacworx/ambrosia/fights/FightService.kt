@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.dungeons
+package io.pacworx.ambrosia.fights
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
@@ -7,16 +7,16 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
 import org.springframework.stereotype.Service
 
 @Service
-class DungeonService(private val playerRepository: PlayerRepository,
-                     private val heroService: HeroService) {
+class FightService(private val playerRepository: PlayerRepository,
+                   private val heroService: HeroService) {
 
-    fun asDungeonResolved(dungeon: Dungeon): DungeonResolved {
-        return DungeonResolved(
-            dungeon.id,
-            dungeon.name,
-            playerRepository.findByServiceAccountIsTrueAndId(dungeon.serviceAccountId),
-            dungeon.stages.map {stage ->
-                DungeonStageResolved(
+    fun asFightResolved(fight: Fight): FightResolved {
+        return FightResolved(
+            fight.id,
+            fight.name,
+            playerRepository.findByServiceAccountIsTrueAndId(fight.serviceAccountId),
+            fight.stages.map { stage ->
+                FightStageResolved(
                     stage.id,
                     stage.stage,
                     stage.hero1Id?.let { heroService.getHeroDto(it) },
@@ -27,14 +27,14 @@ class DungeonService(private val playerRepository: PlayerRepository,
         )
     }
 
-    data class DungeonResolved(
+    data class FightResolved(
         val id: Long,
         val name: String,
         val serviceAccount: Player,
-        val stages: List<DungeonStageResolved>
+        val stages: List<FightStageResolved>
     )
 
-    data class DungeonStageResolved(
+    data class FightStageResolved(
         val id: Long,
         val stage: Int,
         val hero1: HeroDto?,
