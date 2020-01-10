@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @CrossOrigin(maxAge = 3600)
-@RequestMapping("dungeon")
+@RequestMapping("fight")
 class FightController(private val fightRepository: FightRepository,
                       private val fightService: FightService
 ) {

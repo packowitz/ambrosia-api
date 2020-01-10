@@ -13,7 +13,7 @@ import javax.validation.Valid
 
 @RestController
 @CrossOrigin(maxAge = 3600)
-@RequestMapping("admin/dungeon")
+@RequestMapping("admin/fight")
 class AdminFightController(private val fightRepository: FightRepository,
                            private val fightService: FightService,
                            private val fightStageConfigRepository: FightStageConfigRepository
