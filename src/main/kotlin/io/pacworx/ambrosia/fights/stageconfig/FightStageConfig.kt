@@ -19,5 +19,5 @@ data class FightStageConfig(
     val buffDurationChange: Int,
     val hpHealing: Int,
     val armorRepair: Int,
-    @Enumerated(EnumType.STRING) val speedBarChange: SpeedBarChange
+    @Enumerated(EnumType.STRING) val speedBarChange: SpeedBarChange = SpeedBarChange.NONE
 )
