@@ -1,11 +1,11 @@
 -- clear existing battles
-delete from ambrosia.public.battle_step_hero_state_buff where 1=1;
-delete from ambrosia.public.battle_step_hero_state where 1=1;
-delete from ambrosia.public.battle_step_action where 1=1;
-delete from ambrosia.public.battle_step where 1=1;
-delete from ambrosia.public.battle_hero_buff where 1=1;
-delete from ambrosia.public.battle_hero where 1=1;
-delete from ambrosia.public.battle where 1=1;
+delete from battle_step_hero_state_buff where 1=1;
+delete from battle_step_hero_state where 1=1;
+delete from battle_step_action where 1=1;
+delete from battle_step where 1=1;
+delete from battle_hero_buff where 1=1;
+delete from battle_hero where 1=1;
+delete from battle where 1=1;
 
 alter table battle add player_name varchar(36) not null;
 alter table battle add opponent_name varchar(36) not null;
