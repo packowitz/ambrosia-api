@@ -99,7 +99,7 @@ class SkillService(private val propertyService: PropertyService) {
                     if (!excludedActionTypes.contains(SkillActionType.HEAL)) {
                         findTargets(battle, hero, action, target)
                                 .forEach {
-                                    step.addAction(applyHealingAction(hero, action, it))
+                                    step.addAction(applyHealingAction(battle, hero, action, it))
                                 }
                     }
                 SkillActionType.PASSIVE_STAT ->
@@ -213,17 +213,23 @@ class SkillService(private val propertyService: PropertyService) {
         val reflectDamage = hero.getTotalReflect().takeIf { it > 0 }?.let { baseDamage * it / 100 } ?: 0
         baseDamage -= reflectDamage
 
-        baseDamage *= damageDealer.getTotalRedDamageInc().takeIf { hero.color == Color.RED && it != 0 }?.let { (100 + it) / 100 }
-                ?: 1
-        baseDamage *= damageDealer.getTotalGreenDamageInc().takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 }
-                ?: 1
-        baseDamage *= damageDealer.getTotalBlueDamageInc().takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 }
-                ?: 1
+        baseDamage *= damageDealer.getTotalRedDamageInc().takeIf { hero.color == Color.RED && it != 0 }?.let { (100 + it) / 100 } ?: 1
+        baseDamage *= damageDealer.getTotalGreenDamageInc().takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 } ?: 1
+        baseDamage *= damageDealer.getTotalBlueDamageInc().takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 } ?: 1
+
+        if (battle.heroBelongsToPlayer(hero)) {
+            baseDamage *= battle.fight?.environment?.playerRedDmgInc?.takeIf { hero.color == Color.RED && it != 0 }?.let { (100 + it) / 100 } ?: 1
+            baseDamage *= battle.fight?.environment?.playerGreenDmgInc?.takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 } ?: 1
+            baseDamage *= battle.fight?.environment?.playerBlueDmgInc?.takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 } ?: 1
+        } else {
+            baseDamage *= battle.fight?.environment?.oppRedDmgDec?.takeIf { hero.color == Color.RED && it != 0 }?.let { (100 - it) / 100 } ?: 1
+            baseDamage *= battle.fight?.environment?.oppGreenDmgDec?.takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 - it) / 100 } ?: 1
+            baseDamage *= battle.fight?.environment?.oppBlueDmgDec?.takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 - it) / 100 } ?: 1
+        }
 
         val damage = shieldCalculation(hero, baseDamage)
 
-        val armorPiercedDamage = damageDealer.getTotalArmorPiercing().takeIf { it > 0 }?.let { (damage * it) / 100 }
-                ?: 0
+        val armorPiercedDamage = damageDealer.getTotalArmorPiercing().takeIf { it > 0 }?.let { (damage * it) / 100 } ?: 0
 
         val targetArmor = hero.getTotalArmor()
         val targetHealth = hero.currentHp
@@ -304,7 +310,7 @@ class SkillService(private val propertyService: PropertyService) {
                     SkillActionType.HEAL ->
                         findTargets(battle, counterHero, action, hero)
                                 .forEach {
-                                    step.addAction(applyHealingAction(counterHero, action, it))
+                                    step.addAction(applyHealingAction(battle, counterHero, action, it))
                                 }
                     SkillActionType.PASSIVE_STAT ->
                         findTargets(battle, counterHero, action, hero)
@@ -754,14 +760,22 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
-    private fun applyHealingAction(hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
+    private fun applyHealingAction(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
         var healing = when (action.effect) {
-            SkillActionEffect.TARGET_MAX_HP -> (target.heroHp * action.effectValue) / 100
-            SkillActionEffect.OWN_MAX_HP -> (hero.heroHp * action.effectValue) / 100
+            TARGET_MAX_HP -> (target.heroHp * action.effectValue) / 100
+            OWN_MAX_HP -> (hero.heroHp * action.effectValue) / 100
             else -> 0
         }
         val maxHealing = max(target.heroHp - target.currentHp, 0)
+
         healing += (target.getTotalHealingInc() * healing) / 100
+
+        if (battle.heroBelongsToPlayer(target)) {
+            battle.fight?.environment?.playerHealingDec?.takeIf { it > 0 }?.let { decrease ->
+                healing -= (healing * decrease) / 100
+            }
+        }
+
         healing = min(healing, maxHealing)
         healing = max(healing, 0)
 

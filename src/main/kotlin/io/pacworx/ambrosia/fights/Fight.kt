@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.fights
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.environment.FightEnvironment
 import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.FightStageConfig
 import javax.persistence.CascadeType
 import javax.persistence.Entity
@@ -27,5 +28,9 @@ data class Fight(
     @ManyToOne
     @JoinColumn(name = "stage_config_id")
     lateinit var stageConfig: FightStageConfig
+
+    @ManyToOne
+    @JoinColumn(name = "environment_id")
+    lateinit var environment: FightEnvironment
 }
 

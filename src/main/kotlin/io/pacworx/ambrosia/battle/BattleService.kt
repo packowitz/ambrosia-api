@@ -175,7 +175,19 @@ class BattleService(private val playerRepository: PlayerRepository,
                 return
             }
         } else {
-            battle.allHeroesAlive().forEach { it.currentSpeedBar += SPEEDBAR_TURN + it.speedBonus }
+            battle.allHeroesAlive().forEach {
+                var speedBarFilling = SPEEDBAR_TURN + it.speedBonus
+                if (battle.heroBelongsToPlayer(it)) {
+                    battle.fight?.environment?.playerSpeedBarSlowed?.takeIf { it > 0 }?.let { decrease ->
+                        speedBarFilling -= (speedBarFilling * decrease) / 100
+                    }
+                } else {
+                    battle.fight?.environment?.oppSpeedBarFastened?.takeIf { it > 0 }?.let { increase ->
+                        speedBarFilling += (speedBarFilling * increase) / 100
+                    }
+                }
+                it.currentSpeedBar += speedBarFilling
+            }
         }
         nextTurn(battle)
     }

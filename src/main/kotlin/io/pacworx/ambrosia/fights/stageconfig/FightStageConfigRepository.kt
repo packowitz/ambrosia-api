@@ -13,5 +13,5 @@ interface FightStageConfigRepository: JpaRepository<FightStageConfig, Long> {
 
     @Query(value = "update fight_stage_config set default_config = false where id <> :id", nativeQuery = true)
     @Modifying
-    fun markDefaultConfig(@Param("id") mapId: Long): Int
+    fun markDefaultConfig(@Param("id") configId: Long): Int
 }

@@ -210,7 +210,19 @@ data class BattleHero(
 
         var healthDiff = 0
         if (heroDmgPerTurn + dmgPerTurnBonus > 0) {
-            val damage = heroHp * (heroDmgPerTurn + dmgPerTurnBonus) / 100
+            var damage = heroHp * (heroDmgPerTurn + dmgPerTurnBonus) / 100
+            if (battle.heroBelongsToPlayer(this)) {
+                battle.fight?.environment?.playerDotDmgInc?.takeIf { it > 0 }?.let { increase ->
+                    damage += (damage * increase) / 100
+                }
+            } else {
+                battle.fight?.environment?.oppDotDmgDec?.takeIf { it > 0 }?.let { decrease ->
+                    damage -= (damage * decrease) / 100
+                    if (damage < 0) {
+                        damage = 0
+                    }
+                }
+            }
             battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,
                     heroName = this.heroBase.name,
@@ -219,10 +231,16 @@ data class BattleHero(
             ))
             healthDiff -= damage
         }
-        if (heroHealPerTurn + healPerTurnBonus > 0) {
+        if (heroHealPerTurn + healPerTurnBonus > 0 &&
+                (battle.heroBelongsToOpponent(this) || battle.fight?.environment?.playerHotBlocked != true)) {
             var healing = heroHp * (heroHealPerTurn + healPerTurnBonus) / 100
             if (heroHealingInc + healingIncBonus > 0) {
                 healing *= (heroHealingInc + healingIncBonus) / 100
+            }
+            if (battle.heroBelongsToPlayer(this)) {
+                battle.fight?.environment?.playerHealingDec?.takeIf { it > 0 }?.let { decrease ->
+                    healing -= (healing * decrease) / 100
+                }
             }
             battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,

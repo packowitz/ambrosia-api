@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig
+package io.pacworx.ambrosia.io.pacworx.ambrosia.fights.environment
 
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -13,24 +13,24 @@ import javax.validation.Valid
 
 @RestController
 @CrossOrigin(maxAge = 3600)
-@RequestMapping("admin/fight_stage_config")
-class AdminStageConfigController(val fightStageConfigRepository: FightStageConfigRepository) {
+@RequestMapping("admin/fight_environment")
+class AdminEnvironmentController(val fightEnvironmentRepository: FightEnvironmentRepository) {
 
     @GetMapping
-    fun getConfigs(): List<FightStageConfig> = fightStageConfigRepository.findAll()
+    fun getConfigs(): List<FightEnvironment> = fightEnvironmentRepository.findAll()
 
     @PostMapping("new")
     @Transactional
-    fun createStageConfig(@RequestBody config: FightStageConfig): FightStageConfig {
-        return fightStageConfigRepository.save(config)
+    fun createStageConfig(@RequestBody environment: FightEnvironment): FightEnvironment {
+        return fightEnvironmentRepository.save(environment)
     }
 
     @PutMapping("{id}")
     @Transactional
-    fun updateFight(@PathVariable id: Long, @RequestBody @Valid config: FightStageConfig): FightStageConfig {
-        if (config.defaultConfig) {
-            fightStageConfigRepository.markDefaultConfig(config.id)
+    fun updateFight(@PathVariable id: Long, @RequestBody @Valid environment: FightEnvironment): FightEnvironment {
+        if (environment.defaultEnvironment) {
+            fightEnvironmentRepository.markDefaultEnvironment(environment.id)
         }
-        return fightStageConfigRepository.save(config)
+        return fightEnvironmentRepository.save(environment)
     }
 }
