@@ -14,7 +14,7 @@ data class FightEnvironment(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val name: String,
-    val defaultEnvironment: Boolean,
+    val defaultEnvironment: Boolean = false,
     @field:Min(0)
     @field:Max(100)
     val playerHealingDec: Int = 0,

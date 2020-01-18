@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.fights
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.environment.FightEnvironment
+import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.FightStageConfig
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
@@ -15,6 +17,8 @@ class FightService(private val playerRepository: PlayerRepository,
             fight.id,
             fight.name,
             playerRepository.findByServiceAccountIsTrueAndId(fight.serviceAccountId),
+            fight.stageConfig,
+            fight.environment,
             fight.stages.map { stage ->
                 FightStageResolved(
                     stage.id,
@@ -31,6 +35,8 @@ class FightService(private val playerRepository: PlayerRepository,
         val id: Long,
         val name: String,
         val serviceAccount: Player,
+        val stageConfig: FightStageConfig,
+        val environment: FightEnvironment,
         val stages: List<FightStageResolved>
     )
 

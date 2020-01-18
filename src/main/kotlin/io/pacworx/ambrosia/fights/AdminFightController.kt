@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.fights
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.environment.FightEnvironmentRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.FightStageConfigRepository
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -16,13 +17,15 @@ import javax.validation.Valid
 @RequestMapping("admin/fight")
 class AdminFightController(private val fightRepository: FightRepository,
                            private val fightService: FightService,
-                           private val fightStageConfigRepository: FightStageConfigRepository
+                           private val fightStageConfigRepository: FightStageConfigRepository,
+                           private val fightEnvironmentRepository: FightEnvironmentRepository
 ) {
 
     @PostMapping("new")
     @Transactional
     fun createFight(@RequestBody fight: Fight): Fight {
         fight.stageConfig = fightStageConfigRepository.findByDefaultConfigTrue()
+        fight.environment = fightEnvironmentRepository.findByDefaultEnvironmentTrue()
         return fightRepository.save(fight)
     }
 

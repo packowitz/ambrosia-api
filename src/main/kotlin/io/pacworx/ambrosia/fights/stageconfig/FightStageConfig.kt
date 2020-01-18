@@ -12,7 +12,7 @@ data class FightStageConfig(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val name: String,
-    val defaultConfig: Boolean,
+    val defaultConfig: Boolean = false,
     val debuffsRemoved: Boolean,
     val debuffDurationChange: Int,
     val buffsRemoved: Boolean,
