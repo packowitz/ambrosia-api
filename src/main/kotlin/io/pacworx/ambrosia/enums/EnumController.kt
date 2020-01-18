@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
 
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.FightIcon
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapBackground
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapTileStructure
@@ -71,4 +72,7 @@ class EnumController {
 
     @GetMapping("map_backgrounds")
     fun getMapBackgrounds():List<MapBackground> = MapBackground.values().asList()
+
+    @GetMapping("fight_config_speedbar_changes")
+    fun getFightConfigSpeedbarChanges():List<SpeedBarChange> = SpeedBarChange.values().asList()
 }
