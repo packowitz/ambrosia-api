@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.player
 
 import com.google.common.hash.Hashing
+import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleStatus
 import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
@@ -21,6 +22,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
                     private val jewelryRepository: JewelryRepository,
                     private val battleRepository: BattleRepository,
                     private val simplePlayerMapRepository: SimplePlayerMapRepository,
+                    private val buildingRepository: BuildingRepository,
                     private val mapService: MapService) {
 
     @Value("\${ambrosia.pw-salt-one}")
@@ -47,6 +49,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
             .map { heroService.asHeroDto(it) }
         val gears = gearRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
         val jewelries = jewelryRepository.findAllByPlayerId(player.id)
+        val buildings = buildingRepository.findAllByPlayerId(player.id)
         val playerMaps = simplePlayerMapRepository.findAllByPlayerId(player.id)
         val currentMap = mapService.getCurrentPlayerMap(player)
         val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusInAndPreviousBattleIdNull(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN, BattleStatus.STAGE_PASSED))
@@ -56,6 +59,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
             heroes = heroes,
             gears = gears,
             jewelries = jewelries,
+            buildings = buildings,
             playerMaps = playerMaps,
             currentMap = currentMap,
             ongoingBattle = ongoingBattle)

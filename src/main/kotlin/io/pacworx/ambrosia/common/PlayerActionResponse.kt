@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.controller
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.Battle
+import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.PlayerMapResolved
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Gear
 import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
@@ -19,6 +20,7 @@ data class PlayerActionResponse(
     val gears: List<Gear>? = null,
     val gearIdsRemovedFromArmory: List<Long>? = null,
     val jewelries: List<Jewelry>? = null,
+    val buildings: List<Building> ? = null,
     val playerMaps: List<PlayerMapResolved>? = null,
     val currentMap: PlayerMapResolved? = null,
     val ongoingBattle: Battle? = null
