@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.BuildingType
 import javax.persistence.*
 
 @Entity
@@ -16,5 +17,6 @@ data class MapTile(
     val fightId: Long? = null,
     @Enumerated(EnumType.STRING) val fightIcon: FightIcon? = null,
     val fightRepeatable: Boolean = false,
-    val portalToMapId: Long? = null
+    val portalToMapId: Long? = null,
+    @Enumerated(EnumType.STRING) val buildingType: BuildingType? = null
 )

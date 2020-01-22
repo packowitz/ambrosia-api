@@ -48,6 +48,7 @@ class AdminServiceAccountController(val playerRepository: PlayerRepository,
     }
 
     @PostMapping("use/{id}")
+    @Transactional
     fun useServiceAccount(@PathVariable id: Long): PlayerActionResponse {
         val serviceAccount = playerRepository.findByServiceAccountIsTrueAndId(id)
         return playerService.response(serviceAccount, jwtService.generateToken(serviceAccount))

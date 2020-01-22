@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
+import io.pacworx.ambrosia.buildings.BuildingRepository
+import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
@@ -19,7 +21,8 @@ import javax.transaction.Transactional
 class MapController(private val mapService: MapService,
                     private val playerMapRepository: PlayerMapRepository,
                     private val mapRepository: MapRepository,
-                    private val playerRepository: PlayerRepository) {
+                    private val playerRepository: PlayerRepository,
+                    private val buildingRepository: BuildingRepository) {
 
     @GetMapping("{mapId}")
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
@@ -35,13 +38,29 @@ class MapController(private val mapService: MapService,
 
     @PostMapping("discover")
     @Transactional
-    fun discoverTile(@ModelAttribute("player") player: Player, @RequestBody request: DiscoverRequest): PlayerActionResponse {
+    fun discoverTile(@ModelAttribute("player") player: Player, @RequestBody request: TileRequest): PlayerActionResponse {
         val map = playerMapRepository.getByPlayerIdAndMapId(player.id, request.mapId)
             ?: throw RuntimeException("Map ${request.mapId} is unknown to player ${player.id}")
         val tile = map.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discoverable }
             ?: throw RuntimeException("Cannot discover tile ${request.posX}/${request.posY} on map ${request.mapId} for player ${player.id}")
         mapService.discoverMapTile(map, tile)
         return PlayerActionResponse(currentMap = PlayerMapResolved(playerMapRepository.save(map)))
+    }
+
+    @PostMapping("new_building")
+    @Transactional
+    fun newBuilding(@ModelAttribute("player") player: Player, @RequestBody request: TileRequest): PlayerActionResponse {
+        val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, request.mapId)
+            ?: throw RuntimeException("Map ${request.mapId} is unknown to player ${player.id}")
+        playerMap.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discovered }
+            ?: throw RuntimeException("Tile ${request.posX}/${request.posY} on map ${request.mapId} is not discovered by player ${player.id}")
+        val buildingType = mapRepository.getOne(request.mapId).tiles.find { it.posX == request.posX && it.posY == request.posY }?.takeIf { it.buildingType != null }?.buildingType
+            ?: throw RuntimeException("Tile ${request.posX}/${request.posY} on map ${request.mapId} has no building to enter")
+        buildingRepository.findByPlayerIdAndType(player.id, buildingType)?.let {
+            throw RuntimeException("Player ${player.id} has building ${buildingType.name} already discovered")
+        }
+        val building = buildingRepository.save(Building(playerId = player.id, type = buildingType))
+        return PlayerActionResponse(buildings = listOf(building))
     }
 
     @PostMapping("{mapId}/current")
@@ -55,7 +74,7 @@ class MapController(private val mapService: MapService,
 
 }
 
-data class DiscoverRequest(
+data class TileRequest(
     val mapId: Long,
     val posX: Int,
     val posY: Int

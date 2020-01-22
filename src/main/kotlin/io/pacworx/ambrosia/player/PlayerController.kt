@@ -13,6 +13,7 @@ import javax.transaction.Transactional
 class PlayerController(private val playerService: PlayerService) {
 
     @PostMapping("")
+    @Transactional
     fun getPlayer(@ModelAttribute("player") player: Player): PlayerActionResponse {
         return playerService.response(player)
     }
