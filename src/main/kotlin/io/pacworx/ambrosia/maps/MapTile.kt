@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.BuildingType
 import javax.persistence.*
 
@@ -13,7 +14,9 @@ data class MapTile(
     val redAlwaysRevealed: Boolean = false,
     val greenAlwaysRevealed: Boolean = false,
     val blueAlwaysRevealed: Boolean = false,
-    @Enumerated(EnumType.STRING) val structure: MapTileStructure? = null,
+    @Enumerated(EnumType.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    val structure: MapTileStructure? = null,
     val fightId: Long? = null,
     @Enumerated(EnumType.STRING) val fightIcon: FightIcon? = null,
     val fightRepeatable: Boolean = false,

@@ -44,6 +44,25 @@ class AdminMapController(private val mapRepository: MapRepository) {
             map.tiles.any { (it.posY == map.minY || it.posY == map.maxY) && it.type != MapTileType.NONE }) {
             throw RuntimeException("Border tiles must be of type NONE")
         }
+        map.tiles.filter { it.structure != null }.forEach {
+            if (it.structure!!.type == MapTileStructureType.PORTAL) {
+                if (it.buildingType != null) {
+                    throw RuntimeException("Tile ${it.posX}x${it.posY} has a portal structure but a building assigned")
+                }
+                if (it.portalToMapId == null) {
+                    throw RuntimeException("Tile ${it.posX}x${it.posY} has a portal structure but no map portal to assigned")
+                }
+            } else if (it.structure.type == MapTileStructureType.BUILDING) {
+                if (it.portalToMapId != null) {
+                    throw RuntimeException("Tile ${it.posX}x${it.posY} has a building structure but a map portal to assigned")
+                }
+                if (it.buildingType == null) {
+                    throw RuntimeException("Tile ${it.posX}x${it.posY} has a building structure but building assigned")
+                } else if (it.buildingType.name != it.structure.name) {
+                    throw RuntimeException("Tile ${it.posX}x${it.posY} has a different building structure than building assigned")
+                }
+            }
+        }
         if (map.startingMap) {
             mapRepository.markStartingMap(map.id)
         }

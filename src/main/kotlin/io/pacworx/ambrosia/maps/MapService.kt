@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.BuildingType
@@ -150,7 +151,7 @@ data class PlayerMapTileResolved(
     val type: MapTileType,
     val discovered: Boolean,
     val discoverable: Boolean,
-    val structure: MapTileStructure? = null,
+    @JsonFormat(shape = JsonFormat.Shape.STRING) val structure: MapTileStructure? = null,
     val fightIcon: FightIcon? = null,
     val fightId: Long? = null,
     val fightRepeatable: Boolean? = null,
