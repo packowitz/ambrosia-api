@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
@@ -153,7 +154,8 @@ data class PlayerMapTileResolved(
     val fightIcon: FightIcon? = null,
     val fightId: Long? = null,
     val fightRepeatable: Boolean? = null,
-    val portalToMapId: Long? = null
+    val portalToMapId: Long? = null,
+    val buildingType: BuildingType? = null
 ) {
     constructor(tile: MapTile, playerTile: PlayerMapTile?): this(
         tile.posX,
@@ -165,6 +167,7 @@ data class PlayerMapTileResolved(
         playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightIcon },
         playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightId },
         playerTile?.takeIf { it.discovered }?.let { tile.fightRepeatable },
-        playerTile?.takeIf { it.discovered }?.let { tile.portalToMapId }
+        playerTile?.takeIf { it.discovered }?.let { tile.portalToMapId },
+        playerTile?.takeIf { it.discovered }?.let { tile.buildingType }
     )
 }

@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
 
+import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
 import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.FightIcon
@@ -75,4 +76,7 @@ class EnumController {
 
     @GetMapping("fight_config_speedbar_changes")
     fun getFightConfigSpeedbarChanges():List<SpeedBarChange> = SpeedBarChange.values().asList()
+
+    @GetMapping("building_types")
+    fun getBuildingTypes():List<BuildingType> = BuildingType.values().asList()
 }
