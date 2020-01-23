@@ -9,6 +9,7 @@ import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -34,7 +35,7 @@ class MapService(val playerRepository: PlayerRepository,
         val playerMap = PlayerMap(playerId = player.id, map = map)
         playerMap.playerTiles = map.tiles.filter { it.type != MapTileType.NONE }.map {
             PlayerMapTile(posX = it.posX, posY = it.posY)
-        }
+        }.toMutableList()
         map.tiles.filter {
             when(player.color) {
                 Color.RED -> it.redAlwaysRevealed
@@ -87,11 +88,26 @@ class MapService(val playerRepository: PlayerRepository,
 
     fun checkMapForUpdates(playerMap: PlayerMap) {
         if (playerMap.map.lastModified.isAfter(playerMap.mapCheckedTimestamp)) {
+            log.info("Checking map ${playerMap.map.id} for updates for player ${playerMap.playerId}")
+            playerMap.mapCheckedTimestamp = LocalDateTime.now()
+
             // remove playerMapTiles that now doesn't exist anymore or have type NONE
+            val removedTiles = playerMap.playerTiles.filter { tile ->
+                playerMap.map.tiles.none { tile.posX == it.posX && tile.posY == it.posY && it.type != MapTileType.NONE }
+            }
+            if (removedTiles.isNotEmpty()) {
+                log.info("Removing ${removedTiles.size} tiles from map ${playerMap.map.id} for player ${playerMap.playerId}")
+                playerMap.playerTiles.removeAll(removedTiles)
+            }
+
             // create undiscovered playerMapTiles for all tiles with type other than NONE
-            playerMap.playerTiles = playerMap.playerTiles
-                .filter { tile -> playerMap.map.tiles.any { tile.posX == it.posX && tile.posY == it.posY && it.type != MapTileType.NONE } } +
-                playerMap.map.tiles.filter { tile -> tile.type != MapTileType.NONE && playerMap.playerTiles.none { tile.posX == it.posX && tile.posY == it.posY } }.map { PlayerMapTile(posX = it.posX, posY = it.posY) }
+            val addedTiles = playerMap.map.tiles.filter { tile ->
+                tile.type != MapTileType.NONE && playerMap.playerTiles.none { tile.posX == it.posX && tile.posY == it.posY }
+            }.map { PlayerMapTile(posX = it.posX, posY = it.posY) }
+            if (addedTiles.isNotEmpty()) {
+                log.info("Adding ${removedTiles.size} tiles to map ${playerMap.map.id} for player ${playerMap.playerId}")
+                playerMap.playerTiles.addAll(addedTiles)
+            }
 
             // set all tiles to not discoverable and recalculate discoverable tiles
             playerMap.playerTiles.forEach { it.discoverable = false }

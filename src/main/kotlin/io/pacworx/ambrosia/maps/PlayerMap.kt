@@ -16,5 +16,5 @@ data class PlayerMap (
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "player_map_id")
     @OrderBy("pos_x ASC, pos_y ASC")
-    var playerTiles: List<PlayerMapTile> = ArrayList()
+    var playerTiles: MutableList<PlayerMapTile> = ArrayList()
 }

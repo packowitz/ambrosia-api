@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
 
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import javax.validation.Valid
 import javax.validation.constraints.Min
 
@@ -66,6 +67,7 @@ class AdminMapController(private val mapRepository: MapRepository) {
         if (map.startingMap) {
             mapRepository.markStartingMap(map.id)
         }
+        map.lastModified = LocalDateTime.now()
         return mapRepository.save(map)
     }
 }
