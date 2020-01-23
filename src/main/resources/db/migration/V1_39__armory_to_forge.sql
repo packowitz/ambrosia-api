@@ -1,0 +1,1 @@
+update building set type = 'FORGE' where type = 'ARMORY';

@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonFormat
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 enum class MapTileStructure(val type: MapTileStructureType) {
     ACADEMY(MapTileStructureType.BUILDING),
-    //ARENA(MapTileStructureType.BUILDING),
+    ARENA(MapTileStructureType.BUILDING),
     BAZAAR(MapTileStructureType.BUILDING),
-    BLACKSMITH(MapTileStructureType.BUILDING),
+    FORGE(MapTileStructureType.BUILDING),
     GARAGE(MapTileStructureType.BUILDING),
     JEWELRY(MapTileStructureType.BUILDING),
     LABORATORY(MapTileStructureType.BUILDING),
