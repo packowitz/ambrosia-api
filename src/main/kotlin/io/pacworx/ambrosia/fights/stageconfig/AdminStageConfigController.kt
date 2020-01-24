@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig
+package io.pacworx.ambrosia.fights.stageconfig
 
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.CrossOrigin

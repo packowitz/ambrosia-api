@@ -1,7 +1,7 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.services
+package io.pacworx.ambrosia.gear
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Gear
+import io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 

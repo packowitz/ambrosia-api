@@ -1,17 +1,19 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.controller
+package io.pacworx.ambrosia.common
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.Battle
-import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.Building
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.PlayerMapResolved
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Gear
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Jewelry
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.battle.Battle
+import io.pacworx.ambrosia.buildings.Building
+import io.pacworx.ambrosia.maps.PlayerMapResolved
+import io.pacworx.ambrosia.gear.Gear
+import io.pacworx.ambrosia.hero.HeroDto
+import io.pacworx.ambrosia.gear.Jewelry
+import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.resources.Resources
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PlayerActionResponse(
     val player: Player? = null,
+    val resources: Resources? = null,
     val token: String? = null,
     val hero: HeroDto? = null,
     val heroes: List<HeroDto>? = null,

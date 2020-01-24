@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
+package io.pacworx.ambrosia.maps
 
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*

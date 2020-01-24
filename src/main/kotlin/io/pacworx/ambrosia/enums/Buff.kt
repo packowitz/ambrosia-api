@@ -1,10 +1,10 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.enums
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.Battle
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleHero
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleHeroBuff
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.HeroStatus
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
+import io.pacworx.ambrosia.battle.Battle
+import io.pacworx.ambrosia.battle.BattleHero
+import io.pacworx.ambrosia.battle.BattleHeroBuff
+import io.pacworx.ambrosia.battle.HeroStatus
+import io.pacworx.ambrosia.properties.PropertyService
 
 /**
  * To add a new Buff you need to

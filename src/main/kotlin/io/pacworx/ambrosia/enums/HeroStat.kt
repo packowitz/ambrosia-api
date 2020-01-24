@@ -1,9 +1,8 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.enums
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleHero
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
+import io.pacworx.ambrosia.battle.BattleHero
+import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
+import io.pacworx.ambrosia.hero.HeroDto
 
 enum class HeroStat {
     HP_ABS {

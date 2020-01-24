@@ -1,7 +1,10 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.services
+package io.pacworx.ambrosia.properties
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
+import io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.gear.Gear
+import io.pacworx.ambrosia.gear.HeroGearSet
+import io.pacworx.ambrosia.hero.HeroDto
+import io.pacworx.ambrosia.hero.HeroSkillAction
 import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 

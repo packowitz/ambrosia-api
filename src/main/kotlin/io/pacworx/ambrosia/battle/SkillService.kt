@@ -1,12 +1,12 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
+package io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionEffect.*
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.DynamicProperty
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkillAction
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
+import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
+import io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.enums.SkillActionEffect.*
+import io.pacworx.ambrosia.properties.DynamicProperty
+import io.pacworx.ambrosia.hero.HeroSkill
+import io.pacworx.ambrosia.hero.HeroSkillAction
+import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.stereotype.Service
 import java.lang.RuntimeException
 import kotlin.math.max

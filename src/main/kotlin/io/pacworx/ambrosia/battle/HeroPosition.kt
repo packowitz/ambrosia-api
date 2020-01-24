@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
+package io.pacworx.ambrosia.battle
 
 import java.lang.RuntimeException
 

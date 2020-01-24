@@ -1,10 +1,11 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
+package io.pacworx.ambrosia.maps
 
 import io.pacworx.ambrosia.buildings.BuildingRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.Building
-import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
+import io.pacworx.ambrosia.buildings.Building
+import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.player.PlayerRepository
+import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -22,7 +23,8 @@ class MapController(private val mapService: MapService,
                     private val playerMapRepository: PlayerMapRepository,
                     private val mapRepository: MapRepository,
                     private val playerRepository: PlayerRepository,
-                    private val buildingRepository: BuildingRepository) {
+                    private val buildingRepository: BuildingRepository,
+                    private val resourcesService: ResourcesService) {
 
     @GetMapping("{mapId}")
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
@@ -43,8 +45,9 @@ class MapController(private val mapService: MapService,
             ?: throw RuntimeException("Map ${request.mapId} is unknown to player ${player.id}")
         val tile = map.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discoverable }
             ?: throw RuntimeException("Cannot discover tile ${request.posX}/${request.posY} on map ${request.mapId} for player ${player.id}")
+        val resources = resourcesService.spendSteam(player, map.map.discoverySteamCost)
         mapService.discoverMapTile(map, tile)
-        return PlayerActionResponse(currentMap = PlayerMapResolved(playerMapRepository.save(map)))
+        return PlayerActionResponse(currentMap = PlayerMapResolved(playerMapRepository.save(map)), resources = resources)
     }
 
     @PostMapping("new_building")

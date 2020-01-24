@@ -1,10 +1,10 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.models
+package io.pacworx.ambrosia.hero
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionEffect
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionTarget
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionTrigger
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActionType
+import io.pacworx.ambrosia.enums.SkillActionEffect
+import io.pacworx.ambrosia.enums.SkillActionTarget
+import io.pacworx.ambrosia.enums.SkillActionTrigger
+import io.pacworx.ambrosia.enums.SkillActionType
 import javax.persistence.*
 
 @Entity

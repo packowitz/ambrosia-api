@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.enums
 
 enum class SkillActionTarget {
     TARGET,

@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
+package io.pacworx.ambrosia.maps
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -13,6 +13,7 @@ interface SimplePlayerMapRepository: JpaRepository<PlayerMapResolved, String> {
             pm.map_id as map_id, 
             m.name as name,
             m.background as background,
+            m.discovery_steam_cost as discovery_steam_cost,
             m.min_x as min_x,
             m.max_x as max_x,
             m.min_y as min_y,

@@ -1,7 +1,7 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.player
+package io.pacworx.ambrosia.player
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
+import io.pacworx.ambrosia.enums.Color
 import javax.persistence.*
 
 @Entity

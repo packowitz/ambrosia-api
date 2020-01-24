@@ -1,6 +1,6 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
+package io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
+import io.pacworx.ambrosia.hero.HeroSkill
 import org.springframework.stereotype.Service
 
 @Service

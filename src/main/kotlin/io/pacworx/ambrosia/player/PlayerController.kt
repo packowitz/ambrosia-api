@@ -1,9 +1,7 @@
 package io.pacworx.ambrosia.player
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerService
+import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.enums.Color
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 

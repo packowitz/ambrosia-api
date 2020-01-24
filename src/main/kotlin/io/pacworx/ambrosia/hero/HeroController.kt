@@ -1,18 +1,18 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.controller
+package io.pacworx.ambrosia.hero
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Rarity
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.RecruitType
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
+import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.enums.Rarity
+import io.pacworx.ambrosia.enums.RecruitType
+import io.pacworx.ambrosia.hero.base.HeroBaseRepository
+import io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("hero")
 class HeroController(val heroService: HeroService,
-                          val heroRepository: HeroRepository,
-                          val heroBaseRepository: HeroBaseRepository) {
+                     val heroRepository: HeroRepository,
+                     val heroBaseRepository: HeroBaseRepository) {
 
     @GetMapping("")
     fun getHeroes(@ModelAttribute("player") player: Player): List<HeroDto> {

@@ -1,11 +1,11 @@
 package io.pacworx.ambrosia.fights
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.environment.FightEnvironment
-import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.FightStageConfig
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroDto
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
+import io.pacworx.ambrosia.fights.environment.FightEnvironment
+import io.pacworx.ambrosia.fights.stageconfig.FightStageConfig
+import io.pacworx.ambrosia.hero.HeroDto
+import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.player.PlayerRepository
+import io.pacworx.ambrosia.hero.HeroService
 import org.springframework.stereotype.Service
 
 @Service

@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.fights.environment
+package io.pacworx.ambrosia.fights.environment
 
 import javax.persistence.Entity
 import javax.persistence.EnumType

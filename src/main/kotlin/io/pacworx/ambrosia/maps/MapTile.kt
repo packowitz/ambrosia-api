@@ -1,7 +1,7 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
+package io.pacworx.ambrosia.maps
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.buildings.BuildingType
 import javax.persistence.*
 
 @Entity

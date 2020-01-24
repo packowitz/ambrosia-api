@@ -1,7 +1,7 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.models
+package io.pacworx.ambrosia.gear
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.JewelType
+import io.pacworx.ambrosia.enums.JewelType
 import java.lang.RuntimeException
 import javax.persistence.*
 

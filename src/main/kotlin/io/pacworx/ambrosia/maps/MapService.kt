@@ -1,12 +1,12 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
+package io.pacworx.ambrosia.maps
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.BuildingType
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Color
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
+import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.enums.Color
+import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.player.PlayerRepository
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -138,6 +138,7 @@ data class PlayerMapResolved(
     val mapId: Long,
     val name: String,
     val background: String,
+    val discoverySteamCost: Int,
     @Column(name = "min_x") val minX: Int,
     @Column(name = "max_x") val maxX: Int,
     @Column(name = "min_y") val minY: Int,
@@ -149,6 +150,7 @@ data class PlayerMapResolved(
         playerMap.map.id,
         playerMap.map.name,
         playerMap.map.background.name,
+        playerMap.map.discoverySteamCost,
         playerMap.map.minX,
         playerMap.map.maxX,
         playerMap.map.minY,

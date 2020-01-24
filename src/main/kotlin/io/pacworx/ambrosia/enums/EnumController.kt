@@ -1,12 +1,13 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
+package io.pacworx.ambrosia.admin.controller
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.buildings.BuildingType
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
-import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.FightIcon
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapBackground
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapTileStructure
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapTileType
+import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
+import io.pacworx.ambrosia.maps.FightIcon
+import io.pacworx.ambrosia.maps.MapBackground
+import io.pacworx.ambrosia.maps.MapTileStructure
+import io.pacworx.ambrosia.maps.MapTileType
+import io.pacworx.ambrosia.resources.ResourceType
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -79,4 +80,7 @@ class EnumController {
 
     @GetMapping("building_types")
     fun getBuildingTypes():List<BuildingType> = BuildingType.values().asList()
+
+    @GetMapping("resource_types")
+    fun getResourceTypes():List<ResourceType> = ResourceType.values().asList()
 }

@@ -1,6 +1,6 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
+package io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Buff
+import io.pacworx.ambrosia.enums.Buff
 import javax.persistence.*
 
 @Entity

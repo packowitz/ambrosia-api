@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.buildings
+package io.pacworx.ambrosia.buildings
 
 import java.time.LocalDateTime
 import javax.persistence.*

@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.maps
+package io.pacworx.ambrosia.maps
 
 import java.time.LocalDateTime
 import javax.persistence.*
@@ -9,6 +9,7 @@ data class Map(
     val id: Long = 0,
     val name: String,
     val startingMap: Boolean = false,
+    val discoverySteamCost: Int = 5,
     @Column(name = "min_x") val minX: Int,
     @Column(name = "max_x") val maxX: Int,
     @Column(name = "min_y") val minY: Int,

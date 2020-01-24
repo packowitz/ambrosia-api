@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig
+package io.pacworx.ambrosia.fights.stageconfig
 
 import javax.persistence.Entity
 import javax.persistence.EnumType

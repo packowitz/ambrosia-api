@@ -1,7 +1,7 @@
 package io.pacworx.ambrosia.fights
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.environment.FightEnvironmentRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.FightStageConfigRepository
+import io.pacworx.ambrosia.fights.environment.FightEnvironmentRepository
+import io.pacworx.ambrosia.fights.stageconfig.FightStageConfigRepository
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.PathVariable

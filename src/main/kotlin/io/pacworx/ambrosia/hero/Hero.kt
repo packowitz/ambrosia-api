@@ -1,8 +1,9 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.models
+package io.pacworx.ambrosia.hero
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.GearType
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillActiveTrigger
-import io.pacworx.ambrosia.team.HeroBase
+import io.pacworx.ambrosia.enums.GearType
+import io.pacworx.ambrosia.enums.SkillActiveTrigger
+import io.pacworx.ambrosia.gear.Gear
+import io.pacworx.ambrosia.hero.base.HeroBase
 import javax.persistence.*
 import kotlin.math.min
 
@@ -108,7 +109,7 @@ data class Hero(
 
     fun skillLevelUp(skillNumber: Int) {
         when (skillNumber) {
-            1 -> this.skill1++
+            1 -> this.skill1 = min(this.skill1.inc(), heroBase.skills.find { it.number == 1 }!!.maxLevel)
             2 -> this.skill2 = min(this.skill2?.inc() ?: 1, heroBase.skills.find { it.number == 2 }!!.maxLevel)
             3 -> this.skill3 = min(this.skill3?.inc() ?: 1, heroBase.skills.find { it.number == 3 }!!.maxLevel)
             4 -> this.skill4 = min(this.skill4?.inc() ?: 1, heroBase.skills.find { it.number == 4 }!!.maxLevel)

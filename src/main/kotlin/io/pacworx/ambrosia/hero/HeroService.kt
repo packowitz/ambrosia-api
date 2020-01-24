@@ -1,7 +1,8 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.services
+package io.pacworx.ambrosia.hero
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.Rarity
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
+import io.pacworx.ambrosia.enums.Rarity
+import io.pacworx.ambrosia.hero.base.HeroBaseRepository
+import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 

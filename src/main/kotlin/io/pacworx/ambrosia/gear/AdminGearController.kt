@@ -1,11 +1,8 @@
 package io.pacworx.ambrosia.gear
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.*
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Gear
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.GearRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.GearService
+import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 

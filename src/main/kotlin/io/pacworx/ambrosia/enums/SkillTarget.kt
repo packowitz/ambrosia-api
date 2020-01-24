@@ -1,7 +1,7 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.enums
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.Battle
-import io.pacworx.ambrosia.io.pacworx.ambrosia.battle.BattleHero
+import io.pacworx.ambrosia.battle.Battle
+import io.pacworx.ambrosia.battle.BattleHero
 
 enum class SkillTarget {
     OPPONENT {

@@ -1,6 +1,6 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.models
+package io.pacworx.ambrosia.gear
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.GearSet
+import io.pacworx.ambrosia.enums.GearSet
 
 data class HeroGearSet(
         val gearSet: GearSet,

@@ -1,21 +1,22 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
+package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.fights.FightRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.BuffType
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.TeamType
-import io.pacworx.ambrosia.io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.SimplePlayerMapTile
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.*
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
+import io.pacworx.ambrosia.enums.BuffType
+import io.pacworx.ambrosia.enums.TeamType
+import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
+import io.pacworx.ambrosia.hero.Hero
+import io.pacworx.ambrosia.maps.SimplePlayerMapTile
+import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.player.PlayerRepository
+import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.hero.HeroSkill
+import io.pacworx.ambrosia.team.Team
+import io.pacworx.ambrosia.properties.PropertyService
+import io.pacworx.ambrosia.team.TeamRepository
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
-import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.round
 
 @Service
 class BattleService(private val playerRepository: PlayerRepository,

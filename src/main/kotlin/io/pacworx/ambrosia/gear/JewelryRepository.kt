@@ -1,6 +1,7 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.models
+package io.pacworx.ambrosia.gear
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.JewelType
+import io.pacworx.ambrosia.enums.JewelType
+import io.pacworx.ambrosia.gear.Jewelry
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface JewelryRepository: JpaRepository<Jewelry, Long> {

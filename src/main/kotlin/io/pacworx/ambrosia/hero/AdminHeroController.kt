@@ -1,12 +1,12 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
+package io.pacworx.ambrosia.admin.controller
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.Hero
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroBaseRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.HeroService
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
+import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.hero.Hero
+import io.pacworx.ambrosia.hero.base.HeroBaseRepository
+import io.pacworx.ambrosia.hero.HeroRepository
+import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.web.bind.annotation.*
 import java.lang.RuntimeException
 

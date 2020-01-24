@@ -1,6 +1,6 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.common
+package io.pacworx.ambrosia.common
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
+import io.pacworx.ambrosia.player.PlayerRepository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController

@@ -1,8 +1,6 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.admin.controller
+package io.pacworx.ambrosia.properties
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.PropertyType
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.DynamicProperty
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.PropertyService
+import io.pacworx.ambrosia.enums.PropertyType
 import org.springframework.web.bind.annotation.*
 
 @RestController

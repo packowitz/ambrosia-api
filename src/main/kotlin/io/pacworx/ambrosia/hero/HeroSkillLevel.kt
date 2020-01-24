@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.models
+package io.pacworx.ambrosia.hero
 
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue

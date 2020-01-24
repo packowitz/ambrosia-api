@@ -1,7 +1,6 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.config
+package io.pacworx.ambrosia.config
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.PlayerRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.services.JwtService
+import io.pacworx.ambrosia.player.PlayerRepository
 import mu.KotlinLogging
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority

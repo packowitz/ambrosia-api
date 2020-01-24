@@ -1,11 +1,11 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.battle
+package io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.io.pacworx.ambrosia.controller.PlayerActionResponse
-import io.pacworx.ambrosia.io.pacworx.ambrosia.enums.SkillTarget
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.MapService
-import io.pacworx.ambrosia.io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
-import io.pacworx.ambrosia.io.pacworx.ambrosia.models.HeroSkill
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.enums.SkillTarget
+import io.pacworx.ambrosia.maps.MapService
+import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
+import io.pacworx.ambrosia.hero.HeroSkill
+import io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 

@@ -1,8 +1,8 @@
-package io.pacworx.ambrosia.io.pacworx.ambrosia.services
+package io.pacworx.ambrosia.config
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import io.pacworx.ambrosia.io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.player.Player
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
