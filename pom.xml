@@ -118,38 +118,6 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-
-			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>1.6.0</version>
-				<configuration>
-					<from>
-						<image>openjdk:8-jre-alpine</image>
-					</from>
-					<to>
-						<tags>${project.version}</tags>
-					</to>
-					<container>
-						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-						<environment>
-							<!--suppress UnresolvedMavenProperty -->
-							<DB_URL>${db.url}</DB_URL>
-							<!--suppress UnresolvedMavenProperty -->
-							<DB_USER>${db.user}</DB_USER>
-							<!--suppress UnresolvedMavenProperty -->
-							<DB_USER_PW>${db.user.pw}</DB_USER_PW>
-							<!--suppress UnresolvedMavenProperty -->
-							<PW_SALT_ONE>${pw.salt.one}</PW_SALT_ONE>
-							<!--suppress UnresolvedMavenProperty -->
-							<PW_SALT_TWO>${pw.salt.two}</PW_SALT_TWO>
-							<!--suppress UnresolvedMavenProperty -->
-							<JWT_SECRET>${jwt.secret}</JWT_SECRET>
-						</environment>
-					</container>
-				</configuration>
-			</plugin>
-
 		</plugins>
 	</build>
 
