@@ -1,24 +1,22 @@
 package io.pacworx.ambrosia.fights
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.fights.environment.FightEnvironment
 import io.pacworx.ambrosia.fights.stageconfig.FightStageConfig
-import javax.persistence.CascadeType
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.OneToMany
-import javax.persistence.OrderBy
+import io.pacworx.ambrosia.resources.ResourceType
+import javax.persistence.*
 
 @Entity
 data class Fight(
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long = 0,
-        var name: String,
-        val serviceAccountId: Long
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0,
+    var name: String,
+    val serviceAccountId: Long,
+    @Enumerated(EnumType.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    val resourceType: ResourceType = ResourceType.STEAM,
+    val costs: Int = 5
 ) {
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "fight_id")

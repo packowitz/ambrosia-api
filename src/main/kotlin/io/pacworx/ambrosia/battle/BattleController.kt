@@ -2,10 +2,13 @@ package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.enums.SkillTarget
+import io.pacworx.ambrosia.fights.FightRepository
+import io.pacworx.ambrosia.hero.HeroSkill
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
-import io.pacworx.ambrosia.hero.HeroSkill
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.resources.Resources
+import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
@@ -15,7 +18,9 @@ import javax.transaction.Transactional
 class BattleController(private val battleService: BattleService,
                        private val battleRepository: BattleRepository,
                        private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository,
-                       private val mapService: MapService) {
+                       private val mapService: MapService,
+                       private val fightRepository: FightRepository,
+                       private val resourcesService: ResourcesService) {
 
     @GetMapping("{battleId}")
     @Transactional
@@ -53,7 +58,9 @@ class BattleController(private val battleService: BattleService,
         if (mapTile == null || !mapTile.discovered || mapTile.fightId == null || (mapTile.victoriousFight && !mapTile.fightRepeatable)) {
             throw RuntimeException("You cannot fight on that map tile.")
         }
-        return afterBattleAction(player, battleService.initCampaign(player, mapTile, request))
+        val fight = fightRepository.getOne(mapTile.fightId)
+        val resources = resourcesService.spendResource(player, fight.resourceType, fight.costs)
+        return afterBattleAction(player, battleService.initCampaign(player, mapTile, fight, request), resources)
     }
 
     @PostMapping("{battleId}/{heroPos}/{skillNumber}/{targetPos}")
@@ -123,14 +130,14 @@ class BattleController(private val battleService: BattleService,
         }
     }
 
-    private fun afterBattleAction(player: Player, battle: Battle): PlayerActionResponse {
+    private fun afterBattleAction(player: Player, battle: Battle, resources: Resources? = null): PlayerActionResponse {
         return if (battle.status == BattleStatus.WON) {
             val map = battle.mapId?.let {
                 mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
             }
-            PlayerActionResponse(player = player, currentMap = map, ongoingBattle = battle)
+            PlayerActionResponse(player = player, resources = resources, currentMap = map, ongoingBattle = battle)
         } else {
-            PlayerActionResponse(ongoingBattle = battle)
+            PlayerActionResponse(resources = resources, ongoingBattle = battle)
         }
     }
 }

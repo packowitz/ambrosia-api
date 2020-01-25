@@ -52,13 +52,22 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
         }
     }
 
+    fun spendResource(player: Player, type: ResourceType, amount: Int): Resources {
+        return when(type) {
+            ResourceType.STEAM -> spendSteam(player, amount)
+            ResourceType.COGWHEELS -> spendCogwheels(player, amount)
+            ResourceType.TOKENS -> spendTokens(player, amount)
+            else -> throw RuntimeException("Unimplemented resource: $type")
+        }
+    }
+
     fun spendSteam(player: Player, amount: Int): Resources =
         spendSteam(resourcesRepository.getOne(player.id), amount)
 
     fun spendSteam(resources: Resources, amount: Int): Resources {
         calcProduction(resources)
         if (amount > resources.steam + resources.premiumSteam) {
-            throw RuntimeException("Player ${resources.playerId} cannot spend $amount steam")
+            throw RuntimeException("You cannot spend $amount steam")
         }
         if (resources.steam >= resources.steamMax) {
             resources.steamLastProduction = LocalDateTime.now()
@@ -67,6 +76,44 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
         if (resources.steam < 0) {
             resources.premiumSteam += resources.steam
             resources.steam = 0
+        }
+        return resources
+    }
+
+    fun spendCogwheels(player: Player, amount: Int): Resources =
+        spendCogwheels(resourcesRepository.getOne(player.id), amount)
+
+    fun spendCogwheels(resources: Resources, amount: Int): Resources {
+        calcProduction(resources)
+        if (amount > resources.cogwheels + resources.premiumCogwheels) {
+            throw RuntimeException("You cannot spend $amount cogwheels")
+        }
+        if (resources.cogwheels >= resources.cogwheelsMax) {
+            resources.cogwheelsLastProduction = LocalDateTime.now()
+        }
+        resources.cogwheels -= amount
+        if (resources.cogwheels < 0) {
+            resources.premiumCogwheels += resources.cogwheels
+            resources.cogwheels = 0
+        }
+        return resources
+    }
+
+    fun spendTokens(player: Player, amount: Int): Resources =
+        spendTokens(resourcesRepository.getOne(player.id), amount)
+
+    fun spendTokens(resources: Resources, amount: Int): Resources {
+        calcProduction(resources)
+        if (amount > resources.tokens + resources.premiumTokens) {
+            throw RuntimeException("You cannot spend $amount tokens")
+        }
+        if (resources.tokens >= resources.tokensMax) {
+            resources.tokensLastProduction = LocalDateTime.now()
+        }
+        resources.tokens -= amount
+        if (resources.tokens < 0) {
+            resources.premiumTokens += resources.tokens
+            resources.tokens = 0
         }
         return resources
     }

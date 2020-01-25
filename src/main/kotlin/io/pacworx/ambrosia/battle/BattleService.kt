@@ -1,18 +1,19 @@
 package io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.fights.Fight
-import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.enums.BuffType
 import io.pacworx.ambrosia.enums.TeamType
+import io.pacworx.ambrosia.fights.Fight
+import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
 import io.pacworx.ambrosia.hero.Hero
+import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.hero.HeroSkill
 import io.pacworx.ambrosia.maps.SimplePlayerMapTile
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
-import io.pacworx.ambrosia.hero.HeroService
-import io.pacworx.ambrosia.hero.HeroSkill
-import io.pacworx.ambrosia.team.Team
 import io.pacworx.ambrosia.properties.PropertyService
+import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.team.Team
 import io.pacworx.ambrosia.team.TeamRepository
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
@@ -26,7 +27,8 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val aiService: AiService,
                     private val propertyService: PropertyService,
                     private val fightRepository: FightRepository,
-                    private val teamRepository: TeamRepository) {
+                    private val teamRepository: TeamRepository,
+                    private val resourcesService: ResourcesService) {
 
     companion object {
         const val SPEEDBAR_MAX: Int = 10000
@@ -61,8 +63,7 @@ class BattleService(private val playerRepository: PlayerRepository,
     }
 
     @Transactional
-    fun initCampaign(player: Player, mapTile: SimplePlayerMapTile, request: StartBattleRequest): Battle {
-        val fight = fightRepository.getOne(mapTile.fightId!!)
+    fun initCampaign(player: Player, mapTile: SimplePlayerMapTile, fight: Fight, request: StartBattleRequest): Battle {
         val team = teamRepository.findByPlayerIdAndType(player.id, TeamType.CAMPAIGN) ?: teamRepository.save(Team ( playerId = player.id, type = TeamType.CAMPAIGN))
         team.apply {
             hero1Id = request.hero1Id
