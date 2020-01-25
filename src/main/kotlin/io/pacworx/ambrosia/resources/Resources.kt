@@ -1,6 +1,8 @@
 package io.pacworx.ambrosia.resources
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import javax.persistence.Entity
 import javax.persistence.Id
 
@@ -10,16 +12,16 @@ data class Resources(
     val playerId: Long,
     var steam: Int,
     var steamMax: Int,
-    var steamProduceSeconds: Int = 300,
-    var steamLastProduction: LocalDateTime = LocalDateTime.now(),
+    @JsonIgnore var steamProduceSeconds: Int = 300,
+    @JsonIgnore var steamLastProduction: LocalDateTime = LocalDateTime.now(),
     var cogwheels: Int,
     var cogwheelsMax: Int,
-    var cogwheelsProduceSeconds: Int = 3600,
-    var cogwheelsLastProduction: LocalDateTime = LocalDateTime.now(),
+    @JsonIgnore var cogwheelsProduceSeconds: Int = 3600,
+    @JsonIgnore var cogwheelsLastProduction: LocalDateTime = LocalDateTime.now(),
     var tokens: Int,
     var tokensMax: Int,
-    var tokensProduceSeconds: Int = 7200,
-    var tokensLastProduction: LocalDateTime = LocalDateTime.now(),
+    @JsonIgnore var tokensProduceSeconds: Int = 7200,
+    @JsonIgnore var tokensLastProduction: LocalDateTime = LocalDateTime.now(),
     var premiumSteam: Int = 0,
     var premiumSteamMax: Int,
     var premiumCogwheels: Int = 0,
@@ -45,4 +47,31 @@ data class Resources(
     var uncommonGenome: Int = 0,
     var rareGenome: Int = 0,
     var epicGenome: Int = 0
-)
+) {
+    fun getSteamProduceIn(): Int? {
+        return if (steam >= steamMax) {
+            null
+        } else {
+            val nextProd = steamLastProduction.plusSeconds(steamProduceSeconds.toLong())
+            LocalDateTime.now().until(nextProd, ChronoUnit.SECONDS).toInt()
+        }
+    }
+
+    fun getCogwheelsProduceIn(): Int? {
+        return if (cogwheels >= cogwheelsMax) {
+            null
+        } else {
+            val nextProd = cogwheelsLastProduction.plusSeconds(cogwheelsProduceSeconds.toLong())
+            LocalDateTime.now().until(nextProd, ChronoUnit.SECONDS).toInt()
+        }
+    }
+
+    fun getTokensProduceIn(): Int? {
+        return if (tokens >= tokensMax) {
+            null
+        } else {
+            val nextProd = tokensLastProduction.plusSeconds(tokensProduceSeconds.toLong())
+            LocalDateTime.now().until(nextProd, ChronoUnit.SECONDS).toInt()
+        }
+    }
+}

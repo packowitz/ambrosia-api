@@ -60,6 +60,9 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
         if (amount > resources.steam + resources.premiumSteam) {
             throw RuntimeException("Player ${resources.playerId} cannot spend $amount steam")
         }
+        if (resources.steam >= resources.steamMax) {
+            resources.steamLastProduction = LocalDateTime.now()
+        }
         resources.steam -= amount
         if (resources.steam < 0) {
             resources.premiumSteam += resources.steam
