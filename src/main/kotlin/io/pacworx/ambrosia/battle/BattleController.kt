@@ -138,7 +138,7 @@ class BattleController(private val battleService: BattleService,
                 mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
             }
             val heroes = battle.fight?.let { fight ->
-                heroService.wonFight(player, battle.allHeroes().map { it.heroId }, fight)
+                heroService.wonFight(player, battle.allPlayerHeroes().map { it.heroId }, fight)
             }
             PlayerActionResponse(player = player, resources = resources, currentMap = map, heroes = heroes, ongoingBattle = battle)
         } else {

@@ -79,6 +79,9 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
     fun wonFight(player: Player, heroIds: List<Long>, fight: Fight): List<HeroDto> {
         return heroIds.map { heroId ->
             val hero = heroRepository.getOne(heroId)
+            if (hero.playerId != player.id) {
+                throw RuntimeException("Cannot gain xp for a hero you don't own.")
+            }
             heroGainXp(hero, fight.xp)
             when(hero.level) {
                 in 1..fight.level -> heroGainAsc(hero, fight.ascPoints)
