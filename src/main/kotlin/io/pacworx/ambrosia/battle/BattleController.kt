@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.battle
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.enums.SkillTarget
 import io.pacworx.ambrosia.fights.FightRepository
+import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.HeroSkill
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
@@ -20,7 +21,8 @@ class BattleController(private val battleService: BattleService,
                        private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository,
                        private val mapService: MapService,
                        private val fightRepository: FightRepository,
-                       private val resourcesService: ResourcesService) {
+                       private val resourcesService: ResourcesService,
+                       private val heroService: HeroService) {
 
     @GetMapping("{battleId}")
     @Transactional
@@ -135,7 +137,10 @@ class BattleController(private val battleService: BattleService,
             val map = battle.mapId?.let {
                 mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
             }
-            PlayerActionResponse(player = player, resources = resources, currentMap = map, ongoingBattle = battle)
+            val heroes = battle.fight?.let { fight ->
+                heroService.wonFight(player, battle.allHeroes().map { it.heroId }, fight)
+            }
+            PlayerActionResponse(player = player, resources = resources, currentMap = map, heroes = heroes, ongoingBattle = battle)
         } else {
             PlayerActionResponse(resources = resources, ongoingBattle = battle)
         }

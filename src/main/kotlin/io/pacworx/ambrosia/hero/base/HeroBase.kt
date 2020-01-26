@@ -42,7 +42,8 @@ data class HeroBase(
     var dexterityAsc: Int = 20,
     var resistance: Int = 0,
     var resistanceAsc: Int = 20,
-    var recruitable: Boolean = false
+    var recruitable: Boolean = false,
+    val maxAscLevel: Int = 10
 ) {
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "hero_id")

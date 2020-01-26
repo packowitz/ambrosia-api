@@ -40,7 +40,13 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
     }
 
     fun getHeroMaxXp(level: Int): Int {
-        return properties.find { it.type == PropertyType.XP_MAX_HERO && it.level == level }?.let { it.value1 } ?: 10
+        return properties.find { it.type == PropertyType.XP_MAX_HERO && it.level == level }?.value1
+            ?: throw RuntimeException("No Max XP defined for hero level $level")
+    }
+
+    fun getHeroMaxAsc(level: Int): Int {
+        return properties.find { it.type == PropertyType.ASC_POINTS_MAX_HERO && it.level == level }?.value1
+            ?: throw RuntimeException("No Max Ascension points defined for asc level $level")
     }
 
     fun getPossibleGearStats(gearType: GearType, rarity: Rarity): List<HeroStat> {

@@ -1,14 +1,10 @@
-package io.pacworx.ambrosia.admin.controller
+package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.hero.Hero
 import io.pacworx.ambrosia.hero.base.HeroBaseRepository
-import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.web.bind.annotation.*
-import java.lang.RuntimeException
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -20,8 +16,7 @@ class AdminHeroController(val heroRepository: HeroRepository,
 
     @PostMapping("recruit/{heroId}")
     fun recruit(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
-        val hero = heroBaseRepository.getOne(heroId).let { Hero(player.id, it) }
-        heroRepository.save(hero)
+        val hero = heroService.recruitHero(player, heroBaseRepository.getOne(heroId))
         return PlayerActionResponse(hero = heroService.asHeroDto(hero))
     }
 

@@ -26,6 +26,7 @@ data class Hero(
     var skill5: Int? = null,
     var skill6: Int? = null,
     var skill7: Int? = null,
+    var skillPoints: Int = 0,
     var ascLvl: Int = 0,
     var ascPoints: Int = 0,
     var ascPointsMax: Int,
@@ -49,12 +50,12 @@ data class Hero(
     var boots: Gear? = null
 ) {
 
-    constructor(playerId: Long, heroBase: HeroBase) : this(
+    constructor(playerId: Long, heroBase: HeroBase, maxXp: Int, ascPointsMax: Int) : this(
         playerId = playerId,
         heroBase = heroBase,
         stars = heroBase.rarity.stars,
-        maxXp = 10000,
-        ascPointsMax = 10000
+        maxXp = maxXp,
+        ascPointsMax = ascPointsMax
     ) {
         heroBase.skills.filter { it.skillActiveTrigger == SkillActiveTrigger.ALWAYS }.forEach {
             when (it.number) {

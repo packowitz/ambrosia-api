@@ -16,7 +16,10 @@ data class Fight(
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     val resourceType: ResourceType = ResourceType.STEAM,
-    val costs: Int = 5
+    val costs: Int = 5,
+    val xp: Int = 500,
+    val level: Int = 5,
+    val ascPoints: Int = 10
 ) {
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "fight_id")

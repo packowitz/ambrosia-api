@@ -5,28 +5,29 @@ import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
 import io.pacworx.ambrosia.enums.Buff
 import io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.hero.HeroDto
-import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.hero.base.HeroBase
+import io.pacworx.ambrosia.properties.PropertyService
 import javax.persistence.*
 import kotlin.math.min
 
 @Entity
 data class BattleHero(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long = 0,
+    val id: Long = 0,
     val playerId: Long? = null,
+    val heroId: Long,
     @Enumerated(EnumType.STRING)
-        var status: HeroStatus = HeroStatus.ALIVE,
+    var status: HeroStatus = HeroStatus.ALIVE,
     var priority: Int = 0,
 
     @ManyToOne
-        @JoinColumn(name = "hero_base_id")
-        val heroBase: HeroBase,
+    @JoinColumn(name = "hero_base_id")
+    val heroBase: HeroBase,
 
     @Enumerated(EnumType.STRING)
-        val position: HeroPosition,
+    val position: HeroPosition,
     @Enumerated(EnumType.STRING)
-        val color: Color,
+    val color: Color,
     val level: Int,
     val stars: Int,
     val ascLvl: Int,
@@ -114,57 +115,58 @@ data class BattleHero(
     @field:Transient @field:JsonIgnore var willCounter: Boolean = false
 ) {
     constructor(playerId: Long?, hero: HeroDto, heroBase: HeroBase, position: HeroPosition) : this(
-            heroBase = heroBase,
-            playerId = playerId,
-            position = position,
-            color = heroBase.color,
-            level = hero.level,
-            stars = hero.stars,
-            ascLvl = hero.ascLvl,
-            skill1Lvl = hero.skill1,
-            skill2Lvl = hero.skill2,
-            skill2Cooldown = hero.skill2?.let { heroBase.skills.find { it.number == 2 }?.initCooldown },
-            skill3Lvl = hero.skill3,
-            skill3Cooldown = hero.skill3?.let { heroBase.skills.find { it.number == 3 }?.initCooldown },
-            skill4Lvl = hero.skill4,
-            skill4Cooldown = hero.skill4?.let { heroBase.skills.find { it.number == 4 }?.initCooldown },
-            skill5Lvl = hero.skill5,
-            skill5Cooldown = hero.skill5?.let { heroBase.skills.find { it.number == 5 }?.initCooldown },
-            skill6Lvl = hero.skill6,
-            skill6Cooldown = hero.skill6?.let { heroBase.skills.find { it.number == 6 }?.initCooldown },
-            skill7Lvl = hero.skill7,
-            skill7Cooldown = hero.skill7?.let { heroBase.skills.find { it.number == 7 }?.initCooldown },
-            heroStrength = hero.getStrengthTotal(),
-            heroHp = hero.getHpTotal(),
-            heroArmor = hero.getArmorTotal(),
-            heroInitiative = hero.getInitiativeTotal(),
-            currentSpeedBar = hero.getInitiativeTotal(),
-            heroCrit = hero.getCritTotal(),
-            heroCritMult = hero.getCritMultTotal(),
-            heroDexterity = hero.getDexterityTotal(),
-            heroResistance = hero.getResistanceTotal(),
-            heroLifesteal = hero.lifesteal,
-            heroCounterChance = hero.counterChance,
-            heroReflect = hero.reflect,
-            heroDodgeChance = hero.dodgeChance,
-            heroSpeed = hero.speedBarFilling,
-            heroArmorPiercing = hero.armorPiercing,
-            heroArmorExtraDmg = hero.armorExtraDmg,
-            heroHealthExtraDmg = hero.healthExtraDmg,
-            heroRedDamageInc = hero.redDamageInc,
-            heroGreenDamageInc = hero.greenDamageInc,
-            heroBlueDamageInc = hero.blueDamageInc,
-            heroHealingInc = hero.healingInc,
-            heroSuperCritChance = hero.superCritChance,
-            heroBuffIntensityInc = hero.buffIntensityInc,
-            heroDebuffIntensityInc = hero.debuffIntensityInc,
-            heroBuffDurationInc = hero.buffDurationInc,
-            heroDebuffDurationInc = hero.debuffDurationInc,
-            heroHealPerTurn = hero.healPerTurn,
-            heroDmgPerTurn = hero.dmgPerTurn,
-            heroConfuseChance = hero.confuseChance,
-            heroDamageReduction = hero.damageReduction,
-            willCounter = false
+        heroBase = heroBase,
+        playerId = playerId,
+        heroId = hero.id,
+        position = position,
+        color = heroBase.color,
+        level = hero.level,
+        stars = hero.stars,
+        ascLvl = hero.ascLvl,
+        skill1Lvl = hero.skill1,
+        skill2Lvl = hero.skill2,
+        skill2Cooldown = hero.skill2?.let { heroBase.skills.find { it.number == 2 }?.initCooldown },
+        skill3Lvl = hero.skill3,
+        skill3Cooldown = hero.skill3?.let { heroBase.skills.find { it.number == 3 }?.initCooldown },
+        skill4Lvl = hero.skill4,
+        skill4Cooldown = hero.skill4?.let { heroBase.skills.find { it.number == 4 }?.initCooldown },
+        skill5Lvl = hero.skill5,
+        skill5Cooldown = hero.skill5?.let { heroBase.skills.find { it.number == 5 }?.initCooldown },
+        skill6Lvl = hero.skill6,
+        skill6Cooldown = hero.skill6?.let { heroBase.skills.find { it.number == 6 }?.initCooldown },
+        skill7Lvl = hero.skill7,
+        skill7Cooldown = hero.skill7?.let { heroBase.skills.find { it.number == 7 }?.initCooldown },
+        heroStrength = hero.getStrengthTotal(),
+        heroHp = hero.getHpTotal(),
+        heroArmor = hero.getArmorTotal(),
+        heroInitiative = hero.getInitiativeTotal(),
+        currentSpeedBar = hero.getInitiativeTotal(),
+        heroCrit = hero.getCritTotal(),
+        heroCritMult = hero.getCritMultTotal(),
+        heroDexterity = hero.getDexterityTotal(),
+        heroResistance = hero.getResistanceTotal(),
+        heroLifesteal = hero.lifesteal,
+        heroCounterChance = hero.counterChance,
+        heroReflect = hero.reflect,
+        heroDodgeChance = hero.dodgeChance,
+        heroSpeed = hero.speedBarFilling,
+        heroArmorPiercing = hero.armorPiercing,
+        heroArmorExtraDmg = hero.armorExtraDmg,
+        heroHealthExtraDmg = hero.healthExtraDmg,
+        heroRedDamageInc = hero.redDamageInc,
+        heroGreenDamageInc = hero.greenDamageInc,
+        heroBlueDamageInc = hero.blueDamageInc,
+        heroHealingInc = hero.healingInc,
+        heroSuperCritChance = hero.superCritChance,
+        heroBuffIntensityInc = hero.buffIntensityInc,
+        heroDebuffIntensityInc = hero.debuffIntensityInc,
+        heroBuffDurationInc = hero.buffDurationInc,
+        heroDebuffDurationInc = hero.debuffDurationInc,
+        heroHealPerTurn = hero.healPerTurn,
+        heroDmgPerTurn = hero.dmgPerTurn,
+        heroConfuseChance = hero.confuseChance,
+        heroDamageReduction = hero.damageReduction,
+        willCounter = false
     )
 
     fun resetBonus(battle: Battle, propertyService: PropertyService) {

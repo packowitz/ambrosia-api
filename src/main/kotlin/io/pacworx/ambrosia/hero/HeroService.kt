@@ -1,7 +1,10 @@
 package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.enums.Rarity
+import io.pacworx.ambrosia.fights.Fight
+import io.pacworx.ambrosia.hero.base.HeroBase
 import io.pacworx.ambrosia.hero.base.HeroBaseRepository
+import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.stereotype.Service
 import kotlin.random.Random
@@ -18,14 +21,24 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
     }
 
     fun getHeroDto(heroId: Long): HeroDto {
-        return heroRepository.getOne(heroId).let { asHeroDto(it) }
+        return asHeroDto(heroRepository.getOne(heroId))
     }
 
     fun loadHeroes(heroIds: List<Long>): List<Hero> {
         return heroRepository.findAllById(heroIds.distinct())
     }
 
-    fun recruitHero(simpleChance: Double? = null,
+    fun recruitHero(player: Player, heroBase: HeroBase): Hero {
+        return heroRepository.save(Hero(
+            playerId = player.id,
+            heroBase = heroBase,
+            maxXp = propertyService.getHeroMaxXp(1),
+            ascPointsMax = propertyService.getHeroMaxAsc(0)
+        ))
+    }
+
+    fun recruitHero(player: Player,
+                    simpleChance: Double? = null,
                     commonChance: Double? = null,
                     uncommonChance: Double? = null,
                     rareChance: Double? = null,
@@ -60,10 +73,49 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
             }
         }
 
-        return heroBaseRepository.findAllByRarityAndRecruitableIsTrue(rarity?.let { it } ?: default).random().let {
-            val hero = Hero(1L, it)
-            heroRepository.save(hero)
-            hero
+        return recruitHero(player, heroBaseRepository.findAllByRarityAndRecruitableIsTrue(rarity?.let { it } ?: default).random())
+    }
+
+    fun wonFight(player: Player, heroIds: List<Long>, fight: Fight): List<HeroDto> {
+        return heroIds.map { heroId ->
+            val hero = heroRepository.getOne(heroId)
+            heroGainXp(hero, fight.xp)
+            when(hero.level) {
+                in 1..fight.level -> heroGainAsc(hero, fight.ascPoints)
+                fight.level + 1 -> heroGainAsc(hero, fight.ascPoints / 2)
+                fight.level + 2 -> heroGainAsc(hero, fight.ascPoints / 4)
+                else -> {}
+            }
+            asHeroDto(hero)
+        }
+    }
+
+    fun heroGainXp(hero: Hero, xp: Int) {
+        hero.xp += xp
+        if (hero.xp >= hero.maxXp) {
+            val overflow = hero.xp - hero.maxXp
+            hero.xp = hero.maxXp
+            if (hero.level < hero.stars * 10) {
+                hero.level ++
+                hero.xp = 0
+                hero.maxXp = propertyService.getHeroMaxXp(hero.level)
+                heroGainXp(hero, overflow)
+            }
+        }
+    }
+
+    fun heroGainAsc(hero: Hero, asc: Int) {
+        hero.ascPoints += asc
+        if (hero.ascPoints >= hero.ascPointsMax) {
+            val overflow = hero.ascPoints - hero.ascPointsMax
+            hero.ascPoints = hero.ascPointsMax
+            if (hero.ascLvl < hero.heroBase.maxAscLevel) {
+                hero.ascLvl ++
+                hero.skillPoints ++
+                hero.ascPoints = 0
+                hero.ascPointsMax = propertyService.getHeroMaxAsc(hero.ascLvl)
+                heroGainAsc(hero, overflow)
+            }
         }
     }
 }

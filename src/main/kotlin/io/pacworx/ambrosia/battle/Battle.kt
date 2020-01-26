@@ -87,6 +87,10 @@ data class Battle(
         return allHeroes().filter { it.status != HeroStatus.DEAD }
     }
 
+    fun allPlayerHeroes(): List<BattleHero> {
+        return listOfNotNull(hero1, hero2, hero3, hero4)
+    }
+
     fun allPlayerHeroesAlive(): List<BattleHero> {
         return listOfNotNull(hero1, hero2, hero3, hero4).filter { it.status != HeroStatus.DEAD }
     }
