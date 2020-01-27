@@ -5,6 +5,7 @@ import io.pacworx.ambrosia.hero.base.HeroBaseRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.web.bind.annotation.*
+import javax.transaction.Transactional
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -21,24 +22,18 @@ class AdminHeroController(val heroRepository: HeroRepository,
     }
 
     @PostMapping("{heroId}/gain_level")
+    @Transactional
     fun gainLevel(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
         if (hero.playerId != player.id || !player.admin) {
             throw RuntimeException("not allowed")
         }
-        if (hero.level < 60) {
-            hero.level ++
-            val stars = 1 + ((hero.level - 1) / 10)
-            if (stars >= hero.heroBase.rarity.stars) {
-                hero.stars = stars
-            }
-            hero.maxXp = propertyService.getHeroMaxXp(hero.level)
-            heroRepository.save(hero)
-        }
+        heroService.heroGainXp(hero, hero.maxXp - hero.xp)
         return PlayerActionResponse(hero = heroService.asHeroDto(hero))
     }
 
     @PostMapping("{heroId}/loose_level")
+    @Transactional
     fun looseLevel(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
         if (hero.playerId != player.id || !player.admin) {
@@ -47,37 +42,37 @@ class AdminHeroController(val heroRepository: HeroRepository,
         if (hero.level > 1) {
             hero.level --
             val stars = 1 + ((hero.level - 1) / 10)
-            if (stars >= hero.heroBase.rarity.stars) {
+            if (stars <= hero.heroBase.rarity.stars) {
                 hero.stars = stars
             }
             hero.maxXp = propertyService.getHeroMaxXp(hero.level)
-            heroRepository.save(hero)
         }
         return PlayerActionResponse(hero = heroService.asHeroDto(hero))
     }
 
-    @PostMapping("{heroId}/skill_up/{skillNumber}")
-    fun skillUp(@ModelAttribute("player") player: Player, @PathVariable heroId: Long, @PathVariable skillNumber: Int): PlayerActionResponse {
+    @PostMapping("{heroId}/gain_asc_level")
+    @Transactional
+    fun gainAscLevel(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
         if (hero.playerId != player.id || !player.admin) {
             throw RuntimeException("not allowed")
         }
-        if (hero.heroBase.skills.any { it.number == skillNumber }) {
-            hero.skillLevelUp(skillNumber)
-            heroRepository.save(hero)
-        }
+        heroService.heroGainAsc(hero, hero.ascPointsMax - hero.ascPoints)
         return PlayerActionResponse(hero = heroService.asHeroDto(hero))
     }
 
-    @PostMapping("{heroId}/skill_down/{skillNumber}")
-    fun skillDown(@ModelAttribute("player") player: Player, @PathVariable heroId: Long, @PathVariable skillNumber: Int): PlayerActionResponse {
+    @PostMapping("{heroId}/loose_asc_level")
+    @Transactional
+    fun looseAscLevel(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
         if (hero.playerId != player.id || !player.admin) {
             throw RuntimeException("not allowed")
         }
-        if (hero.heroBase.skills.any { it.number == skillNumber }) {
-            hero.skillLevelDown(skillNumber)
-            heroRepository.save(hero)
+        if (hero.ascLvl > 0 && hero.skillPoints > 0) {
+            hero.skillPoints --
+            hero.ascLvl --
+            hero.ascPoints = 0
+            hero.ascPointsMax = propertyService.getHeroMaxAsc(hero.ascLvl)
         }
         return PlayerActionResponse(hero = heroService.asHeroDto(hero))
     }

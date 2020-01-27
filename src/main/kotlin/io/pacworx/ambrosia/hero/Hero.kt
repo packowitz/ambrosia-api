@@ -5,7 +5,6 @@ import io.pacworx.ambrosia.enums.SkillActiveTrigger
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.hero.base.HeroBase
 import javax.persistence.*
-import kotlin.math.min
 
 @Entity
 data class Hero(
@@ -109,27 +108,50 @@ data class Hero(
     }
 
     fun skillLevelUp(skillNumber: Int) {
+        if (this.skillPoints <= 0) {
+            throw RuntimeException("Hero has no available skill points")
+        }
         when (skillNumber) {
-            1 -> this.skill1 = min(this.skill1.inc(), heroBase.skills.find { it.number == 1 }!!.maxLevel)
-            2 -> this.skill2 = min(this.skill2?.inc() ?: 1, heroBase.skills.find { it.number == 2 }!!.maxLevel)
-            3 -> this.skill3 = min(this.skill3?.inc() ?: 1, heroBase.skills.find { it.number == 3 }!!.maxLevel)
-            4 -> this.skill4 = min(this.skill4?.inc() ?: 1, heroBase.skills.find { it.number == 4 }!!.maxLevel)
-            5 -> this.skill5 = min(this.skill5?.inc() ?: 1, heroBase.skills.find { it.number == 5 }!!.maxLevel)
-            6 -> this.skill6 = min(this.skill6?.inc() ?: 1, heroBase.skills.find { it.number == 6 }!!.maxLevel)
-            7 -> this.skill7 = min(this.skill7?.inc() ?: 1, heroBase.skills.find { it.number == 7 }!!.maxLevel)
+            1 -> skill1.takeIf { it < this.heroBase.skills.find { it.number == 1 }!!.maxLevel }?.also {
+                skill1 = it + 1
+                skillPoints --
+            }
+            2 -> skill2?.takeIf { it < this.heroBase.skills.find { it.number == 2 }!!.maxLevel }?.also {
+                skill2 = it + 1
+                skillPoints --
+            }
+            3 -> skill3?.takeIf { it < this.heroBase.skills.find { it.number == 3 }!!.maxLevel }?.also {
+                skill3 = it + 1
+                skillPoints --
+            }
+            4 -> skill4?.takeIf { it < this.heroBase.skills.find { it.number == 4 }!!.maxLevel }?.also {
+                skill4 = it + 1
+                skillPoints --
+            }
+            5 -> skill5?.takeIf { it < this.heroBase.skills.find { it.number == 5 }!!.maxLevel }?.also {
+                skill5 = it + 1
+                skillPoints --
+            }
+            6 -> skill6?.takeIf { it < this.heroBase.skills.find { it.number == 6 }!!.maxLevel }?.also {
+                skill6 = it + 1
+                skillPoints --
+            }
+            7 -> skill7?.takeIf { it < this.heroBase.skills.find { it.number == 7 }!!.maxLevel }?.also {
+                skill7 = it + 1
+                skillPoints --
+            }
         }
     }
 
-    fun skillLevelDown(skillNumber: Int) {
-        when (skillNumber) {
-            1 -> if (skill1 > 1) { this.skill1-- }
-            2 -> this.skill2 = this.skill2?.dec()?.takeIf { it > 0 }
-            3 -> this.skill3 = this.skill3?.dec()?.takeIf { it > 0 }
-            4 -> this.skill4 = this.skill4?.dec()?.takeIf { it > 0 }
-            5 -> this.skill5 = this.skill5?.dec()?.takeIf { it > 0 }
-            6 -> this.skill6 = this.skill6?.dec()?.takeIf { it > 0 }
-            7 -> this.skill7 = this.skill7?.dec()?.takeIf { it > 0 }
-        }
+    fun resetSkills() {
+        skillPoints += skill1 - 1
+        skill1 = 1
+        skill2 = skill2?.let { skillPoints += it - 1; 1 }
+        skill3 = skill3?.let { skillPoints += it - 1; 1 }
+        skill4 = skill4?.let { skillPoints += it - 1; 1 }
+        skill5 = skill5?.let { skillPoints += it - 1; 1 }
+        skill6 = skill6?.let { skillPoints += it - 1; 1 }
+        skill7 = skill7?.let { skillPoints += it - 1; 1 }
     }
 
 }
