@@ -10,5 +10,6 @@ data class PlayerMapTile(
     @Column(name = "pos_y") val posY: Int,
     var discoverable: Boolean = false,
     var discovered: Boolean = false,
-    var victoriousFight: Boolean = false
+    var victoriousFight: Boolean = false,
+    var chestOpened: Boolean = false
 )

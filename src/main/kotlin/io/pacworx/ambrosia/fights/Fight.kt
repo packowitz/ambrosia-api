@@ -16,6 +16,7 @@ data class Fight(
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     val resourceType: ResourceType = ResourceType.STEAM,
+    val lootBoxId: Long,
     val costs: Int = 5,
     val xp: Int = 500,
     val level: Int = 5,

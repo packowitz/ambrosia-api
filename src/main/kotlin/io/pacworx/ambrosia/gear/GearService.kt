@@ -12,42 +12,24 @@ class GearService(private val propertyService: PropertyService) {
                    sets: List<GearSet>,
                    rarities: List<Rarity>,
                    gearTypes: List<GearType>,
-                   zeroSlotsChance: Double = 0.05,
-                   oneSlotChance: Double = 0.35,
-                   twoSlotChance: Double = 0.4,
-                   threeSlotChance: Double = 0.18,
-                   fourSlotChance: Double = 0.02): Gear {
+                   oneSlotChance: Int = 65,
+                   twoSlotChance: Int = 40,
+                   threeSlotChance: Int = 18,
+                   fourSlotChance: Int = 2,
+                   specialSlotChnace: Int = 10): Gear {
         val gearSet: GearSet = sets.random()
         val rarity: Rarity = rarities.random()
         val type: GearType = gearTypes.random()
         val stat: HeroStat = propertyService.getPossibleGearStats(type, rarity).random()
         val valueRange = propertyService.getGearValueRange(type, rarity, stat)
+        val statQuality = Random.nextInt(0, 101)
+        val statValue = valueRange.first + ((statQuality * (valueRange.second - valueRange.first)) / 100)
 
-        var jewelSlot1: GearJewelSlot? = null
-        var jewelSlot2: GearJewelSlot? = null
-        var jewelSlot3: GearJewelSlot? = null
-        var jewelSlot4: GearJewelSlot? = null
-        var jewelRdm = Random.nextDouble()
-        if (jewelRdm > zeroSlotsChance) {
-            jewelRdm -= zeroSlotsChance
-            if (jewelRdm > oneSlotChance) {
-                jewelSlot1 = getJewelSlot(type)
-                jewelRdm -= oneSlotChance
-                if (jewelRdm > twoSlotChance) {
-                    jewelSlot2 = getJewelSlot(type)
-                    jewelRdm -= twoSlotChance
-                    if (jewelRdm > threeSlotChance) {
-                        jewelSlot3 = getJewelSlot(type)
-                        jewelRdm -= threeSlotChance
-                        if (jewelRdm > fourSlotChance) {
-                            jewelSlot4 = getJewelSlot(type)
-                        }
-                    }
-                }
-            }
-        }
-
-        val specialJewelSlot = type == GearType.ARMOR && Random.nextDouble() <= 0.1
+        val jewelSlot4: GearJewelSlot? = if (procs(fourSlotChance)) { getJewelSlot(type) } else { null }
+        val jewelSlot3: GearJewelSlot? = if (jewelSlot4 != null || procs(threeSlotChance)) { getJewelSlot(type) } else { null }
+        val jewelSlot2: GearJewelSlot? = if (jewelSlot3 != null || procs(twoSlotChance)) { getJewelSlot(type) } else { null }
+        val jewelSlot1: GearJewelSlot? = if (jewelSlot2 != null || procs(oneSlotChance)) { getJewelSlot(type) } else { null }
+        val specialJewelSlot = type == GearType.ARMOR && procs(specialSlotChnace)
 
         return Gear(
             playerId = playerId,
@@ -55,7 +37,8 @@ class GearService(private val propertyService: PropertyService) {
             rarity = rarity,
             type = type,
             stat = stat,
-            statValue = Random.nextInt(valueRange.first, valueRange.second + 1),
+            statValue = statValue,
+            statQuality = statQuality,
             jewelSlot1 = jewelSlot1,
             jewelSlot2 = jewelSlot2,
             jewelSlot3 = jewelSlot3,
@@ -66,5 +49,15 @@ class GearService(private val propertyService: PropertyService) {
 
     private fun getJewelSlot(gearType: GearType): GearJewelSlot {
         return GearJewelSlot.values().toList().filter { it != GearJewelSlot.SPECIAL && it.gearTypes.contains(gearType) }.random()
+    }
+
+    private fun procs(chance: Int): Boolean {
+        if (chance >= 100) {
+            return true
+        }
+        if (chance <= 0) {
+            return false
+        }
+        return Random.nextInt(100) < chance
     }
 }

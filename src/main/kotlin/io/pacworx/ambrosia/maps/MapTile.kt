@@ -21,5 +21,6 @@ data class MapTile(
     @Enumerated(EnumType.STRING) val fightIcon: FightIcon? = null,
     val fightRepeatable: Boolean = false,
     val portalToMapId: Long? = null,
-    @Enumerated(EnumType.STRING) val buildingType: BuildingType? = null
+    @Enumerated(EnumType.STRING) val buildingType: BuildingType? = null,
+    val lootBoxId: Long? = null
 )

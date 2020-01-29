@@ -17,7 +17,8 @@ data class SimplePlayerMapTile(
     val fightId: Long? = null,
     val fightRepeatable: Boolean = false,
     var discovered: Boolean = false,
-    var victoriousFight: Boolean = false
+    var victoriousFight: Boolean = false,
+    var chestOpened: Boolean = false
 )
 
 @Repository
@@ -30,7 +31,8 @@ interface SimplePlayerMapTileRepository: JpaRepository<SimplePlayerMapTile, Stri
             mt.fight_id as fight_id,
             mt.fight_repeatable as fight_repeatable,
             pmt.discovered as discovered,
-            pmt.victorious_fight as victorious_fight
+            pmt.victorious_fight as victorious_fight,
+            pmt.chest_opened as chest_opened
         from player_map pm
         join player_map_tile pmt on pm.id = pmt.player_map_id
         join map_tile mt on pm.map_id = mt.map_id and pmt.pos_x = mt.pos_x and pmt.pos_y = mt.pos_y
