@@ -49,7 +49,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
 
     private fun openResourceItem(player: Player, item: LootItem): ResourceLoot {
         resourcesService.gainResources(player, item.resourceType!!, item.resourceAmount!!)
-        return ResourceLoot(item.resourceType, item.resourceAmount)
+        return ResourceLoot(item.resourceType!!, item.resourceAmount!!)
     }
 
     private fun openHeroItem(player: Player, item: LootItem): HeroDto {

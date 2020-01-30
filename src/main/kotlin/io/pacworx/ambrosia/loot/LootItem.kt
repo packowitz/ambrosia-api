@@ -1,10 +1,8 @@
 package io.pacworx.ambrosia.loot
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.resources.ResourceType
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
 data class LootItem(
@@ -13,9 +11,12 @@ data class LootItem(
     val slotNumber: Int,
     val itemOrder: Int,
     val chance: Int,
+    @Enumerated(EnumType.STRING)
     val type: LootItemType,
-    val resourceType: ResourceType? = null,
-    val resourceAmount: Int? = null,
-    val heroBaseId: Long? = null,
-    val gearLootId: Long? = null
+    @Enumerated(EnumType.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    var resourceType: ResourceType? = null,
+    var resourceAmount: Int? = null,
+    var heroBaseId: Long? = null,
+    var gearLootId: Long? = null
 )

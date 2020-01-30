@@ -5,6 +5,7 @@ import io.pacworx.ambrosia.fights.environment.FightEnvironment
 import io.pacworx.ambrosia.fights.stageconfig.FightStageConfig
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.loot.LootBox
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.resources.ResourceType
@@ -20,7 +21,7 @@ class FightService(private val playerRepository: PlayerRepository,
             fight.name,
             playerRepository.findByServiceAccountIsTrueAndId(fight.serviceAccountId),
             fight.resourceType,
-            fight.lootBoxId,
+            fight.lootBox,
             fight.costs,
             fight.xp,
             fight.level,
@@ -44,7 +45,7 @@ class FightService(private val playerRepository: PlayerRepository,
         val name: String,
         val serviceAccount: Player,
         @JsonFormat(shape = JsonFormat.Shape.STRING) val resourceType: ResourceType,
-        val lootBoxId: Long,
+        val lootBox: LootBox,
         val costs: Int,
         val xp: Int = 500,
         val level: Int = 5,

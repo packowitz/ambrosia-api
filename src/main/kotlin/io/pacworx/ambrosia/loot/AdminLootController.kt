@@ -1,13 +1,10 @@
 package io.pacworx.ambrosia.loot
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
 @RestController
+@CrossOrigin(maxAge = 3600)
 @RequestMapping("admin/loot")
 class AdminLootController(private val gearLootRepository: GearLootRepository,
                           private val lootBoxRepository: LootBoxRepository) {
@@ -27,6 +24,13 @@ class AdminLootController(private val gearLootRepository: GearLootRepository,
     @PostMapping("box")
     @Transactional
     fun saveLootBox(@RequestBody lootBox: LootBox): LootBox {
+        lootBox.items.forEach {
+            when(it.type) {
+                LootItemType.RESOURCE -> { it.heroBaseId = null; it.gearLootId = null }
+                LootItemType.HERO -> { it.resourceAmount = null; it.resourceType = null; it.gearLootId = null }
+                LootItemType.GEAR -> { it.resourceAmount = null; it.resourceType = null; it.heroBaseId = null }
+            }
+        }
         return lootBoxRepository.save(lootBox)
     }
 }

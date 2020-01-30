@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.fights
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.fights.environment.FightEnvironment
 import io.pacworx.ambrosia.fights.stageconfig.FightStageConfig
+import io.pacworx.ambrosia.loot.LootBox
 import io.pacworx.ambrosia.resources.ResourceType
 import javax.persistence.*
 
@@ -16,7 +17,6 @@ data class Fight(
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     val resourceType: ResourceType = ResourceType.STEAM,
-    val lootBoxId: Long,
     val costs: Int = 5,
     val xp: Int = 500,
     val level: Int = 5,
@@ -34,5 +34,9 @@ data class Fight(
     @ManyToOne
     @JoinColumn(name = "environment_id")
     lateinit var environment: FightEnvironment
+
+    @ManyToOne
+    @JoinColumn(name = "loot_box_id")
+    lateinit var lootBox: LootBox
 }
 

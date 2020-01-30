@@ -143,7 +143,7 @@ class BattleController(private val battleService: BattleService,
             val heroes = battle.fight?.let { fight ->
                 heroService.wonFight(player, battle.allPlayerHeroes().map { it.heroId }, fight)
             }
-            val loot = battle.fight?.lootBoxId?.let { lootService.openLootBox(player, it) }
+            val loot = battle.fight?.lootBox?.let { lootService.openLootBox(player, it) }
             PlayerActionResponse(
                 player = player,
                 resources = loot?.let { resourcesService.getResources(player) } ?: resources,
