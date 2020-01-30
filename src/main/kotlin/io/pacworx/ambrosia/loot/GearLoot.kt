@@ -19,8 +19,12 @@ data class GearLoot (
     val id: Long = 0,
     val name: String,
     @JsonIgnore var setNames: String?,
-    @JsonIgnore var rarityNames: String?,
     @JsonIgnore var typeNames: String?,
+    val legendaryChance: Int = 0,
+    val epicChance: Int = 0,
+    val rareChance: Int = 0,
+    val uncommonChance: Int = 0,
+    val commonChance: Int = 0,
     val statFrom: Int,
     val statTo: Int,
     val specialJewelChance: Int = 0,
@@ -35,14 +39,6 @@ data class GearLoot (
 
     fun setSets(sets: List<GearSet>) {
         this.setNames = sets.joinToString(separator = ";")
-    }
-
-    fun getRarities(): List<Rarity> {
-        return rarityNames?.split(";")?.map { Rarity.valueOf(it) } ?: Rarity.values().asList()
-    }
-
-    fun setRarities(rarities: List<Rarity>) {
-        this.rarityNames = rarities.joinToString(separator = ";")
     }
 
     fun getTypes(): List<GearType> {

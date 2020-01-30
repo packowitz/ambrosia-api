@@ -6,6 +6,7 @@ import io.pacworx.ambrosia.hero.base.HeroBase
 import io.pacworx.ambrosia.hero.base.HeroBaseRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.properties.PropertyService
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 
@@ -26,6 +27,12 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
 
     fun loadHeroes(heroIds: List<Long>): List<Hero> {
         return heroRepository.findAllById(heroIds.distinct())
+    }
+
+    fun recruitHero(player: Player, heroBaseId: Long): HeroDto {
+        val heroBase = heroBaseRepository.findByIdOrNull(heroBaseId)
+            ?: throw RuntimeException("Unknown base hero #$heroBaseId")
+        return asHeroDto(recruitHero(player, heroBase))
     }
 
     fun recruitHero(player: Player, heroBase: HeroBase): Hero {

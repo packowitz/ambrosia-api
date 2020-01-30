@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
+import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.enums.SkillActionEffect.*
 import io.pacworx.ambrosia.properties.DynamicProperty
@@ -136,16 +137,6 @@ class SkillService(private val propertyService: PropertyService) {
             SkillActionTrigger.DMG_OVER -> step.actions.sumBy { it.healthDiff ?: 0 } > action.triggerValue!!.toInt()
             SkillActionTrigger.ASCENDED -> hero.ascLvl > 0
         }
-    }
-
-    private fun procs(chance: Int): Boolean {
-        if (chance >= 100) {
-            return true
-        }
-        if (chance <= 0) {
-            return false
-        }
-        return Random.nextInt(100) < chance
     }
 
     private fun findTargets(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): List<BattleHero> {

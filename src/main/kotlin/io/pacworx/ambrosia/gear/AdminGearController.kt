@@ -25,7 +25,6 @@ class AdminGearController(val gearService: GearService,
             gearRepository.save(gearService.createGear(
                 player.id,
                 listOf(set),
-                Rarity.values().toList(),
                 GearType.values().toList()
             ))
         }

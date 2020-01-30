@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.gear
 
+import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.stereotype.Service
@@ -10,15 +11,26 @@ class GearService(private val propertyService: PropertyService) {
 
     fun createGear(playerId: Long,
                    sets: List<GearSet>,
-                   rarities: List<Rarity>,
                    gearTypes: List<GearType>,
+                   legendaryChance: Int = 5,
+                   epicChance: Int = 10,
+                   rareChance: Int = 15,
+                   uncommonChance: Int = 25,
+                   commonChance: Int = 40,
                    oneSlotChance: Int = 65,
                    twoSlotChance: Int = 40,
                    threeSlotChance: Int = 18,
                    fourSlotChance: Int = 2,
-                   specialSlotChnace: Int = 10): Gear {
+                   specialSlotChance: Int = 10): Gear {
         val gearSet: GearSet = sets.random()
-        val rarity: Rarity = rarities.random()
+        val rarity: Rarity = when {
+            procs(legendaryChance) -> Rarity.LEGENDARY
+            procs(epicChance) -> Rarity.EPIC
+            procs(rareChance) -> Rarity.RARE
+            procs(uncommonChance) -> Rarity.UNCOMMON
+            procs(commonChance) -> Rarity.COMMON
+            else -> Rarity.SIMPLE
+        }
         val type: GearType = gearTypes.random()
         val stat: HeroStat = propertyService.getPossibleGearStats(type, rarity).random()
         val valueRange = propertyService.getGearValueRange(type, rarity, stat)
@@ -29,7 +41,7 @@ class GearService(private val propertyService: PropertyService) {
         val jewelSlot3: GearJewelSlot? = if (jewelSlot4 != null || procs(threeSlotChance)) { getJewelSlot(type) } else { null }
         val jewelSlot2: GearJewelSlot? = if (jewelSlot3 != null || procs(twoSlotChance)) { getJewelSlot(type) } else { null }
         val jewelSlot1: GearJewelSlot? = if (jewelSlot2 != null || procs(oneSlotChance)) { getJewelSlot(type) } else { null }
-        val specialJewelSlot = type == GearType.ARMOR && procs(specialSlotChnace)
+        val specialJewelSlot = type == GearType.ARMOR && procs(specialSlotChance)
 
         return Gear(
             playerId = playerId,
@@ -49,15 +61,5 @@ class GearService(private val propertyService: PropertyService) {
 
     private fun getJewelSlot(gearType: GearType): GearJewelSlot {
         return GearJewelSlot.values().toList().filter { it != GearJewelSlot.SPECIAL && it.gearTypes.contains(gearType) }.random()
-    }
-
-    private fun procs(chance: Int): Boolean {
-        if (chance >= 100) {
-            return true
-        }
-        if (chance <= 0) {
-            return false
-        }
-        return Random.nextInt(100) < chance
     }
 }

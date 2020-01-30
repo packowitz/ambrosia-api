@@ -2,13 +2,12 @@ package io.pacworx.ambrosia.resources
 
 import io.pacworx.ambrosia.player.Player
 import org.springframework.stereotype.Service
+import java.lang.Integer.min
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 @Service
 class ResourcesService(private val resourcesRepository: ResourcesRepository) {
-
-
 
     fun getResources(player: Player): Resources {
         val resources = resourcesRepository.getOne(player.id)
@@ -116,5 +115,41 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             resources.tokens = 0
         }
         return resources
+    }
+
+    fun gainResources(player: Player, type: ResourceType, amount: Int): Resources {
+        val res = getResources(player)
+        when (type) {
+            ResourceType.STEAM_MAX -> res.stealMax += amount
+            ResourceType.PREMIUM_STEAM -> res.premiumSteam = min(res.premiumSteamMax, res.premiumSteam + amount)
+            ResourceType.PREMIUM_STEAM_MAX -> res.premiumSteamMax += amount
+            ResourceType.COGWHEELS_MAX -> res.cogwheelsMax += amount
+            ResourceType.PREMIUM_COGWHEELS -> res.premiumCogwheels = min(res.premiumCogwheelsMax, res.premiumCogwheels + amount)
+            ResourceType.PREMIUM_COGWHEELS_MAX -> res.premiumCogwheelsMax += amount
+            ResourceType.TOKENS_MAX -> res.tokensMax += amount
+            ResourceType.PREMIUM_TOKENS -> res.premiumTokens = min(res.premiumTokensMax, res.premiumTokens + amount)
+            ResourceType.PREMIUM_TOKENS_MAX -> res.premiumTokensMax += amount
+            ResourceType.COINS -> res.coins += amount
+            ResourceType.RUBIES -> res.rubies += amount
+            ResourceType.METAL -> res.metal = min(res.metalMax, res.metal + amount)
+            ResourceType.METAL_MAX -> res.metalMax += amount
+            ResourceType.IRON -> res.iron = min(res.ironMax, res.iron + amount)
+            ResourceType.IRON_MAX -> res.ironMax += amount
+            ResourceType.STEAL -> res.steal = min(res.stealMax, res.steal + amount)
+            ResourceType.STEAL_MAX -> res.stealMax += amount
+            ResourceType.WOOD -> res.wood = min(res.woodMax, res.wood + amount)
+            ResourceType.WOOD_MAX -> res.woodMax += amount
+            ResourceType.BROWN_COAL -> res.brownCoal = min(res.brownCoalMax, res.brownCoal + amount)
+            ResourceType.BROWN_COAL_MAX -> res.brownCoalMax += amount
+            ResourceType.BLACK_COAL -> res.blackCoal = min(res.blackCoalMax, res.blackCoal + amount)
+            ResourceType.BLACK_COAL_MAX -> res.blackCoalMax += amount
+            ResourceType.SIMPLE_GENOME -> res.simpleGenome += amount
+            ResourceType.COMMON_GENOME -> res.commonGenome += amount
+            ResourceType.UNCOMMON_GENOME -> res.uncommonGenome += amount
+            ResourceType.RARE_GENOME -> res.rareGenome += amount
+            ResourceType.EPIC_GENOME -> res.epicGenome += amount
+            else -> {}
+        }
+        return res
     }
 }

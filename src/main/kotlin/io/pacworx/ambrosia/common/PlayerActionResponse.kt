@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.maps.PlayerMapResolved
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.gear.Jewelry
+import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.resources.Resources
 
@@ -25,5 +26,6 @@ data class PlayerActionResponse(
     val buildings: List<Building> ? = null,
     val playerMaps: List<PlayerMapResolved>? = null,
     val currentMap: PlayerMapResolved? = null,
-    val ongoingBattle: Battle? = null
+    val ongoingBattle: Battle? = null,
+    val looted: List<Looted>? = null
 )

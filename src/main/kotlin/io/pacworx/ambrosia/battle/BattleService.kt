@@ -12,7 +12,6 @@ import io.pacworx.ambrosia.maps.SimplePlayerMapTile
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.properties.PropertyService
-import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.team.Team
 import io.pacworx.ambrosia.team.TeamRepository
 import org.springframework.stereotype.Service
@@ -27,12 +26,10 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val aiService: AiService,
                     private val propertyService: PropertyService,
                     private val fightRepository: FightRepository,
-                    private val teamRepository: TeamRepository,
-                    private val resourcesService: ResourcesService) {
+                    private val teamRepository: TeamRepository) {
 
     companion object {
         const val SPEEDBAR_MAX: Int = 10000
-        private const val SPEEDBAR_TURN: Int = 100
     }
 
     @Transactional
@@ -126,7 +123,7 @@ class BattleService(private val playerRepository: PlayerRepository,
     }
 
     private fun asBattleHero(playerId: Long? = null, heroId: Long?, position: HeroPosition, heroes: List<Hero>): BattleHero? =
-        heroId?.let { heroId -> heroes.find { it.id == heroId }?.let {
+        heroId?.let { heroes.find { hero -> hero.id == it }?.let {
             BattleHero(playerId, heroService.asHeroDto(it), it.heroBase, position)
         }}
 
@@ -145,7 +142,7 @@ class BattleService(private val playerRepository: PlayerRepository,
             if (activeHero.status == HeroStatus.DEAD) {
                 nextTurn(battle)
             } else {
-                if (activeHero.status == HeroStatus.CONFUSED && battle.allAlliedHeroesAlive(activeHero).filter { it.position != activeHero.position }.isEmpty()) {
+                if (activeHero.status == HeroStatus.CONFUSED && battle.allAlliedHeroesAlive(activeHero).none { it.position != activeHero.position }) {
                     activeHero.status = HeroStatus.STUNNED
                 }
                 if (activeHero.status == HeroStatus.STUNNED) {
@@ -177,9 +174,9 @@ class BattleService(private val playerRepository: PlayerRepository,
                 return
             }
         } else {
-            battle.allHeroesAlive().forEach {
-                var speedBarFilling = SPEEDBAR_TURN + it.speedBonus
-                if (battle.heroBelongsToPlayer(it)) {
+            battle.allHeroesAlive().forEach {hero ->
+                var speedBarFilling = hero.heroSpeed + hero.speedBonus
+                if (battle.heroBelongsToPlayer(hero)) {
                     battle.fight?.environment?.playerSpeedBarSlowed?.takeIf { it > 0 }?.let { decrease ->
                         speedBarFilling -= (speedBarFilling * decrease) / 100
                     }
@@ -188,7 +185,7 @@ class BattleService(private val playerRepository: PlayerRepository,
                         speedBarFilling += (speedBarFilling * increase) / 100
                     }
                 }
-                it.currentSpeedBar += speedBarFilling
+                hero.currentSpeedBar += speedBarFilling
             }
         }
         nextTurn(battle)

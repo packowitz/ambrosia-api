@@ -1,8 +1,10 @@
 package io.pacworx.ambrosia.maps
 
-import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.Building
+import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.loot.LootService
+import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.resources.ResourcesService
@@ -24,7 +26,8 @@ class MapController(private val mapService: MapService,
                     private val mapRepository: MapRepository,
                     private val playerRepository: PlayerRepository,
                     private val buildingRepository: BuildingRepository,
-                    private val resourcesService: ResourcesService) {
+                    private val resourcesService: ResourcesService,
+                    private val lootService: LootService) {
 
     @GetMapping("{mapId}")
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
@@ -64,6 +67,24 @@ class MapController(private val mapService: MapService,
         }
         val building = buildingRepository.save(Building(playerId = player.id, type = buildingType))
         return PlayerActionResponse(buildings = listOf(building))
+    }
+
+    @PostMapping("open_chest")
+    @Transactional
+    fun openChest(@ModelAttribute("player") player: Player, @RequestBody request: TileRequest): PlayerActionResponse {
+        val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, request.mapId)
+            ?: throw RuntimeException("Map ${request.mapId} is unknown to player ${player.id}")
+        playerMap.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discovered && !it.chestOpened}
+            ?: throw RuntimeException("Tile ${request.posX}/${request.posY} on map ${request.mapId} is not discovered by player ${player.id} or chest is already opened")
+        val lootBoxId = mapRepository.getOne(request.mapId).tiles.find { it.posX == request.posX && it.posY == request.posY }?.takeIf { it.lootBoxId != null }?.lootBoxId
+            ?: throw RuntimeException("Tile ${request.posX}/${request.posY} on map ${request.mapId} has no chest to open")
+        val result = lootService.openLootBox(player, lootBoxId)
+        return PlayerActionResponse(
+            resources = resourcesService.getResources(player),
+            heroes = result.items.filter { it.hero != null }.map { it.hero!! }.takeIf { it.isNotEmpty() },
+            gears = result.items.filter { it.gear != null }.map { it.gear!! }.takeIf{ it.isNotEmpty() },
+            looted = result.items.map { Looted(it) }
+        )
     }
 
     @PostMapping("{mapId}/current")

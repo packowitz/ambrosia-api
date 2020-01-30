@@ -5,6 +5,8 @@ import io.pacworx.ambrosia.enums.SkillTarget
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.HeroSkill
+import io.pacworx.ambrosia.loot.LootService
+import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
 import io.pacworx.ambrosia.player.Player
@@ -22,7 +24,8 @@ class BattleController(private val battleService: BattleService,
                        private val mapService: MapService,
                        private val fightRepository: FightRepository,
                        private val resourcesService: ResourcesService,
-                       private val heroService: HeroService) {
+                       private val heroService: HeroService,
+                       private val lootService: LootService) {
 
     @GetMapping("{battleId}")
     @Transactional
@@ -140,7 +143,16 @@ class BattleController(private val battleService: BattleService,
             val heroes = battle.fight?.let { fight ->
                 heroService.wonFight(player, battle.allPlayerHeroes().map { it.heroId }, fight)
             }
-            PlayerActionResponse(player = player, resources = resources, currentMap = map, heroes = heroes, ongoingBattle = battle)
+            val loot = battle.fight?.lootBoxId?.let { lootService.openLootBox(player, it) }
+            PlayerActionResponse(
+                player = player,
+                resources = loot?.let { resourcesService.getResources(player) } ?: resources,
+                currentMap = map,
+                heroes = (heroes ?: listOf()) + (loot?.items?.filter { it.hero != null }?.map { it.hero!! } ?: listOf()),
+                gears = loot?.items?.filter { it.gear != null }?.map { it.gear!! }?.takeIf{ it.isNotEmpty() },
+                ongoingBattle = battle,
+                looted = loot?.items?.map { Looted(it) }
+            )
         } else {
             PlayerActionResponse(resources = resources, ongoingBattle = battle)
         }
