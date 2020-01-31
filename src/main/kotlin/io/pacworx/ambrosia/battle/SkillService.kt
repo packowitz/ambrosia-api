@@ -11,7 +11,6 @@ import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.stereotype.Service
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.random.Random
 
 @Service
 class SkillService(private val propertyService: PropertyService) {
@@ -67,6 +66,7 @@ class SkillService(private val propertyService: PropertyService) {
             }
             if (!procs(action.triggerChance)) {
                 lastActionProced = false
+                return@forEach
             }
             lastActionProced = true
             when (action.type) {
@@ -190,8 +190,8 @@ class SkillService(private val propertyService: PropertyService) {
             hero.willCounter = hero.willCounter || procs(hero.getTotalCounterChance())
         }
 
-        val crit = Random.nextInt(100) < hero.getTotalCrit()
-        val superCrit = crit && Random.nextInt(100) < hero.heroSuperCritChance + hero.superCritChanceBonus
+        val crit = procs(hero.getTotalCrit())
+        val superCrit = crit && procs(hero.heroSuperCritChance + hero.superCritChanceBonus)
 
         var baseDamage = (baseDamage * action.effectValue) / 100
         if (superCrit) {
