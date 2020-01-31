@@ -4,12 +4,11 @@ import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
 import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.enums.SkillActionEffect.*
-import io.pacworx.ambrosia.properties.DynamicProperty
 import io.pacworx.ambrosia.hero.HeroSkill
 import io.pacworx.ambrosia.hero.HeroSkillAction
+import io.pacworx.ambrosia.properties.DynamicProperty
 import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.stereotype.Service
-import java.lang.RuntimeException
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
@@ -44,6 +43,7 @@ class SkillService(private val propertyService: PropertyService) {
         )
         battle.steps.add(step)
 
+        hero.skillUsed(skill.number)
         executeSkillActions(battle, step, hero, skill, target)
 
         // check for counter attacks
@@ -53,7 +53,6 @@ class SkillService(private val propertyService: PropertyService) {
             }
         }
 
-        hero.skillUsed(skill.number)
         hero.afterTurn(battle, propertyService)
         battle.checkStatus()
     }
@@ -398,8 +397,8 @@ class SkillService(private val propertyService: PropertyService) {
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
                                 battle.steps.add(step)
-                                executeSkillActions(battle, step, executer, skill, hero)
                                 executer.skillUsed(skill.number)
+                                executeSkillActions(battle, step, executer, skill, hero)
                             }
                         }
             }
@@ -422,8 +421,8 @@ class SkillService(private val propertyService: PropertyService) {
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
                                 battle.steps.add(step)
-                                executeSkillActions(battle, step, oppHero, skill, hero)
                                 oppHero.skillUsed(skill.number)
+                                executeSkillActions(battle, step, oppHero, skill, hero)
                             }
                         }
             }
@@ -445,8 +444,8 @@ class SkillService(private val propertyService: PropertyService) {
                                     heroStates = battle.getBattleStepHeroStates()
                             )
                             battle.steps.add(step)
-                            executeSkillActions(battle, step, hero, skill, hero)
                             hero.skillUsed(skill.number)
+                            executeSkillActions(battle, step, hero, skill, hero)
                         }
                     }
 
@@ -468,8 +467,8 @@ class SkillService(private val propertyService: PropertyService) {
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
                                 battle.steps.add(step)
-                                executeSkillActions(battle, step, alliedHero, skill, hero)
                                 alliedHero.skillUsed(skill.number)
+                                executeSkillActions(battle, step, alliedHero, skill, hero)
                             }
                         }
             }
@@ -491,8 +490,8 @@ class SkillService(private val propertyService: PropertyService) {
                                     heroStates = battle.getBattleStepHeroStates()
                             )
                             battle.steps.add(step)
-                            executeSkillActions(battle, step, hero, skill, hero)
                             hero.skillUsed(skill.number)
+                            executeSkillActions(battle, step, hero, skill, hero)
                         }
                     }
 
@@ -514,8 +513,8 @@ class SkillService(private val propertyService: PropertyService) {
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
                                 battle.steps.add(step)
-                                executeSkillActions(battle, step, alliedHero, skill, hero)
                                 alliedHero.skillUsed(skill.number)
+                                executeSkillActions(battle, step, alliedHero, skill, hero)
                             }
                         }
             }
@@ -568,8 +567,8 @@ class SkillService(private val propertyService: PropertyService) {
                                     heroStates = battle.getBattleStepHeroStates()
                             )
                             battle.steps.add(step)
-                            executeSkillActions(battle, step, target, skill, target)
                             target.skillUsed(skill.number)
+                            executeSkillActions(battle, step, target, skill, target)
                         }
 
                 // PassiveSkillTrigger.ALLY_DEBUFF
@@ -589,8 +588,8 @@ class SkillService(private val propertyService: PropertyService) {
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
                                 battle.steps.add(step)
-                                executeSkillActions(battle, step, ally, skill, target)
                                 ally.skillUsed(skill.number)
+                                executeSkillActions(battle, step, ally, skill, target)
                             }
                 }
             }
@@ -613,8 +612,8 @@ class SkillService(private val propertyService: PropertyService) {
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
                                 battle.steps.add(step)
-                                executeSkillActions(battle, step, opp, skill, target)
                                 opp.skillUsed(skill.number)
+                                executeSkillActions(battle, step, opp, skill, target)
                             }
                 }
             }
@@ -639,7 +638,7 @@ class SkillService(private val propertyService: PropertyService) {
 
     private fun applySpeedbarAction(hero: BattleHero, action: HeroSkillAction) {
         when (action.effect) {
-            PERCENTAGE -> hero.currentSpeedBar += (SPEEDBAR_MAX * action.effectValue) / 100
+            PERCENTAGE -> hero.currentSpeedBar = max(0, hero.currentSpeedBar + (SPEEDBAR_MAX * action.effectValue) / 100)
             else -> {
             }
         }
