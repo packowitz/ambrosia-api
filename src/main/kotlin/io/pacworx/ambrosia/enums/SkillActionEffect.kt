@@ -33,7 +33,8 @@ enum class SkillActionEffect(val type: SkillActionType,
     STUN_DEBUFF(DEBUFF, "Applies Stun Debuff with value intensity for duration turn", Buff.STUN),
     WEAK_DEBUFF(DEBUFF, "Applies Weak Debuff with value intensity for duration turn", Buff.WEAK),
 
-    PERCENTAGE(SPEEDBAR, "Fills speedbar by value percentage (1-100)"),
+    PERCENTAGE(SPEEDBAR, "Fills speedbar by value percentage (-100 - +100)"),
+    PERCENTAGE_MAX(SPEEDBAR, "Fills speedbar by value percentage of MAX speedbar (-100 - +100)"),
 
     TARGET_MAX_HP(HEAL, "Heals target(s) based on targets max HP by value percentage (1-100)"),
     OWN_MAX_HP(HEAL, "Heals target(s) based on active heros max HP by value percentage (1-100)"),

@@ -638,9 +638,9 @@ class SkillService(private val propertyService: PropertyService) {
 
     private fun applySpeedbarAction(hero: BattleHero, action: HeroSkillAction) {
         when (action.effect) {
-            PERCENTAGE -> hero.currentSpeedBar = max(0, hero.currentSpeedBar + (SPEEDBAR_MAX * action.effectValue) / 100)
-            else -> {
-            }
+            PERCENTAGE -> hero.currentSpeedBar = max(0, hero.currentSpeedBar + (hero.currentSpeedBar * action.effectValue) / 100)
+            PERCENTAGE_MAX -> hero.currentSpeedBar = max(0, hero.currentSpeedBar + (SPEEDBAR_MAX * action.effectValue) / 100)
+            else -> {}
         }
     }
 
