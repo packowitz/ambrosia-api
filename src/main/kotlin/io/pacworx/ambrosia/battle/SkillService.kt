@@ -190,8 +190,8 @@ class SkillService(private val propertyService: PropertyService) {
             hero.willCounter = hero.willCounter || procs(hero.getTotalCounterChance())
         }
 
-        val crit = procs(hero.getTotalCrit())
-        val superCrit = crit && procs(hero.heroSuperCritChance + hero.superCritChanceBonus)
+        val crit = procs(damageDealer.getTotalCrit())
+        val superCrit = crit && procs(damageDealer.heroSuperCritChance + damageDealer.superCritChanceBonus)
 
         var baseDamage = (baseDamage * action.effectValue) / 100
         if (superCrit) {
