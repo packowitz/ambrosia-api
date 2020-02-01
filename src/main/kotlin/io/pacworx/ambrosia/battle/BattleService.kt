@@ -1,7 +1,6 @@
 package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.enums.BuffType
-import io.pacworx.ambrosia.enums.TeamType
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
@@ -60,8 +59,8 @@ class BattleService(private val playerRepository: PlayerRepository,
     }
 
     @Transactional
-    fun initCampaign(player: Player, mapTile: SimplePlayerMapTile, fight: Fight, request: StartBattleRequest): Battle {
-        val team = teamRepository.findByPlayerIdAndType(player.id, TeamType.CAMPAIGN) ?: teamRepository.save(Team ( playerId = player.id, type = TeamType.CAMPAIGN))
+    fun initCampaign(player: Player, mapTile: SimplePlayerMapTile?, fight: Fight, request: StartBattleRequest): Battle {
+        val team = teamRepository.findByPlayerIdAndType(player.id, request.type) ?: teamRepository.save(Team ( playerId = player.id, type = request.type))
         team.apply {
             hero1Id = request.hero1Id
             hero2Id = request.hero2Id
@@ -73,12 +72,12 @@ class BattleService(private val playerRepository: PlayerRepository,
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
             fightStage.hero1Id, fightStage.hero2Id, fightStage.hero3Id, fightStage.hero4Id))
         val battle = battleRepository.save(Battle(
-            type = BattleType.CAMPAIGN,
+            type = mapTile?.let { BattleType.CAMPAIGN } ?: BattleType.TEST,
             fight = fight,
             fightStage = fightStage.stage,
-            mapId = mapTile.mapId,
-            mapPosX = mapTile.posX,
-            mapPosY = mapTile.posY,
+            mapId = mapTile?.mapId,
+            mapPosX = mapTile?.posX,
+            mapPosY = mapTile?.posY,
             playerId = player.id,
             playerName = player.name,
             opponentName = fight.name + " Stage-" + fightStage.stage,

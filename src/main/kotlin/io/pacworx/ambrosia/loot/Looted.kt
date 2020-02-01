@@ -1,10 +1,11 @@
 package io.pacworx.ambrosia.loot
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.resources.ResourceType
 
 data class Looted(
     val type: LootItemType,
-    val resourceType: ResourceType?,
+    @JsonFormat(shape = JsonFormat.Shape.STRING) val resourceType: ResourceType?,
     val value: Long
 ) {
     constructor(item: LootItemResult): this(

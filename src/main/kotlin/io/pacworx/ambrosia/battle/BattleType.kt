@@ -1,5 +1,5 @@
 package io.pacworx.ambrosia.battle
 
 enum class BattleType {
-    DUELL, CAMPAIGN
+    DUELL, CAMPAIGN, TEST
 }

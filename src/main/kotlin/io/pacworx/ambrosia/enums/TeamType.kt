@@ -1,5 +1,5 @@
 package io.pacworx.ambrosia.enums
 
 enum class TeamType {
-    DUELL, CAMPAIGN
+    DUELL, CAMPAIGN, TEST
 }

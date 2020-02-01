@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.enums.SkillTarget
+import io.pacworx.ambrosia.enums.TeamType
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.HeroSkill
@@ -66,6 +67,18 @@ class BattleController(private val battleService: BattleService,
         val fight = fightRepository.getOne(mapTile.fightId)
         val resources = resourcesService.spendResource(player, fight.resourceType, fight.costs)
         return afterBattleAction(player, battleService.initCampaign(player, mapTile, fight, request), resources)
+    }
+
+    @PostMapping("campaign/test/{fightId}")
+    @Transactional
+    fun startCampaignTest(@ModelAttribute("player") player: Player,
+                     @PathVariable fightId: Long,
+                     @RequestBody request: StartBattleRequest): PlayerActionResponse {
+        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+            throw RuntimeException("Finish your ongoing battle before starting a new one")
+        }
+        val fight = fightRepository.getOne(fightId)
+        return afterBattleAction(player, battleService.initCampaign(player, null, fight, request))
     }
 
     @PostMapping("{battleId}/{heroPos}/{skillNumber}/{targetPos}")
@@ -136,7 +149,7 @@ class BattleController(private val battleService: BattleService,
     }
 
     private fun afterBattleAction(player: Player, battle: Battle, resources: Resources? = null): PlayerActionResponse {
-        return if (battle.status == BattleStatus.WON) {
+        return if (battle.status == BattleStatus.WON && battle.type != BattleType.TEST) {
             val map = battle.mapId?.let {
                 mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
             }
@@ -172,6 +185,7 @@ data class StartDuellRequest(
 )
 
 data class StartBattleRequest(
+    val type: TeamType,
     val hero1Id: Long?,
     val hero2Id: Long?,
     val hero3Id: Long?,

@@ -8,14 +8,7 @@ import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.resources.ResourcesService
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
 @RestController
@@ -74,12 +67,18 @@ class MapController(private val mapService: MapService,
     fun openChest(@ModelAttribute("player") player: Player, @RequestBody request: TileRequest): PlayerActionResponse {
         val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, request.mapId)
             ?: throw RuntimeException("Map ${request.mapId} is unknown to player ${player.id}")
-        playerMap.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discovered && !it.chestOpened}
-            ?: throw RuntimeException("Tile ${request.posX}/${request.posY} on map ${request.mapId} is not discovered by player ${player.id} or chest is already opened")
+        val tile = playerMap.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discovered}
+            ?: throw RuntimeException("Tile ${request.posX}/${request.posY} on map ${request.mapId} is not discovered by player ${player.id}")
+        if (tile.chestOpened) {
+            throw RuntimeException("Player ${player.id} already opened chest on tile ${request.posX}/${request.posY} on map ${request.mapId}")
+        }
         val lootBoxId = mapRepository.getOne(request.mapId).tiles.find { it.posX == request.posX && it.posY == request.posY }?.takeIf { it.lootBoxId != null }?.lootBoxId
             ?: throw RuntimeException("Tile ${request.posX}/${request.posY} on map ${request.mapId} has no chest to open")
         val result = lootService.openLootBox(player, lootBoxId)
+        tile.chestOpened = true
+
         return PlayerActionResponse(
+            currentMap = PlayerMapResolved(playerMap),
             resources = resourcesService.getResources(player),
             heroes = result.items.filter { it.hero != null }.map { it.hero!! }.takeIf { it.isNotEmpty() },
             gears = result.items.filter { it.gear != null }.map { it.gear!! }.takeIf{ it.isNotEmpty() },

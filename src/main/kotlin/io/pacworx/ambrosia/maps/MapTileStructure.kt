@@ -14,7 +14,11 @@ enum class MapTileStructure(val type: MapTileStructureType) {
 
     ENTRANCE(MapTileStructureType.PORTAL),
     EXIT(MapTileStructureType.PORTAL),
-    PORTAL(MapTileStructureType.PORTAL);
+    PORTAL(MapTileStructureType.PORTAL),
+
+    WOODEN(MapTileStructureType.CHEST),
+    GOLDEN(MapTileStructureType.CHEST),
+    MYTHICAL(MapTileStructureType.CHEST);
 
     fun getName(): String = name
 }

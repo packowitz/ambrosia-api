@@ -182,7 +182,7 @@ data class PlayerMapTileResolved(
         tile.type,
         playerTile?.discovered ?: false,
         playerTile?.discoverable ?: false,
-        playerTile?.takeIf { it.discovered }?.let { tile.structure },
+        playerTile?.takeIf { it.discovered && (tile.lootBoxId == null || !it.chestOpened) }?.let { tile.structure },
         playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightIcon },
         playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightId },
         playerTile?.takeIf { it.discovered }?.let { tile.fightRepeatable },

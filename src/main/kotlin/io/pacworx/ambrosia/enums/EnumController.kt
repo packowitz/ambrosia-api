@@ -57,6 +57,9 @@ class EnumController {
     @GetMapping("gear_sets")
     fun getGearSets(): List<GearSet> = GearSet.values().asList()
 
+    @GetMapping("gear_types")
+    fun getGearTypes(): List<GearType> = GearType.values().asList()
+
     @GetMapping("jewel_types")
     fun getJewelTypes(): List<JewelType> = JewelType.values().asList()
 
