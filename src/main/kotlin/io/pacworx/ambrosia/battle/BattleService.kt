@@ -32,13 +32,13 @@ class BattleService(private val playerRepository: PlayerRepository,
     }
 
     @Transactional
-    fun initDuell(player: Player, request: StartDuellRequest): Battle {
+    fun initTestDuell(player: Player, request: StartDuellRequest): Battle {
         val opponent = playerRepository.getOne(request.oppPlayerId)
         val heroes = heroService.loadHeroes(listOfNotNull(
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
             request.oppHero1Id, request.oppHero2Id, request.oppHero3Id, request.oppHero4Id))
         val battle = battleRepository.save(Battle(
-            type = BattleType.DUELL,
+            type = BattleType.TEST,
             playerId = player.id,
             playerName = player.name,
             opponentId = request.oppPlayerId,
@@ -89,6 +89,47 @@ class BattleService(private val playerRepository: PlayerRepository,
             oppHero2 = asBattleHero(heroId = fightStage.hero2Id, position = HeroPosition.OPP2, heroes = heroes),
             oppHero3 = asBattleHero(heroId = fightStage.hero3Id, position = HeroPosition.OPP3, heroes = heroes),
             oppHero4 = asBattleHero(heroId = fightStage.hero4Id, position = HeroPosition.OPP4, heroes = heroes)
+        ))
+        battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
+            hero.priority = idx
+        }
+        return startBattle(battle)
+    }
+
+    fun repeatTestBattle(prevBattle: Battle): Battle {
+        val fightStage = prevBattle.fight?.stages?.find { it.stage == 1 }
+        val heroIds = mutableListOf(prevBattle.hero1?.heroId, prevBattle.hero2?.heroId, prevBattle.hero3?.heroId, prevBattle.hero4?.heroId)
+        if (fightStage != null) {
+            heroIds.add(fightStage.hero1Id)
+            heroIds.add(fightStage.hero2Id)
+            heroIds.add(fightStage.hero3Id)
+            heroIds.add(fightStage.hero4Id)
+        } else {
+            heroIds.add(prevBattle.oppHero1?.heroId)
+            heroIds.add(prevBattle.oppHero2?.heroId)
+            heroIds.add(prevBattle.oppHero3?.heroId)
+            heroIds.add(prevBattle.oppHero4?.heroId)
+        }
+        val heroes = heroService.loadHeroes(heroIds.filterNotNull())
+        val battle = battleRepository.save(Battle(
+            type = prevBattle.type,
+            fight = prevBattle.fight,
+            fightStage = fightStage?.stage,
+            mapId = prevBattle.mapId,
+            mapPosX = prevBattle.mapPosX,
+            mapPosY = prevBattle.mapPosY,
+            playerId = prevBattle.playerId,
+            playerName = prevBattle.playerName,
+            opponentId = prevBattle.opponentId,
+            opponentName = prevBattle.opponentName,
+            hero1 = asBattleHero(prevBattle.playerId, prevBattle.hero1?.heroId, HeroPosition.HERO1, heroes),
+            hero2 = asBattleHero(prevBattle.playerId, prevBattle.hero2?.heroId, HeroPosition.HERO2, heroes),
+            hero3 = asBattleHero(prevBattle.playerId, prevBattle.hero3?.heroId, HeroPosition.HERO3, heroes),
+            hero4 = asBattleHero(prevBattle.playerId, prevBattle.hero4?.heroId, HeroPosition.HERO4, heroes),
+            oppHero1 = asBattleHero(heroId = if (fightStage != null) fightStage.hero1Id else prevBattle.oppHero1?.heroId, position = HeroPosition.OPP1, heroes = heroes),
+            oppHero2 = asBattleHero(heroId = if (fightStage != null) fightStage.hero2Id else prevBattle.oppHero2?.heroId, position = HeroPosition.OPP2, heroes = heroes),
+            oppHero3 = asBattleHero(heroId = if (fightStage != null) fightStage.hero3Id else prevBattle.oppHero3?.heroId, position = HeroPosition.OPP3, heroes = heroes),
+            oppHero4 = asBattleHero(heroId = if (fightStage != null) fightStage.hero4Id else prevBattle.oppHero4?.heroId, position = HeroPosition.OPP4, heroes = heroes)
         ))
         battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
             hero.priority = idx

@@ -13,6 +13,7 @@ import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
@@ -43,11 +44,11 @@ class BattleController(private val battleService: BattleService,
 
     @PostMapping
     @Transactional
-    fun startPvpBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): PlayerActionResponse {
+    fun startTestDuellBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
-        return afterBattleAction(player, battleService.initDuell(player, request))
+        return afterBattleAction(player, battleService.initTestDuell(player, request))
     }
 
     @PostMapping("campaign/{mapId}/{posX}/{posY}")
@@ -72,13 +73,27 @@ class BattleController(private val battleService: BattleService,
     @PostMapping("campaign/test/{fightId}")
     @Transactional
     fun startCampaignTest(@ModelAttribute("player") player: Player,
-                     @PathVariable fightId: Long,
-                     @RequestBody request: StartBattleRequest): PlayerActionResponse {
+                          @PathVariable fightId: Long,
+                          @RequestBody request: StartBattleRequest): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
             throw RuntimeException("Finish your ongoing battle before starting a new one")
         }
         val fight = fightRepository.getOne(fightId)
         return afterBattleAction(player, battleService.initCampaign(player, null, fight, request))
+    }
+
+    @PostMapping("repeat/test/{battleId}")
+    @Transactional
+    fun repeatTestBattle(@ModelAttribute("player") player: Player,
+                         @PathVariable battleId: Long): PlayerActionResponse {
+        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+            throw RuntimeException("Finish your ongoing battle before starting a new one")
+        }
+        val prevBattle = battleRepository.findByIdOrNull(battleId) ?: throw RuntimeException("Cannot repeat battle #$battleId bc it doesn't exist")
+        if (prevBattle.type != BattleType.TEST) {
+            throw RuntimeException("Cannot repeat a battle other than test battles")
+        }
+        return afterBattleAction(player, battleService.repeatTestBattle(prevBattle))
     }
 
     @PostMapping("{battleId}/{heroPos}/{skillNumber}/{targetPos}")
