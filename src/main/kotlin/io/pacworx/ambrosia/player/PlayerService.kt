@@ -43,8 +43,13 @@ class PlayerService(private val playerRepository: PlayerRepository,
     @Value("\${ambrosia.pw-salt-two}")
     private lateinit var pwSalt2: String
 
-    fun signup(name: String, email: String, password: String): Player {
-        val player = playerRepository.save(Player(name = name, email = email, password = getHash(name, password)))
+    fun signup(name: String, email: String, password: String, serviceAccount: Boolean = false): Player {
+        val player = playerRepository.save(Player(
+            name = name,
+            email = email,
+            password = if (serviceAccount) { password } else { getHash(name, password) },
+            serviceAccount = serviceAccount
+        ))
         buildingRepository.save(Building(playerId = player.id, type = BuildingType.BARRACKS))
         buildingRepository.save(Building(playerId = player.id, type = BuildingType.STORAGE_0))
         buildingRepository.save(Building(playerId = player.id, type = BuildingType.FORGE))

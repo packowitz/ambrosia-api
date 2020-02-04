@@ -1,11 +1,8 @@
-package io.pacworx.ambrosia.fights
+package io.pacworx.ambrosia.player
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroRepository
-import io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.player.PlayerRepository
-import io.pacworx.ambrosia.player.PlayerService
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.config.JwtService
 import org.springframework.transaction.annotation.Transactional
@@ -38,13 +35,7 @@ class AdminServiceAccountController(val playerRepository: PlayerRepository,
     @PostMapping("new/{name}")
     @Transactional
     fun createServiceAccount(@PathVariable name: String): Player {
-        val serviceAccount = Player(
-                name = name,
-                serviceAccount = true,
-                admin = true,
-                email = "service@pacworx.io",
-                password = "xxx")
-        return playerRepository.save(serviceAccount)
+        return playerService.signup(name, "service@pacworx.io", "xxx", true)
     }
 
     @PostMapping("use/{id}")
