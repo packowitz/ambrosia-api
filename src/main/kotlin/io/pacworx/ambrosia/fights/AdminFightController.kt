@@ -2,14 +2,9 @@ package io.pacworx.ambrosia.fights
 
 import io.pacworx.ambrosia.fights.environment.FightEnvironmentRepository
 import io.pacworx.ambrosia.fights.stageconfig.FightStageConfigRepository
+import io.pacworx.ambrosia.loot.LootBoxRepository
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
@@ -18,7 +13,8 @@ import javax.validation.Valid
 class AdminFightController(private val fightRepository: FightRepository,
                            private val fightService: FightService,
                            private val fightStageConfigRepository: FightStageConfigRepository,
-                           private val fightEnvironmentRepository: FightEnvironmentRepository
+                           private val fightEnvironmentRepository: FightEnvironmentRepository,
+                           private val lootBoxRepository: LootBoxRepository
 ) {
 
     @PostMapping("new")
@@ -26,6 +22,7 @@ class AdminFightController(private val fightRepository: FightRepository,
     fun createFight(@RequestBody fight: Fight): Fight {
         fight.stageConfig = fightStageConfigRepository.findByDefaultConfigTrue()
         fight.environment = fightEnvironmentRepository.findByDefaultEnvironmentTrue()
+        fight.lootBox = lootBoxRepository.findFirstByOrderById()
         return fightRepository.save(fight)
     }
 
