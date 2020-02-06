@@ -11,5 +11,8 @@ data class Building(
     @Enumerated(EnumType.STRING) val type: BuildingType,
     val level: Int = 1,
     var upgradeStarted: LocalDateTime? = null,
-    var upgradeFinished: LocalDateTime? = null
+    var upgradeFinished: LocalDateTime? = null,
+    var wipStarted: LocalDateTime? = null,
+    var wipFinished: LocalDateTime? = null,
+    var wipRef: Long? = null
 )

@@ -1,22 +1,22 @@
 package io.pacworx.ambrosia.player
 
 import com.google.common.hash.Hashing
-import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.battle.BattleStatus
 import io.pacworx.ambrosia.buildings.Building
+import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.enums.PropertyType
 import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.hero.HeroRepository
+import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapRepository
 import io.pacworx.ambrosia.properties.PropertyService
+import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.Resources
-import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.resources.ResourcesRepository
 import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.beans.factory.annotation.Value

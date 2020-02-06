@@ -28,7 +28,9 @@ class AdminHeroController(val heroRepository: HeroRepository,
         if (hero.playerId != player.id || !player.admin) {
             throw RuntimeException("not allowed")
         }
-        heroService.heroGainXp(hero, hero.maxXp - hero.xp)
+        if (!heroService.evolveHero(hero)) {
+            heroService.heroGainXp(hero, hero.maxXp - hero.xp)
+        }
         return PlayerActionResponse(hero = heroService.asHeroDto(hero))
     }
 
@@ -42,8 +44,10 @@ class AdminHeroController(val heroRepository: HeroRepository,
         if (hero.level > 1) {
             hero.level --
             val stars = 1 + ((hero.level - 1) / 10)
-            if (stars <= hero.heroBase.rarity.stars) {
+            if (stars > hero.heroBase.rarity.stars) {
                 hero.stars = stars
+            } else {
+                hero.stars = hero.heroBase.rarity.stars
             }
             hero.maxXp = propertyService.getHeroMaxXp(hero.level)
         }

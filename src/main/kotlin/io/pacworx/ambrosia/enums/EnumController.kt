@@ -7,6 +7,8 @@ import io.pacworx.ambrosia.maps.FightIcon
 import io.pacworx.ambrosia.maps.MapBackground
 import io.pacworx.ambrosia.maps.MapTileStructure
 import io.pacworx.ambrosia.maps.MapTileType
+import io.pacworx.ambrosia.properties.PropertyCategory
+import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourceType
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping

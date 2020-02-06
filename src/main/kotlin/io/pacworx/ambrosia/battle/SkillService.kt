@@ -8,6 +8,7 @@ import io.pacworx.ambrosia.hero.HeroSkill
 import io.pacworx.ambrosia.hero.HeroSkillAction
 import io.pacworx.ambrosia.properties.DynamicProperty
 import io.pacworx.ambrosia.properties.PropertyService
+import io.pacworx.ambrosia.properties.PropertyType
 import org.springframework.stereotype.Service
 import kotlin.math.max
 import kotlin.math.min

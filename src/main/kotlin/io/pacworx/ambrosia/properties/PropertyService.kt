@@ -44,9 +44,19 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
             ?: throw RuntimeException("No Max XP defined for hero level $level")
     }
 
+    fun getHeroMergedXp(heroLevel: Int): Int {
+        return properties.find { it.type == PropertyType.MERGE_XP_HERO && it.level == heroLevel }?.value1
+            ?: throw RuntimeException("No Merge XP defined for hero level $heroLevel")
+    }
+
     fun getHeroMaxAsc(level: Int): Int {
         return properties.find { it.type == PropertyType.ASC_POINTS_MAX_HERO && it.level == level }?.value1
             ?: throw RuntimeException("No Max Ascension points defined for asc level $level")
+    }
+
+    fun getHeroMergedAsc(rarity: Int): Int {
+        return properties.find { it.type == PropertyType.MERGE_ASC_HERO && it.level == rarity }?.value1
+            ?: throw RuntimeException("No Merge Ascension points defined for rarity $rarity")
     }
 
     fun getPossibleGearStats(gearType: GearType, rarity: Rarity): List<HeroStat> {

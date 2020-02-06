@@ -1,7 +1,5 @@
 package io.pacworx.ambrosia.properties
 
-import io.pacworx.ambrosia.enums.PropertyCategory
-import io.pacworx.ambrosia.enums.PropertyType
 import org.springframework.web.bind.annotation.*
 
 @RestController

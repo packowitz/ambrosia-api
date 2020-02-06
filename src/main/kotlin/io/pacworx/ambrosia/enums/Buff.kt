@@ -5,6 +5,7 @@ import io.pacworx.ambrosia.battle.BattleHero
 import io.pacworx.ambrosia.battle.BattleHeroBuff
 import io.pacworx.ambrosia.battle.HeroStatus
 import io.pacworx.ambrosia.properties.PropertyService
+import io.pacworx.ambrosia.properties.PropertyType
 
 /**
  * To add a new Buff you need to

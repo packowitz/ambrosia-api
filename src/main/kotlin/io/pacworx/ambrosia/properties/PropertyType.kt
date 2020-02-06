@@ -1,7 +1,7 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.properties
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.pacworx.ambrosia.enums.PropertyCategory.*
+import io.pacworx.ambrosia.properties.PropertyCategory.*
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 enum class PropertyType(@field:JsonFormat(shape = JsonFormat.Shape.STRING) val category: PropertyCategory, val description: String) {
@@ -34,6 +34,7 @@ enum class PropertyType(@field:JsonFormat(shape = JsonFormat.Shape.STRING) val c
     XP_MAX_HERO(HERO, "Level: hero level (1-60). Value: max xp to reach next level."),
     ASC_POINTS_MAX_HERO(HERO, "Level: hero ascension level (1-??). Value: max asc points to reach next level."),
     MERGE_XP_HERO(HERO, "Level: hero level (1-60) to be feeded. Value: amount of xp gained."),
+    MERGE_ASC_HERO(HERO, "Level: Rarity (1-6). Value: Asc points gained when merging hero of same class"),
 
     WEAPON_GEAR(GEAR, "Gear rarity (1-6). Stat: which stat the gear gives. From - To defines the range for this stat."),
     SHIELD_GEAR(GEAR, "Gear rarity (1-6). Stat: which stat the gear gives. From - To defines the range for this stat."),
@@ -74,7 +75,9 @@ enum class PropertyType(@field:JsonFormat(shape = JsonFormat.Shape.STRING) val c
     WEAK_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
 
     PLAYER_LVL_RESOURCES(RESOURCES, "Resources gained on Player level up. Level 1 is starting level"),
-    STORAGE_RESOURCES(RESOURCES, "Level: Building level. Resources stored in storage.")
+    STORAGE_RESOURCES(RESOURCES, "Level: Building level. Resources stored in storage."),
+
+    UPGRADE_TIME_BUILDING(BUILDING, "Defines how long (Value in seconds) an upgrade takes")
     ;
 
     fun getName(): String = name

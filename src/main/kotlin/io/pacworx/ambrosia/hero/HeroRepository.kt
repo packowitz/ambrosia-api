@@ -5,4 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface HeroRepository: JpaRepository<Hero, Long> {
 
     fun findAllByPlayerIdOrderByStarsDescLevelDescHeroBase_IdAscIdAsc(playerId: Long): List<Hero>
+
+    fun findAllByPlayerIdAndIdIn(playerId: Long, ids: List<Long>): List<Hero>
+
+    fun deleteAllByIdIn(ids: List<Long>)
 }

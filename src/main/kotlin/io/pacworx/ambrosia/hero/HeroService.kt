@@ -114,6 +114,17 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         }
     }
 
+    fun evolveHero(hero: Hero): Boolean {
+        if (hero.xp == hero.maxXp && hero.level == 10 * hero.stars && hero.level < 60) {
+            hero.level ++
+            hero.stars ++
+            hero.xp = 0
+            hero.maxXp = propertyService.getHeroMaxXp(hero.level)
+            return true
+        }
+        return false
+    }
+
     fun heroGainAsc(hero: Hero, asc: Int) {
         hero.ascPoints += asc
         if (hero.ascPoints >= hero.ascPointsMax) {
