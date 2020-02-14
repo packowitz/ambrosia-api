@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.enums.HeroStat
 import io.pacworx.ambrosia.resources.ResourceType
+import io.pacworx.ambrosia.vehicle.VehicleStat
 import javax.persistence.*
 
 @Entity
@@ -23,6 +24,8 @@ data class DynamicProperty(
     val resourceType: ResourceType?,
     @Enumerated(EnumType.STRING)
     val buildingType: BuildingType?,
+    @Enumerated(EnumType.STRING)
+    val vehicleStat: VehicleStat?,
     val value1: Int,
     val value2: Int?
 )
