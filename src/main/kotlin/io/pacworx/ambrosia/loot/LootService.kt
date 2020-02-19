@@ -3,20 +3,28 @@ package io.pacworx.ambrosia.loot
 import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.GearService
+import io.pacworx.ambrosia.gear.Jewelry
+import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.vehicle.Vehicle
+import io.pacworx.ambrosia.vehicle.VehiclePart
+import io.pacworx.ambrosia.vehicle.VehicleService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import kotlin.random.Random
 
 @Service
 class LootService(private val lootBoxRepository: LootBoxRepository,
                   private val resourcesService: ResourcesService,
                   private val heroService: HeroService,
                   private val gearLootRepository: GearLootRepository,
-                  private val gearService: GearService) {
+                  private val gearService: GearService,
+                  private val jewelryRepository: JewelryRepository,
+                  private val vehicleService: VehicleService) {
 
     fun openLootBox(player: Player, lootBoxId: Long): LootBoxResult {
         val lootBox = lootBoxRepository.findByIdOrNull(lootBoxId)
@@ -44,16 +52,20 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
             LootItemType.RESOURCE -> LootItemResult(resource = openResourceItem(player, item))
             LootItemType.HERO -> LootItemResult(hero = openHeroItem(player, item))
             LootItemType.GEAR -> LootItemResult(gear = openGearItem(player, item))
+            LootItemType.JEWEL -> LootItemResult(jewelry = openJewelItem(player, item))
+            LootItemType.VEHICLE -> LootItemResult(vehicle = openVehicleItem(player, item))
+            LootItemType.VEHICLE_PART -> LootItemResult(vehiclePart = openVehiclePartItem(player, item))
         }
     }
 
     private fun openResourceItem(player: Player, item: LootItem): ResourceLoot {
-        resourcesService.gainResources(player, item.resourceType!!, item.resourceAmount!!)
-        return ResourceLoot(item.resourceType!!, item.resourceAmount!!)
+        val amount =  Random.nextInt(item.resourceFrom!!, item.resourceTo!! + 1)
+        resourcesService.gainResources(player, item.resourceType!!, amount)
+        return ResourceLoot(item.resourceType!!, amount)
     }
 
     private fun openHeroItem(player: Player, item: LootItem): HeroDto {
-        return heroService.recruitHero(player, item.heroBaseId!!)
+        return heroService.recruitHero(player, item.heroBaseId!!, item.heroLevel ?: 1)
     }
 
     private fun openGearItem(player: Player, item: LootItem): Gear {
@@ -76,6 +88,22 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
         )
     }
 
+    private fun openJewelItem(player: Player, item: LootItem): Jewelry {
+        item.getJewelTypes().random().let { type ->
+            val jewelry = jewelryRepository.findByPlayerIdAndType(player.id, type)  ?: Jewelry(playerId = player.id, type = type)
+            jewelry.increaseAmount(item.jewelLevel!!, 1)
+            return jewelryRepository.save(jewelry)
+        }
+    }
+
+    private fun openVehicleItem(player: Player, item: LootItem): Vehicle {
+        return vehicleService.gainVehicle(player, item.vehicleBaseId!!)
+    }
+
+    private fun openVehiclePartItem(player: Player, item: LootItem): VehiclePart {
+        return vehicleService.gainVehiclePart(player, item.vehiclePartType!!, item.vehiclePartQuality!!)
+    }
+
 }
 
 data class LootBoxResult(
@@ -86,7 +114,10 @@ data class LootBoxResult(
 data class LootItemResult(
     val resource: ResourceLoot? = null,
     val hero: HeroDto? = null,
-    val gear: Gear? = null
+    val gear: Gear? = null,
+    val jewelry: Jewelry? = null,
+    val vehicle: Vehicle? = null,
+    val vehiclePart: VehiclePart? = null
 )
 
 data class ResourceLoot(

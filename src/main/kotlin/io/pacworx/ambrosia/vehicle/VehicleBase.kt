@@ -10,11 +10,11 @@ data class VehicleBase(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val name: String,
-    val avatar: String,
-    val maxLevel: Int,
-    val engineQuality: PartQuality,
-    val frameQuality: PartQuality,
-    val computerQuality: PartQuality,
+    val avatar: String = "default",
+    val maxLevel: Int = 6,
+    val engineQuality: PartQuality = PartQuality.BASIC,
+    val frameQuality: PartQuality = PartQuality.BASIC,
+    val computerQuality: PartQuality = PartQuality.BASIC,
     val specialPart1Quality: PartQuality?,
     val specialPart2Quality: PartQuality?,
     val specialPart3Quality: PartQuality?

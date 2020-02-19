@@ -13,7 +13,7 @@ import javax.transaction.Transactional
 class JewelryController(private val jewelryRepository: JewelryRepository) {
 
     @GetMapping("")
-    fun getGears(@ModelAttribute("player") player: Player): List<Jewelry> {
+    fun getJewelries(@ModelAttribute("player") player: Player): List<Jewelry> {
         return jewelryRepository.findAllByPlayerId(player.id)
     }
 

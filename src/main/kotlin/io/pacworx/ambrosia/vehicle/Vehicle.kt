@@ -1,18 +1,15 @@
 package io.pacworx.ambrosia.vehicle
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.OneToOne
+import javax.persistence.*
 
 @Entity
 data class Vehicle(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val playerId: Long,
-    val baseVehicleId: Long,
+    @ManyToOne
+    @JoinColumn(name = "base_vehicle_id")
+    val baseVehicle: VehicleBase,
     val level: Int = 1,
     @OneToOne
     @JoinColumn(name = "engine_part_id")

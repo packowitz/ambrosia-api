@@ -10,7 +10,8 @@ data class VehiclePart(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val playerId: Long,
-    val equippedTo: Long?,
+    val equippedTo: Long? = null,
     val type: PartType,
+    val quality: PartQuality,
     val level: Int = 1
 )

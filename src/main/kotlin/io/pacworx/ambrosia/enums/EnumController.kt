@@ -1,7 +1,6 @@
-package io.pacworx.ambrosia.admin.controller
+package io.pacworx.ambrosia.enums
 
 import io.pacworx.ambrosia.buildings.BuildingType
-import io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
 import io.pacworx.ambrosia.maps.FightIcon
 import io.pacworx.ambrosia.maps.MapBackground
@@ -10,6 +9,8 @@ import io.pacworx.ambrosia.maps.MapTileType
 import io.pacworx.ambrosia.properties.PropertyCategory
 import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourceType
+import io.pacworx.ambrosia.vehicle.PartQuality
+import io.pacworx.ambrosia.vehicle.PartType
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,75 +18,37 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @CrossOrigin(maxAge = 3600)
-@RequestMapping("enum")
+@RequestMapping("enums")
 class EnumController {
 
-    @GetMapping("colors")
-    fun getColors(): List<Color> = Color.values().asList()
+    @GetMapping
+    fun getAllEnums(): Enums = Enums()
 
-    @GetMapping("hero_types")
-    fun getHeroTypes(): List<HeroType> = HeroType.values().asList()
-
-    @GetMapping("rarities")
-    fun getRarities(): List<Rarity> = Rarity.values().asList()
-
-    @GetMapping("skill_action_effects")
-    fun getSkillActionEffects(): List<SkillActionEffect> = SkillActionEffect.values().asList()
-
-    @GetMapping("skill_action_targets")
-    fun getSkillActionTargets(): List<SkillActionTarget> = SkillActionTarget.values().asList()
-
-    @GetMapping("skill_action_triggers")
-    fun getSkillActionTriggers(): List<SkillActionTrigger> = SkillActionTrigger.values().asList()
-
-    @GetMapping("skill_action_types")
-    fun getSkillActionTypes(): List<SkillActionType> = SkillActionType.values().asList()
-
-    @GetMapping("skill_active_triggers")
-    fun getSkillActiveTriggers(): List<SkillActiveTrigger> = SkillActiveTrigger.values().asList()
-
-    @GetMapping("skill_targets")
-    fun getSkillTargets(): List<SkillTarget> = SkillTarget.values().asList()
-
-    @GetMapping("property_categories")
-    fun getPropertyCategories(): List<PropertyCategory> = PropertyCategory.values().asList()
-
-    @GetMapping("property_types")
-    fun getPropertyTypes(): List<PropertyType> = PropertyType.values().asList()
-
-    @GetMapping("hero_stats")
-    fun getHeroStats(): List<HeroStat> = HeroStat.values().asList()
-
-    @GetMapping("gear_sets")
-    fun getGearSets(): List<GearSet> = GearSet.values().asList()
-
-    @GetMapping("gear_types")
-    fun getGearTypes(): List<GearType> = GearType.values().asList()
-
-    @GetMapping("jewel_types")
-    fun getJewelTypes(): List<JewelType> = JewelType.values().asList()
-
-    @GetMapping("passive_skill_triggers")
-    fun getPassiveSkillTriggers():List<PassiveSkillTrigger> = PassiveSkillTrigger.values().asList()
-
-    @GetMapping("map_tile_types")
-    fun getMapTileTypes():List<MapTileType> = MapTileType.values().asList()
-
-    @GetMapping("map_tile_structures")
-    fun getMapTileStructures():List<MapTileStructure> = MapTileStructure.values().asList()
-
-    @GetMapping("map_tile_fight_icons")
-    fun getMapTileFights():List<FightIcon> = FightIcon.values().asList()
-
-    @GetMapping("map_backgrounds")
-    fun getMapBackgrounds():List<MapBackground> = MapBackground.values().asList()
-
-    @GetMapping("fight_config_speedbar_changes")
-    fun getFightConfigSpeedbarChanges():List<SpeedBarChange> = SpeedBarChange.values().asList()
-
-    @GetMapping("building_types")
-    fun getBuildingTypes():List<BuildingType> = BuildingType.values().asList()
-
-    @GetMapping("resource_types")
-    fun getResourceTypes():List<ResourceType> = ResourceType.values().asList()
+    data class Enums(
+        val colors: List<Color> = Color.values().asList(),
+        val heroTypes: List<HeroType> = HeroType.values().asList(),
+        val rarities: List<Rarity> = Rarity.values().asList(),
+        val skillActionEffects: List<SkillActionEffect> = SkillActionEffect.values().asList(),
+        val skillActionTargets: List<SkillActionTarget> = SkillActionTarget.values().asList(),
+        val skillActionTriggers: List<SkillActionTrigger> = SkillActionTrigger.values().asList(),
+        val skillActionTypes: List<SkillActionType> = SkillActionType.values().asList(),
+        val skillActiveTriggers: List<SkillActiveTrigger> = SkillActiveTrigger.values().asList(),
+        val skillTargets: List<SkillTarget> = SkillTarget.values().asList(),
+        val propertyCategories: List<PropertyCategory> = PropertyCategory.values().asList(),
+        val propertyTypes: List<PropertyType> = PropertyType.values().asList(),
+        val heroStats: List<HeroStat> = HeroStat.values().asList(),
+        val gearSets: List<GearSet> = GearSet.values().asList(),
+        val gearTypes: List<GearType> = GearType.values().asList(),
+        val jewelTypes: List<JewelType> = JewelType.values().asList(),
+        val passiveSkillTriggers: List<PassiveSkillTrigger> = PassiveSkillTrigger.values().asList(),
+        val mapTileTypes: List<MapTileType> = MapTileType.values().asList(),
+        val mapTileStructures: List<MapTileStructure> = MapTileStructure.values().asList(),
+        val mapTileFightIcons: List<FightIcon> = FightIcon.values().asList(),
+        val mapBackgrounds: List<MapBackground> = MapBackground.values().asList(),
+        val fightConfigSpeedbarChanges: List<SpeedBarChange> = SpeedBarChange.values().asList(),
+        val buildingTypes: List<BuildingType> = BuildingType.values().asList(),
+        val resourceTypes: List<ResourceType> = ResourceType.values().asList(),
+        val partQualities: List<PartQuality> = PartQuality.values().asList(),
+        val partTypes: List<PartType> = PartType.values().asList()
+    )
 }

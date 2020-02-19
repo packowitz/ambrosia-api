@@ -3,7 +3,7 @@ package io.pacworx.ambrosia.vehicle
 enum class PartType(val slot: VehicleSlot) {
     ENGINE(VehicleSlot.ENGINE),
     FRAME(VehicleSlot.FRAME),
-    COMPUTER(VehicleSlot.BOARD_COMPUTER),
+    COMPUTER(VehicleSlot.COMPUTER),
     SMOKE_BOMB(VehicleSlot.SPECIAL),
     RAILGUN(VehicleSlot.SPECIAL),
     SNIPER_SCOPE(VehicleSlot.SPECIAL),

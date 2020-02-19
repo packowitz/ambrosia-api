@@ -29,16 +29,17 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         return heroRepository.findAllById(heroIds.distinct())
     }
 
-    fun recruitHero(player: Player, heroBaseId: Long): HeroDto {
+    fun recruitHero(player: Player, heroBaseId: Long, level: Int): HeroDto {
         val heroBase = heroBaseRepository.findByIdOrNull(heroBaseId)
             ?: throw RuntimeException("Unknown base hero #$heroBaseId")
-        return asHeroDto(recruitHero(player, heroBase))
+        return asHeroDto(recruitHero(player, heroBase, level))
     }
 
-    fun recruitHero(player: Player, heroBase: HeroBase): Hero {
+    fun recruitHero(player: Player, heroBase: HeroBase, level: Int = 1): Hero {
         return heroRepository.save(Hero(
             playerId = player.id,
             heroBase = heroBase,
+            level = level,
             maxXp = propertyService.getHeroMaxXp(1),
             ascPointsMax = propertyService.getHeroMaxAsc(0)
         ))

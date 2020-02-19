@@ -5,6 +5,8 @@ import io.pacworx.ambrosia.enums.SkillActiveTrigger
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.hero.base.HeroBase
 import javax.persistence.*
+import kotlin.math.ceil
+import kotlin.math.max
 
 @Entity
 data class Hero(
@@ -49,10 +51,11 @@ data class Hero(
     var boots: Gear? = null
 ) {
 
-    constructor(playerId: Long, heroBase: HeroBase, maxXp: Int, ascPointsMax: Int) : this(
+    constructor(playerId: Long, heroBase: HeroBase, maxXp: Int, ascPointsMax: Int, level: Int) : this(
         playerId = playerId,
         heroBase = heroBase,
-        stars = heroBase.rarity.stars,
+        stars = max(heroBase.rarity.stars, (level % 10).takeIf { it > 0 }?.let { (level / 10) + 1 } ?: level / 10),
+        level= level,
         maxXp = maxXp,
         ascPointsMax = ascPointsMax
     ) {

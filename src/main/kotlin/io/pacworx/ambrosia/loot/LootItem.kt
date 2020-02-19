@@ -1,7 +1,12 @@
 package io.pacworx.ambrosia.loot
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
+import io.pacworx.ambrosia.enums.GearSet
+import io.pacworx.ambrosia.enums.JewelType
 import io.pacworx.ambrosia.resources.ResourceType
+import io.pacworx.ambrosia.vehicle.PartQuality
+import io.pacworx.ambrosia.vehicle.PartType
 import javax.persistence.*
 
 @Entity
@@ -16,7 +21,23 @@ data class LootItem(
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     var resourceType: ResourceType? = null,
-    var resourceAmount: Int? = null,
+    var resourceFrom: Int? = null,
+    var resourceTo: Int? = null,
     var heroBaseId: Long? = null,
-    var gearLootId: Long? = null
-)
+    var heroLevel: Int? = null,
+    var gearLootId: Long? = null,
+    @JsonIgnore var jewelTypeNames: String?,
+    var jewelLevel: Int? = null,
+    var vehicleBaseId: Long? = null,
+    var vehiclePartType: PartType? = null,
+    var vehiclePartQuality: PartQuality? = null
+    ) {
+
+    fun getJewelTypes(): List<JewelType> {
+        return jewelTypeNames?.takeIf { it.isNotEmpty() }?.split(";")?.map { JewelType.valueOf(it) } ?: listOf()
+    }
+
+    fun setJewelTypes(types: List<JewelType>) {
+        this.jewelTypeNames = types.joinToString(separator = ";")
+    }
+}
