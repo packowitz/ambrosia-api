@@ -13,12 +13,15 @@ import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapRepository
+import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesRepository
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.vehicle.VehiclePartRepository
+import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
@@ -26,6 +29,7 @@ import java.nio.charset.StandardCharsets
 
 @Service
 class PlayerService(private val playerRepository: PlayerRepository,
+                    private val progressRepository: ProgressRepository,
                     private val heroService: HeroService,
                     private val heroRepository: HeroRepository,
                     private val gearRepository: GearRepository,
@@ -36,7 +40,9 @@ class PlayerService(private val playerRepository: PlayerRepository,
                     private val mapService: MapService,
                     private val propertyService: PropertyService,
                     private val resourcesRepository: ResourcesRepository,
-                    private val resourcesService: ResourcesService) {
+                    private val resourcesService: ResourcesService,
+                    private val vehicleRepository: VehicleRepository,
+                    private val vehiclePartRepository: VehiclePartRepository) {
 
     @Value("\${ambrosia.pw-salt-one}")
     private lateinit var pwSalt1: String
@@ -107,12 +113,15 @@ class PlayerService(private val playerRepository: PlayerRepository,
     }
 
     fun response(player: Player, token: String? = null): PlayerActionResponse {
+        val progress = progressRepository.getOne(player.id)
         val resources = resourcesService.getResources(player)
         val heroes = heroRepository.findAllByPlayerIdOrderByStarsDescLevelDescHeroBase_IdAscIdAsc(player.id)
             .map { heroService.asHeroDto(it) }
         val gears = gearRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
         val jewelries = jewelryRepository.findAllByPlayerId(player.id)
         val buildings = buildingRepository.findAllByPlayerId(player.id)
+        val vehicles = vehicleRepository.findAllByPlayerId(player.id)
+        val vehicleParts = vehiclePartRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
         val playerMaps = simplePlayerMapRepository.findAllByPlayerId(player.id)
         val currentMap = mapService.getCurrentPlayerMap(player)
         val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusInAndPreviousBattleIdNull(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN, BattleStatus.STAGE_PASSED))
@@ -120,10 +129,13 @@ class PlayerService(private val playerRepository: PlayerRepository,
             resources = resources,
             token = token,
             player = player,
+            progress = progress,
             heroes = heroes,
             gears = gears,
             jewelries = jewelries,
             buildings = buildings,
+            vehicles = vehicles,
+            vehicleParts = vehicleParts,
             playerMaps = playerMaps,
             currentMap = currentMap,
             ongoingBattle = ongoingBattle)
