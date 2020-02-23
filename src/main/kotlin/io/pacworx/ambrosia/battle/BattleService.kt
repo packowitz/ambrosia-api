@@ -13,6 +13,7 @@ import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.team.Team
 import io.pacworx.ambrosia.team.TeamRepository
+import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 import kotlin.math.min
@@ -25,7 +26,8 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val aiService: AiService,
                     private val propertyService: PropertyService,
                     private val fightRepository: FightRepository,
-                    private val teamRepository: TeamRepository) {
+                    private val teamRepository: TeamRepository,
+                    private val vehicleRepository: VehicleRepository) {
 
     companion object {
         const val SPEEDBAR_MAX: Int = 10000
@@ -67,6 +69,7 @@ class BattleService(private val playerRepository: PlayerRepository,
             hero3Id = request.hero3Id
             hero4Id = request.hero4Id
         }
+        val vehicle = request.vehicleId?.let { vehicleRepository.getOne(it) }?.takeIf { it.playerId == player.id }
         val fightStage = fight.stages.find { it.stage == 1 } ?: throw RuntimeException("Fight " + fight.name + " has no stages defined.")
         val heroes = heroService.loadHeroes(listOfNotNull(
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
@@ -78,6 +81,7 @@ class BattleService(private val playerRepository: PlayerRepository,
             mapId = mapTile?.mapId,
             mapPosX = mapTile?.posX,
             mapPosY = mapTile?.posY,
+            vehicle = vehicle,
             playerId = player.id,
             playerName = player.name,
             opponentName = fight.name + " Stage-" + fightStage.stage,

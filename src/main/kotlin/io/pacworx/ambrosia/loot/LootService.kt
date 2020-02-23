@@ -52,7 +52,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
             LootItemType.RESOURCE -> LootItemResult(resource = openResourceItem(player, item))
             LootItemType.HERO -> LootItemResult(hero = openHeroItem(player, item))
             LootItemType.GEAR -> LootItemResult(gear = openGearItem(player, item))
-            LootItemType.JEWEL -> LootItemResult(jewelry = openJewelItem(player, item))
+            LootItemType.JEWEL -> LootItemResult(jewelry = openJewelItem(player, item), jewelLevel = item.jewelLevel)
             LootItemType.VEHICLE -> LootItemResult(vehicle = openVehicleItem(player, item))
             LootItemType.VEHICLE_PART -> LootItemResult(vehiclePart = openVehiclePartItem(player, item))
         }
@@ -116,6 +116,7 @@ data class LootItemResult(
     val hero: HeroDto? = null,
     val gear: Gear? = null,
     val jewelry: Jewelry? = null,
+    val jewelLevel: Int? = null,
     val vehicle: Vehicle? = null,
     val vehiclePart: VehiclePart? = null
 )

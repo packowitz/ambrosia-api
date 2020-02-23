@@ -201,6 +201,7 @@ data class StartDuellRequest(
 
 data class StartBattleRequest(
     val type: TeamType,
+    val vehicleId: Long?,
     val hero1Id: Long?,
     val hero2Id: Long?,
     val hero3Id: Long?,

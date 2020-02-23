@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("vehicle")
 class VehicleController(
     private val vehicleRepository: VehicleRepository,
+    private val vehiclePartRepository: VehiclePartRepository,
     private val vehicleService: VehicleService
 ) {
 
@@ -30,5 +31,54 @@ class VehicleController(
         }
         vehicleService.activateVehicle(player, vehicle)
         return PlayerActionResponse(vehicles = listOf(vehicle))
+    }
+
+    @PostMapping("{vehicleId}/deactivate")
+    @Transactional
+    fun deactivateVehicle(@ModelAttribute("player") player: Player, @PathVariable vehicleId: Long): PlayerActionResponse {
+        val vehicle = vehicleRepository.getOne(vehicleId)
+        if (vehicle.playerId != player.id) {
+            throw RuntimeException("You don't own vehicle $vehicleId")
+        }
+        vehicle.slot = null
+        return PlayerActionResponse(vehicles = listOf(vehicle))
+    }
+
+    @PostMapping("{vehicleId}/plugin/{partId}")
+    @Transactional
+    fun pluginPart(@ModelAttribute("player") player: Player,
+                   @PathVariable vehicleId: Long,
+                   @PathVariable partId: Long): PlayerActionResponse {
+        val vehicle = vehicleRepository.getOne(vehicleId)
+        if (vehicle.playerId != player.id) {
+            throw RuntimeException("You don't own vehicle $vehicleId")
+        }
+        val part = vehiclePartRepository.getOne(partId)
+        if (part.playerId != player.id) {
+            throw RuntimeException("You don't own part $partId")
+        }
+        vehicleService.plugInPart(vehicle, part)
+        return PlayerActionResponse(vehicles = listOf(vehicle), vehicleParts = listOf(part))
+    }
+
+
+    @PostMapping("{vehicleId}/unplug/{partId}")
+    @Transactional
+    fun unplugPart(@ModelAttribute("player") player: Player,
+                   @PathVariable vehicleId: Long,
+                   @PathVariable partId: Long): PlayerActionResponse {
+        val vehicle = vehicleRepository.getOne(vehicleId)
+        if (vehicle.playerId != player.id) {
+            throw RuntimeException("You don't own vehicle $vehicleId")
+        }
+        val part = vehiclePartRepository.getOne(partId)
+        if (part.playerId != player.id) {
+            throw RuntimeException("You don't own part $partId")
+        }
+        if (part.equippedTo != vehicle.id) {
+            throw RuntimeException("Part is not plugged in to selected vehicle")
+        }
+        vehicleService.unplugPart(vehicle, part)
+        return PlayerActionResponse(vehicles = listOf(vehicle), vehicleParts = listOf(part))
     }
 }

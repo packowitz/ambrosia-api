@@ -8,3 +8,5 @@ create table progress (
 insert into progress(player_id) (select id from player);
 
 alter table vehicle add column if not exists slot int;
+
+alter table battle add column if not exists vehicle_id bigint;
