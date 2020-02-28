@@ -14,6 +14,7 @@ import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.team.Team
 import io.pacworx.ambrosia.team.TeamRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
+import io.pacworx.ambrosia.vehicle.VehicleService
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 import kotlin.math.min
@@ -27,7 +28,8 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val propertyService: PropertyService,
                     private val fightRepository: FightRepository,
                     private val teamRepository: TeamRepository,
-                    private val vehicleRepository: VehicleRepository) {
+                    private val vehicleRepository: VehicleRepository,
+                    private val vehicleService: VehicleService) {
 
     companion object {
         const val SPEEDBAR_MAX: Int = 10000
@@ -54,10 +56,7 @@ class BattleService(private val playerRepository: PlayerRepository,
             oppHero3 = asBattleHero(request.oppPlayerId, request.oppHero3Id, HeroPosition.OPP3, heroes),
             oppHero4 = asBattleHero(request.oppPlayerId, request.oppHero4Id, HeroPosition.OPP4, heroes)
         ))
-        battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
-            hero.priority = idx
-        }
-        return startBattle(battle)
+        return initBattle(battle)
     }
 
     @Transactional
@@ -94,10 +93,7 @@ class BattleService(private val playerRepository: PlayerRepository,
             oppHero3 = asBattleHero(heroId = fightStage.hero3Id, position = HeroPosition.OPP3, heroes = heroes),
             oppHero4 = asBattleHero(heroId = fightStage.hero4Id, position = HeroPosition.OPP4, heroes = heroes)
         ))
-        battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
-            hero.priority = idx
-        }
-        return startBattle(battle)
+        return initBattle(battle)
     }
 
     fun repeatTestBattle(prevBattle: Battle): Battle {
@@ -135,9 +131,14 @@ class BattleService(private val playerRepository: PlayerRepository,
             oppHero3 = asBattleHero(heroId = if (fightStage != null) fightStage.hero3Id else prevBattle.oppHero3?.heroId, position = HeroPosition.OPP3, heroes = heroes),
             oppHero4 = asBattleHero(heroId = if (fightStage != null) fightStage.hero4Id else prevBattle.oppHero4?.heroId, position = HeroPosition.OPP4, heroes = heroes)
         ))
+        return initBattle(battle)
+    }
+
+    private fun initBattle(battle: Battle): Battle {
         battle.allHeroes().shuffled().forEachIndexed { idx, hero ->
             hero.priority = idx
         }
+        battle.vehicle?.let { vehicleService.applyPartsToBattle(it, battle) }
         return startBattle(battle)
     }
 

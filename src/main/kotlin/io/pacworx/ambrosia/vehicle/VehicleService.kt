@@ -119,4 +119,15 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
 
         }
     }
+
+    fun getStageHealing(vehicle: Vehicle): Int {
+        return vehicle.getAllParts().sumBy { part ->
+            PropertyType.values().find {
+                it.partType == part.type && it.partQuality == part.quality
+            }?.let { propType ->
+                propertyService.getAllProperties(propType)
+                    .filter { it.vehicleStat == VehicleStat.STAGE_HEAL }.sumBy { it.value1 }
+            } ?: 0
+        }
+    }
 }
