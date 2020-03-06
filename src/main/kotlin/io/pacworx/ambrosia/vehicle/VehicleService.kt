@@ -80,17 +80,17 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
                 return prevPart
             }
             VehicleSlot.SPECIAL -> {
-                if (vehicle.specialPart1 == null && vehicle.baseVehicle.specialPart1Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart1Quality!!)) {
+                if (vehicle.specialPart1 == null && vehicle.baseVehicle.specialPart1 == part.type && vehicle.baseVehicle.specialPart1Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart1Quality!!)) {
                     part.equippedTo = vehicle.id
                     vehicle.specialPart1 = part
                     return null
                 }
-                if (vehicle.specialPart2 == null && vehicle.baseVehicle.specialPart2Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart2Quality!!)) {
+                if (vehicle.specialPart2 == null && vehicle.baseVehicle.specialPart2 == part.type && vehicle.baseVehicle.specialPart2Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart2Quality!!)) {
                     part.equippedTo = vehicle.id
                     vehicle.specialPart2 = part
                     return null
                 }
-                if (vehicle.specialPart3 == null && vehicle.baseVehicle.specialPart3Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart3Quality!!)) {
+                if (vehicle.specialPart3 == null && vehicle.baseVehicle.specialPart3 == part.type && vehicle.baseVehicle.specialPart3Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart3Quality!!)) {
                     part.equippedTo = vehicle.id
                     vehicle.specialPart3 = part
                     return null
