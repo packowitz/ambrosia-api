@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.battle
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.properties.PropertyService
+import io.pacworx.ambrosia.vehicle.Vehicle
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.time.Instant
@@ -25,8 +26,13 @@ data class Battle(
     var fight: Fight? = null,
     var fightStage: Int? = null,
     val mapId: Long? = null,
-    @Column(name = "map_pos_x") val mapPosX: Int? = null,
-    @Column(name = "map_pos_y") val mapPosY: Int? = null,
+    @Column(name = "map_pos_x")
+    val mapPosX: Int? = null,
+    @Column(name = "map_pos_y")
+    val mapPosY: Int? = null,
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
+    val vehicle: Vehicle? = null,
     val playerId: Long,
     val playerName: String,
     val opponentId: Long? = null,

@@ -9,11 +9,15 @@ import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.gear.Jewelry
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.resources.Resources
+import io.pacworx.ambrosia.vehicle.Vehicle
+import io.pacworx.ambrosia.vehicle.VehiclePart
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PlayerActionResponse(
     val player: Player? = null,
+    val progress: Progress? = null,
     val resources: Resources? = null,
     val token: String? = null,
     val hero: HeroDto? = null,
@@ -23,7 +27,9 @@ data class PlayerActionResponse(
     val gears: List<Gear>? = null,
     val gearIdsRemovedFromArmory: List<Long>? = null,
     val jewelries: List<Jewelry>? = null,
-    val buildings: List<Building> ? = null,
+    val buildings: List<Building>? = null,
+    val vehicles: List<Vehicle>? = null,
+    val vehicleParts: List<VehiclePart>? = null,
     val playerMaps: List<PlayerMapResolved>? = null,
     val currentMap: PlayerMapResolved? = null,
     val ongoingBattle: Battle? = null,

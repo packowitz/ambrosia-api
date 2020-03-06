@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.vehicle
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity
@@ -11,6 +12,7 @@ data class Vehicle(
     @JoinColumn(name = "base_vehicle_id")
     val baseVehicle: VehicleBase,
     val level: Int = 1,
+    var slot: Int? = null,
     @OneToOne
     @JoinColumn(name = "engine_part_id")
     var engine: VehiclePart? = null,
@@ -29,4 +31,10 @@ data class Vehicle(
     @OneToOne
     @JoinColumn(name = "special_part3id")
     var specialPart3: VehiclePart? = null
-)
+) {
+
+    @JsonIgnore
+    fun getAllParts(): List<VehiclePart> {
+        return listOfNotNull(engine, frame, computer, specialPart1, specialPart2, specialPart3)
+    }
+}

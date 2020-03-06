@@ -33,6 +33,7 @@ data class LootItem(
     var vehiclePartQuality: PartQuality? = null
     ) {
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     fun getJewelTypes(): List<JewelType> {
         return jewelTypeNames?.takeIf { it.isNotEmpty() }?.split(";")?.map { JewelType.valueOf(it) } ?: listOf()
     }
