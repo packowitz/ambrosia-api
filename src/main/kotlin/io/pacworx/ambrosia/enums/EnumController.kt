@@ -11,6 +11,7 @@ import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.vehicle.PartQuality
 import io.pacworx.ambrosia.vehicle.PartType
+import io.pacworx.ambrosia.vehicle.VehicleStat
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -49,6 +50,7 @@ class EnumController {
         val buildingTypes: List<BuildingType> = BuildingType.values().asList(),
         val resourceTypes: List<ResourceType> = ResourceType.values().asList(),
         val partQualities: List<PartQuality> = PartQuality.values().asList(),
-        val partTypes: List<PartType> = PartType.values().asList()
+        val partTypes: List<PartType> = PartType.values().asList(),
+        val vehicleStats: List<VehicleStat> = VehicleStat.values().asList()
     )
 }

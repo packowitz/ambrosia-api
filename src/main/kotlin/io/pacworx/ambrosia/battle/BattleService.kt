@@ -15,6 +15,7 @@ import io.pacworx.ambrosia.team.Team
 import io.pacworx.ambrosia.team.TeamRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import io.pacworx.ambrosia.vehicle.VehicleService
+import io.pacworx.ambrosia.vehicle.VehicleStat
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 import kotlin.math.min
@@ -320,13 +321,15 @@ class BattleService(private val playerRepository: PlayerRepository,
             battle.allPlayerHeroesAlive().forEach { hero -> hero.buffs.removeIf { it.duration <= 0 } }
         }
         if (config.hpHealing > 0) {
+            val healPerc = config.hpHealing + (config.hpHealing * vehicleService.getStat(battle.vehicle, VehicleStat.STAGE_HEAL) / 100)
             battle.allPlayerHeroesAlive().forEach { hero ->
-                hero.currentHp = min(hero.currentHp + (hero.heroHp * config.hpHealing / 100), hero.heroHp)
+                hero.currentHp = min(hero.currentHp + (hero.heroHp * healPerc / 100), hero.heroHp)
             }
         }
         if (config.armorRepair > 0) {
+            val repair = config.armorRepair + (config.armorRepair * vehicleService.getStat(battle.vehicle, VehicleStat.STAGE_ARMOR) / 100)
             battle.allPlayerHeroesAlive().forEach { hero ->
-                hero.currentArmor = min(hero.currentArmor + (hero.heroArmor * config.armorRepair / 100), hero.heroArmor)
+                hero.currentArmor = min(hero.currentArmor + (hero.heroArmor * repair / 100), hero.heroArmor)
             }
         }
         when (config.speedBarChange) {

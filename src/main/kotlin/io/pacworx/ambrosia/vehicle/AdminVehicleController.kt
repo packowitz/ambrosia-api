@@ -19,5 +19,22 @@ class AdminVehicleController(private val vehicleBaseRepository: VehicleBaseRepos
 
     @PostMapping
     @Transactional
-    fun saveVehicle(@RequestBody @Valid vehicle: VehicleBase): VehicleBase = vehicleBaseRepository.save(vehicle)
+    fun saveVehicle(@RequestBody @Valid vehicle: VehicleBase): VehicleBase {
+        if (vehicle.specialPart1 != null) {
+            if (vehicle.specialPart1.slot != VehicleSlot.SPECIAL || vehicle.specialPart1Quality == null) {
+                throw RuntimeException("Invalid special part 1")
+            }
+        } else { vehicle.specialPart1Quality = null }
+        if (vehicle.specialPart2 != null) {
+            if (vehicle.specialPart2.slot != VehicleSlot.SPECIAL || vehicle.specialPart2Quality == null) {
+                throw RuntimeException("Invalid special part 2")
+            }
+        } else { vehicle.specialPart2Quality = null }
+        if (vehicle.specialPart3 != null) {
+            if (vehicle.specialPart3.slot != VehicleSlot.SPECIAL || vehicle.specialPart3Quality == null) {
+                throw RuntimeException("Invalid special part 3")
+            }
+        } else { vehicle.specialPart3Quality = null }
+        return vehicleBaseRepository.save(vehicle)
+    }
 }

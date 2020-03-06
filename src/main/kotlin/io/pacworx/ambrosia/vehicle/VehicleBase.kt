@@ -15,7 +15,10 @@ data class VehicleBase(
     val engineQuality: PartQuality = PartQuality.BASIC,
     val frameQuality: PartQuality = PartQuality.BASIC,
     val computerQuality: PartQuality = PartQuality.BASIC,
-    val specialPart1Quality: PartQuality?,
-    val specialPart2Quality: PartQuality?,
-    val specialPart3Quality: PartQuality?
+    val specialPart1: PartType?,
+    var specialPart1Quality: PartQuality?,
+    val specialPart2: PartType?,
+    var specialPart2Quality: PartQuality?,
+    val specialPart3: PartType?,
+    var specialPart3Quality: PartQuality?
 )

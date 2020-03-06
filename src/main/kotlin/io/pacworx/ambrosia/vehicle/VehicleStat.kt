@@ -4,9 +4,7 @@ import io.pacworx.ambrosia.battle.Battle
 
 enum class VehicleStat {
     OFFLINE_BATTLE_SPEED,
-    BATTLE_XP {
-
-    },
+    BATTLE_XP,
     BATTLE_ASC_POINTS,
     BATTLE_RESSOURCE_LOOT,
     ARMOR {

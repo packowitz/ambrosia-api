@@ -19,9 +19,11 @@ class VehicleController(
     private val vehicleService: VehicleService
 ) {
 
-    @PostMapping("{vehicleId}/activate")
+    @PostMapping("{vehicleId}/activate/{slot}")
     @Transactional
-    fun activateVehicle(@ModelAttribute("player") player: Player, @PathVariable vehicleId: Long): PlayerActionResponse {
+    fun activateVehicle(@ModelAttribute("player") player: Player,
+                        @PathVariable vehicleId: Long,
+                        @PathVariable slot: Int): PlayerActionResponse {
         val vehicle = vehicleRepository.getOne(vehicleId)
         if (vehicle.playerId != player.id) {
             throw RuntimeException("You don't own vehicle $vehicleId")
@@ -29,7 +31,7 @@ class VehicleController(
         if (vehicle.slot != null) {
             throw RuntimeException("Vehicle $vehicleId is already activated")
         }
-        vehicleService.activateVehicle(player, vehicle)
+        vehicleService.activateVehicle(player, vehicle, slot)
         return PlayerActionResponse(vehicles = listOf(vehicle))
     }
 
@@ -57,8 +59,11 @@ class VehicleController(
         if (part.playerId != player.id) {
             throw RuntimeException("You don't own part $partId")
         }
-        vehicleService.plugInPart(vehicle, part)
-        return PlayerActionResponse(vehicles = listOf(vehicle), vehicleParts = listOf(part))
+        if (part.level > vehicle.level) {
+            throw RuntimeException("Part level too high. You need to level up the vehicle to plugin that part.")
+        }
+        val prevPart = vehicleService.plugInPart(vehicle, part)
+        return PlayerActionResponse(vehicles = listOf(vehicle), vehicleParts = listOfNotNull(part, prevPart))
     }
 
 

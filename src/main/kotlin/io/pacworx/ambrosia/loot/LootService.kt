@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.loot
 
+import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.GearService
@@ -13,6 +14,7 @@ import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.vehicle.Vehicle
 import io.pacworx.ambrosia.vehicle.VehiclePart
 import io.pacworx.ambrosia.vehicle.VehicleService
+import io.pacworx.ambrosia.vehicle.VehicleStat
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import kotlin.random.Random
@@ -32,13 +34,13 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
         return openLootBox(player, lootBox)
     }
 
-    fun openLootBox(player: Player, lootBox: LootBox): LootBoxResult {
+    fun openLootBox(player: Player, lootBox: LootBox, battle: Battle? = null): LootBoxResult {
         var slotOpened = -1
         val items: MutableList<LootItemResult> = mutableListOf()
         lootBox.items.forEach { item ->
             if (item.slotNumber != slotOpened && procs(item.chance)) {
                 slotOpened = item.slotNumber
-                items.add(openLootItem(player, item))
+                items.add(openLootItem(player, item, battle))
             }
         }
         return LootBoxResult(
@@ -47,9 +49,9 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
         )
     }
 
-    fun openLootItem(player: Player, item: LootItem): LootItemResult {
+    private fun openLootItem(player: Player, item: LootItem, battle: Battle?): LootItemResult {
         return when(item.type) {
-            LootItemType.RESOURCE -> LootItemResult(resource = openResourceItem(player, item))
+            LootItemType.RESOURCE -> LootItemResult(resource = openResourceItem(player, item, battle))
             LootItemType.HERO -> LootItemResult(hero = openHeroItem(player, item))
             LootItemType.GEAR -> LootItemResult(gear = openGearItem(player, item))
             LootItemType.JEWEL -> LootItemResult(jewelry = openJewelItem(player, item), jewelLevel = item.jewelLevel)
@@ -58,8 +60,9 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
         }
     }
 
-    private fun openResourceItem(player: Player, item: LootItem): ResourceLoot {
-        val amount =  Random.nextInt(item.resourceFrom!!, item.resourceTo!! + 1)
+    private fun openResourceItem(player: Player, item: LootItem, battle: Battle? = null): ResourceLoot {
+        var amount =  Random.nextInt(item.resourceFrom!!, item.resourceTo!! + 1)
+        amount += amount * vehicleService.getStat(battle?.vehicle, VehicleStat.BATTLE_RESSOURCE_LOOT)
         resourcesService.gainResources(player, item.resourceType!!, amount)
         return ResourceLoot(item.resourceType!!, amount)
     }

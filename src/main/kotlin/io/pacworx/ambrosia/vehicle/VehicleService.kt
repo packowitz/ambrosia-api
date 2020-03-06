@@ -32,65 +32,68 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
         ))
     }
 
-    fun activateVehicle(player: Player, vehicle: Vehicle) {
+    fun activateVehicle(player: Player, vehicle: Vehicle, slot: Int? = null) {
         val garageSlots = progressRepository.getOne(player.id).garageSlots
         val vehicles = vehicleRepository.findAllByPlayerId(player.id).filter { it.slot != null }
-        (1..garageSlots).forEach { slot ->
-            if (vehicles.none{ it.slot == slot }) {
-                vehicle.slot = slot
-                return
+        if (slot != null) {
+            if (vehicles.any{ it.slot == slot }) {
+                throw RuntimeException("Slot $slot is already occupied")
+            }
+            vehicle.slot = slot
+        } else {
+            (1..garageSlots).forEach { slotNr ->
+                if (vehicles.none{ it.slot == slotNr }) {
+                    vehicle.slot = slotNr
+                    return
+                }
             }
         }
     }
 
-    fun plugInPart(vehicle: Vehicle, part: VehiclePart) {
+    fun plugInPart(vehicle: Vehicle, part: VehiclePart): VehiclePart? {
         when(part.type.slot) {
             VehicleSlot.ENGINE -> {
-                if (vehicle.engine != null) {
-                    throw RuntimeException("Vehicle already has an engine plugged in")
-                }
                 if (part.quality.isHigherThan(vehicle.baseVehicle.engineQuality)) {
                     throw RuntimeException("Part Quality is too high")
                 }
+                val prevPart = vehicle.engine?.also { it.equippedTo = null }
                 part.equippedTo = vehicle.id
                 vehicle.engine = part
+                return prevPart
             }
             VehicleSlot.FRAME -> {
-                if (vehicle.frame != null) {
-                    throw RuntimeException("Vehicle already has a frame plugged in")
-                }
-
                 if (part.quality.isHigherThan(vehicle.baseVehicle.frameQuality)) {
                     throw RuntimeException("Part Quality is too high")
                 }
+                val prevPart = vehicle.frame?.also { it.equippedTo = null }
                 part.equippedTo = vehicle.id
                 vehicle.frame = part
+                return prevPart
             }
             VehicleSlot.COMPUTER -> {
-                if (vehicle.computer != null) {
-                    throw RuntimeException("Vehicle already has a computer plugged in")
-                }
                 if (part.quality.isHigherThan(vehicle.baseVehicle.computerQuality)) {
                     throw RuntimeException("Part Quality is too high")
                 }
+                val prevPart = vehicle.computer?.also { it.equippedTo = null }
                 part.equippedTo = vehicle.id
                 vehicle.computer = part
+                return prevPart
             }
             VehicleSlot.SPECIAL -> {
-                if (vehicle.specialPart1 == null && vehicle.baseVehicle.specialPart1Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart1Quality)) {
+                if (vehicle.specialPart1 == null && vehicle.baseVehicle.specialPart1Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart1Quality!!)) {
                     part.equippedTo = vehicle.id
                     vehicle.specialPart1 = part
-                    return
+                    return null
                 }
-                if (vehicle.specialPart2 == null && vehicle.baseVehicle.specialPart2Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart2Quality)) {
+                if (vehicle.specialPart2 == null && vehicle.baseVehicle.specialPart2Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart2Quality!!)) {
                     part.equippedTo = vehicle.id
                     vehicle.specialPart2 = part
-                    return
+                    return null
                 }
-                if (vehicle.specialPart3 == null && vehicle.baseVehicle.specialPart3Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart3Quality)) {
+                if (vehicle.specialPart3 == null && vehicle.baseVehicle.specialPart3Quality != null && !part.quality.isHigherThan(vehicle.baseVehicle.specialPart3Quality!!)) {
                     part.equippedTo = vehicle.id
                     vehicle.specialPart3 = part
-                    return
+                    return null
                 }
                 throw RuntimeException("No valid spot for this special item")
             }
@@ -120,14 +123,14 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
         }
     }
 
-    fun getStageHealing(vehicle: Vehicle): Int {
-        return vehicle.getAllParts().sumBy { part ->
+    fun getStat(vehicle: Vehicle?, stat: VehicleStat): Int {
+        return vehicle?.getAllParts()?.sumBy { part ->
             PropertyType.values().find {
                 it.partType == part.type && it.partQuality == part.quality
             }?.let { propType ->
                 propertyService.getAllProperties(propType)
-                    .filter { it.vehicleStat == VehicleStat.STAGE_HEAL }.sumBy { it.value1 }
+                    .filter { it.vehicleStat == stat }.sumBy { it.value1 }
             } ?: 0
-        }
+        } ?: 0
     }
 }

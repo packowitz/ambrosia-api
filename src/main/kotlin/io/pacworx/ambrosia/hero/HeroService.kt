@@ -1,11 +1,14 @@
 package io.pacworx.ambrosia.hero
 
+import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.enums.Rarity
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.hero.base.HeroBase
 import io.pacworx.ambrosia.hero.base.HeroBaseRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.properties.PropertyService
+import io.pacworx.ambrosia.vehicle.VehicleService
+import io.pacworx.ambrosia.vehicle.VehicleStat
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import kotlin.random.Random
@@ -13,7 +16,8 @@ import kotlin.random.Random
 @Service
 class HeroService(val heroBaseRepository: HeroBaseRepository,
                   val heroRepository: HeroRepository,
-                  val propertyService: PropertyService) {
+                  val propertyService: PropertyService,
+                  val vehicleService: VehicleService) {
 
     fun asHeroDto(hero: Hero): HeroDto {
         val heroDto = HeroDto(hero)
@@ -84,20 +88,24 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         return recruitHero(player, heroBaseRepository.findAllByRarityAndRecruitableIsTrue(rarity?.let { it } ?: default).random())
     }
 
-    fun wonFight(player: Player, heroIds: List<Long>, fight: Fight): List<HeroDto> {
-        return heroIds.map { heroId ->
+    fun wonFight(player: Player, heroIds: List<Long>, battle: Battle): List<HeroDto>? {
+        return battle.fight?.let { fight ->
+            heroIds.map { heroId ->
             val hero = heroRepository.getOne(heroId)
             if (hero.playerId != player.id) {
                 throw RuntimeException("Cannot gain xp for a hero you don't own.")
             }
-            heroGainXp(hero, fight.xp)
+            val xp = fight.xp + (fight.xp * vehicleService.getStat(battle.vehicle, VehicleStat.BATTLE_XP) / 100)
+            val ascPoints = fight.ascPoints + (fight.ascPoints * vehicleService.getStat(battle.vehicle, VehicleStat.BATTLE_ASC_POINTS) / 100)
+            heroGainXp(hero, xp)
             when(hero.level) {
-                in 1..fight.level -> heroGainAsc(hero, fight.ascPoints)
-                fight.level + 1 -> heroGainAsc(hero, fight.ascPoints / 2)
-                fight.level + 2 -> heroGainAsc(hero, fight.ascPoints / 4)
+                in 1..fight.level -> heroGainAsc(hero, ascPoints)
+                fight.level + 1 -> heroGainAsc(hero, ascPoints / 2)
+                fight.level + 2 -> heroGainAsc(hero, ascPoints / 4)
                 else -> {}
             }
             asHeroDto(hero)
+            }
         }
     }
 
