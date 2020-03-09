@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.enums
 
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
+import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.maps.FightIcon
 import io.pacworx.ambrosia.maps.MapBackground
 import io.pacworx.ambrosia.maps.MapTileStructure
@@ -51,6 +52,7 @@ class EnumController {
         val resourceTypes: List<ResourceType> = ResourceType.values().asList(),
         val partQualities: List<PartQuality> = PartQuality.values().asList(),
         val partTypes: List<PartType> = PartType.values().asList(),
-        val vehicleStats: List<VehicleStat> = VehicleStat.values().asList()
+        val vehicleStats: List<VehicleStat> = VehicleStat.values().asList(),
+        val lootItemTypes: List<LootItemType> = LootItemType.values().asList()
     )
 }
