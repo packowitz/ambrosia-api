@@ -38,7 +38,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
         var slotOpened = -1
         val items: MutableList<LootItemResult> = mutableListOf()
         lootBox.items.forEach { item ->
-            if (item.slotNumber != slotOpened && procs(item.chance)) {
+            if (item.slotNumber != slotOpened && itemProcs(player, item)) {
                 slotOpened = item.slotNumber
                 items.add(openLootItem(player, item, battle))
             }
@@ -47,6 +47,10 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
             lootBoxId = lootBox.id,
             items = items
         )
+    }
+
+    private fun itemProcs(player: Player, item: LootItem): Boolean {
+        return item.color?.let { it == player.color } != false && procs(item.chance)
     }
 
     private fun openLootItem(player: Player, item: LootItem, battle: Battle?): LootItemResult {

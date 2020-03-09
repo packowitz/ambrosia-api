@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.loot
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
+import io.pacworx.ambrosia.enums.Color
 import io.pacworx.ambrosia.enums.GearSet
 import io.pacworx.ambrosia.enums.JewelType
 import io.pacworx.ambrosia.resources.ResourceType
@@ -16,6 +17,8 @@ data class LootItem(
     val slotNumber: Int,
     val itemOrder: Int,
     val chance: Int,
+    @Enumerated(EnumType.STRING)
+    val color: Color?,
     @Enumerated(EnumType.STRING)
     val type: LootItemType,
     @Enumerated(EnumType.STRING)
