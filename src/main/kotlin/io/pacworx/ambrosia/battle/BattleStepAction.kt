@@ -24,5 +24,6 @@ data class BattleStepAction(
     val buff: Buff? = null,
     val buffIntensity: Int? = null,
     val buffDuration: Int? = null,
-    val buffDurationChange: Int? = null
+    val buffDurationChange: Int? = null,
+    val speedbarFill: Int? = null
 )

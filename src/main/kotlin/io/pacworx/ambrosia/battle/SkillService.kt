@@ -93,7 +93,7 @@ class SkillService(private val propertyService: PropertyService) {
                     if (!excludedActionTypes.contains(SkillActionType.SPEEDBAR)) {
                         findTargets(battle, hero, action, target)
                                 .forEach {
-                                    applySpeedbarAction(it, action)
+                                    applySpeedbarAction(step, it, action)
                                 }
                     }
                 SkillActionType.HEAL ->
@@ -637,12 +637,21 @@ class SkillService(private val propertyService: PropertyService) {
         )
     }
 
-    private fun applySpeedbarAction(hero: BattleHero, action: HeroSkillAction) {
+    private fun applySpeedbarAction(step: BattleStep, hero: BattleHero, action: HeroSkillAction) {
         when (action.effect) {
-            PERCENTAGE -> hero.currentSpeedBar = max(0, hero.currentSpeedBar + (hero.currentSpeedBar * action.effectValue) / 100)
-            PERCENTAGE_MAX -> hero.currentSpeedBar = max(0, hero.currentSpeedBar + (SPEEDBAR_MAX * action.effectValue) / 100)
-            else -> {}
+            PERCENTAGE -> (hero.currentSpeedBar * action.effectValue) / 100
+            PERCENTAGE_MAX -> (SPEEDBAR_MAX * action.effectValue) / 100
+            else -> 0
+        }.takeIf { it > 0 }?.let {
+            hero.currentSpeedBar += it
+            step.addAction(BattleStepAction(
+                heroPosition = hero.position,
+                heroName = hero.heroBase.name,
+                type = BattleStepActionType.SPEEDBAR,
+                speedbarFill = it
+            ))
         }
+
     }
 
     private fun applySpecialAction(battle: Battle, step: BattleStep, hero: BattleHero, action: HeroSkillAction, target: BattleHero) {
