@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.player
 import com.google.common.hash.Hashing
 import io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.battle.BattleStatus
+import io.pacworx.ambrosia.battle.offline.MissionRepository
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
@@ -13,6 +14,7 @@ import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapRepository
+import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
@@ -42,7 +44,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
                     private val resourcesRepository: ResourcesRepository,
                     private val resourcesService: ResourcesService,
                     private val vehicleRepository: VehicleRepository,
-                    private val vehiclePartRepository: VehiclePartRepository) {
+                    private val vehiclePartRepository: VehiclePartRepository,
+                    private val missionRepository: MissionRepository) {
 
     @Value("\${ambrosia.pw-salt-one}")
     private lateinit var pwSalt1: String
@@ -93,6 +96,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
             rareGenome = getStartingAmount(ResourceType.RARE_GENOME),
             epicGenome = getStartingAmount(ResourceType.EPIC_GENOME)
         ))
+        progressRepository.save(Progress(playerId = player.id))
         return player
     }
 
@@ -124,6 +128,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
         val vehicleParts = vehiclePartRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
         val playerMaps = simplePlayerMapRepository.findAllByPlayerId(player.id)
         val currentMap = mapService.getCurrentPlayerMap(player)
+        val missions = missionRepository.findAllByPlayerId(player.id)
         val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusInAndPreviousBattleIdNull(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN, BattleStatus.STAGE_PASSED))
         return PlayerActionResponse(
             resources = resources,
@@ -138,6 +143,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
             vehicleParts = vehicleParts,
             playerMaps = playerMaps,
             currentMap = currentMap,
+            missions = missions,
             ongoingBattle = ongoingBattle)
     }
 

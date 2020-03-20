@@ -13,6 +13,7 @@ data class Vehicle(
     val baseVehicle: VehicleBase,
     val level: Int = 1,
     var slot: Int? = null,
+    var missionId: Long? = null,
     @OneToOne
     @JoinColumn(name = "engine_part_id")
     var engine: VehiclePart? = null,

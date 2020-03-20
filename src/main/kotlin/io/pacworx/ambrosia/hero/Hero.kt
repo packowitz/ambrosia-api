@@ -13,6 +13,7 @@ data class Hero(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val playerId: Long,
+    var missionId: Long? = null,
     @ManyToOne
     @JoinColumn(name = "hero_base_id")
     val heroBase: HeroBase,

@@ -173,7 +173,7 @@ class BattleService(private val playerRepository: PlayerRepository,
             BattleHero(playerId, heroService.asHeroDto(it), it.heroBase, position)
         }}
 
-    private fun nextTurn(battle: Battle) {
+    fun nextTurn(battle: Battle) {
         val activeHero = nextActiveHero(battle)
         if (activeHero != null) {
 
@@ -254,7 +254,7 @@ class BattleService(private val playerRepository: PlayerRepository,
             })
     }
 
-    private fun battleEnded(battle: Battle): Boolean {
+    fun battleEnded(battle: Battle): Boolean {
         if (battle.status == BattleStatus.STAGE_PASSED && battle.nextBattleId == null) {
             initNextStage(battle)
             return true

@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.common
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.battle.Battle
+import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.maps.PlayerMapResolved
 import io.pacworx.ambrosia.gear.Gear
@@ -33,5 +34,7 @@ data class PlayerActionResponse(
     val playerMaps: List<PlayerMapResolved>? = null,
     val currentMap: PlayerMapResolved? = null,
     val ongoingBattle: Battle? = null,
-    val looted: List<Looted>? = null
+    val looted: List<Looted>? = null,
+    val missions: List<Mission>? = null,
+    val missionIdFinished: Long? = null
 )

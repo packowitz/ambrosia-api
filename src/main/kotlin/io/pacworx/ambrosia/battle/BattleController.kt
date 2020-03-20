@@ -7,14 +7,20 @@ import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.HeroSkill
 import io.pacworx.ambrosia.loot.LootService
-import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import javax.transaction.Transactional
 
 @RestController
@@ -168,16 +174,19 @@ class BattleController(private val battleService: BattleService,
             val map = battle.mapId?.let {
                 mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
             }
-            val heroes = heroService.wonFight(player, battle.allPlayerHeroes().map { it.heroId }, battle)
-            val loot = battle.fight?.lootBox?.let { lootService.openLootBox(player, it, battle) }
+            val heroes = heroService.wonFight(player, battle.allPlayerHeroes().map { it.heroId }, battle.fight, battle.vehicle)
+            val loot = battle.fight?.lootBox?.let { lootService.openLootBox(player, it, battle.vehicle) }
             PlayerActionResponse(
                 player = player,
                 resources = loot?.let { resourcesService.getResources(player) } ?: resources,
                 currentMap = map,
                 heroes = (heroes ?: listOf()) + (loot?.items?.filter { it.hero != null }?.map { it.hero!! } ?: listOf()),
-                gears = loot?.items?.filter { it.gear != null }?.map { it.gear!! }?.takeIf{ it.isNotEmpty() },
+                gears = loot?.items?.filter { it.gear != null }?.map { it.gear!! }?.takeIf { it.isNotEmpty() },
+                jewelries = loot?.items?.filter { it.jewelry != null }?.map { it.jewelry!! }?.takeIf { it.isNotEmpty() },
+                vehicles = loot?.items?.filter { it.vehicle != null }?.map { it.vehicle!! }?.takeIf { it.isNotEmpty() },
+                vehicleParts = loot?.items?.filter { it.vehiclePart != null }?.map { it.vehiclePart!! }?.takeIf { it.isNotEmpty() },
                 ongoingBattle = battle,
-                looted = loot?.items?.map { Looted(it) }
+                looted = loot?.items?.map { lootService.asLooted(it) }
             )
         } else {
             PlayerActionResponse(resources = resources, ongoingBattle = battle)

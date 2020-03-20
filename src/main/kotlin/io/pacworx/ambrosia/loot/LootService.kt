@@ -1,6 +1,5 @@
 package io.pacworx.ambrosia.loot
 
-import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.GearService
@@ -28,19 +27,49 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
                   private val jewelryRepository: JewelryRepository,
                   private val vehicleService: VehicleService) {
 
+    fun asLooted(item: LootItemResult): Looted =
+        Looted(
+            type = resolveLootType(item),
+            resourceType = item.resource?.type,
+            jewelType = item.jewelry?.type,
+            value = resolveLootValue(item)
+        )
+
+    private fun resolveLootType(item: LootItemResult): LootItemType =
+        when {
+            item.resource != null -> LootItemType.RESOURCE
+            item.hero != null -> LootItemType.HERO
+            item.gear != null -> LootItemType.GEAR
+            item.jewelry != null -> LootItemType.JEWEL
+            item.vehicle != null -> LootItemType.VEHICLE
+            item.vehiclePart != null -> LootItemType.VEHICLE_PART
+            else -> throw RuntimeException("LootItemType not resolvable")
+        }
+
+    private fun resolveLootValue(item: LootItemResult): Long =
+        when {
+            item.resource != null -> item.resource.amount.toLong()
+            item.hero != null -> item.hero.id
+            item.gear != null -> item.gear.id
+            item.jewelry != null -> item.jewelLevel!!.toLong()
+            item.vehicle != null -> item.vehicle.id
+            item.vehiclePart != null -> item.vehiclePart.id
+            else -> throw RuntimeException("LootItemType not resolvable")
+        }
+
     fun openLootBox(player: Player, lootBoxId: Long): LootBoxResult {
         val lootBox = lootBoxRepository.findByIdOrNull(lootBoxId)
             ?: throw RuntimeException("Unknown LootBox #$lootBoxId")
         return openLootBox(player, lootBox)
     }
 
-    fun openLootBox(player: Player, lootBox: LootBox, battle: Battle? = null): LootBoxResult {
+    fun openLootBox(player: Player, lootBox: LootBox, vehicle: Vehicle? = null): LootBoxResult {
         var slotOpened = -1
         val items: MutableList<LootItemResult> = mutableListOf()
         lootBox.items.forEach { item ->
             if (item.slotNumber != slotOpened && itemProcs(player, item)) {
                 slotOpened = item.slotNumber
-                items.add(openLootItem(player, item, battle))
+                items.add(openLootItem(player, item, vehicle))
             }
         }
         return LootBoxResult(
@@ -53,9 +82,9 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
         return item.color?.let { it == player.color } != false && procs(item.chance)
     }
 
-    private fun openLootItem(player: Player, item: LootItem, battle: Battle?): LootItemResult {
+    private fun openLootItem(player: Player, item: LootItem, vehicle: Vehicle?): LootItemResult {
         return when(item.type) {
-            LootItemType.RESOURCE -> LootItemResult(resource = openResourceItem(player, item, battle))
+            LootItemType.RESOURCE -> LootItemResult(resource = openResourceItem(player, item, vehicle))
             LootItemType.HERO -> LootItemResult(hero = openHeroItem(player, item))
             LootItemType.GEAR -> LootItemResult(gear = openGearItem(player, item))
             LootItemType.JEWEL -> LootItemResult(jewelry = openJewelItem(player, item), jewelLevel = item.jewelLevel)
@@ -64,9 +93,9 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
         }
     }
 
-    private fun openResourceItem(player: Player, item: LootItem, battle: Battle? = null): ResourceLoot {
+    private fun openResourceItem(player: Player, item: LootItem, vehicle: Vehicle? = null): ResourceLoot {
         var amount =  Random.nextInt(item.resourceFrom!!, item.resourceTo!! + 1)
-        amount += amount * vehicleService.getStat(battle?.vehicle, VehicleStat.BATTLE_RESSOURCE_LOOT)
+        amount += amount * vehicleService.getStat(vehicle, VehicleStat.BATTLE_RESSOURCE_LOOT)
         resourcesService.gainResources(player, item.resourceType!!, amount)
         return ResourceLoot(item.resourceType!!, amount)
     }

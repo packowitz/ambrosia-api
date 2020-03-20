@@ -85,7 +85,7 @@ class MapController(private val mapService: MapService,
             jewelries = result.items.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },
             vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
-            looted = result.items.map { Looted(it) }
+            looted = result.items.map { lootService.asLooted(it) }
         )
     }
 

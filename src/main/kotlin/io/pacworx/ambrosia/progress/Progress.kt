@@ -8,5 +8,6 @@ data class Progress(
     @Id
     val playerId: Long,
     val garageSlots: Int = 1,
-    val offlineBattleSpeed: Int = 0
+    val offlineBattleSpeed: Int = 100,
+    val maxOfflineBattlesPerMission: Int = 5
 )
