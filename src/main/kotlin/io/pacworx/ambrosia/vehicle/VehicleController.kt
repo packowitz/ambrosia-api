@@ -42,6 +42,9 @@ class VehicleController(
         if (vehicle.playerId != player.id) {
             throw RuntimeException("You don't own vehicle $vehicleId")
         }
+        if (vehicle.missionId != null) {
+            throw RuntimeException("You cannot deactivate a vehicle which is on a mission")
+        }
         vehicle.slot = null
         return PlayerActionResponse(vehicles = listOf(vehicle))
     }
@@ -58,6 +61,9 @@ class VehicleController(
         val part = vehiclePartRepository.getOne(partId)
         if (part.playerId != player.id) {
             throw RuntimeException("You don't own part $partId")
+        }
+        if (vehicle.missionId != null) {
+            throw RuntimeException("You cannot plugin a part to a vehicle which is on a mission")
         }
         if (part.level > vehicle.level) {
             throw RuntimeException("Part level too high. You need to level up the vehicle to plugin that part.")
@@ -79,6 +85,9 @@ class VehicleController(
         val part = vehiclePartRepository.getOne(partId)
         if (part.playerId != player.id) {
             throw RuntimeException("You don't own part $partId")
+        }
+        if (vehicle.missionId != null) {
+            throw RuntimeException("You cannot unplug a part from a vehicle which is on a mission")
         }
         if (part.equippedTo != vehicle.id) {
             throw RuntimeException("Part is not plugged in to selected vehicle")

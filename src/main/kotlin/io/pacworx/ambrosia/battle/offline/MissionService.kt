@@ -26,6 +26,12 @@ class MissionService(private val battleService: BattleService,
                      private val heroRepository: HeroRepository,
                      private val vehicleService: VehicleService) {
 
+    fun getAllMissions(player: Player): List<Mission> {
+        val missions = missionRepository.findAllByPlayerIdOrderBySlotNumber(player.id)
+        missions.forEach { check(it) }
+        return missions
+    }
+
     fun check(mission: Mission) {
         val now = Instant.now()
         mission.battles.forEach { battle ->
@@ -58,7 +64,8 @@ class MissionService(private val battleService: BattleService,
         var finishTimestamp: Instant? = null
         val battles = (1..request.battleTimes).map {
             val battle = battleService.initCampaign(player, mapTile, fight, startBattleRequest)
-            val durationInMs = (executeBattle(battle) * MILLISECONDS_PER_TURN * 100) / battleSpeed
+            val turns = executeBattle(battle)
+            val durationInMs = (turns * MILLISECONDS_PER_TURN * 100) / battleSpeed
             startTimestamp = finishTimestamp ?: missionStartTimestamp
             finishTimestamp = startTimestamp!!.plusMillis(durationInMs)
             offlineBattleRepository.save(OfflineBattle(
@@ -88,6 +95,7 @@ class MissionService(private val battleService: BattleService,
         listOfNotNull(request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id)
             .map { heroRepository.getOne(it) }
             .forEach { hero -> hero.missionId = mission.id }
+        check(mission)
         return mission
     }
 
@@ -100,7 +108,7 @@ class MissionService(private val battleService: BattleService,
         }
         return battle.nextBattleId?.let { nextBattleid ->
             val nextStageBattle = battleRepository.getOne(nextBattleid)
-            executeBattle(nextStageBattle)
+            battle.turnsDone + executeBattle(nextStageBattle)
         } ?: battle.turnsDone
     }
 

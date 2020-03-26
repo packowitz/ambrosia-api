@@ -29,6 +29,9 @@ class BuildingController(private val buildingRepository: BuildingRepository,
         val heroes = heroRepository.findAllByPlayerIdAndIdIn(player.id,
             listOfNotNull(heroId, request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id, request.hero5Id, request.hero6Id)
         )
+        if (heroes.any { it.missionId != null }) {
+            throw RuntimeException("You cannot level or feed heroes being on a mission")
+        }
         val hero = heroes.find { it.id == heroId }
             ?: throw RuntimeException("Unknown hero $heroId for player ${player.id}")
         val deletedHeroIds = heroes.filter { it.id != heroId }.map {
@@ -57,6 +60,9 @@ class BuildingController(private val buildingRepository: BuildingRepository,
         val heroes = heroRepository.findAllByPlayerIdAndIdIn(player.id,
             listOfNotNull(heroId, request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id, request.hero5Id, request.hero6Id)
         )
+        if (heroes.any { it.missionId != null }) {
+            throw RuntimeException("You cannot level or feed heroes being on a mission")
+        }
         val hero = heroes.find { it.id == heroId }
             ?: throw RuntimeException("Unknown hero $heroId for player ${player.id}")
         val deletedHeroIds = heroes.filter { it.id != heroId }.map {

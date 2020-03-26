@@ -1,9 +1,6 @@
 package io.pacworx.ambrosia.vehicle
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
 data class VehiclePart(
@@ -12,6 +9,7 @@ data class VehiclePart(
     val playerId: Long,
     var equippedTo: Long? = null,
     val type: PartType,
+    @Enumerated(EnumType.STRING)
     val quality: PartQuality,
     val level: Int = 1
 )

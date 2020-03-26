@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.hero
 
+import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.enums.Rarity
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.hero.base.HeroBase
@@ -88,27 +89,42 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         return recruitHero(player, heroBaseRepository.findAllByRarityAndRecruitableIsTrue(rarity?.let { it } ?: default).random())
     }
 
-    fun wonFight(player: Player, heroIds: List<Long>, fight: Fight?, vehicle: Vehicle?, battleCount: Int = 1): List<HeroDto>? {
-        return fight?.takeIf { battleCount >= 1 }?.let { _ ->
+    fun wonMission(mission: Mission, vehicle: Vehicle): List<HeroDto> {
+        vehicle.missionId = null
+        return listOfNotNull(mission.hero1Id, mission.hero2Id, mission.hero3Id, mission.hero4Id)
+            .map { heroRepository.getOne(it) }
+            .map { hero ->
+                if (mission.wonCount > 0) {
+                    (1..mission.wonCount).forEach { _ -> gainXpAndAsc(hero, mission.fight, vehicle) }
+                }
+                hero.missionId = null
+                hero
+            }.map { asHeroDto(it) }
+    }
+
+    fun wonFight(player: Player, heroIds: List<Long>, fight: Fight?, vehicle: Vehicle?): List<HeroDto>? {
+        return fight?.let { _ ->
             heroIds.map { heroId ->
                 val hero = heroRepository.getOne(heroId)
                 if (hero.playerId != player.id) {
                     throw RuntimeException("Cannot gain xp for a hero you don't own.")
                 }
-                val xp = fight.xp + (fight.xp * vehicleService.getStat(vehicle, VehicleStat.BATTLE_XP) / 100)
-                val ascPoints = fight.ascPoints + (fight.ascPoints * vehicleService.getStat(vehicle, VehicleStat.BATTLE_ASC_POINTS) / 100)
-                (1..battleCount).forEach { _ ->
-                    heroGainXp(hero, xp)
-                    when (hero.level) {
-                        in 1..fight.level -> heroGainAsc(hero, ascPoints)
-                        fight.level + 1 -> heroGainAsc(hero, ascPoints / 2)
-                        fight.level + 2 -> heroGainAsc(hero, ascPoints / 4)
-                        else -> {}
-                    }
-                }
-
+                gainXpAndAsc(hero, fight, vehicle)
                 asHeroDto(hero)
             }
+        }
+    }
+
+    private fun gainXpAndAsc(hero: Hero, fight: Fight, vehicle: Vehicle?) {
+        val xp = fight.xp + (fight.xp * vehicleService.getStat(vehicle, VehicleStat.BATTLE_XP) / 100)
+        val ascPoints = fight.ascPoints + (fight.ascPoints * vehicleService.getStat(vehicle, VehicleStat.BATTLE_ASC_POINTS) / 100)
+
+        heroGainXp(hero, xp)
+        when (hero.level) {
+            in 1..fight.level -> heroGainAsc(hero, ascPoints)
+            fight.level + 1 -> heroGainAsc(hero, ascPoints / 2)
+            fight.level + 2 -> heroGainAsc(hero, ascPoints / 4)
+            else -> {}
         }
     }
 

@@ -173,6 +173,7 @@ data class PlayerMapTileResolved(
     val fightIcon: FightIcon? = null,
     val fightId: Long? = null,
     val fightRepeatable: Boolean? = null,
+    val victoriousFight: Boolean? = null,
     val portalToMapId: Long? = null,
     val buildingType: BuildingType? = null
 ) {
@@ -186,6 +187,7 @@ data class PlayerMapTileResolved(
         playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightIcon },
         playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightId },
         playerTile?.takeIf { it.discovered }?.let { tile.fightRepeatable },
+        playerTile?.takeIf { it.discovered }?.let { it.victoriousFight },
         playerTile?.takeIf { it.discovered }?.let { tile.portalToMapId },
         playerTile?.takeIf { it.discovered }?.let { tile.buildingType }
     )

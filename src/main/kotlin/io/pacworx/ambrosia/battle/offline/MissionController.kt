@@ -76,7 +76,12 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         }
 
         val mission = missionService.executeMission(player, progress, mapTile, fight, vehicle, request)
-        return PlayerActionResponse(resources = resources, missions = listOf(mission))
+        return PlayerActionResponse(
+            resources = resources,
+            missions = listOf(mission),
+            vehicles = listOf(vehicle),
+            heroes = heroService.loadHeroes(heroIds).map { heroService.asHeroDto(it) }
+        )
     }
 
 
@@ -89,44 +94,34 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         return PlayerActionResponse(missions = listOf(mission))
     }
 
-    @PostMapping("{missionId}/collect")
+    @PostMapping("{missionId}/finish")
     @Transactional
-    fun collectLoot(@ModelAttribute("player") player: Player, @PathVariable missionId: Long): PlayerActionResponse {
+    fun finishMission(@ModelAttribute("player") player: Player, @PathVariable missionId: Long): PlayerActionResponse {
         val mission = missionRepository.findByIdOrNull(missionId)
             ?: return PlayerActionResponse(missionIdFinished = missionId)
         if (mission.playerId != player.id) {
             throw RuntimeException("Cannot collect a mission you are not owning")
         }
-        if (!mission.isMissionFinished()) {
-            throw RuntimeException("Cannot collect a mission that is still ongoing")
-        }
 
         val vehicle = vehicleRepository.getOne(mission.vehicleId)
-        val heroes = heroService.wonFight(
-            player,
-            listOfNotNull(mission.hero1Id, mission.hero2Id, mission.hero3Id, mission.hero4Id),
-            mission.fight,
-            vehicle
-        ) ?: listOf()
+        val heroes = heroService.wonMission(mission, vehicle)
 
-        val lootItems = mission.battles.flatMap { battle ->
-            if (battle.battleWon) {
-                val lootBoxResult = lootService.openLootBox(player, mission.fight.lootBox, vehicle)
-                battle.looted = lootBoxResult.items.map { lootService.asLooted(it) }
-                lootBoxResult.items
-            } else {
-                listOf()
-            }
+        mission.battles.filter { !it.battleFinished }.forEach { it.cancelled = true }
+        val lootItems = mission.battles.filter { it.isBattleSuccess() == true }.flatMap { battle ->
+            val lootBoxResult = lootService.openLootBox(player, mission.fight.lootBox, vehicle)
+            battle.looted = lootBoxResult.items.map { lootService.asLooted(it) }
+            lootBoxResult.items
         }
 
         missionRepository.delete(mission)
+        mission.lootCollected = true
         return PlayerActionResponse(
             player = player,
             resources = resourcesService.getResources(player),
             heroes = heroes + lootItems.filter { it.hero != null }.map { it.hero!! },
             gears = lootItems.filter { it.gear != null }.map { it.gear!! }.takeIf { it.isNotEmpty() },
             jewelries = lootItems.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },
-            vehicles = lootItems.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
+            vehicles = listOf(vehicle) + (lootItems.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() } ?: listOf()),
             vehicleParts = lootItems.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
             missions = listOf(mission),
             missionIdFinished = missionId

@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface MissionRepository : JpaRepository<Mission, Long> {
-    fun findAllByPlayerId(playerId: Long): List<Mission>
+    fun findAllByPlayerIdOrderBySlotNumber(playerId: Long): List<Mission>
 }

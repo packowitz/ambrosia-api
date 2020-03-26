@@ -28,7 +28,7 @@ class AdminServiceAccountController(val playerRepository: PlayerRepository,
     @GetMapping("{id}/heroes")
     fun getServiceAccountHeroes(@PathVariable id: Long): List<HeroDto> {
         val serviceAccount = playerRepository.findByServiceAccountIsTrueAndId(id)
-        return heroRepository.findAllByPlayerIdOrderByStarsDescLevelDescHeroBase_IdAscIdAsc(serviceAccount.id)
+        return heroRepository.findAllByPlayerIdOrderByLevelDescStarsDescHeroBase_IdAscIdAsc(serviceAccount.id)
             .map { heroService.asHeroDto(it) }
     }
 

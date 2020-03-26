@@ -13,13 +13,14 @@ import javax.persistence.JoinColumn
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.OrderBy
+import javax.persistence.Transient
 
 @Entity
 data class Mission(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val playerId: Long,
-    @OneToOne(cascade = [CascadeType.ALL])
+    @OneToOne
     @JoinColumn(name = "fightId")
     val fight: Fight,
     val vehicleId: Long,
@@ -39,13 +40,16 @@ data class Mission(
     @OrderBy("start_timestamp")
     var battles: List<OfflineBattle> = ArrayList()
 
-    fun isMissionFinished(): Boolean = Instant.now().isAfter(finishTimestamp)
+    @Transient
+    var lootCollected: Boolean? = null
 
-    fun nextUpdateSeconds(): Long = battles.find { it.battleStarted && !it.battleFinished }?.secondsUntilDone() ?: 0
+    fun isMissionFinished(): Boolean = lootCollected == true || Instant.now().isAfter(finishTimestamp)
+
+    fun getNextUpdateSeconds(): Long = battles.find { it.battleStarted && !it.battleFinished }?.getSecondsUntilDone() ?: 0
 
     fun getDuration(): Long = startTimestamp.until(finishTimestamp, ChronoUnit.SECONDS)
 
-    fun secondsUntilDone(): Long =
+    fun getSecondsUntilDone(): Long =
         if (isMissionFinished()) { 0 } else { Instant.now().until(finishTimestamp, ChronoUnit.SECONDS) }
 
 }

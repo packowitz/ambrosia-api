@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.vehicle
 import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
+import io.pacworx.ambrosia.properties.PropertyCategory
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
 import org.springframework.stereotype.Service
@@ -113,9 +114,9 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
     fun applyPartsToBattle(vehicle: Vehicle, battle: Battle) {
         vehicle.getAllParts().forEach { part ->
             PropertyType.values().find {
-                it.partType == part.type && it.partQuality == part.quality
+                it.category == PropertyCategory.VEHICLE && it.partType == part.type && it.partQuality == part.quality
             }?.let { propType ->
-                propertyService.getAllProperties(propType).forEach { prop ->
+                propertyService.getProperties(propType, part.level).forEach { prop ->
                     prop.vehicleStat?.apply(battle, prop.value1)
                 }
             }
@@ -126,9 +127,9 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
     fun getStat(vehicle: Vehicle?, stat: VehicleStat): Int {
         return vehicle?.getAllParts()?.sumBy { part ->
             PropertyType.values().find {
-                it.partType == part.type && it.partQuality == part.quality
+                it.category == PropertyCategory.VEHICLE && it.partType == part.type && it.partQuality == part.quality
             }?.let { propType ->
-                propertyService.getAllProperties(propType)
+                propertyService.getProperties(propType, part.level)
                     .filter { it.vehicleStat == stat }.sumBy { it.value1 }
             } ?: 0
         } ?: 0

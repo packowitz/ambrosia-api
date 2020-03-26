@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.hero.base.HeroBase
 import kotlin.math.roundToInt
 
 data class HeroDto(val id: Long,
+                   val missionId: Long?,
                    val heroBase: HeroBase,
                    var stars: Int,
                    var level: Int,
@@ -113,7 +114,7 @@ data class HeroDto(val id: Long,
     var confuseChance: Int = 0
     var damageReduction: Int = 0
 
-    constructor(hero: Hero) : this(hero.id, hero.heroBase, hero.stars, hero.level, hero.xp, hero.maxXp, hero.skill1, hero.skill2, hero.skill3, hero.skill4, hero.skill5, hero.skill6, hero.skill7, hero.skillPoints, hero.ascLvl, hero.ascPoints, hero.ascPointsMax, hero.weapon, hero.shield, hero.helmet, hero.armor, hero.pants, hero.boots)
+    constructor(hero: Hero) : this(hero.id, hero.missionId, hero.heroBase, hero.stars, hero.level, hero.xp, hero.maxXp, hero.skill1, hero.skill2, hero.skill3, hero.skill4, hero.skill5, hero.skill6, hero.skill7, hero.skillPoints, hero.ascLvl, hero.ascPoints, hero.ascPointsMax, hero.weapon, hero.shield, hero.helmet, hero.armor, hero.pants, hero.boots)
 
     fun getGears(): List<Gear> {
         val gears = mutableListOf<Gear>()
