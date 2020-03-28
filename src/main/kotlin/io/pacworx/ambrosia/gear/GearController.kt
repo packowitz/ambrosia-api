@@ -25,6 +25,9 @@ class GearController(private val gearRepository: GearRepository,
     @Transactional
     fun equipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): PlayerActionResponse {
         val hero = heroRepository.getOne(request.heroId)
+        if (hero.missionId != null) {
+            throw RuntimeException("You cannot equip gear to a hero on a mission")
+        }
         val gear = gearRepository.getOne(request.gearId)
         if (hero.playerId != player.id || gear.playerId != player.id) {
             throw RuntimeException("You are only allowed to do actions on your own heroes")
@@ -43,6 +46,9 @@ class GearController(private val gearRepository: GearRepository,
     @Transactional
     fun unequipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): PlayerActionResponse {
         val hero = heroRepository.getOne(request.heroId)
+        if (hero.missionId != null) {
+            throw RuntimeException("You cannot unequip gear from a hero on a mission")
+        }
         val gear = gearRepository.getOne(request.gearId)
         if (hero.playerId != player.id || gear.playerId != player.id || gear.equippedTo != hero.id) {
             throw RuntimeException("You are only allowed to do actions on your own heroes")
