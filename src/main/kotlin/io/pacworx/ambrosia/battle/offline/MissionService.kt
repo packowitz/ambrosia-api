@@ -65,9 +65,9 @@ class MissionService(private val battleService: BattleService,
         val battles = (1..request.battleTimes).map {
             val battle = battleService.initCampaign(player, mapTile, fight, startBattleRequest)
             val turns = executeBattle(battle)
-            val durationInMs = (turns * MILLISECONDS_PER_TURN * 100) / battleSpeed
+            val durationInMs = (1000 * fight.travelDuration) + ((turns * fight.timePerTurn * 100) / battleSpeed)
             startTimestamp = finishTimestamp ?: missionStartTimestamp
-            finishTimestamp = startTimestamp!!.plusMillis(durationInMs)
+            finishTimestamp = startTimestamp!!.plusMillis(durationInMs.toLong())
             offlineBattleRepository.save(OfflineBattle(
                 battleId = battle.id,
                 startTimestamp = startTimestamp!!,
@@ -102,7 +102,7 @@ class MissionService(private val battleService: BattleService,
     private fun executeBattle(battle: Battle): Int {
         while (!battleService.battleEnded(battle)) {
             act(battle)
-            if (battle.turnsDone > MAX_TURNS) {
+            if (battle.turnsDone > battle.fight!!.maxTurnsPerStage) {
                 battle.status = BattleStatus.LOST
             }
         }
@@ -119,10 +119,5 @@ class MissionService(private val battleService: BattleService,
             BattleStatus.OPP_TURN -> battleService.nextTurn(battle)
             else -> {}
         }
-    }
-
-    companion object {
-        const val MAX_TURNS = 100
-        const val MILLISECONDS_PER_TURN: Long = 1000
     }
 }
