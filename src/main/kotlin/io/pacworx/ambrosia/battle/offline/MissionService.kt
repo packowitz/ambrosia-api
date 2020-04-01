@@ -110,13 +110,13 @@ class MissionService(private val battleService: BattleService,
             }
         }
         return battle.nextBattleId?.let { nextBattleid ->
+            log.info("Starting next stage for battle ${battle.id} for player ${battle.playerId}")
             val nextStageBattle = battleRepository.getOne(nextBattleid)
             battle.turnsDone + executeBattle(nextStageBattle)
         } ?: battle.turnsDone
     }
 
     private fun act(battle: Battle) {
-        log.info("Acting on battle ${battle.id} turn ${battle.turnsDone} status ${battle.status} for player ${battle.playerId}")
         when(battle.status) {
             BattleStatus.INIT -> battleService.startBattle(battle)
             BattleStatus.PLAYER_TURN -> {
@@ -126,7 +126,6 @@ class MissionService(private val battleService: BattleService,
                 }
             }
             BattleStatus.OPP_TURN -> battleService.nextTurn(battle)
-            BattleStatus.STAGE_PASSED -> log.info("Battle ${battle.id} is in status STAGE_PASSED and next battle id is ${battle.nextBattleId}")
             else -> {}
         }
     }
