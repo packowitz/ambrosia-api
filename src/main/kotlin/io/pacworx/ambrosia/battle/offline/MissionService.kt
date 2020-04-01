@@ -116,7 +116,7 @@ class MissionService(private val battleService: BattleService,
     }
 
     private fun act(battle: Battle) {
-        log.info("Acting on battle ${battle.id} for player ${battle.playerId}")
+        log.info("Acting on battle ${battle.id} turn ${battle.turnsDone} status ${battle.status} for player ${battle.playerId}")
         when(battle.status) {
             BattleStatus.INIT -> battleService.startBattle(battle)
             BattleStatus.PLAYER_TURN -> aiService.doAction(battle, battle.allHeroesAlive().find { it.position == battle.activeHero }!!)
