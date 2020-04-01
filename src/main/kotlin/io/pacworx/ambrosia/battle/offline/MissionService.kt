@@ -119,7 +119,12 @@ class MissionService(private val battleService: BattleService,
         log.info("Acting on battle ${battle.id} turn ${battle.turnsDone} status ${battle.status} for player ${battle.playerId}")
         when(battle.status) {
             BattleStatus.INIT -> battleService.startBattle(battle)
-            BattleStatus.PLAYER_TURN -> aiService.doAction(battle, battle.allHeroesAlive().find { it.position == battle.activeHero }!!)
+            BattleStatus.PLAYER_TURN -> {
+                aiService.doAction(battle, battle.allHeroesAlive().find { it.position == battle.activeHero }!!)
+                if (!battleService.battleEnded(battle)) {
+                    battleService.nextTurn(battle)
+                }
+            }
             BattleStatus.OPP_TURN -> battleService.nextTurn(battle)
             else -> {}
         }
