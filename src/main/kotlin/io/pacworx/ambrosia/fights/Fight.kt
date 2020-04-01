@@ -20,7 +20,10 @@ data class Fight(
     val costs: Int = 5,
     val xp: Int = 500,
     val level: Int = 5,
-    val ascPoints: Int = 10
+    val ascPoints: Int = 10,
+    val travelDuration: Int = 30,
+    val timePerTurn: Int = 1000,
+    val maxTurnsPerStage: Int = 100
 ) {
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "fight_id")
