@@ -126,6 +126,7 @@ class MissionService(private val battleService: BattleService,
                 }
             }
             BattleStatus.OPP_TURN -> battleService.nextTurn(battle)
+            BattleStatus.STAGE_PASSED -> log.info("Battle ${battle.id} is in status STAGE_PASSED and next battle id is ${battle.nextBattleId}")
             else -> {}
         }
     }
