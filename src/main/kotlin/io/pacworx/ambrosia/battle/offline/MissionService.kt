@@ -14,6 +14,7 @@ import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.vehicle.Vehicle
 import io.pacworx.ambrosia.vehicle.VehicleService
 import io.pacworx.ambrosia.vehicle.VehicleStat
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -25,6 +26,7 @@ class MissionService(private val battleService: BattleService,
                      private val missionRepository: MissionRepository,
                      private val heroRepository: HeroRepository,
                      private val vehicleService: VehicleService) {
+    private val log = KotlinLogging.logger {}
 
     fun getAllMissions(player: Player): List<Mission> {
         val missions = missionRepository.findAllByPlayerIdOrderBySlotNumber(player.id)
@@ -63,6 +65,7 @@ class MissionService(private val battleService: BattleService,
         var startTimestamp: Instant?
         var finishTimestamp: Instant? = null
         val battles = (1..request.battleTimes).map {
+            log.info("Starting Battle $it of ${request.battleTimes} for player ${player.id}")
             val battle = battleService.initCampaign(player, mapTile, fight, startBattleRequest)
             val turns = executeBattle(battle)
             val durationInMs = (turns * MILLISECONDS_PER_TURN * 100) / battleSpeed
@@ -113,6 +116,7 @@ class MissionService(private val battleService: BattleService,
     }
 
     private fun act(battle: Battle) {
+        log.info("Acting on battle ${battle.id} for player ${battle.playerId}")
         when(battle.status) {
             BattleStatus.INIT -> battleService.startBattle(battle)
             BattleStatus.PLAYER_TURN -> aiService.doAction(battle, battle.allHeroesAlive().find { it.position == battle.activeHero }!!)
