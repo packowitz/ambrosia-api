@@ -258,8 +258,10 @@ class BattleService(private val playerRepository: PlayerRepository,
     }
 
     fun battleEnded(battle: Battle): Boolean {
-        if (battle.status == BattleStatus.STAGE_PASSED && battle.nextBattleId == null) {
-            initNextStage(battle)
+        if (battle.status == BattleStatus.STAGE_PASSED) {
+            if (battle.nextBattleId == null) {
+                initNextStage(battle)
+            }
             return true
         }
         if (battle.status == BattleStatus.LOST || battle.status == BattleStatus.WON) {
