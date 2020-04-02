@@ -16,6 +16,7 @@ import io.pacworx.ambrosia.team.TeamRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import io.pacworx.ambrosia.vehicle.VehicleService
 import io.pacworx.ambrosia.vehicle.VehicleStat
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 import kotlin.math.min
@@ -31,6 +32,7 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val teamRepository: TeamRepository,
                     private val vehicleRepository: VehicleRepository,
                     private val vehicleService: VehicleService) {
+    private val log = KotlinLogging.logger {}
 
     companion object {
         const val SPEEDBAR_MAX: Int = 10000
@@ -155,6 +157,7 @@ class BattleService(private val playerRepository: PlayerRepository,
 
     @Transactional
     fun takeTurn(battle: Battle, activeHero: BattleHero, skill: HeroSkill, target: BattleHero): Battle {
+        log.info("Battle ${battle.id} turn ${battle.turnsDone} manual: hero ${activeHero.position} uses S${skill.number} on ${target.position}")
         skillService.useSkill(battle, activeHero, skill, target)
         if (!battleEnded(battle)) {
             nextTurn(battle)

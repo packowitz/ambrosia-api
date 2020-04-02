@@ -110,7 +110,7 @@ class MissionService(private val battleService: BattleService,
             }
         }
         return battle.nextBattleId?.let { nextBattleid ->
-            log.info("Starting next stage for battle ${battle.id} for player ${battle.playerId}")
+            log.info("Starting next stage for battle ${battle.id} for player ${battle.playerId} with battleId $nextBattleid")
             val nextStageBattle = battleRepository.getOne(nextBattleid)
             battle.turnsDone + executeBattle(nextStageBattle)
         } ?: battle.turnsDone
