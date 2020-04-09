@@ -11,5 +11,6 @@ data class VehiclePart(
     val type: PartType,
     @Enumerated(EnumType.STRING)
     val quality: PartQuality,
-    val level: Int = 1
+    var level: Int = 1,
+    var upgradeTriggered: Boolean = false
 )

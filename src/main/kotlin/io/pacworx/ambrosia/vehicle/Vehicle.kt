@@ -11,7 +11,8 @@ data class Vehicle(
     @ManyToOne
     @JoinColumn(name = "base_vehicle_id")
     val baseVehicle: VehicleBase,
-    val level: Int = 1,
+    var level: Int = 1,
+    var upgradeTriggered: Boolean = false,
     var slot: Int? = null,
     var missionId: Long? = null,
     @OneToOne

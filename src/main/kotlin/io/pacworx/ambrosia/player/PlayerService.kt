@@ -4,6 +4,7 @@ import com.google.common.hash.Hashing
 import io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.battle.BattleStatus
 import io.pacworx.ambrosia.battle.offline.MissionService
+import io.pacworx.ambrosia.upgrade.UpgradeService
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
@@ -45,7 +46,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
                     private val resourcesService: ResourcesService,
                     private val vehicleRepository: VehicleRepository,
                     private val vehiclePartRepository: VehiclePartRepository,
-                    private val missionService: MissionService) {
+                    private val missionService: MissionService,
+                    private val upgradeService: UpgradeService) {
 
     @Value("\${ambrosia.pw-salt-one}")
     private lateinit var pwSalt1: String
@@ -60,7 +62,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
             serviceAccount = serviceAccount
         ))
         buildingRepository.save(Building(playerId = player.id, type = BuildingType.BARRACKS))
-        buildingRepository.save(Building(playerId = player.id, type = BuildingType.STORAGE_0))
+        buildingRepository.save(Building(playerId = player.id, type = BuildingType.STORAGE))
         buildingRepository.save(Building(playerId = player.id, type = BuildingType.FORGE))
         resourcesRepository.save(Resources(
             playerId = player.id,
@@ -96,7 +98,11 @@ class PlayerService(private val playerRepository: PlayerRepository,
             rareGenome = getStartingAmount(ResourceType.RARE_GENOME),
             epicGenome = getStartingAmount(ResourceType.EPIC_GENOME)
         ))
-        progressRepository.save(Progress(playerId = player.id))
+        val progress = Progress(playerId = player.id)
+        propertyService.getProperties(PropertyType.BARRACKS_BUILDING, 1).forEach {
+            progress.barrackSize += it.value1
+        }
+        progressRepository.save(progress)
         return player
     }
 
@@ -117,6 +123,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
     }
 
     fun response(player: Player, token: String? = null): PlayerActionResponse {
+        val upgrades = upgradeService.getAllUpgrades(player)
         val progress = progressRepository.getOne(player.id)
         val resources = resourcesService.getResources(player)
         val heroes = heroRepository.findAllByPlayerIdOrderByLevelDescStarsDescHeroBase_IdAscIdAsc(player.id)
@@ -144,7 +151,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
             playerMaps = playerMaps,
             currentMap = currentMap,
             missions = missions,
-            ongoingBattle = ongoingBattle)
+            ongoingBattle = ongoingBattle,
+            upgrades = upgrades)
     }
 
     private fun getHash(name: String, password: String): String {

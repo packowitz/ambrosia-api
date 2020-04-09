@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.properties
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.properties.PropertyCategory.*
 import io.pacworx.ambrosia.vehicle.PartQuality
 import io.pacworx.ambrosia.vehicle.PartType
@@ -10,7 +11,9 @@ enum class PropertyType(
     @field:JsonFormat(shape = JsonFormat.Shape.STRING) val category: PropertyCategory,
     val description: String,
     val partType: PartType? = null,
-    val partQuality: PartQuality? = null) {
+    val partQuality: PartQuality? = null,
+    val buildingType: BuildingType? = null
+) {
     HP_ABS_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
     HP_PERC_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
     ARMOR_ABS_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
@@ -83,7 +86,27 @@ enum class PropertyType(
     PLAYER_LVL_RESOURCES(RESOURCES, "Resources gained on Player level up. Level 1 is starting level"),
     STORAGE_RESOURCES(RESOURCES, "Level: Building level. Resources stored in storage."),
 
-    UPGRADE_TIME_BUILDING(BUILDING, "Defines how long (Value in seconds) an upgrade takes"),
+    ACADEMY_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.ACADEMY, description = "Defines how long (in seconds) an upgrade to the given takes"),
+    ARENA_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.ARENA, description = "Defines how long (in seconds) an upgrade to the given takes"),
+    BARRACKS_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.BARRACKS, description = "Defines how long (in seconds) an upgrade to the given takes"),
+    BAZAAR_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.BAZAAR, description = "Defines how long (in seconds) an upgrade to the given takes"),
+    FORGE_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.FORGE, description = "Defines how long (in seconds) an upgrade to the given takes"),
+    GARAGE_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.GARAGE, description = "Defines how long (in seconds) an upgrade to the given takes"),
+    JEWELRY_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.JEWELRY, description = "Defines how long (in seconds) an upgrade to the given takes"),
+    LABORATORY_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.LABORATORY, description = "Defines how long (in seconds) an upgrade to the given takes"),
+    STORAGE_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.STORAGE, description = "Defines how long (in seconds) an upgrade to the given takes"),
+
+    ACADEMY_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.ACADEMY, description = "Defines the cost an upgrade to the given level costs"),
+    ARENA_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.ARENA, description = "Defines the cost an upgrade to the given level costs"),
+    BARRACKS_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.BARRACKS, description = "Defines the cost an upgrade to the given level costs"),
+    BAZAAR_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.BAZAAR, description = "Defines the cost an upgrade to the given level costs"),
+    FORGE_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.FORGE, description = "Defines the cost an upgrade to the given level costs"),
+    GARAGE_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.GARAGE, description = "Defines the cost an upgrade to the given level costs"),
+    JEWELRY_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.JEWELRY, description = "Defines the cost an upgrade to the given level costs"),
+    LABORATORY_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.LABORATORY, description = "Defines the cost an upgrade to the given level costs"),
+    STORAGE_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.STORAGE, description = "Defines the cost an upgrade to the given level costs"),
+
+    BARRACKS_BUILDING(BUILDING, "Defines the increase of the barrack's capacity for reaching each level"),
 
     ENGINE_PART_BASIC(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.BASIC),
     ENGINE_PART_MODERATE(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.MODERATE),

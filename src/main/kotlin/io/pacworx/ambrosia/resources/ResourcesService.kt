@@ -51,12 +51,23 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
         }
     }
 
-    fun spendResource(player: Player, type: ResourceType, amount: Int): Resources {
+    fun spendResource(player: Player, type: ResourceType, amount: Int): Resources =
+        spendResource(resourcesRepository.getOne(player.id), type, amount)
+
+    fun spendResource(resources: Resources, type: ResourceType, amount: Int): Resources {
         return when(type) {
-            ResourceType.STEAM -> spendSteam(player, amount)
-            ResourceType.COGWHEELS -> spendCogwheels(player, amount)
-            ResourceType.TOKENS -> spendTokens(player, amount)
-            else -> throw RuntimeException("Unimplemented resource: $type")
+            ResourceType.STEAM -> spendSteam(resources, amount)
+            ResourceType.COGWHEELS -> spendCogwheels(resources, amount)
+            ResourceType.TOKENS -> spendTokens(resources, amount)
+            ResourceType.COINS -> spendCoins(resources, amount)
+            ResourceType.RUBIES -> spendRubies(resources, amount)
+            ResourceType.METAL -> spendMetal(resources, amount)
+            ResourceType.IRON -> spendIron(resources, amount)
+            ResourceType.STEAL -> spendSteal(resources, amount)
+            ResourceType.WOOD -> spendWood(resources, amount)
+            ResourceType.BROWN_COAL -> spendBrownCoal(resources, amount)
+            ResourceType.BLACK_COAL -> spendBlackCoal(resources, amount)
+            else -> throw RuntimeException("Unimplemented resource to spend: $type")
         }
     }
 
@@ -114,6 +125,70 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             resources.premiumTokens += resources.tokens
             resources.tokens = 0
         }
+        return resources
+    }
+
+    fun spendCoins(resources: Resources, amount: Int): Resources {
+        if (amount > resources.coins) {
+            throw RuntimeException("You cannot spend $amount coins")
+        }
+        resources.coins -= amount
+        return resources
+    }
+
+    fun spendRubies(resources: Resources, amount: Int): Resources {
+        if (amount > resources.rubies) {
+            throw RuntimeException("You cannot spend $amount rubies")
+        }
+        resources.rubies -= amount
+        return resources
+    }
+
+    fun spendMetal(resources: Resources, amount: Int): Resources {
+        if (amount > resources.metal) {
+            throw RuntimeException("You cannot spend $amount metal")
+        }
+        resources.metal -= amount
+        return resources
+    }
+
+    fun spendIron(resources: Resources, amount: Int): Resources {
+        if (amount > resources.iron) {
+            throw RuntimeException("You cannot spend $amount iron")
+        }
+        resources.iron -= amount
+        return resources
+    }
+
+    fun spendSteal(resources: Resources, amount: Int): Resources {
+        if (amount > resources.steal) {
+            throw RuntimeException("You cannot spend $amount steal")
+        }
+        resources.steal -= amount
+        return resources
+    }
+
+    fun spendWood(resources: Resources, amount: Int): Resources {
+        if (amount > resources.wood) {
+            throw RuntimeException("You cannot spend $amount wood")
+        }
+        resources.wood -= amount
+        return resources
+    }
+
+    fun spendBrownCoal(resources: Resources, amount: Int): Resources {
+        if (amount > resources.brownCoal) {
+            throw RuntimeException("You cannot spend $amount brown coal")
+        }
+        resources.brownCoal -= amount
+        return resources
+    }
+
+    fun spendBlackCoal(resources: Resources, amount: Int): Resources {
+        if (amount > resources.blackCoal) {
+            throw RuntimeException("You cannot spend $amount black coal")
+        }
+        resources.blackCoal -= amount
         return resources
     }
 
