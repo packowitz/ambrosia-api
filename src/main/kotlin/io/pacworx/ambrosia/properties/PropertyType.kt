@@ -84,7 +84,6 @@ enum class PropertyType(
     WEAK_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
 
     PLAYER_LVL_RESOURCES(RESOURCES, "Resources gained on Player level up. Level 1 is starting level"),
-    STORAGE_RESOURCES(RESOURCES, "Level: Building level. Resources stored in storage."),
 
     ACADEMY_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.ACADEMY, description = "Defines how long (in seconds) an upgrade to the given takes"),
     ARENA_UP_TIME(category = BUILDING_UP_TIME, buildingType = BuildingType.ARENA, description = "Defines how long (in seconds) an upgrade to the given takes"),
@@ -106,7 +105,8 @@ enum class PropertyType(
     LABORATORY_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.LABORATORY, description = "Defines the cost an upgrade to the given level costs"),
     STORAGE_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.STORAGE, description = "Defines the cost an upgrade to the given level costs"),
 
-    BARRACKS_BUILDING(BUILDING, "Defines the increase of the barrack's capacity for reaching each level"),
+    BARRACKS_BUILDING(BUILDING, "Defines the increase of barrack's capacity for reaching each level. Resource gets ignored."),
+    STORAGE_BUILDING(BUILDING, "Defines the increase of storage's capacity for reaching each level for each max resource."),
 
     ENGINE_PART_BASIC(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.BASIC),
     ENGINE_PART_MODERATE(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.MODERATE),

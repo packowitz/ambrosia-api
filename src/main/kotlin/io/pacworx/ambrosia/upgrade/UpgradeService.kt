@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
+import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.vehicle.Vehicle
 import io.pacworx.ambrosia.vehicle.VehiclePart
 import io.pacworx.ambrosia.vehicle.VehiclePartRepository
@@ -19,7 +20,8 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
                      private val vehicleRepository: VehicleRepository,
                      private val vehiclePartRepository: VehiclePartRepository,
                      private val propertyService: PropertyService,
-                     private val progressRepository: ProgressRepository) {
+                     private val progressRepository: ProgressRepository,
+                     private val resourcesService: ResourcesService) {
 
     fun getAllUpgrades(player: Player): List<Upgrade> = upgradeRepository.findAllByPlayerIdOrderByPositionAsc(player.id)
 
@@ -40,7 +42,13 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
             BuildingType.GARAGE -> TODO()
             BuildingType.JEWELRY -> TODO()
             BuildingType.LABORATORY -> TODO()
-            BuildingType.STORAGE -> TODO()
+            BuildingType.STORAGE -> {
+                propertyService.getProperties(PropertyType.STORAGE_BUILDING, building.level)
+                    .filter { it.resourceType != null }
+                    .forEach {
+                        resourcesService.gainResources(player, it.resourceType!!, it.value1)
+                    }
+            }
         }
         return building
     }

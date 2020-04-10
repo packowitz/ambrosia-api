@@ -67,31 +67,31 @@ class PlayerService(private val playerRepository: PlayerRepository,
         resourcesRepository.save(Resources(
             playerId = player.id,
             steam = getStartingAmount(ResourceType.STEAM),
-            steamMax = getStartingAmount(ResourceType.STEAM_MAX),
+            steamMax = getStorageMax(ResourceType.STEAM_MAX),
             premiumSteam = getStartingAmount(ResourceType.PREMIUM_STEAM),
-            premiumSteamMax = getStartingAmount(ResourceType.PREMIUM_STEAM_MAX),
+            premiumSteamMax = getStorageMax(ResourceType.PREMIUM_STEAM_MAX),
             cogwheels = getStartingAmount(ResourceType.COGWHEELS),
-            cogwheelsMax = getStartingAmount(ResourceType.COGWHEELS_MAX),
+            cogwheelsMax = getStorageMax(ResourceType.COGWHEELS_MAX),
             premiumCogwheels = getStartingAmount(ResourceType.PREMIUM_COGWHEELS),
-            premiumCogwheelsMax = getStartingAmount(ResourceType.PREMIUM_COGWHEELS_MAX),
+            premiumCogwheelsMax = getStorageMax(ResourceType.PREMIUM_COGWHEELS_MAX),
             tokens = getStartingAmount(ResourceType.TOKENS),
-            tokensMax = getStartingAmount(ResourceType.TOKENS_MAX),
+            tokensMax = getStorageMax(ResourceType.TOKENS_MAX),
             premiumTokens = getStartingAmount(ResourceType.PREMIUM_TOKENS),
-            premiumTokensMax = getStartingAmount(ResourceType.PREMIUM_TOKENS_MAX),
+            premiumTokensMax = getStorageMax(ResourceType.PREMIUM_TOKENS_MAX),
             coins = getStartingAmount(ResourceType.COINS),
             rubies = getStartingAmount(ResourceType.RUBIES),
             metal = getStartingAmount(ResourceType.METAL),
-            metalMax = getStartingAmount(ResourceType.METAL_MAX),
+            metalMax = getStorageMax(ResourceType.METAL_MAX),
             iron = getStartingAmount(ResourceType.IRON),
-            ironMax = getStartingAmount(ResourceType.IRON_MAX),
+            ironMax = getStorageMax(ResourceType.IRON_MAX),
             steal = getStartingAmount(ResourceType.STEAL),
-            stealMax = getStartingAmount(ResourceType.STEAL_MAX),
+            stealMax = getStorageMax(ResourceType.STEAL_MAX),
             wood = getStartingAmount(ResourceType.WOOD),
-            woodMax = getStartingAmount(ResourceType.WOOD_MAX),
+            woodMax = getStorageMax(ResourceType.WOOD_MAX),
             brownCoal = getStartingAmount(ResourceType.BROWN_COAL),
-            brownCoalMax = getStartingAmount(ResourceType.BROWN_COAL_MAX),
+            brownCoalMax = getStorageMax(ResourceType.BROWN_COAL_MAX),
             blackCoal = getStartingAmount(ResourceType.BLACK_COAL),
-            blackCoalMax = getStartingAmount(ResourceType.BLACK_COAL_MAX),
+            blackCoalMax = getStorageMax(ResourceType.BLACK_COAL_MAX),
             simpleGenome = getStartingAmount(ResourceType.SIMPLE_GENOME),
             commonGenome = getStartingAmount(ResourceType.COMMON_GENOME),
             uncommonGenome = getStartingAmount(ResourceType.UNCOMMON_GENOME),
@@ -107,10 +107,13 @@ class PlayerService(private val playerRepository: PlayerRepository,
     }
 
     fun getStartingAmount(type: ResourceType): Int {
-        val playerLvlResources = propertyService.getAllProperties(PropertyType.PLAYER_LVL_RESOURCES)
-        val storageResources = propertyService.getAllProperties(PropertyType.STORAGE_RESOURCES)
-        return (playerLvlResources.find { p -> p.level == 1 && p.resourceType == type }?.value1 ?: 0) +
-            (storageResources.find {p -> p.level == 1 && p.resourceType == type}?.value1 ?: 0)
+        return propertyService.getProperties(PropertyType.PLAYER_LVL_RESOURCES, 1)
+            .find { p -> p.resourceType == type }?.value1 ?: 0
+    }
+
+    fun getStorageMax(type: ResourceType): Int {
+        return propertyService.getProperties(PropertyType.STORAGE_BUILDING, 1)
+            .find { it.resourceType == type }?.value1 ?: 0
     }
 
     fun login(email: String, password: String): Player {

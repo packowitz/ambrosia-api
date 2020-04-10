@@ -13,16 +13,16 @@ enum class PropertyCategory(
     val value2name: String? = null
 ) {
     HERO("Level", "Value"),
-    GEAR("Rarity", "From", true, false, false, true, "To"),
+    GEAR("Rarity", "From", showStat = true, showValue2 = true, value2name = "To"),
     JEWEL("Jewel Lvl", "Amount", true),
-    BATTLE("Threshold", "ArmorReduction", false, false, false, true, "HealthReduction"),
-    SET("NoGear", "Amount", true),
-    BUFF("Intensity", "Bonus", true),
-    RESOURCES("Level", "Amount", false, true),
-    BUILDING("Building Lvl", "Bonus"),
+    BATTLE("Threshold", "ArmorReduction", showValue2 = true, value2name = "HealthReduction"),
+    SET("NoGear", "Amount", showStat = true),
+    BUFF("Intensity", "Bonus", showStat = true),
+    RESOURCES("Level", "Amount", showResources = true),
+    BUILDING("Building Lvl", "Bonus", showResources = true),
     BUILDING_UP_TIME("Building Lvl", "TimeInSec"),
-    BUILDING_UP_COST("Building Lvl", "Amount", false, true),
-    VEHICLE("Part Lvl", "Bonus", false, false, true);
+    BUILDING_UP_COST("Building Lvl", "Amount", showResources = true),
+    VEHICLE("Part Lvl", "Bonus", showVehicleStat = true);
 
     fun getName(): String = name
 }

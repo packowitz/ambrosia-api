@@ -43,6 +43,7 @@ class UpgradeController(private val upgradeService: UpgradeService,
         val vehiclePart = upgrade.vehiclePartId?.let { upgradeService.levelUpVehiclePart(it) }
         return PlayerActionResponse(
             progress = progressRepository.getOne(player.id),
+            resources = resourcesService.getResources(player),
             buildings = listOfNotNull(building),
             vehicles = listOfNotNull(vehicle),
             vehicleParts = listOfNotNull(vehiclePart),
