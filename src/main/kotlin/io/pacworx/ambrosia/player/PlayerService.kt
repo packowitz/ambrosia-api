@@ -102,6 +102,9 @@ class PlayerService(private val playerRepository: PlayerRepository,
         propertyService.getProperties(PropertyType.BARRACKS_BUILDING, 1).forEach {
             progress.barrackSize += it.value1
         }
+        propertyService.getProperties(PropertyType.ACADEMY_BUILDING, 1).forEach {
+            progress.maxTrainingLevel = it.value1
+        }
         progressRepository.save(progress)
         return player
     }

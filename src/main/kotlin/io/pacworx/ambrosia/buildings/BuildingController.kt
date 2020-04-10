@@ -4,6 +4,7 @@ import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
@@ -14,7 +15,8 @@ import javax.transaction.Transactional
 class BuildingController(private val buildingRepository: BuildingRepository,
                          private val heroRepository: HeroRepository,
                          private val heroService: HeroService,
-                         private val propertyService: PropertyService) {
+                         private val propertyService: PropertyService,
+                         private val progressRepository: ProgressRepository) {
 
     @PostMapping("academy/hero/{heroId}/level")
     @Transactional
@@ -34,6 +36,10 @@ class BuildingController(private val buildingRepository: BuildingRepository,
         }
         val hero = heroes.find { it.id == heroId }
             ?: throw RuntimeException("Unknown hero $heroId for player ${player.id}")
+        val progress = progressRepository.getOne(player.id)
+        if (hero.level > progress.maxTrainingLevel) {
+            throw RuntimeException("Heros level too high to get trained in the academy. Level up your Academy.")
+        }
         val deletedHeroIds = heroes.filter { it.id != heroId }.map {
             val gainedXp = propertyService.getHeroMergedXp(it.level)
             heroService.heroGainXp(hero, gainedXp)
@@ -65,6 +71,11 @@ class BuildingController(private val buildingRepository: BuildingRepository,
         }
         val hero = heroes.find { it.id == heroId }
             ?: throw RuntimeException("Unknown hero $heroId for player ${player.id}")
+
+        val progress = progressRepository.getOne(player.id)
+        if (hero.level > progress.maxTrainingLevel) {
+            throw RuntimeException("Heros level too high to get evolved. Level up your Academy.")
+        }
         val deletedHeroIds = heroes.filter { it.id != heroId }.map {
             if (it.stars < hero.stars) {
                 throw RuntimeException("You need heroes of at least same number of stars to evolve a hero")

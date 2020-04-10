@@ -12,5 +12,6 @@ data class Progress(
     val maxOfflineBattlesPerMission: Int = 5,
     val builderQueueLength: Int = 1,
     val builderSpeed: Int = 100,
-    var barrackSize: Int = 0
+    var barrackSize: Int = 0,
+    var maxTrainingLevel: Int = 0
 )

@@ -107,6 +107,7 @@ enum class PropertyType(
 
     BARRACKS_BUILDING(BUILDING, "Defines the increase of barrack's capacity for reaching each level. Resource gets ignored."),
     STORAGE_BUILDING(BUILDING, "Defines the increase of storage's capacity for reaching each level for each max resource."),
+    ACADEMY_BUILDING(BUILDING, "Defines the max level of a hero that can be trained and evolved in the academy. Resource gets ignored"),
 
     ENGINE_PART_BASIC(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.BASIC),
     ENGINE_PART_MODERATE(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.MODERATE),

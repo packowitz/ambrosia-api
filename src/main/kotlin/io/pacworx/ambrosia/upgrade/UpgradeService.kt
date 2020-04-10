@@ -31,7 +31,10 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
             it.upgradeTriggered = false
         }
         when(building.type) {
-            BuildingType.ACADEMY -> TODO()
+            BuildingType.ACADEMY -> {
+                val maxLvl = propertyService.getProperties(PropertyType.ACADEMY_BUILDING, building.level).sumBy { it.value1 }
+                progressRepository.getOne(player.id).maxTrainingLevel = maxLvl
+            }
             BuildingType.ARENA -> TODO()
             BuildingType.BARRACKS -> {
                 val inc = propertyService.getProperties(PropertyType.BARRACKS_BUILDING, building.level).sumBy { it.value1 }
