@@ -44,16 +44,16 @@ data class Battle(
     @Enumerated(EnumType.STRING)
     var activeHero: HeroPosition = HeroPosition.NONE,
     var turnsDone: Int = 0,
-    @OneToOne(cascade = [CascadeType.ALL])
+    @OneToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH])
     @JoinColumn(name = "hero1id")
     val hero1: BattleHero?,
-    @OneToOne(cascade = [CascadeType.ALL])
+    @OneToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH])
     @JoinColumn(name = "hero2id")
     val hero2: BattleHero?,
-    @OneToOne(cascade = [CascadeType.ALL])
+    @OneToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH])
     @JoinColumn(name = "hero3id")
     val hero3: BattleHero?,
-    @OneToOne(cascade = [CascadeType.ALL])
+    @OneToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH])
     @JoinColumn(name = "hero4id")
     val hero4: BattleHero?,
     @OneToOne(cascade = [CascadeType.ALL])
