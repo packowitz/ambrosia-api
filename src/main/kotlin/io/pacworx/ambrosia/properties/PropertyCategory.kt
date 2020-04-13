@@ -19,7 +19,7 @@ enum class PropertyCategory(
     SET("NoGear", "Amount", showStat = true),
     BUFF("Intensity", "Bonus", showStat = true),
     RESOURCES("Level", "Amount", showResources = true),
-    BUILDING("Building Lvl", "Bonus", showResources = true),
+    BUILDING("Building Lvl", "Bonus"),
     BUILDING_UP_TIME("Building Lvl", "TimeInSec"),
     BUILDING_UP_COST("Building Lvl", "Amount", showResources = true),
     VEHICLE("Part Lvl", "Bonus", showVehicleStat = true);

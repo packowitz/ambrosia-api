@@ -42,7 +42,13 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
             }
             BuildingType.BAZAAR -> TODO()
             BuildingType.FORGE -> TODO()
-            BuildingType.GARAGE -> TODO()
+            BuildingType.GARAGE -> {
+                val progress = progressRepository.getOne(player.id)
+                propertyService.getProperties(PropertyType.GARAGE_BUILDING, building.level).forEach { prop ->
+                    progress.vehicleStorage += prop.value1
+                    prop.value2?.let { progress.vehiclePartStorage += it }
+                }
+            }
             BuildingType.JEWELRY -> TODO()
             BuildingType.LABORATORY -> TODO()
             BuildingType.STORAGE -> {

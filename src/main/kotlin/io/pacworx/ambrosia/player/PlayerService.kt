@@ -105,6 +105,10 @@ class PlayerService(private val playerRepository: PlayerRepository,
         propertyService.getProperties(PropertyType.ACADEMY_BUILDING, 1).forEach {
             progress.maxTrainingLevel = it.value1
         }
+        propertyService.getProperties(PropertyType.GARAGE_BUILDING, 1).forEach {
+            progress.vehicleStorage = it.value1
+            progress.vehiclePartStorage = it.value2!!
+        }
         progressRepository.save(progress)
         return player
     }

@@ -12,7 +12,13 @@ enum class PropertyType(
     val description: String,
     val partType: PartType? = null,
     val partQuality: PartQuality? = null,
-    val buildingType: BuildingType? = null
+    val buildingType: BuildingType? = null,
+    val showStat: Boolean = false,
+    val showResources: Boolean = false,
+    val showVehicleStat: Boolean = false,
+    val showValue2: Boolean = false,
+    val value1name: String? = null,
+    val value2name: String? = null
 ) {
     HP_ABS_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
     HP_PERC_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
@@ -105,9 +111,10 @@ enum class PropertyType(
     LABORATORY_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.LABORATORY, description = "Defines the cost an upgrade to the given level costs"),
     STORAGE_UP_COST(category = BUILDING_UP_COST, buildingType = BuildingType.STORAGE, description = "Defines the cost an upgrade to the given level costs"),
 
-    BARRACKS_BUILDING(BUILDING, "Defines the increase of barrack's capacity for reaching each level. Resource gets ignored."),
-    STORAGE_BUILDING(BUILDING, "Defines the increase of storage's capacity for reaching each level for each max resource."),
-    ACADEMY_BUILDING(BUILDING, "Defines the max level of a hero that can be trained and evolved in the academy. Resource gets ignored"),
+    BARRACKS_BUILDING(category = BUILDING, description = "Defines the increase of barrack's capacity for reaching each level."),
+    STORAGE_BUILDING(category = BUILDING, description = "Defines the increase of storage's capacity for reaching each level for each max resource.", showResources = true),
+    ACADEMY_BUILDING(category = BUILDING, description = "Defines the max level of a hero that can be trained and evolved in the academy", value1name = "MaxTrainLvl"),
+    GARAGE_BUILDING(category = BUILDING, description = "Defines the max level of a hero that can be trained and evolved in the academy", value1name = "VehicleStorage", showValue2 = true, value2name = "PartsStorage"),
 
     ENGINE_PART_BASIC(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.BASIC),
     ENGINE_PART_MODERATE(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.MODERATE),
