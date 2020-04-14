@@ -20,8 +20,8 @@ enum class PropertyCategory(
     BUFF("Intensity", "Bonus", showStat = true),
     RESOURCES("Level", "Amount", showResources = true),
     BUILDING("Building Lvl", "Bonus"),
-    BUILDING_UP_TIME("Building Lvl", "TimeInSec"),
-    BUILDING_UP_COST("Building Lvl", "Amount", showResources = true),
+    UPGRADE_TIME("Building Lvl", "TimeInSec"),
+    UPGRADE_COST("Building Lvl", "Amount", showResources = true),
     VEHICLE("Part Lvl", "Bonus", showVehicleStat = true);
 
     fun getName(): String = name

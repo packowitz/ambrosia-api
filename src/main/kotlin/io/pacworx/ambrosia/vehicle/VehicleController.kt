@@ -45,6 +45,9 @@ class VehicleController(
         if (vehicle.missionId != null) {
             throw RuntimeException("You cannot deactivate a vehicle which is on a mission")
         }
+        if (vehicle.upgradeTriggered) {
+            throw RuntimeException("You cannot deactivate a vehicle which is currently upgrading")
+        }
         vehicle.slot = null
         return PlayerActionResponse(vehicles = listOf(vehicle))
     }
@@ -61,6 +64,9 @@ class VehicleController(
         val part = vehiclePartRepository.getOne(partId)
         if (part.playerId != player.id) {
             throw RuntimeException("You don't own part $partId")
+        }
+        if (vehicle.upgradeTriggered) {
+            throw RuntimeException("You cannot plugin a part while it is upgrading")
         }
         if (vehicle.missionId != null) {
             throw RuntimeException("You cannot plugin a part to a vehicle which is on a mission")

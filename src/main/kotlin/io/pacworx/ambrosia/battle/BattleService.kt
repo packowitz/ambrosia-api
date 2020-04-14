@@ -76,8 +76,13 @@ class BattleService(private val playerRepository: PlayerRepository,
         val heroes = heroService.loadHeroes(listOfNotNull(
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
             fightStage.hero1Id, fightStage.hero2Id, fightStage.hero3Id, fightStage.hero4Id))
-        if (vehicle?.missionId != null || heroes.any { it.playerId == player.id && it.missionId != null }) {
-            throw RuntimeException("Cannot use vehicles or heroes on a mission for campaign fights")
+        if (vehicle != null) {
+            if (vehicle.slot == null || vehicle.missionId != null || vehicle.upgradeTriggered) {
+                throw RuntimeException("Vehicle is not ready to use for a campaign fight")
+            }
+        }
+        if (heroes.any { it.playerId == player.id && it.missionId != null }) {
+            throw RuntimeException("Cannot use heroes on a mission for campaign fights")
         }
         val battle = battleRepository.save(Battle(
             type = mapTile?.let { BattleType.CAMPAIGN } ?: BattleType.TEST,

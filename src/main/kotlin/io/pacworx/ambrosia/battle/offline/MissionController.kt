@@ -59,7 +59,7 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         val resources = resourcesService.spendResource(player, fight.resourceType, request.battleTimes * fight.costs)
 
         val vehicle = vehicleRepository.getOne(request.vehicleId)
-        if (vehicle.slot == null || vehicle.missionId != null) {
+        if (vehicle.slot == null || vehicle.missionId != null || vehicle.upgradeTriggered) {
             throw RuntimeException("Vehicle is not ready to start a mission")
         }
         val heroIds = listOfNotNull(request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id)
