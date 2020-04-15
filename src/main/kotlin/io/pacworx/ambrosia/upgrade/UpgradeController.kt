@@ -217,7 +217,7 @@ class UpgradeController(private val upgradeService: UpgradeService,
         )
     }
 
-    @PostMapping("vehiclePart/{vehiclePartId}")
+    @PostMapping("vehicle_part/{vehiclePartId}")
     @Transactional
     fun upgradeVehiclePart(@ModelAttribute("player") player: Player,
                            @PathVariable vehiclePartId: Long): PlayerActionResponse {
