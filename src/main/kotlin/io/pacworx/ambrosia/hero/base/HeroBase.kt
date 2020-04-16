@@ -22,6 +22,7 @@ data class HeroBase(
     @field:NotNull
     @Enumerated(EnumType.STRING)
     var color: Color,
+    val startingHero: Boolean = false,
     @field:NotNull
     @Enumerated(EnumType.STRING)
     var heroType: HeroType,

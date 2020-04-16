@@ -9,4 +9,6 @@ interface HeroBaseRepository: JpaRepository<HeroBase, Long> {
     fun findByHeroClassAndRarityAndColor(heroClass: String, rarity: Rarity, color: Color): HeroBase?
 
     fun findAllByRarityAndRecruitableIsTrue(rarity: Rarity): List<HeroBase>
+
+    fun findAllByStartingHeroIsTrueAndColor(color: Color): List<HeroBase>
 }

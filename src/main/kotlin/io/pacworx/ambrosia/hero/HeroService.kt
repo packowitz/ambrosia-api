@@ -34,6 +34,12 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         return heroRepository.findAllById(heroIds.distinct())
     }
 
+    fun gainStartingHeroes(player: Player): List<HeroDto> {
+        return heroBaseRepository.findAllByStartingHeroIsTrueAndColor(player.color!!).map {
+            asHeroDto(recruitHero(player, it))
+        }
+    }
+
     fun recruitHero(player: Player, heroBaseId: Long, level: Int): HeroDto {
         val heroBase = heroBaseRepository.findByIdOrNull(heroBaseId)
             ?: throw RuntimeException("Unknown base hero #$heroBaseId")

@@ -2,13 +2,15 @@ package io.pacworx.ambrosia.player
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.enums.Color
+import io.pacworx.ambrosia.hero.HeroService
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("player")
-class PlayerController(private val playerService: PlayerService) {
+class PlayerController(private val playerService: PlayerService,
+                       private val heroService: HeroService) {
 
     @PostMapping("")
     @Transactional
@@ -26,7 +28,11 @@ class PlayerController(private val playerService: PlayerService) {
            throw RuntimeException("You can only select RED, BLUE or GREEN")
         }
         player.color = request.color
-        return PlayerActionResponse(player = playerService.save(player))
+        val startingHeroes = heroService.gainStartingHeroes(player)
+        return PlayerActionResponse(
+            player = playerService.save(player),
+            heroes = startingHeroes
+        )
     }
 }
 
