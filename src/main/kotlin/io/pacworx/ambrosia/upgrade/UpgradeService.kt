@@ -50,7 +50,15 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
                 }
             }
             BuildingType.JEWELRY -> TODO()
-            BuildingType.LABORATORY -> TODO()
+            BuildingType.LABORATORY -> {
+                val progress = progressRepository.getOne(player.id)
+                propertyService.getProperties(PropertyType.LABORATORY_INCUBATORS, building.level).forEach { prop ->
+                    progress.incubators += prop.value1
+                }
+                propertyService.getProperties(PropertyType.LABORATORY_SPEED, building.level).forEach { prop ->
+                    progress.labSpeed += prop.value1
+                }
+            }
             BuildingType.STORAGE -> {
                 propertyService.getProperties(PropertyType.STORAGE_BUILDING, building.level)
                     .filter { it.resourceType != null }

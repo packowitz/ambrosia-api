@@ -8,6 +8,7 @@ import io.pacworx.ambrosia.upgrade.UpgradeService
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.buildings.IncubatorRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.gear.JewelryRepository
@@ -47,7 +48,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
                     private val vehicleRepository: VehicleRepository,
                     private val vehiclePartRepository: VehiclePartRepository,
                     private val missionService: MissionService,
-                    private val upgradeService: UpgradeService) {
+                    private val upgradeService: UpgradeService,
+                    private val incubatorRepository: IncubatorRepository) {
 
     @Value("\${ambrosia.pw-salt-one}")
     private lateinit var pwSalt1: String
@@ -109,6 +111,12 @@ class PlayerService(private val playerRepository: PlayerRepository,
             progress.vehicleStorage = it.value1
             progress.vehiclePartStorage = it.value2!!
         }
+        propertyService.getProperties(PropertyType.LABORATORY_INCUBATORS, 1).forEach {
+            progress.incubators += it.value1
+        }
+        propertyService.getProperties(PropertyType.LABORATORY_SPEED, 1).forEach {
+            progress.labSpeed += it.value1
+        }
         progressRepository.save(progress)
         return player
     }
@@ -146,6 +154,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
         val playerMaps = simplePlayerMapRepository.findAllByPlayerId(player.id)
         val currentMap = player.color?.let { mapService.getCurrentPlayerMap(player) }
         val missions = missionService.getAllMissions(player)
+        val dnaCubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
         val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusInAndPreviousBattleIdNull(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN, BattleStatus.STAGE_PASSED))
         return PlayerActionResponse(
             resources = resources,
@@ -161,6 +170,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
             playerMaps = playerMaps,
             currentMap = currentMap,
             missions = missions,
+            incubators = dnaCubes,
             ongoingBattle = ongoingBattle,
             upgrades = upgrades)
     }

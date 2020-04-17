@@ -11,23 +11,17 @@ import javax.transaction.Transactional
 
 @RestController
 @CrossOrigin(maxAge = 3600)
-@RequestMapping("building")
-class BuildingController(private val buildingRepository: BuildingRepository,
-                         private val heroRepository: HeroRepository,
-                         private val heroService: HeroService,
-                         private val propertyService: PropertyService,
-                         private val progressRepository: ProgressRepository) {
+@RequestMapping("academy")
+class AcademyController(private val heroRepository: HeroRepository,
+                        private val heroService: HeroService,
+                        private val propertyService: PropertyService,
+                        private val progressRepository: ProgressRepository) {
 
-    @PostMapping("academy/hero/{heroId}/level")
+    @PostMapping("hero/{heroId}/level")
     @Transactional
     fun levelHero(@ModelAttribute("player") player: Player,
                   @PathVariable heroId: Long,
                   @RequestBody request: AcademyRequest): PlayerActionResponse {
-        val academy = buildingRepository.findByPlayerIdAndType(player.id, BuildingType.ACADEMY)
-            ?: throw RuntimeException("You have to find the academy first")
-        if (academy.upgradeFinished != null) {
-            throw RuntimeException("Academy is busy right now")
-        }
         val heroes = heroRepository.findAllByPlayerIdAndIdIn(player.id,
             listOfNotNull(heroId, request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id, request.hero5Id, request.hero6Id)
         )
@@ -53,16 +47,11 @@ class BuildingController(private val buildingRepository: BuildingRepository,
         return PlayerActionResponse(heroes = listOf(heroService.asHeroDto(hero)), heroIdsRemoved = deletedHeroIds)
     }
 
-    @PostMapping("academy/hero/{heroId}/evolve")
+    @PostMapping("hero/{heroId}/evolve")
     @Transactional
     fun evolveHero(@ModelAttribute("player") player: Player,
                    @PathVariable heroId: Long,
                    @RequestBody request: AcademyRequest): PlayerActionResponse {
-        val academy = buildingRepository.findByPlayerIdAndType(player.id, BuildingType.ACADEMY)
-            ?: throw RuntimeException("You have to find the academy first")
-        if (academy.upgradeFinished != null) {
-            throw RuntimeException("Academy is busy right now")
-        }
         val heroes = heroRepository.findAllByPlayerIdAndIdIn(player.id,
             listOfNotNull(heroId, request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id, request.hero5Id, request.hero6Id)
         )

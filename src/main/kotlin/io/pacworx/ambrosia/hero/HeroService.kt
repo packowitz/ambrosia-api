@@ -57,7 +57,6 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
     }
 
     fun recruitHero(player: Player,
-                    simpleChance: Double? = null,
                     commonChance: Double? = null,
                     uncommonChance: Double? = null,
                     rareChance: Double? = null,

@@ -5,6 +5,7 @@ import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.upgrade.Upgrade
 import io.pacworx.ambrosia.buildings.Building
+import io.pacworx.ambrosia.buildings.Incubator
 import io.pacworx.ambrosia.maps.PlayerMapResolved
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.hero.HeroDto
@@ -39,5 +40,7 @@ data class PlayerActionResponse(
     val missions: List<Mission>? = null,
     val missionIdFinished: Long? = null,
     val upgrades: List<Upgrade>? = null,
-    val upgradeRemoved: Long? = null
+    val upgradeRemoved: Long? = null,
+    val incubators: List<Incubator>? = null,
+    val incubatorDone: Long? = null
 )

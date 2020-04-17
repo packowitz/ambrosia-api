@@ -15,5 +15,7 @@ data class Progress(
     var barrackSize: Int = 0,
     var maxTrainingLevel: Int = 0,
     var vehicleStorage: Int = 0,
-    var vehiclePartStorage: Int = 0
+    var vehiclePartStorage: Int = 0,
+    var incubators: Int = 0,
+    var labSpeed: Int = 100
 )

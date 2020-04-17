@@ -1,33 +1,23 @@
-package io.pacworx.ambrosia.upgrade
+package io.pacworx.ambrosia.buildings
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.resources.ResourceType
+import io.pacworx.ambrosia.upgrade.Cost
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
-data class Upgrade(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+data class Incubator(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val playerId: Long,
-    var position: Int,
+    @Enumerated(EnumType.STRING) val type: GenomeType,
     @JsonIgnore var startTimestamp: Instant,
     @JsonIgnore var finishTimestamp: Instant,
-    @JsonIgnore var resources: String = "",
-    val buildingType: BuildingType? = null,
-    val vehicleId: Long? = null,
-    val vehiclePartId: Long? = null,
-    var secondsSpend: Int = 0
+    @JsonIgnore var resources: String = ""
 ) {
     fun isFinished(): Boolean = finishTimestamp.isBefore(Instant.now())
-
-    fun isInProgress(): Boolean = if (isFinished()) { false } else { startTimestamp.isBefore(Instant.now()) }
 
     fun getDuration(): Long = startTimestamp.until(finishTimestamp, ChronoUnit.SECONDS)
 

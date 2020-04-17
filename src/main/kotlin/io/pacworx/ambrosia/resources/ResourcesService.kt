@@ -67,6 +67,11 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             ResourceType.WOOD -> spendWood(resources, amount)
             ResourceType.BROWN_COAL -> spendBrownCoal(resources, amount)
             ResourceType.BLACK_COAL -> spendBlackCoal(resources, amount)
+            ResourceType.SIMPLE_GENOME -> spendSimpleGenome(resources, amount)
+            ResourceType.COMMON_GENOME -> spendCommonGenome(resources, amount)
+            ResourceType.UNCOMMON_GENOME -> spendUncommonGenome(resources, amount)
+            ResourceType.RARE_GENOME -> spendRareGenome(resources, amount)
+            ResourceType.EPIC_GENOME -> spendEpicGenome(resources, amount)
             else -> throw RuntimeException("Unimplemented resource to spend: $type")
         }
     }
@@ -189,6 +194,46 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount black coal")
         }
         resources.blackCoal -= amount
+        return resources
+    }
+
+    fun spendSimpleGenome(resources: Resources, amount: Int): Resources {
+        if (amount > resources.simpleGenome) {
+            throw RuntimeException("You cannot spend $amount simple genomes")
+        }
+        resources.simpleGenome -= amount
+        return resources
+    }
+
+    fun spendCommonGenome(resources: Resources, amount: Int): Resources {
+        if (amount > resources.commonGenome) {
+            throw RuntimeException("You cannot spend $amount common genomes")
+        }
+        resources.commonGenome -= amount
+        return resources
+    }
+
+    fun spendUncommonGenome(resources: Resources, amount: Int): Resources {
+        if (amount > resources.uncommonGenome) {
+            throw RuntimeException("You cannot spend $amount uncommon genomes")
+        }
+        resources.uncommonGenome -= amount
+        return resources
+    }
+
+    fun spendRareGenome(resources: Resources, amount: Int): Resources {
+        if (amount > resources.rareGenome) {
+            throw RuntimeException("You cannot spend $amount rare genomes")
+        }
+        resources.rareGenome -= amount
+        return resources
+    }
+
+    fun spendEpicGenome(resources: Resources, amount: Int): Resources {
+        if (amount > resources.epicGenome) {
+            throw RuntimeException("You cannot spend $amount epic genomes")
+        }
+        resources.epicGenome -= amount
         return resources
     }
 
