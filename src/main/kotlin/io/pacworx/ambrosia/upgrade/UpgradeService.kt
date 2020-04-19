@@ -49,7 +49,10 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
                     prop.value2?.let { progress.vehiclePartStorage += it }
                 }
             }
-            BuildingType.JEWELRY -> TODO()
+            BuildingType.JEWELRY -> {
+                val maxLvl = propertyService.getProperties(PropertyType.JEWELRY_BUILDING, building.level).sumBy { it.value1 }
+                progressRepository.getOne(player.id).maxJewelUpgradingLevel = maxLvl
+            }
             BuildingType.LABORATORY -> {
                 val progress = progressRepository.getOne(player.id)
                 propertyService.getProperties(PropertyType.LABORATORY_INCUBATORS, building.level).forEach { prop ->
