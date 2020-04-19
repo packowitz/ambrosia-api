@@ -17,5 +17,6 @@ data class Progress(
     var vehicleStorage: Int = 0,
     var vehiclePartStorage: Int = 0,
     var incubators: Int = 0,
-    var labSpeed: Int = 100
+    var labSpeed: Int = 100,
+    var maxJewelUpgradingLevel: Int = 0
 )

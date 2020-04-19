@@ -117,6 +117,9 @@ class PlayerService(private val playerRepository: PlayerRepository,
         propertyService.getProperties(PropertyType.LABORATORY_SPEED, 1).forEach {
             progress.labSpeed += it.value1
         }
+        propertyService.getProperties(PropertyType.JEWELRY_BUILDING, 1).forEach {
+            progress.maxJewelUpgradingLevel = it.value1
+        }
         progressRepository.save(progress)
         return player
     }

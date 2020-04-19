@@ -3,6 +3,8 @@ package io.pacworx.ambrosia.upgrade
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.enums.JewelType
+import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyCategory
@@ -29,7 +31,8 @@ class UpgradeController(private val upgradeService: UpgradeService,
                         private val progressRepository: ProgressRepository,
                         private val resourcesService: ResourcesService,
                         private val vehicleRepository: VehicleRepository,
-                        private val vehiclePartRepository: VehiclePartRepository) {
+                        private val vehiclePartRepository: VehiclePartRepository,
+                        private val jewelryRepository: JewelryRepository) {
 
     @PostMapping("{upgradeId}/finish")
     @Transactional
@@ -47,12 +50,16 @@ class UpgradeController(private val upgradeService: UpgradeService,
         val building = upgrade.buildingType?.let { upgradeService.levelUpBuilding(player, it) }
         val vehicle = upgrade.vehicleId?.let { upgradeService.levelUpVehicle(it) }
         val vehiclePart = upgrade.vehiclePartId?.let { upgradeService.levelUpVehiclePart(it) }
+        val jewelry = upgrade.jewelType?.let { jewelType ->
+            jewelryRepository.findByPlayerIdAndType(player.id, jewelType)!!.also { it.increaseAmount(upgrade.jewelLevel!! + 1, 1) }
+        }
         return PlayerActionResponse(
             progress = progressRepository.getOne(player.id),
             resources = resourcesService.getResources(player),
             buildings = listOfNotNull(building),
             vehicles = listOfNotNull(vehicle),
             vehicleParts = listOfNotNull(vehiclePart),
+            jewelries = listOfNotNull(jewelry),
             upgrades = currentUpgrades,
             upgradeRemoved = upgrade.id
         )
@@ -73,6 +80,9 @@ class UpgradeController(private val upgradeService: UpgradeService,
         upgrade.getResourcesAsCosts().forEach {
             resources = resourcesService.gainResources(player, it.type, it.amount)
         }
+        val jewelry = upgrade.jewelType?.let { jewelType ->
+            jewelryRepository.findByPlayerIdAndType(player.id, jewelType)!!.also { it.increaseAmount(upgrade.jewelLevel!!, 4) }
+        }
 
         upgradeRepository.delete(upgrade)
         currentUpgrades = currentUpgrades.filter { it.id != upgrade.id }
@@ -82,6 +92,7 @@ class UpgradeController(private val upgradeService: UpgradeService,
             buildings = listOfNotNull(upgrade.buildingType?.let { upgradeService.cancelBuildingUpgrade(player, it) }),
             vehicles = listOfNotNull(upgrade.vehicleId?.let { upgradeService.cancelVehicleUpgrade(it) }),
             vehicleParts = listOfNotNull(upgrade.vehiclePartId?.let { upgradeService.cancelVehiclePartUpgrade(it) }),
+            jewelries = listOfNotNull(jewelry),
             upgrades = currentUpgrades,
             upgradeRemoved = upgrade.id
         )
@@ -264,6 +275,34 @@ class UpgradeController(private val upgradeService: UpgradeService,
         )
     }
 
+    @PostMapping("jewel/{jewelType}/{level}")
+    @Transactional
+    fun upgradeJewel(@ModelAttribute("player") player: Player,
+                     @PathVariable jewelType: JewelType,
+                     @PathVariable level: Int): PlayerActionResponse {
+        val progress = progressRepository.getOne(player.id)
+        if (level > progress.maxJewelUpgradingLevel) {
+            throw RuntimeException("You need to upgrade jewelry to be able to upgrade jewels of level $level")
+        }
+        val jewelry = jewelryRepository.findByPlayerIdAndType(player.id, jewelType)?.takeIf { it.getAmount(level) >= 4 }
+            ?: throw RuntimeException("You don't own enough lvl $level $jewelType jewels to upgrade")
+
+        val upgradeSeconds = propertyService.getProperties(PropertyType.JEWEL_UP_TIME, level + 1)
+            .takeIf { it.size == 1 }
+            ?.first()?.value1?.toLong()
+            ?: throw RuntimeException("Jewels cannot be upgraded to higher than level $level")
+
+        val resources = resourcesService.getResources(player)
+        val upgrade = upgrade(player, resources, PropertyType.JEWEL_UP_COST, level + 1, upgradeSeconds, jewelType = jewelType)
+        jewelry.increaseAmount(level, -4)
+
+        return PlayerActionResponse(
+            resources = resources,
+            jewelries = listOf(jewelry),
+            upgrades = listOf(upgrade)
+        )
+    }
+
     private fun upgrade(player: Player,
                         resources: Resources,
                         costProp: PropertyType,
@@ -271,7 +310,8 @@ class UpgradeController(private val upgradeService: UpgradeService,
                         seconds: Long,
                         buildingType: BuildingType? = null,
                         vehicleId: Long? = null,
-                        vehiclePartId: Long? = null): Upgrade {
+                        vehiclePartId: Long? = null,
+                        jewelType: JewelType? = null): Upgrade {
         val progress = progressRepository.getOne(player.id)
         val currentUpgrades = upgradeService.getAllUpgrades(player)
         if (currentUpgrades.size >= progress.builderQueueLength) {
@@ -293,7 +333,9 @@ class UpgradeController(private val upgradeService: UpgradeService,
             finishTimestamp = startTime.plusSeconds(seconds),
             buildingType = buildingType,
             vehicleId = vehicleId,
-            vehiclePartId = vehiclePartId
+            vehiclePartId = vehiclePartId,
+            jewelType = jewelType,
+            jewelLevel = jewelType?.let { toLevel - 1 }
         )
         upgrade.setResources(costs)
         return upgradeRepository.save(upgrade)

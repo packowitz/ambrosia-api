@@ -112,6 +112,7 @@ enum class PropertyType(
     UNCOMMON_GENOME_TIME(category = UPGRADE_TIME, description = "Defines how long it takes to clone a hero from uncommon genomes"),
     RARE_GENOME_TIME(category = UPGRADE_TIME, description = "Defines how long it takes to clone a hero from rare genomes"),
     EPIC_GENOME_TIME(category = UPGRADE_TIME, description = "Defines how long it takes to clone a hero from epic genomes"),
+    JEWEL_UP_TIME(category = UPGRADE_TIME, description = "Defines how long (in seconds) it takes to merge jewels to the given level"),
 
     ACADEMY_UP_COST(category = UPGRADE_COST, buildingType = BuildingType.ACADEMY, description = "Defines the cost an upgrade to the given level costs"),
     ARENA_UP_COST(category = UPGRADE_COST, buildingType = BuildingType.ARENA, description = "Defines the cost an upgrade to the given level costs"),
@@ -134,6 +135,7 @@ enum class PropertyType(
     UNCOMMON_GENOME_COST(category = UPGRADE_COST, description = "Defines how much it costs to clone a hero from uncommon genomes"),
     RARE_GENOME_COST(category = UPGRADE_COST, description = "Defines how much it costs to clone a hero from rare genomes"),
     EPIC_GENOME_COST(category = UPGRADE_COST, description = "Defines how much it costs to clone a hero from epic genomes"),
+    JEWEL_UP_COST(category = UPGRADE_COST, description = "Defines how much it costs to merge jewels to the given level"),
 
     BARRACKS_BUILDING(category = BUILDING, description = "Defines the increase of barrack's capacity for reaching each level."),
     STORAGE_BUILDING(category = BUILDING, description = "Defines the increase of storage's capacity for reaching each level for each max resource.", showResources = true),
@@ -141,6 +143,7 @@ enum class PropertyType(
     GARAGE_BUILDING(category = BUILDING, description = "Defines the max level of a hero that can be trained and evolved in the academy", value1name = "VehicleStorage", showValue2 = true, value2name = "PartsStorage"),
     LABORATORY_INCUBATORS(category = BUILDING, description = "Defines the increase of dna cubes for reaching each laboratory level"),
     LABORATORY_SPEED(category = BUILDING, description = "Defines the speed increase for hero cloning in the laboratory"),
+    JEWELRY_BUILDING(category = BUILDING, description = "Defines the max level that can be upgraded in the jewelry"),
 
     ENGINE_PART_BASIC(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.BASIC),
     ENGINE_PART_MODERATE(category = VEHICLE, description = "Defines the bonus for the level of the vehicle part", partType = PartType.ENGINE, partQuality = PartQuality.MODERATE),

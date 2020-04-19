@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.gear
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import io.pacworx.ambrosia.enums.GearJewelSlot
 import io.pacworx.ambrosia.enums.JewelType
 import java.lang.RuntimeException
 import javax.persistence.*
@@ -24,6 +25,8 @@ data class Jewelry(
     var lvl9: Int = 0,
     var lvl10: Int = 0
 ) {
+    fun getSlot(): GearJewelSlot = type.slot
+
     fun getAmount(lvl: Int): Int {
         return when(lvl) {
             1 -> this.lvl1

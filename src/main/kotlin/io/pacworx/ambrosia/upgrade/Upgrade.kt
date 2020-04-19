@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.upgrade
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.enums.JewelType
 import io.pacworx.ambrosia.resources.ResourceType
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -23,6 +24,8 @@ data class Upgrade(
     val buildingType: BuildingType? = null,
     val vehicleId: Long? = null,
     val vehiclePartId: Long? = null,
+    val jewelType: JewelType? = null,
+    val jewelLevel: Int? = null,
     var secondsSpend: Int = 0
 ) {
     fun isFinished(): Boolean = finishTimestamp.isBefore(Instant.now())
@@ -32,7 +35,7 @@ data class Upgrade(
     fun getDuration(): Long = startTimestamp.until(finishTimestamp, ChronoUnit.SECONDS)
 
     fun getSecondsUntilDone(): Long =
-        if (isFinished()) { 0 } else { Instant.now().until(finishTimestamp, ChronoUnit.SECONDS) }
+        if (isFinished()) { 0 } else { Instant.now().until(finishTimestamp, ChronoUnit.SECONDS) + 1 }
 
     fun setResources(costs: List<Cost>) {
         this.resources = costs.map { "${it.type}:${it.amount}" }.joinToString(separator = ";")
