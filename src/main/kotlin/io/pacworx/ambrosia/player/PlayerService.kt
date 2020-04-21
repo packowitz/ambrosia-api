@@ -63,9 +63,6 @@ class PlayerService(private val playerRepository: PlayerRepository,
             password = if (serviceAccount) { password } else { getHash(name, password) },
             serviceAccount = serviceAccount
         ))
-        buildingRepository.save(Building(playerId = player.id, type = BuildingType.BARRACKS))
-        buildingRepository.save(Building(playerId = player.id, type = BuildingType.STORAGE))
-        buildingRepository.save(Building(playerId = player.id, type = BuildingType.FORGE))
         resourcesRepository.save(Resources(
             playerId = player.id,
             steam = getStartingAmount(ResourceType.STEAM),
@@ -100,27 +97,14 @@ class PlayerService(private val playerRepository: PlayerRepository,
             rareGenome = getStartingAmount(ResourceType.RARE_GENOME),
             epicGenome = getStartingAmount(ResourceType.EPIC_GENOME)
         ))
+
+        val barracks = buildingRepository.save(Building(playerId = player.id, type = BuildingType.BARRACKS))
+        buildingRepository.save(Building(playerId = player.id, type = BuildingType.STORAGE))
+
         val progress = Progress(playerId = player.id)
-        propertyService.getProperties(PropertyType.BARRACKS_BUILDING, 1).forEach {
-            progress.barrackSize += it.value1
-        }
-        propertyService.getProperties(PropertyType.ACADEMY_BUILDING, 1).forEach {
-            progress.maxTrainingLevel = it.value1
-        }
-        propertyService.getProperties(PropertyType.GARAGE_BUILDING, 1).forEach {
-            progress.vehicleStorage = it.value1
-            progress.vehiclePartStorage = it.value2!!
-        }
-        propertyService.getProperties(PropertyType.LABORATORY_INCUBATORS, 1).forEach {
-            progress.incubators += it.value1
-        }
-        propertyService.getProperties(PropertyType.LABORATORY_SPEED, 1).forEach {
-            progress.labSpeed += it.value1
-        }
-        propertyService.getProperties(PropertyType.JEWELRY_BUILDING, 1).forEach {
-            progress.maxJewelUpgradingLevel = it.value1
-        }
+        upgradeService.applyBuildingLevel(player, barracks)
         progressRepository.save(progress)
+
         return player
     }
 

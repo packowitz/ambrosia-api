@@ -4,6 +4,7 @@ import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.enums.JewelType
+import io.pacworx.ambrosia.gear.GearService
 import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -16,7 +17,12 @@ import io.pacworx.ambrosia.vehicle.PartQuality
 import io.pacworx.ambrosia.vehicle.VehiclePartRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.transaction.Transactional
@@ -32,7 +38,8 @@ class UpgradeController(private val upgradeService: UpgradeService,
                         private val resourcesService: ResourcesService,
                         private val vehicleRepository: VehicleRepository,
                         private val vehiclePartRepository: VehiclePartRepository,
-                        private val jewelryRepository: JewelryRepository) {
+                        private val jewelryRepository: JewelryRepository,
+                        private val gearService: GearService) {
 
     @PostMapping("{upgradeId}/finish")
     @Transactional
@@ -53,6 +60,7 @@ class UpgradeController(private val upgradeService: UpgradeService,
         val jewelry = upgrade.jewelType?.let { jewelType ->
             jewelryRepository.findByPlayerIdAndType(player.id, jewelType)!!.also { it.increaseAmount(upgrade.jewelLevel!! + 1, 1) }
         }
+        val gear = upgrade.gearModification?.let { gearService.modifyGear(it, upgrade.gearId!!) }
         return PlayerActionResponse(
             progress = progressRepository.getOne(player.id),
             resources = resourcesService.getResources(player),
@@ -60,6 +68,7 @@ class UpgradeController(private val upgradeService: UpgradeService,
             vehicles = listOfNotNull(vehicle),
             vehicleParts = listOfNotNull(vehiclePart),
             jewelries = listOfNotNull(jewelry),
+            gears = listOfNotNull(gear),
             upgrades = currentUpgrades,
             upgradeRemoved = upgrade.id
         )
@@ -303,6 +312,34 @@ class UpgradeController(private val upgradeService: UpgradeService,
         )
     }
 
+    @PostMapping("gear/{gearId}/{modification}")
+    @Transactional
+    fun modifyGear(@ModelAttribute("player") player: Player,
+                   @PathVariable gearId: Long,
+                   @PathVariable modification: Modification
+    ): PlayerActionResponse {
+        val gear = gearService.getGear(gearId)
+        val progress = progressRepository.getOne(player.id)
+        if (!progress.modificationAllowed(gear.rarity, modification) || !gear.isModificationAllowed(modification)) {
+            throw RuntimeException("Modification is not allowed on that gear")
+        }
+
+        val upgradeSeconds = propertyService.getProperties(modification.upTimeProp, gear.rarity.stars)
+            .takeIf { it.size == 1 }
+            ?.first()?.value1?.let { it * 100 / progress.gearModificationSpeed }?.toLong()
+            ?: throw RuntimeException("Cannot find configuration for this modification")
+
+        val resources = resourcesService.getResources(player)
+        val upgrade = upgrade(player, resources, modification.upCostProp, gear.rarity.stars, upgradeSeconds, gearModification = modification, gearId = gear.id)
+        gear.modificationInProgress = true
+
+        return PlayerActionResponse(
+            resources = resources,
+            gears = listOf(gear),
+            upgrades = listOf(upgrade)
+        )
+    }
+
     private fun upgrade(player: Player,
                         resources: Resources,
                         costProp: PropertyType,
@@ -311,7 +348,9 @@ class UpgradeController(private val upgradeService: UpgradeService,
                         buildingType: BuildingType? = null,
                         vehicleId: Long? = null,
                         vehiclePartId: Long? = null,
-                        jewelType: JewelType? = null): Upgrade {
+                        jewelType: JewelType? = null,
+                        gearModification: Modification? = null,
+                        gearId: Long? = null): Upgrade {
         val progress = progressRepository.getOne(player.id)
         val currentUpgrades = upgradeService.getAllUpgrades(player)
         if (currentUpgrades.size >= progress.builderQueueLength) {
@@ -335,7 +374,9 @@ class UpgradeController(private val upgradeService: UpgradeService,
             vehicleId = vehicleId,
             vehiclePartId = vehiclePartId,
             jewelType = jewelType,
-            jewelLevel = jewelType?.let { toLevel - 1 }
+            jewelLevel = jewelType?.let { toLevel - 1 },
+            gearModification = gearModification,
+            gearId = gearId
         )
         upgrade.setResources(costs)
         return upgradeRepository.save(upgrade)

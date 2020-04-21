@@ -8,6 +8,7 @@ import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.upgrade.UpgradeService
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
@@ -20,7 +21,8 @@ class MapController(private val mapService: MapService,
                     private val playerRepository: PlayerRepository,
                     private val buildingRepository: BuildingRepository,
                     private val resourcesService: ResourcesService,
-                    private val lootService: LootService) {
+                    private val lootService: LootService,
+                    private val upgradeService: UpgradeService) {
 
     @GetMapping("{mapId}")
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
@@ -59,6 +61,7 @@ class MapController(private val mapService: MapService,
             throw RuntimeException("Player ${player.id} has building ${buildingType.name} already discovered")
         }
         val building = buildingRepository.save(Building(playerId = player.id, type = buildingType))
+        upgradeService.applyBuildingLevel(player, building)
         return PlayerActionResponse(buildings = listOf(building))
     }
 

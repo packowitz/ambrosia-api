@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.gear
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import io.pacworx.ambrosia.upgrade.Modification
 import io.pacworx.ambrosia.enums.*
 import java.lang.RuntimeException
 import javax.persistence.*
@@ -11,43 +12,47 @@ data class Gear(
     val id: Long = 0,
     val playerId: Long,
     var equippedTo: Long? = null,
+    var modificationInProgress: Boolean = false,
+    var modificationPerformed: Boolean = false,
+    @Enumerated(EnumType.STRING)
+    var modificationAllowed: Modification? = null,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     val set: GearSet,
     @Enumerated(EnumType.STRING)
-    val rarity: Rarity,
+    var rarity: Rarity,
     @Enumerated(EnumType.STRING)
     val type: GearType,
     @Enumerated(EnumType.STRING)
-    val stat: HeroStat,
-    val statValue: Int,
-    val statQuality: Int,
+    var stat: HeroStat,
+    var statValue: Int,
+    var statQuality: Int,
     @Enumerated(EnumType.STRING)
-    val jewelSlot1: GearJewelSlot? = null,
+    var jewelSlot1: GearJewelSlot? = null,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     var jewel1Type: JewelType? = null,
     var jewel1Level: Int? = null,
     @Enumerated(EnumType.STRING)
-    val jewelSlot2: GearJewelSlot? = null,
+    var jewelSlot2: GearJewelSlot? = null,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     var jewel2Type: JewelType? = null,
     var jewel2Level: Int? = null,
     @Enumerated(EnumType.STRING)
-    val jewelSlot3: GearJewelSlot? = null,
+    var jewelSlot3: GearJewelSlot? = null,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     var jewel3Type: JewelType? = null,
     var jewel3Level: Int? = null,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    val jewelSlot4: GearJewelSlot? = null,
+    var jewelSlot4: GearJewelSlot? = null,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     var jewel4Type: JewelType? = null,
     var jewel4Level: Int? = null,
-    val specialJewelSlot: Boolean = false,
+    var specialJewelSlot: Boolean = false,
     @Enumerated(EnumType.STRING)
     var specialJewelType: JewelType? = null,
     var specialJewelLevel: Int? = null
@@ -124,6 +129,25 @@ data class Gear(
                 jewel4Level = null
             }
             else -> throw RuntimeException("Jewel slot $slot is not supported")
+        }
+    }
+
+    fun isModificationAllowed(modification: Modification): Boolean {
+        if (equippedTo != null || modificationInProgress) {
+            return false
+        }
+        if (modificationPerformed) {
+            return modification == modificationAllowed
+        }
+        return when (modification) {
+            Modification.INC_RARITY -> rarity != Rarity.LEGENDARY
+            Modification.ADD_JEWEL -> jewelSlot4 == null
+            Modification.REROLL_JEWEL_1 -> jewelSlot1 != null
+            Modification.REROLL_JEWEL_2 -> jewelSlot2 != null
+            Modification.REROLL_JEWEL_3 -> jewelSlot3 != null
+            Modification.REROLL_JEWEL_4 -> jewelSlot4 != null
+            Modification.ADD_SPECIAL_JEWEL -> type == GearType.ARMOR && !specialJewelSlot
+            else -> true
         }
     }
 }

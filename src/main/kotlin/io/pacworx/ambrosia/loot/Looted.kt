@@ -7,6 +7,6 @@ import io.pacworx.ambrosia.resources.ResourceType
 data class Looted(
     val type: LootItemType,
     @JsonFormat(shape = JsonFormat.Shape.STRING) val resourceType: ResourceType?,
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT) val jewelType: JewelType?,
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT) val jewelType: JewelType? = null,
     val value: Long
 )

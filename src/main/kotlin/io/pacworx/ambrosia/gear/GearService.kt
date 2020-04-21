@@ -3,12 +3,79 @@ package io.pacworx.ambrosia.gear
 import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.properties.PropertyService
+import io.pacworx.ambrosia.upgrade.Modification
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 @Service
 class GearService(private val propertyService: PropertyService,
                   private val gearRepository: GearRepository) {
+
+    fun getGear(gearId: Long): Gear {
+        return gearRepository.findByIdOrNull(gearId)
+            ?: throw RuntimeException("Unknown gear with id #$gearId")
+    }
+
+    fun modifyGear(modification: Modification, gearId: Long): Gear {
+        val gear = getGear(gearId)
+        when (modification) {
+            Modification.REROLL_QUALITY -> {
+                val valueRange = propertyService.getGearValueRange(gear.type, gear.rarity, gear.stat)
+                gear.statQuality = Random.nextInt(0, 101)
+                gear.statValue = valueRange.first + ((gear.statQuality * (valueRange.second - valueRange.first)) / 100)
+                gear.modificationAllowed = modification
+            }
+            Modification.REROLL_STAT -> {
+                gear.stat = propertyService.getPossibleGearStats(gear.type, gear.rarity).random()
+                val valueRange = propertyService.getGearValueRange(gear.type, gear.rarity, gear.stat)
+                gear.statValue = valueRange.first + ((gear.statQuality * (valueRange.second - valueRange.first)) / 100)
+                gear.modificationAllowed = modification
+            }
+            Modification.INC_RARITY -> {
+                gear.rarity = Rarity.values().find { it.stars == gear.rarity.stars + 1 }!!
+                val valueRange = propertyService.getGearValueRange(gear.type, gear.rarity, gear.stat)
+                gear.statValue = valueRange.first + ((gear.statQuality * (valueRange.second - valueRange.first)) / 100)
+            }
+            Modification.ADD_JEWEL -> {
+                if (gear.jewelSlot1 == null) {
+                    gear.jewelSlot1 = getJewelSlot(gear.type)
+                    gear.modificationAllowed = Modification.REROLL_JEWEL_1
+                } else if (gear.jewelSlot2 == null) {
+                    gear.jewelSlot2 = getJewelSlot(gear.type)
+                    gear.modificationAllowed = Modification.REROLL_JEWEL_2
+                } else if (gear.jewelSlot3 == null) {
+                    gear.jewelSlot3 = getJewelSlot(gear.type)
+                    gear.modificationAllowed = Modification.REROLL_JEWEL_3
+                } else if (gear.jewelSlot4 == null) {
+                    gear.jewelSlot4 = getJewelSlot(gear.type)
+                    gear.modificationAllowed = Modification.REROLL_JEWEL_4
+                }
+            }
+            Modification.REROLL_JEWEL_1 -> {
+                gear.jewelSlot1 = getJewelSlot(gear.type)
+                gear.modificationAllowed = modification
+            }
+            Modification.REROLL_JEWEL_2 -> {
+                gear.jewelSlot2 = getJewelSlot(gear.type)
+                gear.modificationAllowed = Modification.REROLL_JEWEL_2
+            }
+            Modification.REROLL_JEWEL_3 -> {
+                gear.jewelSlot3 = getJewelSlot(gear.type)
+                gear.modificationAllowed = Modification.REROLL_JEWEL_3
+            }
+            Modification.REROLL_JEWEL_4 -> {
+                gear.jewelSlot4 = getJewelSlot(gear.type)
+                gear.modificationAllowed = Modification.REROLL_JEWEL_4
+            }
+            Modification.ADD_SPECIAL_JEWEL -> {
+                gear.specialJewelSlot = true
+            }
+        }
+        gear.modificationInProgress = false
+        gear.modificationPerformed = true
+        return gear
+    }
 
     fun createGear(playerId: Long,
                    sets: List<GearSet>,

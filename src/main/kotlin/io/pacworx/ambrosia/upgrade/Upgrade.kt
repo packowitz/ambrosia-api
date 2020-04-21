@@ -26,6 +26,8 @@ data class Upgrade(
     val vehiclePartId: Long? = null,
     val jewelType: JewelType? = null,
     val jewelLevel: Int? = null,
+    val gearModification: Modification? = null,
+    val gearId: Long? = null,
     var secondsSpend: Int = 0
 ) {
     fun isFinished(): Boolean = finishTimestamp.isBefore(Instant.now())

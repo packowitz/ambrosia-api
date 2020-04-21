@@ -4,6 +4,7 @@ import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
@@ -26,35 +27,65 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
     fun getAllUpgrades(player: Player): List<Upgrade> = upgradeRepository.findAllByPlayerIdOrderByPositionAsc(player.id)
 
     fun levelUpBuilding(player: Player, buildingType: BuildingType): Building {
-        val building = buildingRepository.findByPlayerIdAndType(player.id, buildingType)!!.also {
+        return buildingRepository.findByPlayerIdAndType(player.id, buildingType)!!.also {
             it.level++
             it.upgradeTriggered = false
+            applyBuildingLevel(player, it)
         }
+    }
+
+    fun applyBuildingLevel(player: Player, building: Building, progress: Progress = progressRepository.getOne(player.id)) {
         when(building.type) {
             BuildingType.ACADEMY -> {
-                val maxLvl = propertyService.getProperties(PropertyType.ACADEMY_BUILDING, building.level).sumBy { it.value1 }
-                progressRepository.getOne(player.id).maxTrainingLevel = maxLvl
+                progress.maxTrainingLevel = propertyService.getProperties(PropertyType.ACADEMY_BUILDING, building.level).sumBy { it.value1 }
             }
             BuildingType.ARENA -> TODO()
             BuildingType.BARRACKS -> {
-                val inc = propertyService.getProperties(PropertyType.BARRACKS_BUILDING, building.level).sumBy { it.value1 }
-                progressRepository.getOne(player.id).barrackSize += inc
+                progress.barrackSize += propertyService.getProperties(PropertyType.BARRACKS_BUILDING, building.level).sumBy { it.value1 }
             }
             BuildingType.BAZAAR -> TODO()
-            BuildingType.FORGE -> TODO()
+            BuildingType.FORGE -> {
+                propertyService.getProperties(PropertyType.FORGE_MOD_RARITY, building.level).forEach {
+                    progress.gearModificationRarity = it.value1
+                }
+                propertyService.getProperties(PropertyType.FORGE_MOD_SPEED, building.level).forEach {
+                    progress.gearModificationSpeed += it.value1
+                }
+                propertyService.getProperties(PropertyType.FORGE_BREAKDOWN_RARITY, building.level).forEach {
+                    progress.gearBreakDownRarity = it.value1
+                }
+                propertyService.getProperties(PropertyType.FORGE_BREAKDOWN_RES, building.level).forEach {
+                    progress.gearBreakDownResourcesInc += it.value1
+                }
+                propertyService.getProperties(PropertyType.FORGE_REROLL_QUAL, building.level).forEach {
+                    progress.reRollGearQualityEnabled = progress.reRollGearQualityEnabled || it.value1 == 1
+                }
+                propertyService.getProperties(PropertyType.FORGE_REROLL_STAT, building.level).forEach {
+                    progress.reRollGearStatEnabled = progress.reRollGearStatEnabled || it.value1 == 1
+                }
+                propertyService.getProperties(PropertyType.FORGE_INC_RARITY, building.level).forEach {
+                    progress.incGearRarityEnabled = progress.incGearRarityEnabled || it.value1 == 1
+                }
+                propertyService.getProperties(PropertyType.FORGE_REROLL_JEWEL, building.level).forEach {
+                    progress.reRollGearJewelEnabled = progress.reRollGearJewelEnabled || it.value1 == 1
+                }
+                propertyService.getProperties(PropertyType.FORGE_ADD_JEWEL, building.level).forEach {
+                    progress.addGearJewelEnabled = progress.addGearJewelEnabled || it.value1 == 1
+                }
+                propertyService.getProperties(PropertyType.FORGE_ADD_SP_JEWEL, building.level).forEach {
+                    progress.addGearSpecialJewelEnabled = progress.addGearSpecialJewelEnabled || it.value1 == 1
+                }
+            }
             BuildingType.GARAGE -> {
-                val progress = progressRepository.getOne(player.id)
                 propertyService.getProperties(PropertyType.GARAGE_BUILDING, building.level).forEach { prop ->
                     progress.vehicleStorage += prop.value1
                     prop.value2?.let { progress.vehiclePartStorage += it }
                 }
             }
             BuildingType.JEWELRY -> {
-                val maxLvl = propertyService.getProperties(PropertyType.JEWELRY_BUILDING, building.level).sumBy { it.value1 }
-                progressRepository.getOne(player.id).maxJewelUpgradingLevel = maxLvl
+                progress.maxJewelUpgradingLevel = propertyService.getProperties(PropertyType.JEWELRY_BUILDING, building.level).sumBy { it.value1 }
             }
             BuildingType.LABORATORY -> {
-                val progress = progressRepository.getOne(player.id)
                 propertyService.getProperties(PropertyType.LABORATORY_INCUBATORS, building.level).forEach { prop ->
                     progress.incubators += prop.value1
                 }
@@ -70,7 +101,6 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
                     }
             }
         }
-        return building
     }
 
     fun levelUpVehicle(vehicleId: Long): Vehicle {
