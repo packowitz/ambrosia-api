@@ -28,7 +28,7 @@ data class HeroDto(val id: Long,
                    var shield: Gear?,
                    var helmet: Gear?,
                    var armor: Gear?,
-                   var pants: Gear?,
+                   var gloves: Gear?,
                    var boots: Gear?) {
 
     var baseStrength = if (this.level == 60) {
@@ -114,7 +114,7 @@ data class HeroDto(val id: Long,
     var confuseChance: Int = 0
     var damageReduction: Int = 0
 
-    constructor(hero: Hero) : this(hero.id, hero.missionId, hero.heroBase, hero.stars, hero.level, hero.xp, hero.maxXp, hero.skill1, hero.skill2, hero.skill3, hero.skill4, hero.skill5, hero.skill6, hero.skill7, hero.skillPoints, hero.ascLvl, hero.ascPoints, hero.ascPointsMax, hero.weapon, hero.shield, hero.helmet, hero.armor, hero.pants, hero.boots)
+    constructor(hero: Hero) : this(hero.id, hero.missionId, hero.heroBase, hero.stars, hero.level, hero.xp, hero.maxXp, hero.skill1, hero.skill2, hero.skill3, hero.skill4, hero.skill5, hero.skill6, hero.skill7, hero.skillPoints, hero.ascLvl, hero.ascPoints, hero.ascPointsMax, hero.weapon, hero.shield, hero.helmet, hero.armor, hero.gloves, hero.boots)
 
     fun getGears(): List<Gear> {
         val gears = mutableListOf<Gear>()
@@ -122,7 +122,7 @@ data class HeroDto(val id: Long,
         shield?.let { gears.add(it) }
         helmet?.let { gears.add(it) }
         armor?.let { gears.add(it) }
-        pants?.let { gears.add(it) }
+        gloves?.let { gears.add(it) }
         boots?.let { gears.add(it) }
         return gears
     }

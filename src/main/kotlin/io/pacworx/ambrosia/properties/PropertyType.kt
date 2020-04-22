@@ -55,7 +55,7 @@ enum class PropertyType(
     SHIELD_GEAR(GEAR, "Gear rarity (1-6). Stat: which stat the gear gives. From - To defines the range for this stat."),
     HELMET_GEAR(GEAR, "Gear rarity (1-6). Stat: which stat the gear gives. From - To defines the range for this stat."),
     ARMOR_GEAR(GEAR, "Gear rarity (1-6). Stat: which stat the gear gives. From - To defines the range for this stat."),
-    PANTS_GEAR(GEAR, "Gear rarity (1-6). Stat: which stat the gear gives. From - To defines the range for this stat."),
+    GLOVES_GEAR(GEAR, "Gear rarity (1-6). Stat: which stat the gear gives. From - To defines the range for this stat."),
     BOOTS_GEAR(GEAR, "Gear rarity (1-6). Stat: which stat the gear gives. From - To defines the range for this stat."),
 
     BATTLE_ARMOR(BATTLE, "Threshold: 100*dmg/armor. ArmorReduction in Percentage (0-100). HealthReduction: Percentage of damage (0-100) that is going through armor."),

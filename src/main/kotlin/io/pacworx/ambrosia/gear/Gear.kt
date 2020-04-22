@@ -142,10 +142,10 @@ data class Gear(
         return when (modification) {
             Modification.INC_RARITY -> rarity != Rarity.LEGENDARY
             Modification.ADD_JEWEL -> jewelSlot4 == null
-            Modification.REROLL_JEWEL_1 -> jewelSlot1 != null
-            Modification.REROLL_JEWEL_2 -> jewelSlot2 != null
-            Modification.REROLL_JEWEL_3 -> jewelSlot3 != null
-            Modification.REROLL_JEWEL_4 -> jewelSlot4 != null
+            Modification.REROLL_JEWEL_1 -> jewelSlot1 != null && jewel1Type == null
+            Modification.REROLL_JEWEL_2 -> jewelSlot2 != null && jewel2Type == null
+            Modification.REROLL_JEWEL_3 -> jewelSlot3 != null && jewel3Type == null
+            Modification.REROLL_JEWEL_4 -> jewelSlot4 != null && jewel4Type == null
             Modification.ADD_SPECIAL_JEWEL -> type == GearType.ARMOR && !specialJewelSlot
             else -> true
         }

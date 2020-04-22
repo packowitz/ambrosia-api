@@ -5,7 +5,6 @@ import io.pacworx.ambrosia.enums.SkillActiveTrigger
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.hero.base.HeroBase
 import javax.persistence.*
-import kotlin.math.ceil
 import kotlin.math.max
 
 @Entity
@@ -45,8 +44,8 @@ data class Hero(
     @JoinColumn(name = "armor_id")
     var armor: Gear? = null,
     @OneToOne
-    @JoinColumn(name = "pants_id")
-    var pants: Gear? = null,
+    @JoinColumn(name = "gloves_id")
+    var gloves: Gear? = null,
     @OneToOne
     @JoinColumn(name = "boots_id")
     var boots: Gear? = null
@@ -78,7 +77,7 @@ data class Hero(
         GearType.SHIELD -> this.shield
         GearType.HELMET -> this.helmet
         GearType.ARMOR -> this.armor
-        GearType.PANTS -> this.pants
+        GearType.GLOVES -> this.gloves
         GearType.BOOTS -> this.boots
     }
 
@@ -90,7 +89,7 @@ data class Hero(
             GearType.SHIELD -> this.shield = gear
             GearType.HELMET -> this.helmet = gear
             GearType.ARMOR -> this.armor = gear
-            GearType.PANTS -> this.pants = gear
+            GearType.GLOVES -> this.gloves = gear
             GearType.BOOTS -> this.boots = gear
         }
         gear.equippedTo = this.id
@@ -105,7 +104,7 @@ data class Hero(
             GearType.SHIELD -> this.shield = null
             GearType.HELMET -> this.helmet = null
             GearType.ARMOR -> this.armor = null
-            GearType.PANTS -> this.pants = null
+            GearType.GLOVES -> this.gloves = null
             GearType.BOOTS -> this.boots = null
         }
         return unequipped

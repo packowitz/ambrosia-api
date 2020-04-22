@@ -38,6 +38,9 @@ class GearController(private val gearRepository: GearRepository,
         if (gear.equippedTo != null) {
             throw RuntimeException("You cannot equip a gear that is already equipped")
         }
+        if (gear.modificationInProgress) {
+            throw RuntimeException("You cannot equip a gear that is currently in modification")
+        }
         val unequipped = hero.equip(gear)
         return PlayerActionResponse(hero = heroService.asHeroDto(hero), gear = unequipped, gearIdsRemovedFromArmory = listOf(gear.id))
     }
@@ -64,6 +67,9 @@ class GearController(private val gearRepository: GearRepository,
         val gear = gearRepository.getOne(request.gearId)
         if (gear.playerId != player.id) {
             throw RuntimeException("You are only allowed to do actions on your own heroes")
+        }
+        if (gear.modificationInProgress) {
+            throw RuntimeException("You cannot plugin jewels to a gear that is currently in modification")
         }
         val gearJewelSlot = gear.getJewelSlot(request.slot)
                 ?: throw RuntimeException("Gear doesn't have slot ${request.slot}")

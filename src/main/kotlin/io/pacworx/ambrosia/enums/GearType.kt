@@ -5,6 +5,6 @@ enum class GearType {
     SHIELD,
     HELMET,
     ARMOR,
-    PANTS,
+    GLOVES,
     BOOTS
 }
