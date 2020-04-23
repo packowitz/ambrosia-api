@@ -102,6 +102,7 @@ class UpgradeController(private val upgradeService: UpgradeService,
             vehicles = listOfNotNull(upgrade.vehicleId?.let { upgradeService.cancelVehicleUpgrade(it) }),
             vehicleParts = listOfNotNull(upgrade.vehiclePartId?.let { upgradeService.cancelVehiclePartUpgrade(it) }),
             jewelries = listOfNotNull(jewelry),
+            gears = listOfNotNull(upgrade.gearId?.let { upgradeService.cancelGearUpgrade(it) }),
             upgrades = currentUpgrades,
             upgradeRemoved = upgrade.id
         )

@@ -3,6 +3,8 @@ package io.pacworx.ambrosia.upgrade
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.gear.Gear
+import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -22,7 +24,8 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
                      private val vehiclePartRepository: VehiclePartRepository,
                      private val propertyService: PropertyService,
                      private val progressRepository: ProgressRepository,
-                     private val resourcesService: ResourcesService) {
+                     private val resourcesService: ResourcesService,
+                     private val gearRepository: GearRepository) {
 
     fun getAllUpgrades(player: Player): List<Upgrade> = upgradeRepository.findAllByPlayerIdOrderByPositionAsc(player.id)
 
@@ -132,6 +135,12 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
     fun cancelVehiclePartUpgrade(vehiclePartId: Long): VehiclePart {
         return vehiclePartRepository.getOne(vehiclePartId).also {
             it.upgradeTriggered = false
+        }
+    }
+
+    fun cancelGearUpgrade(gearId: Long): Gear {
+        return gearRepository.getOne(gearId).also {
+            it.modificationInProgress = false
         }
     }
 

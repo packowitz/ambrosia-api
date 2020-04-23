@@ -11,13 +11,7 @@ import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
-import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 import kotlin.math.round
 import kotlin.random.Random
@@ -30,32 +24,38 @@ class ForgeController(val gearRepository: GearRepository,
                       val propertyService: PropertyService,
                       val resourcesService: ResourcesService) {
 
-    @PostMapping("breakdown/{gearId}")
+    @PostMapping("breakdown")
     @Transactional
     fun breakDown(@ModelAttribute("player") player: Player,
-               @PathVariable gearId: Long): PlayerActionResponse {
-        val gear = gearRepository.findByIdOrNull(gearId)
-            ?: throw RuntimeException("Unknown gear")
+                  @RequestBody request: BreakDownRequest): PlayerActionResponse {
+        val gears = gearRepository.findAllById(request.gearIds)
         val progress = progressRepository.getOne(player.id)
-        if (gear.equippedTo != null || gear.rarity.stars > progress.gearBreakDownRarity || gear.modificationInProgress) {
+        if (gears.any { it.equippedTo != null } || gears.any { it.rarity.stars > progress.gearBreakDownRarity } || gears.any { it.modificationInProgress }) {
             throw RuntimeException("Cannot break down gear")
         }
         var resources: Resources? = null
 
-        val looted = propertyService.getProperties(resolveBreakdownPropertyType(gear), gear.rarity.stars).map {
-            val amount = round(Random.nextInt(it.value1, it.value2!! + 1) * (100.0 + progress.gearBreakDownResourcesInc) / 100).toInt()
-            resources = resourcesService.gainResources(player,  it.resourceType!!, amount)
-            Looted(
-                type = LootItemType.RESOURCE,
-                resourceType = it.resourceType,
-                value = amount.toLong()
-            )
+        val looted = mutableListOf<Looted>()
+        gears.map { gear ->
+            propertyService.getProperties(resolveBreakdownPropertyType(gear), gear.rarity.stars).map { prop ->
+                val amount = round(Random.nextInt(prop.value1, prop.value2!! + 1) * (100.0 + progress.gearBreakDownResourcesInc) / 100).toInt()
+                resources = resourcesService.gainResources(player, prop.resourceType!!, amount)
+                val loot = looted.find { it.resourceType ==  prop.resourceType}
+                if (loot != null) {
+                    loot.value += amount.toLong()
+                } else {
+                    looted.add(Looted(
+                        type = LootItemType.RESOURCE,
+                        resourceType = prop.resourceType,
+                        value = amount.toLong()))
+                }
+            }
         }
 
-        gearRepository.delete(gear)
+        gearRepository.deleteAll(gears)
         return PlayerActionResponse(
             resources = resources,
-            gearIdsRemovedFromArmory = listOf(gear.id),
+            gearIdsRemovedFromArmory = gears.map { it.id },
             looted = looted
         )
     }
@@ -95,4 +95,8 @@ class ForgeController(val gearRepository: GearRepository,
             PropertyType.FORGE_BREAKDOWN_0_JEWEL
         }
     }
+
+    data class BreakDownRequest(
+        val gearIds: List<Long>
+    )
 }

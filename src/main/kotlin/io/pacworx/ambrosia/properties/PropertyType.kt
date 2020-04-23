@@ -40,11 +40,6 @@ enum class PropertyType(
     MYTHICAL_MIRROR_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
     WARHORN_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
     REVERSED_REALITY_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
-    MARK_1_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
-    MARK_2_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
-    MARK_3_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
-    MARK_4_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
-    MARK_5_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
 
     XP_MAX_HERO(HERO, "Level: hero level (1-60). Value: max xp to reach next level."),
     ASC_POINTS_MAX_HERO(HERO, "Level: hero ascension level (1-??). Value: max asc points to reach next level."),
@@ -68,11 +63,6 @@ enum class PropertyType(
     MYTHICAL_MIRROR_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
     WARHORN_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
     REVERSED_REALITY_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
-    MARK_1_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
-    MARK_2_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
-    MARK_3_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
-    MARK_4_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
-    MARK_5_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
 
     ARMOR_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     COUNTERATTACK_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),

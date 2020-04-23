@@ -58,6 +58,20 @@ data class Gear(
     var specialJewelLevel: Int? = null
 ) {
 
+    fun getGearQuality(): GearQuality {
+        return when {
+            statQuality > 100 -> GearQuality.GODLIKE
+            statQuality == 100 -> GearQuality.PERFECT
+            statQuality >= 95 -> GearQuality.FLAWLESS
+            statQuality >= 90 -> GearQuality.AWESOME
+            statQuality >= 80 -> GearQuality.GOOD
+            statQuality >= 70 -> GearQuality.USEFUL
+            statQuality >= 50 -> GearQuality.ORDINARY
+            statQuality >= 25 -> GearQuality.RUSTY
+            else -> GearQuality.SHABBY
+        }
+    }
+
     fun getJewel(slot: Int): Pair<JewelType, Int>? {
         return when(slot) {
             0 -> specialJewelType?.let { Pair(it, specialJewelLevel!!) }

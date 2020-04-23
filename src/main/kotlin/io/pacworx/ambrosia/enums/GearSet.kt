@@ -16,10 +16,5 @@ enum class GearSet {
     BERSERKERS_AXE,
     MYTHICAL_MIRROR,
     WARHORN,
-    REVERSED_REALITY,
-    MARK_1,
-    MARK_2,
-    MARK_3,
-    MARK_4,
-    MARK_5
+    REVERSED_REALITY
 }
