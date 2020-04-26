@@ -24,7 +24,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.GET, "/swagger/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/enum/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/enums").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and().addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter::class.java)
