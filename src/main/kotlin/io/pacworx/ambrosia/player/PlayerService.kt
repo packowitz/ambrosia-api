@@ -102,7 +102,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
         buildingRepository.save(Building(playerId = player.id, type = BuildingType.STORAGE))
 
         val progress = Progress(playerId = player.id)
-        upgradeService.applyBuildingLevel(player, barracks)
+        upgradeService.applyBuildingLevel(player, barracks, progress)
         progressRepository.save(progress)
 
         return player
