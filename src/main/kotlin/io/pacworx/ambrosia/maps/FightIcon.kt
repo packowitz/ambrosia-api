@@ -1,5 +1,5 @@
 package io.pacworx.ambrosia.maps
 
 enum class FightIcon {
-    SLIME, HAMSTER
+    CYBORG, FIGHT, GARGOYLE, GREEN_GOBLIN, LIGHTNING, MASK, SHADOW, SKELETT, SWORD_SHIELD
 }
