@@ -13,8 +13,14 @@ class PropertyController(private val propertyService: PropertyService) {
     }
 
     @GetMapping("category/{category}")
-    fun getPropertiesByCategory(@PathVariable("category") category: PropertyCategory): Map<String, List<DynamicProperty>> {
-        return PropertyType.values().asList().filter { it.category == category }.map { it.name to propertyService.getAllProperties(it) }.toMap()
+    fun getPropertiesByCategory(@PathVariable("category") category: PropertyCategory): List<DynamicProperty> {
+        return PropertyType.values().asList().find { it.category == category }?.let { propertyService.getAllProperties(it) }
+            ?: throw RuntimeException("Unknown property category")
+    }
+
+    @GetMapping("categories/{categories}")
+    fun getPropertiesByCategories(@PathVariable("categories") categories: List<PropertyCategory>): List<DynamicProperty> {
+        return PropertyType.values().asList().filter { it.category in categories }.map { propertyService.getAllProperties(it) }.flatten()
     }
 
 
