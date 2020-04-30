@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.buildings
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.player.Player
@@ -34,17 +35,22 @@ class AcademyController(private val heroRepository: HeroRepository,
         if (hero.level > progress.maxTrainingLevel) {
             throw RuntimeException("Heros level too high to get trained in the academy. Level up your Academy.")
         }
-        val deletedHeroIds = heroes.filter { it.id != heroId }.map {
-            val gainedXp = propertyService.getHeroMergedXp(it.level)
+        val updatedGear = mutableListOf<Gear>()
+        val deletedHeroIds = heroes.filter { it.id != heroId }.map { hero ->
+            val gainedXp = propertyService.getHeroMergedXp(hero.level)
             heroService.heroGainXp(hero, gainedXp)
-            if (hero.heroBase.heroClass == it.heroBase.heroClass) {
-                val gainedAsc = propertyService.getHeroMergedAsc(it.heroBase.rarity.stars)
+            if (hero.heroBase.heroClass == hero.heroBase.heroClass) {
+                val gainedAsc = propertyService.getHeroMergedAsc(hero.heroBase.rarity.stars)
                 heroService.heroGainAsc(hero, gainedAsc)
             }
-            it.id
+            updatedGear.addAll(hero.unequipAll())
+            hero.id
         }
         heroRepository.deleteAllByIdIn(deletedHeroIds)
-        return PlayerActionResponse(heroes = listOf(heroService.asHeroDto(hero)), heroIdsRemoved = deletedHeroIds)
+        return PlayerActionResponse(
+            heroes = listOf(heroService.asHeroDto(hero)),
+            gears = updatedGear,
+            heroIdsRemoved = deletedHeroIds)
     }
 
     @PostMapping("hero/{heroId}/evolve")

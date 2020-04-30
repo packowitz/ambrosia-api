@@ -31,11 +31,25 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val fightRepository: FightRepository,
                     private val teamRepository: TeamRepository,
                     private val vehicleRepository: VehicleRepository,
-                    private val vehicleService: VehicleService) {
+                    private val vehicleService: VehicleService,
+                    private val battleHeroRepository: BattleHeroRepository) {
     private val log = KotlinLogging.logger {}
 
     companion object {
         const val SPEEDBAR_MAX: Int = 10000
+    }
+
+    fun deleteBattle(battle: Battle) {
+        var stage = battle
+        while (stage.nextBattleId != null) {
+            stage = battleRepository.getOne(stage.nextBattleId!!)
+            battleRepository.delete(stage)
+        }
+        battleRepository.delete(battle)
+        battle.hero1?.let { battleHeroRepository.delete(it) }
+        battle.hero2?.let { battleHeroRepository.delete(it) }
+        battle.hero3?.let { battleHeroRepository.delete(it) }
+        battle.hero4?.let { battleHeroRepository.delete(it) }
     }
 
     @Transactional
