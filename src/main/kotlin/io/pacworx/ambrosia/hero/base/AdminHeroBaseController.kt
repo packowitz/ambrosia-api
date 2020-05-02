@@ -61,6 +61,12 @@ class AdminHeroBaseController(val heroBaseRepository: HeroBaseRepository,
             missionRepository.findAllByContainingHero(hero.id).forEach { missionId ->
                 val mission = missionRepository.getOne(missionId)
                 val vehicle = vehicleRepository.getOne(mission.vehicleId)
+                heroRepository.findAllById(listOfNotNull(
+                    mission.hero1Id?.takeIf { it != hero.id },
+                    mission.hero2Id?.takeIf { it != hero.id },
+                    mission.hero3Id?.takeIf { it != hero.id },
+                    mission.hero4Id?.takeIf { it != hero.id }
+                )).forEach { it.missionId = null }
                 vehicle.missionId = null
                 missionRepository.delete(mission)
             }

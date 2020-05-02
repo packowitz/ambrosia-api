@@ -33,18 +33,18 @@ class AcademyController(private val heroRepository: HeroRepository,
             ?: throw RuntimeException("Unknown hero $heroId for player ${player.id}")
         val progress = progressRepository.getOne(player.id)
         if (hero.level > progress.maxTrainingLevel) {
-            throw RuntimeException("Heros level too high to get trained in the academy. Level up your Academy.")
+            throw RuntimeException("Hero's level too high to get trained in the academy. Level up your Academy.")
         }
         val updatedGear = mutableListOf<Gear>()
-        val deletedHeroIds = heroes.filter { it.id != heroId }.map { hero ->
-            val gainedXp = propertyService.getHeroMergedXp(hero.level)
+        val deletedHeroIds = heroes.filter { it.id != heroId }.map { fodder ->
+            val gainedXp = propertyService.getHeroMergedXp(fodder.level)
             heroService.heroGainXp(hero, gainedXp)
-            if (hero.heroBase.heroClass == hero.heroBase.heroClass) {
-                val gainedAsc = propertyService.getHeroMergedAsc(hero.heroBase.rarity.stars)
+            if (hero.heroBase.heroClass == fodder.heroBase.heroClass) {
+                val gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
                 heroService.heroGainAsc(hero, gainedAsc)
             }
-            updatedGear.addAll(hero.unequipAll())
-            hero.id
+            updatedGear.addAll(fodder.unequipAll())
+            fodder.id
         }
         heroRepository.deleteAllByIdIn(deletedHeroIds)
         return PlayerActionResponse(
