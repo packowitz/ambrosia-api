@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.battle
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.enums.Buff
 import javax.persistence.*
 
@@ -21,6 +22,7 @@ data class BattleStepAction(
     val healthDiff: Int? = null,
     val shieldAbsorb: Int? = null,
     @Enumerated(EnumType.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     val buff: Buff? = null,
     val buffIntensity: Int? = null,
     val buffDuration: Int? = null,
