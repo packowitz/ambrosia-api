@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.enums
 
+import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.BattleHero
 import io.pacworx.ambrosia.battle.BattleHeroBuff
@@ -15,16 +17,21 @@ import io.pacworx.ambrosia.properties.PropertyType
  * - add buff to SkillActionEffect
  * - add icon to UI
  */
-enum class Buff(val type: BuffType, val propertyType: PropertyType) {
-    ARMOR_BUFF(BuffType.BUFF, PropertyType.ARMOR_BUFF),
-    COUNTERATTACK(BuffType.BUFF, PropertyType.COUNTERATTACK_BUFF),
-    DEATHSHIELD(BuffType.BUFF, PropertyType.DEATHSHIELD_BUFF),
-    HEAL_OVER_TIME(BuffType.BUFF, PropertyType.HOT_BUFF),
-    SHIELD(BuffType.BUFF, PropertyType.SHIELD_BUFF),
-    STRENGTH_BUFF(BuffType.BUFF, PropertyType.STRENGTH_BUFF),
-    TAUNT_BUFF(BuffType.BUFF, PropertyType.TAUNT_BUFF),
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+enum class Buff(
+    val type: BuffType,
+    @field:JsonFormat(shape = JsonFormat.Shape.STRING) val propertyType: PropertyType,
+    val description: String
+) {
+    ARMOR_BUFF(BuffType.BUFF, PropertyType.ARMOR_BUFF, "Increases hero's armor"),
+    COUNTERATTACK(BuffType.BUFF, PropertyType.COUNTERATTACK_BUFF, "Increases the possibility to counter an attack"),
+    DEATHSHIELD(BuffType.BUFF, PropertyType.DEATHSHIELD_BUFF, "Hero cannot die (stay at 1 HP lowest)"),
+    HEAL_OVER_TIME(BuffType.BUFF, PropertyType.HOT_BUFF, "Healing the hero in the beginning of his turn"),
+    SHIELD(BuffType.BUFF, PropertyType.SHIELD_BUFF, "Shield absorbs incoming damage (before armor)"),
+    STRENGTH_BUFF(BuffType.BUFF, PropertyType.STRENGTH_BUFF, "Increases hero's strength"),
+    TAUNT_BUFF(BuffType.BUFF, PropertyType.TAUNT_BUFF, "Taunting heroes must be attacked first"),
 
-    CONFUSE(BuffType.DEBUFF, PropertyType.CONFUSE_DEBUFF) {
+    CONFUSE(BuffType.DEBUFF, PropertyType.CONFUSE_DEBUFF, "Confused heroes attack a random ally if there is one alive otherwise their turn is skipped.") {
         override fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
             super.applyEffect(battle, hero, buff, propertyService)
             if (hero.status != HeroStatus.DEAD && hero.status != HeroStatus.STUNNED) {
@@ -32,9 +39,9 @@ enum class Buff(val type: BuffType, val propertyType: PropertyType) {
             }
         }
     },
-    DAMAGE_OVER_TIME(BuffType.DEBUFF, PropertyType.DOT_DEBUFF),
-    HEAL_BLOCK(BuffType.DEBUFF, PropertyType.HEAL_BLOCK_DEBUFF),
-    STUN(BuffType.DEBUFF, PropertyType.STUN_DEBUFF) {
+    DAMAGE_OVER_TIME(BuffType.DEBUFF, PropertyType.DOT_DEBUFF, "Dealing damage to the hero in the beginning of his turn"),
+    HEAL_BLOCK(BuffType.DEBUFF, PropertyType.HEAL_BLOCK_DEBUFF, "Reducing any healing the hero receives"),
+    STUN(BuffType.DEBUFF, PropertyType.STUN_DEBUFF, "Stunned heroes are skipping their turn") {
         override fun applyEffect(battle: Battle, hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
             super.applyEffect(battle, hero, buff, propertyService)
             if (hero.status != HeroStatus.DEAD) {
@@ -42,7 +49,9 @@ enum class Buff(val type: BuffType, val propertyType: PropertyType) {
             }
         }
     },
-    WEAK(BuffType.DEBUFF, PropertyType.WEAK_DEBUFF);
+    WEAK(BuffType.DEBUFF, PropertyType.WEAK_DEBUFF, "Decreases hero's strength");
+
+    fun getBuffName(): String = name
 
     open fun initTurnEffect(hero: BattleHero, buff: BattleHeroBuff, propertyService: PropertyService) {
         propertyService.getProperties(propertyType, buff.intensity).forEach {

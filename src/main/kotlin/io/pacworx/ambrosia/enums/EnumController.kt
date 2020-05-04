@@ -42,6 +42,7 @@ class EnumController {
         val heroStats: List<HeroStat> = HeroStat.values().asList(),
         val gearSets: List<GearSet> = GearSet.values().asList(),
         val gearTypes: List<GearType> = GearType.values().asList(),
+        val buffs: List<Buff> = Buff.values().asList(),
         val jewelTypes: List<JewelType> = JewelType.values().asList(),
         val passiveSkillTriggers: List<PassiveSkillTrigger> = PassiveSkillTrigger.values().asList(),
         val mapTileTypes: List<MapTileType> = MapTileType.values().asList(),
