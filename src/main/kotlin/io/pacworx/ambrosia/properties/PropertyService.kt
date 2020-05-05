@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.properties
 
 import io.pacworx.ambrosia.gear.Gear
+import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.gear.GearSet
 import io.pacworx.ambrosia.gear.GearType
 import io.pacworx.ambrosia.gear.HeroGearSet
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 
 @Service
-class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepository) {
+class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepository,
+                      private val gearRepository: GearRepository) {
 
     private lateinit var properties: MutableList<DynamicProperty>
 
@@ -33,6 +35,28 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
     }
 
     fun upsertProperties(type: PropertyType, properties: List<DynamicProperty>): List<DynamicProperty> {
+        val prevProps = getAllProperties(type)
+        if (type.category == PropertyCategory.GEAR) {
+            // if gear values have changed, existing gear needs to recalc it's stat
+            prevProps.forEach { prevProp ->
+                val newProp = properties.find { it.level == prevProp.level && it.stat == prevProp.stat }
+                if (newProp != null) {
+                    if (newProp.value2 == null) {
+                        throw RuntimeException("Gear properties require a second value")
+                    }
+                    if (newProp.value1 != prevProp.value1 || newProp.value2 != prevProp.value2) {
+                        val gearType = GearType.valueOf(type.name.substringBefore("_GEAR"))
+                        val rarity =  Rarity.values().find { it.stars == newProp.level }!!
+                        gearRepository.findAllByTypeAndRarity(gearType, rarity).forEach { gear ->
+                            gear.statValue = newProp.value1 + ((gear.statQuality * (newProp.value2 - newProp.value1)) / 100)
+                        }
+                    }
+                } else {
+                    throw RuntimeException("Removing a gear combination is not allowed")
+                }
+            }
+        }
+
         dynamicPropertyRepository.saveAll(properties)
         init()
         return getAllProperties(type)
@@ -94,19 +118,7 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
     }
 
     fun applyGear(hero: HeroDto, gear: Gear) {
-        when(gear.stat) {
-            HeroStat.STRENGTH_ABS -> HeroStat.STRENGTH_ABS.apply(hero, gear.statValue)
-            HeroStat.STRENGTH_PERC -> HeroStat.STRENGTH_PERC.apply(hero, gear.statValue)
-            HeroStat.HP_ABS -> HeroStat.HP_ABS.apply(hero, gear.statValue)
-            HeroStat.HP_PERC -> HeroStat.HP_PERC.apply(hero, gear.statValue)
-            HeroStat.ARMOR_ABS -> HeroStat.ARMOR_ABS.apply(hero, gear.statValue)
-            HeroStat.ARMOR_PERC -> HeroStat.ARMOR_PERC.apply(hero, gear.statValue)
-            HeroStat.SPEED -> HeroStat.SPEED.apply(hero, gear.statValue)
-            HeroStat.CRIT -> HeroStat.CRIT.apply(hero, gear.statValue)
-            HeroStat.CRIT_MULT -> HeroStat.CRIT_MULT.apply(hero, gear.statValue)
-            HeroStat.DEXTERITY -> HeroStat.DEXTERITY.apply(hero, gear.statValue)
-            HeroStat.RESISTANCE -> HeroStat.RESISTANCE.apply(hero, gear.statValue)
-        }
+        gear.stat.apply(hero, gear.statValue)
         gear.jewel1Type?.let { applyJewel(hero, it, gear.jewel1Level!!) }
         gear.jewel2Type?.let { applyJewel(hero, it, gear.jewel2Level!!) }
         gear.jewel3Type?.let { applyJewel(hero, it, gear.jewel3Level!!) }
