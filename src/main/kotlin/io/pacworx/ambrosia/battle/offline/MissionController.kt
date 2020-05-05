@@ -3,7 +3,7 @@ package io.pacworx.ambrosia.battle.offline
 import io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.battle.BattleStatus
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.enums.TeamType
+import io.pacworx.ambrosia.team.TeamType
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService

@@ -1,10 +1,7 @@
 package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.battle.offline.Mission
-import io.pacworx.ambrosia.enums.Rarity
 import io.pacworx.ambrosia.fights.Fight
-import io.pacworx.ambrosia.hero.base.HeroBase
-import io.pacworx.ambrosia.hero.base.HeroBaseRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.vehicle.Vehicle
@@ -61,7 +58,8 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
                     uncommonChance: Double? = null,
                     rareChance: Double? = null,
                     epicChance: Double? = null,
-                    default: Rarity): Hero {
+                    default: Rarity
+    ): Hero {
         var chance = Random.nextDouble()
         var rarity: Rarity? = null
         epicChance?.let {

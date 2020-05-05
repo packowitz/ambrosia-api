@@ -1,9 +1,8 @@
 package io.pacworx.ambrosia.hero
 
-import io.pacworx.ambrosia.enums.GearType
-import io.pacworx.ambrosia.enums.SkillActiveTrigger
+import io.pacworx.ambrosia.gear.GearType
 import io.pacworx.ambrosia.gear.Gear
-import io.pacworx.ambrosia.hero.base.HeroBase
+import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import javax.persistence.*
 import kotlin.math.max
 

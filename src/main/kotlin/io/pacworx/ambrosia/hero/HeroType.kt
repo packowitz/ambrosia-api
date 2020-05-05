@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.hero
 
 enum class HeroType {
     HEALER, DEFENDER, SUPPORTER, ATTACKER

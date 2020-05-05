@@ -1,11 +1,11 @@
 package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.enums.SkillTarget
-import io.pacworx.ambrosia.enums.TeamType
+import io.pacworx.ambrosia.hero.skills.SkillTarget
+import io.pacworx.ambrosia.team.TeamType
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroService
-import io.pacworx.ambrosia.hero.HeroSkill
+import io.pacworx.ambrosia.hero.skills.HeroSkill
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository

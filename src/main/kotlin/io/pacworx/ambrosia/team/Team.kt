@@ -1,6 +1,5 @@
 package io.pacworx.ambrosia.team
 
-import io.pacworx.ambrosia.enums.TeamType
 import javax.persistence.*
 
 @Entity

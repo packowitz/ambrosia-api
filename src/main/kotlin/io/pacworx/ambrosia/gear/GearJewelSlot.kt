@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.gear
 
 enum class GearJewelSlot(val gearTypes: List<GearType> = GearType.values().toList()) {
     STRENGTH,

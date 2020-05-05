@@ -1,7 +1,8 @@
 package io.pacworx.ambrosia.gear
 
 import io.pacworx.ambrosia.common.procs
-import io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.hero.HeroStat
+import io.pacworx.ambrosia.hero.Rarity
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.upgrade.Modification
 import org.springframework.data.repository.findByIdOrNull

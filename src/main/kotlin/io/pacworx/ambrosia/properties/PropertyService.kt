@@ -1,10 +1,16 @@
 package io.pacworx.ambrosia.properties
 
-import io.pacworx.ambrosia.enums.*
 import io.pacworx.ambrosia.gear.Gear
+import io.pacworx.ambrosia.gear.GearSet
+import io.pacworx.ambrosia.gear.GearType
 import io.pacworx.ambrosia.gear.HeroGearSet
+import io.pacworx.ambrosia.gear.JewelType
 import io.pacworx.ambrosia.hero.HeroDto
-import io.pacworx.ambrosia.hero.HeroSkillAction
+import io.pacworx.ambrosia.hero.skills.HeroSkillAction
+import io.pacworx.ambrosia.hero.HeroStat
+import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
+import io.pacworx.ambrosia.hero.Rarity
+import io.pacworx.ambrosia.hero.skills.SkillActionTrigger
 import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 

@@ -1,8 +1,8 @@
-package io.pacworx.ambrosia.hero.base
+package io.pacworx.ambrosia.hero
 
-import io.pacworx.ambrosia.enums.Color
-import io.pacworx.ambrosia.enums.Rarity
-import io.pacworx.ambrosia.hero.base.HeroBase
+import io.pacworx.ambrosia.hero.Color
+import io.pacworx.ambrosia.hero.HeroBase
+import io.pacworx.ambrosia.hero.Rarity
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface HeroBaseRepository: JpaRepository<HeroBase, Long> {

@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.hero
+package io.pacworx.ambrosia.hero.skills
 
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue

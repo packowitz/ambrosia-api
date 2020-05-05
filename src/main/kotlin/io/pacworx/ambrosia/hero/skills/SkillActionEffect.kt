@@ -1,8 +1,10 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.hero.skills
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.pacworx.ambrosia.enums.SkillActionType.*
+import io.pacworx.ambrosia.battle.Buff
+import io.pacworx.ambrosia.hero.skills.SkillActionType.*
+import io.pacworx.ambrosia.hero.HeroStat
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 enum class SkillActionEffect(val type: SkillActionType,

@@ -1,7 +1,6 @@
 package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.hero.base.HeroBaseRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.properties.PropertyService
 import org.springframework.web.bind.annotation.*

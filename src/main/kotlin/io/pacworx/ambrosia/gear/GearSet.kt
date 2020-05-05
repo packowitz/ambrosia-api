@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.gear
 
 /**
  * To add a new set you need to:

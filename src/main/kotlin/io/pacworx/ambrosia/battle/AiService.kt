@@ -1,6 +1,6 @@
 package io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.hero.HeroSkill
+import io.pacworx.ambrosia.hero.skills.HeroSkill
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 

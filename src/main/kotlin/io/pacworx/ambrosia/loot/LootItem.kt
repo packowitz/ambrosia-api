@@ -2,9 +2,8 @@ package io.pacworx.ambrosia.loot
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.pacworx.ambrosia.enums.Color
-import io.pacworx.ambrosia.enums.GearSet
-import io.pacworx.ambrosia.enums.JewelType
+import io.pacworx.ambrosia.hero.Color
+import io.pacworx.ambrosia.gear.JewelType
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.vehicle.PartQuality
 import io.pacworx.ambrosia.vehicle.PartType

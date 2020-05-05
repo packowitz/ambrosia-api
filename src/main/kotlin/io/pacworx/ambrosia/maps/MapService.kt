@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.buildings.BuildingType
-import io.pacworx.ambrosia.enums.Color
+import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import mu.KotlinLogging

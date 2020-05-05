@@ -1,8 +1,6 @@
 package io.pacworx.ambrosia.gear
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.pacworx.ambrosia.enums.GearJewelSlot
-import io.pacworx.ambrosia.enums.JewelType
 import java.lang.RuntimeException
 import javax.persistence.*
 

@@ -1,6 +1,6 @@
 package io.pacworx.ambrosia.buildings
 
-import io.pacworx.ambrosia.enums.Rarity
+import io.pacworx.ambrosia.hero.Rarity
 
 enum class GenomeType(
     val epicChance: Double? = null,

@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.hero.base
+package io.pacworx.ambrosia.hero
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*

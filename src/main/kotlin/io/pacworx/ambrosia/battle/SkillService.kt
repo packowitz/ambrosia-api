@@ -2,10 +2,15 @@ package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
 import io.pacworx.ambrosia.common.procs
-import io.pacworx.ambrosia.enums.*
-import io.pacworx.ambrosia.enums.SkillActionEffect.*
-import io.pacworx.ambrosia.hero.HeroSkill
-import io.pacworx.ambrosia.hero.HeroSkillAction
+import io.pacworx.ambrosia.hero.skills.SkillActionEffect.*
+import io.pacworx.ambrosia.hero.Color
+import io.pacworx.ambrosia.hero.skills.HeroSkill
+import io.pacworx.ambrosia.hero.skills.HeroSkillAction
+import io.pacworx.ambrosia.hero.HeroStat
+import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
+import io.pacworx.ambrosia.hero.skills.SkillActionTarget
+import io.pacworx.ambrosia.hero.skills.SkillActionTrigger
+import io.pacworx.ambrosia.hero.skills.SkillActionType
 import io.pacworx.ambrosia.properties.DynamicProperty
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
@@ -135,7 +140,7 @@ class SkillService(private val propertyService: PropertyService) {
             SkillActionTrigger.PREV_ACTION_NOT_PROCED -> lastActionProced == false
             SkillActionTrigger.ANY_CRIT_DMG -> step.actions.any { it.crit == true }
             SkillActionTrigger.DMG_OVER -> step.actions.sumBy { it.healthDiff ?: 0 } > action.triggerValue!!.toInt()
-            SkillActionTrigger.ASCENDED -> hero.ascLvl > 0
+            SkillActionTrigger.ASC_LVL -> if (action.triggerValue == null) { hero.ascLvl > 0 } else { action.triggerValue!!.split(",").contains(hero.ascLvl.toString()) }
         }
     }
 

@@ -3,7 +3,7 @@ package io.pacworx.ambrosia.upgrade
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.enums.JewelType
+import io.pacworx.ambrosia.gear.JewelType
 import io.pacworx.ambrosia.gear.GearService
 import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.player.Player

@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.hero.skills
 
 import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.BattleHero

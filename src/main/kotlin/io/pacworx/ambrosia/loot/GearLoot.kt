@@ -1,8 +1,8 @@
 package io.pacworx.ambrosia.loot
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.pacworx.ambrosia.enums.GearSet
-import io.pacworx.ambrosia.enums.GearType
+import io.pacworx.ambrosia.gear.GearSet
+import io.pacworx.ambrosia.gear.GearType
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType

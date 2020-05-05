@@ -1,6 +1,5 @@
 package io.pacworx.ambrosia.team
 
-import io.pacworx.ambrosia.enums.TeamType
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.player.Player

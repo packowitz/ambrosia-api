@@ -2,7 +2,8 @@ package io.pacworx.ambrosia.gear
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.upgrade.Modification
-import io.pacworx.ambrosia.enums.*
+import io.pacworx.ambrosia.hero.HeroStat
+import io.pacworx.ambrosia.hero.Rarity
 import java.lang.RuntimeException
 import javax.persistence.*
 

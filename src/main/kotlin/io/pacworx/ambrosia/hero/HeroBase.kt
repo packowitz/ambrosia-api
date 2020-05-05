@@ -1,9 +1,6 @@
-package io.pacworx.ambrosia.hero.base
+package io.pacworx.ambrosia.hero
 
-import io.pacworx.ambrosia.enums.Color
-import io.pacworx.ambrosia.enums.HeroType
-import io.pacworx.ambrosia.enums.Rarity
-import io.pacworx.ambrosia.hero.HeroSkill
+import io.pacworx.ambrosia.hero.skills.HeroSkill
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull

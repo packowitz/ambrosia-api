@@ -1,7 +1,21 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.common
 
 import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
+import io.pacworx.ambrosia.hero.skills.SkillActionEffect
+import io.pacworx.ambrosia.hero.skills.SkillActionTarget
+import io.pacworx.ambrosia.hero.skills.SkillActionTrigger
 import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
+import io.pacworx.ambrosia.gear.GearSet
+import io.pacworx.ambrosia.gear.GearType
+import io.pacworx.ambrosia.gear.JewelType
+import io.pacworx.ambrosia.hero.Color
+import io.pacworx.ambrosia.hero.HeroStat
+import io.pacworx.ambrosia.hero.HeroType
+import io.pacworx.ambrosia.hero.Rarity
+import io.pacworx.ambrosia.hero.skills.SkillActionType
+import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
+import io.pacworx.ambrosia.hero.skills.SkillTarget
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.maps.FightIcon
 import io.pacworx.ambrosia.maps.MapBackground
@@ -25,7 +39,8 @@ import org.springframework.web.bind.annotation.RestController
 class EnumController {
 
     @GetMapping
-    fun getAllEnums(): Enums = Enums()
+    fun getAllEnums(): Enums =
+        Enums()
 
     data class Enums(
         val colors: List<Color> = Color.values().asList(),

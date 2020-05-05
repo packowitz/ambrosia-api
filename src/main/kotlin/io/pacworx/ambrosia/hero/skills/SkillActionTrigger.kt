@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.hero.skills
 
 enum class SkillActionTrigger(description: String) {
     ALWAYS("Triggers always. No value needed"),
@@ -13,5 +13,5 @@ enum class SkillActionTrigger(description: String) {
     PREV_ACTION_NOT_PROCED("Triggers only when the previous step triggered and not proced"),
     ANY_CRIT_DMG("Triggers if at least damage crits. No value needed"),
     DMG_OVER("Triggers if base damage (before armor) at this point is higher than the given value"),
-    ASCENDED("Triggers if the hero is fully ascended")
+    ASC_LVL("Triggers on asc lvl. Value 4,5,6 to trigger on asc lvl 4, 5 or 6. No value means any asc lvl higher than 0.")
 }

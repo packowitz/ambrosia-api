@@ -1,9 +1,5 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.battle.Battle
-import io.pacworx.ambrosia.battle.BattleHero
-import io.pacworx.ambrosia.battle.BattleHeroBuff
-import io.pacworx.ambrosia.battle.HeroStatus
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
 

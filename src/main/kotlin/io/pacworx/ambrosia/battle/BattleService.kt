@@ -1,12 +1,11 @@
 package io.pacworx.ambrosia.battle
 
-import io.pacworx.ambrosia.enums.BuffType
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
 import io.pacworx.ambrosia.hero.Hero
 import io.pacworx.ambrosia.hero.HeroService
-import io.pacworx.ambrosia.hero.HeroSkill
+import io.pacworx.ambrosia.hero.skills.HeroSkill
 import io.pacworx.ambrosia.maps.SimplePlayerMapTile
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository

@@ -2,7 +2,7 @@ package io.pacworx.ambrosia.upgrade
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.buildings.BuildingType
-import io.pacworx.ambrosia.enums.JewelType
+import io.pacworx.ambrosia.gear.JewelType
 import io.pacworx.ambrosia.resources.ResourceType
 import java.time.Instant
 import java.time.temporal.ChronoUnit

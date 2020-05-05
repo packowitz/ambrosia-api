@@ -1,7 +1,6 @@
 package io.pacworx.ambrosia.gear
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.enums.JewelType
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.hero.HeroService

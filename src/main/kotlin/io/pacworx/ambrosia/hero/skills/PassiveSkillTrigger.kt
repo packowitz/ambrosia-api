@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.hero.skills
 
 enum class PassiveSkillTrigger {
     STAT_CALC,

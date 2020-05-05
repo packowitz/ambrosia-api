@@ -1,7 +1,7 @@
 package io.pacworx.ambrosia.player
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.enums.Color
+import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.maps.MapService
 import org.springframework.web.bind.annotation.*

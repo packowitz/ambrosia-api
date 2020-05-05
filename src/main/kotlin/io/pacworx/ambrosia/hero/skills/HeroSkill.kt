@@ -1,8 +1,5 @@
-package io.pacworx.ambrosia.hero
+package io.pacworx.ambrosia.hero.skills
 
-import io.pacworx.ambrosia.enums.PassiveSkillTrigger
-import io.pacworx.ambrosia.enums.SkillActiveTrigger
-import io.pacworx.ambrosia.enums.SkillTarget
 import javax.persistence.*
 
 @Entity

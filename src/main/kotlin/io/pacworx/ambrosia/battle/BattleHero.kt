@@ -2,10 +2,9 @@ package io.pacworx.ambrosia.battle
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
-import io.pacworx.ambrosia.enums.Buff
-import io.pacworx.ambrosia.enums.Color
+import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.hero.HeroDto
-import io.pacworx.ambrosia.hero.base.HeroBase
+import io.pacworx.ambrosia.hero.HeroBase
 import io.pacworx.ambrosia.properties.PropertyService
 import javax.persistence.*
 import kotlin.math.min

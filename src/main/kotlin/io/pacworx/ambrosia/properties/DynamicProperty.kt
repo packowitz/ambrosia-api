@@ -1,8 +1,7 @@
 package io.pacworx.ambrosia.properties
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import io.pacworx.ambrosia.buildings.BuildingType
-import io.pacworx.ambrosia.enums.HeroStat
+import io.pacworx.ambrosia.hero.HeroStat
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.vehicle.VehicleStat
 import javax.persistence.*

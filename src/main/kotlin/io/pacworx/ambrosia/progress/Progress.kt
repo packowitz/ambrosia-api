@@ -1,7 +1,7 @@
 package io.pacworx.ambrosia.progress
 
 import io.pacworx.ambrosia.upgrade.Modification
-import io.pacworx.ambrosia.enums.Rarity
+import io.pacworx.ambrosia.hero.Rarity
 import javax.persistence.Entity
 import javax.persistence.Id
 

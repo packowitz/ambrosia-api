@@ -1,4 +1,4 @@
-package io.pacworx.ambrosia.enums
+package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.battle.BattleHero
 import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
