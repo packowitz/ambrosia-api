@@ -1,6 +1,5 @@
 package io.pacworx.ambrosia.hero
 
-import io.pacworx.ambrosia.hero.base.HeroBase
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface HeroRepository: JpaRepository<Hero, Long> {

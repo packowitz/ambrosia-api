@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.common
 
 import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.battle.Buff
 import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
 import io.pacworx.ambrosia.hero.skills.SkillActionEffect
 import io.pacworx.ambrosia.hero.skills.SkillActionTarget
