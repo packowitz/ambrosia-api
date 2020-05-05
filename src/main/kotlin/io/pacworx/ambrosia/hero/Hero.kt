@@ -95,6 +95,15 @@ data class Hero(
         return unequipped
     }
 
+    fun unequipAll(): List<Gear> = listOfNotNull(
+        weapon?.also { unequip(it.type) },
+        shield?.also { unequip(it.type) },
+        helmet?.also { unequip(it.type) },
+        armor?.also { unequip(it.type) },
+        gloves?.also { unequip(it.type) },
+        boots?.also { unequip(it.type) }
+    )
+
     fun unequip(gearType: GearType): Gear? {
         val unequipped = getGear(gearType)
         unequipped?.equippedTo = null

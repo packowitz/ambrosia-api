@@ -1,6 +1,9 @@
 package io.pacworx.ambrosia.buildings
 
+import io.pacworx.ambrosia.battle.BattleRepository
+import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.player.Player
@@ -15,7 +18,9 @@ import javax.transaction.Transactional
 class AcademyController(private val heroRepository: HeroRepository,
                         private val heroService: HeroService,
                         private val propertyService: PropertyService,
-                        private val progressRepository: ProgressRepository) {
+                        private val progressRepository: ProgressRepository,
+                        private val battleRepository: BattleRepository,
+                        private val battleService: BattleService) {
 
     @PostMapping("hero/{heroId}/level")
     @Transactional
@@ -32,19 +37,27 @@ class AcademyController(private val heroRepository: HeroRepository,
             ?: throw RuntimeException("Unknown hero $heroId for player ${player.id}")
         val progress = progressRepository.getOne(player.id)
         if (hero.level > progress.maxTrainingLevel) {
-            throw RuntimeException("Heros level too high to get trained in the academy. Level up your Academy.")
+            throw RuntimeException("Hero's level too high to get trained in the academy. Level up your Academy.")
         }
-        val deletedHeroIds = heroes.filter { it.id != heroId }.map {
-            val gainedXp = propertyService.getHeroMergedXp(it.level)
+        val updatedGear = mutableListOf<Gear>()
+        val deletedHeroIds = heroes.filter { it.id != heroId }.map { fodder ->
+            val gainedXp = propertyService.getHeroMergedXp(fodder.level)
             heroService.heroGainXp(hero, gainedXp)
-            if (hero.heroBase.heroClass == it.heroBase.heroClass) {
-                val gainedAsc = propertyService.getHeroMergedAsc(it.heroBase.rarity.stars)
+            if (hero.heroBase.heroClass == fodder.heroBase.heroClass) {
+                val gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
                 heroService.heroGainAsc(hero, gainedAsc)
             }
-            it.id
+            battleRepository.findAllByContainingHero(fodder.id).forEach { battleId ->
+                battleService.deleteBattle(battleRepository.getOne(battleId))
+            }
+            updatedGear.addAll(fodder.unequipAll())
+            fodder.id
         }
         heroRepository.deleteAllByIdIn(deletedHeroIds)
-        return PlayerActionResponse(heroes = listOf(heroService.asHeroDto(hero)), heroIdsRemoved = deletedHeroIds)
+        return PlayerActionResponse(
+            heroes = listOf(heroService.asHeroDto(hero)),
+            gears = updatedGear,
+            heroIdsRemoved = deletedHeroIds)
     }
 
     @PostMapping("hero/{heroId}/evolve")
@@ -65,21 +78,30 @@ class AcademyController(private val heroRepository: HeroRepository,
         if (hero.level > progress.maxTrainingLevel) {
             throw RuntimeException("Heros level too high to get evolved. Level up your Academy.")
         }
-        val deletedHeroIds = heroes.filter { it.id != heroId }.map {
-            if (it.stars < hero.stars) {
+        val updatedGear = mutableListOf<Gear>()
+        val deletedHeroIds = heroes.filter { it.id != heroId }.map { fodder ->
+            if (fodder.stars < hero.stars) {
                 throw RuntimeException("You need heroes of at least same number of stars to evolve a hero")
             }
-            if (hero.heroBase.heroClass == it.heroBase.heroClass) {
-                val gainedAsc = propertyService.getHeroMergedAsc(it.heroBase.rarity.stars)
+            if (hero.heroBase.heroClass == fodder.heroBase.heroClass) {
+                val gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
                 heroService.heroGainAsc(hero, gainedAsc)
             }
-            it.id
+            battleRepository.findAllByContainingHero(fodder.id).forEach { battleId ->
+                battleService.deleteBattle(battleRepository.getOne(battleId))
+            }
+            updatedGear.addAll(fodder.unequipAll())
+            fodder.id
         }
         heroRepository.deleteAllByIdIn(deletedHeroIds)
         if (!heroService.evolveHero(hero)) {
             throw RuntimeException("Evolving hero failed")
         }
-        return PlayerActionResponse(heroes = listOf(heroService.asHeroDto(hero)), heroIdsRemoved = deletedHeroIds)
+        return PlayerActionResponse(
+            heroes = listOf(heroService.asHeroDto(hero)),
+            gears = updatedGear,
+            heroIdsRemoved = deletedHeroIds
+        )
     }
 }
 
