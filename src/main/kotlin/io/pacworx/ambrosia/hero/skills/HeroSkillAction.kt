@@ -10,7 +10,7 @@ data class HeroSkillAction(
     var position: Int,
     @Enumerated(EnumType.STRING)
     var trigger: SkillActionTrigger,
-    var triggerValue: String?,
+    var triggerValue: String? = null,
     var triggerChance: Int,
     @Enumerated(EnumType.STRING)
     var type: SkillActionType,
@@ -20,5 +20,5 @@ data class HeroSkillAction(
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     var effect: SkillActionEffect,
     var effectValue: Int,
-    var effectDuration: Int?
+    var effectDuration: Int? = null
 )
