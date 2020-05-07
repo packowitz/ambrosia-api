@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.hero
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.HeroGearSet
+import kotlin.math.floor
 import kotlin.math.roundToInt
 
 data class HeroDto(val id: Long,
@@ -33,45 +34,45 @@ data class HeroDto(val id: Long,
     var baseStrength = if (this.level == 60) {
         heroBase.strengthFull
     } else {
-        val bonus = Math.floor((level - 1) * (heroBase.strengthFull - heroBase.strengthBase) / 59.0).toInt()
+        val bonus = floor((level - 1) * (heroBase.strengthFull - heroBase.strengthBase) / 59.0).toInt()
         heroBase.strengthBase + bonus
     }
     var baseHp = if (this.level == 60) {
         heroBase.hpFull
     } else {
-        val bonus = Math.floor((level - 1) * (heroBase.hpFull - heroBase.hpBase) / 59.0).toInt()
+        val bonus = floor((level - 1) * (heroBase.hpFull - heroBase.hpBase) / 59.0).toInt()
         heroBase.hpBase + bonus
     }
     var baseArmor = if (this.level == 60) {
         heroBase.armorFull
     } else {
-        val bonus = Math.floor((level - 1) * (heroBase.armorFull - heroBase.armorBase) / 59.0).toInt()
+        val bonus = floor((level - 1) * (heroBase.armorFull - heroBase.armorBase) / 59.0).toInt()
         heroBase.armorBase + bonus
     }
-    var baseInitiative = if (this.ascLvl >= 1) {
+    var baseInitiative = if (ascLvl == heroBase.maxAscLevel) {
         this.heroBase.initiativeAsc
     } else {
-        this.heroBase.initiative
+        this.heroBase.initiative + floor(ascLvl * (heroBase.initiativeAsc - heroBase.initiative) / heroBase.maxAscLevel.toDouble()).toInt()
     }
-    var baseCrit = if (this.ascLvl >= 1) {
+    var baseCrit = if (this.ascLvl == heroBase.maxAscLevel) {
         this.heroBase.critAsc
     } else {
-        this.heroBase.crit
+        this.heroBase.crit + floor(ascLvl * (heroBase.critAsc - heroBase.crit) / heroBase.maxAscLevel.toDouble()).toInt()
     }
-    var baseCritMult = if (this.ascLvl >= 1) {
+    var baseCritMult = if (this.ascLvl == heroBase.maxAscLevel) {
         this.heroBase.critMultAsc
     } else {
-        this.heroBase.critMult
+        this.heroBase.critMult + floor(ascLvl * (heroBase.critMultAsc - heroBase.crit) / heroBase.maxAscLevel.toDouble()).toInt()
     }
-    var baseDexterity = if (this.ascLvl >= 1) {
+    var baseDexterity = if (this.ascLvl == heroBase.maxAscLevel) {
         this.heroBase.dexterityAsc
     } else {
-        this.heroBase.dexterity
+        this.heroBase.dexterity + floor(ascLvl * (heroBase.dexterityAsc - heroBase.dexterity) / heroBase.maxAscLevel.toDouble()).toInt()
     }
-    var baseResistance = if (this.ascLvl >= 1) {
+    var baseResistance = if (this.ascLvl == heroBase.maxAscLevel) {
         this.heroBase.resistanceAsc
     } else {
-        this.heroBase.resistance
+        this.heroBase.resistance + floor(ascLvl * (heroBase.resistanceAsc - heroBase.resistance) / heroBase.maxAscLevel.toDouble()).toInt()
     }
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
