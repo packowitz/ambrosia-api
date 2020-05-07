@@ -130,17 +130,27 @@ class SkillService(private val propertyService: PropertyService) {
         return when (action.trigger) {
             SkillActionTrigger.ALWAYS -> true
             SkillActionTrigger.S1_LVL -> action.triggerValue!!.contains(hero.skill1Lvl.toString())
-            SkillActionTrigger.S2_LVL -> hero.skill2Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S3_LVL -> hero.skill3Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S4_LVL -> hero.skill4Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S5_LVL -> hero.skill5Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S6_LVL -> hero.skill6Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S7_LVL -> hero.skill7Lvl?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.S2_LVL -> hero.skill2Lvl?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S3_LVL -> hero.skill3Lvl?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S4_LVL -> hero.skill4Lvl?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S5_LVL -> hero.skill5Lvl?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S6_LVL -> hero.skill6Lvl?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S7_LVL -> hero.skill7Lvl?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
             SkillActionTrigger.PREV_ACTION_PROCED -> lastActionProced == true
             SkillActionTrigger.PREV_ACTION_NOT_PROCED -> lastActionProced == false
             SkillActionTrigger.ANY_CRIT_DMG -> step.actions.any { it.crit == true }
             SkillActionTrigger.DMG_OVER -> step.actions.sumBy { it.healthDiff ?: 0 } > action.triggerValue!!.toInt()
             SkillActionTrigger.ASC_LVL -> if (action.triggerValue == null) { hero.ascLvl > 0 } else { action.triggerValue!!.split(",").contains(hero.ascLvl.toString()) }
+        }
+    }
+
+    private fun triggerValueSkillLevel(triggerValue: String, skillLevel: Int): Boolean {
+        return if (triggerValue.startsWith(">")) {
+            skillLevel > triggerValue.substring(1).trim().toIntOrNull() ?: 99
+        } else if (triggerValue.startsWith("<")) {
+            skillLevel < triggerValue.substring(1).trim().toIntOrNull() ?: 99
+        } else {
+            triggerValue.contains(skillLevel.toString())
         }
     }
 
