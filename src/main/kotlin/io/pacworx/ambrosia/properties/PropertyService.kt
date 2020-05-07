@@ -47,7 +47,7 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
                     if (newProp.value1 != prevProp.value1 || newProp.value2 != prevProp.value2) {
                         val gearType = GearType.valueOf(type.name.substringBefore("_GEAR"))
                         val rarity =  Rarity.values().find { it.stars == newProp.level }!!
-                        gearRepository.findAllByTypeAndRarity(gearType, rarity).forEach { gear ->
+                        gearRepository.findAllByTypeAndRarityAndStat(gearType, rarity, prevProp.stat!!).forEach { gear ->
                             gear.statValue = newProp.value1 + ((gear.statQuality * (newProp.value2 - newProp.value1)) / 100)
                         }
                     }
