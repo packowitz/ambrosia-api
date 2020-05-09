@@ -98,7 +98,7 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
             }
             BuildingType.STORAGE -> {
                 propertyService.getProperties(PropertyType.STORAGE_BUILDING, building.level)
-                    .filter { it.resourceType != null }
+                .filter { it.resourceType != null }
                     .forEach {
                         resourcesService.gainResources(player, it.resourceType!!, it.value1)
                     }

@@ -155,6 +155,7 @@ class BattleController(private val battleService: BattleService,
             throw RuntimeException("You don't own battle $battleId")
         }
         battle.status = BattleStatus.LOST
+        battleService.battleEnded(battle)
         return afterBattleAction(player, battle)
     }
 

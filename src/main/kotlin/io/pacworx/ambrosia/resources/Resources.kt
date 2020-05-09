@@ -74,4 +74,19 @@ data class Resources(
             LocalDateTime.now().until(nextProd, ChronoUnit.SECONDS).toInt()
         }
     }
+
+    fun resetMaxValues() {
+        steamMax = 0
+        premiumSteamMax = 0
+        cogwheelsMax = 0
+        premiumCogwheelsMax = 0
+        tokensMax = 0
+        premiumTokensMax = 0
+        metalMax = 0
+        ironMax = 0
+        stealMax = 0
+        woodMax = 0
+        blackCoalMax = 0
+        brownCoalMax = 0
+    }
 }

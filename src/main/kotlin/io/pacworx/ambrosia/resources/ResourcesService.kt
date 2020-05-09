@@ -239,6 +239,10 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun gainResources(player: Player, type: ResourceType, amount: Int): Resources {
         val res = getResources(player)
+        return gainResources(res, type, amount)
+    }
+
+    fun gainResources(res: Resources, type: ResourceType, amount: Int): Resources {
         when (type) {
             ResourceType.STEAM_MAX -> res.stealMax += amount
             ResourceType.PREMIUM_STEAM -> res.premiumSteam = min(res.premiumSteamMax, res.premiumSteam + amount)

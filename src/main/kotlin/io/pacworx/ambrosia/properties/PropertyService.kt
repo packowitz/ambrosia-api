@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.properties
 
+import io.pacworx.ambrosia.buildings.BuildingRepository
+import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.gear.GearSet
@@ -12,12 +14,17 @@ import io.pacworx.ambrosia.hero.HeroStat
 import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
 import io.pacworx.ambrosia.hero.Rarity
 import io.pacworx.ambrosia.hero.skills.SkillActionTrigger
+import io.pacworx.ambrosia.resources.ResourcesRepository
+import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 
 @Service
 class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepository,
-                      private val gearRepository: GearRepository) {
+                      private val gearRepository: GearRepository,
+                      private val resourcesRepository: ResourcesRepository,
+                      private val resourcesService: ResourcesService,
+                      private val buildingRepository: BuildingRepository) {
 
     private lateinit var properties: MutableList<DynamicProperty>
 
@@ -55,18 +62,25 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
                     throw RuntimeException("Removing a gear combination is not allowed")
                 }
             }
+        } else if(type == PropertyType.STORAGE_BUILDING) {
+            resourcesRepository.findAll().forEach { resources ->
+                val storageLvl = buildingRepository.findByPlayerIdAndType(resources.playerId, BuildingType.STORAGE)?.level ?: 0
+                var appliedLvl = 0
+                resources.resetMaxValues()
+                while (appliedLvl < storageLvl) {
+                    appliedLvl ++
+                    properties
+                        .filter { it.level == appliedLvl && it.resourceType != null && it.resourceType.name.endsWith("_MAX") }
+                        .forEach {
+                            resourcesService.gainResources(resources, it.resourceType!!, it.value1)
+                        }
+                }
+            }
         }
 
         dynamicPropertyRepository.saveAll(properties)
         init()
         return getAllProperties(type)
-    }
-
-    fun deleteProperty(type: PropertyType, id: Long) {
-        properties.find { it.type == type && it.id == id }?.let {
-            dynamicPropertyRepository.delete(it)
-        }
-        init()
     }
 
     fun getHeroMaxXp(level: Int): Int {
