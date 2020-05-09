@@ -13,11 +13,4 @@ class AdminPropertyController(private val propertyService: PropertyService) {
     fun saveProperties(@PathVariable("type") type: PropertyType, @RequestBody properties: List<DynamicProperty>): List<DynamicProperty> {
         return propertyService.upsertProperties(type, properties)
     }
-
-    @DeleteMapping("type/{type}/{id}")
-    @Transactional
-    fun deleteProperties(@PathVariable("type") type: PropertyType, @PathVariable("id") id: Long): List<DynamicProperty> {
-        propertyService.deleteProperty(type, id)
-        return propertyService.getAllProperties(type)
-    }
 }
