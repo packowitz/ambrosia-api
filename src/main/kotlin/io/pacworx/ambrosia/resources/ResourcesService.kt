@@ -88,8 +88,11 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             resources.steamLastProduction = LocalDateTime.now()
         }
         resources.steam -= amount
+        resources.steamUsed += amount
         if (resources.steam < 0) {
             resources.premiumSteam += resources.steam
+            resources.steamUsed += resources.steam
+            resources.premiumSteamUsed -= resources.steam
             resources.steam = 0
         }
         return resources
@@ -107,8 +110,11 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             resources.cogwheelsLastProduction = LocalDateTime.now()
         }
         resources.cogwheels -= amount
+        resources.cogwheelsUsed += amount
         if (resources.cogwheels < 0) {
             resources.premiumCogwheels += resources.cogwheels
+            resources.cogwheelsUsed += resources.cogwheels
+            resources.premiumCogwheelsUsed -= resources.cogwheels
             resources.cogwheels = 0
         }
         return resources
@@ -126,8 +132,11 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             resources.tokensLastProduction = LocalDateTime.now()
         }
         resources.tokens -= amount
+        resources.tokensUsed += amount
         if (resources.tokens < 0) {
             resources.premiumTokens += resources.tokens
+            resources.tokensUsed += resources.tokens
+            resources.premiumTokensUsed -= resources.tokens
             resources.tokens = 0
         }
         return resources
@@ -138,6 +147,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount coins")
         }
         resources.coins -= amount
+        resources.coinsUsed += amount
         return resources
     }
 
@@ -146,6 +156,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount rubies")
         }
         resources.rubies -= amount
+        resources.rubiesUsed += amount
         return resources
     }
 
@@ -154,6 +165,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount metal")
         }
         resources.metal -= amount
+        resources.metalUsed += amount
         return resources
     }
 
@@ -162,6 +174,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount iron")
         }
         resources.iron -= amount
+        resources.ironUsed += amount
         return resources
     }
 
@@ -170,6 +183,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount steal")
         }
         resources.steal -= amount
+        resources.stealUsed += amount
         return resources
     }
 
@@ -178,6 +192,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount wood")
         }
         resources.wood -= amount
+        resources.woodUsed += amount
         return resources
     }
 
@@ -186,6 +201,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount brown coal")
         }
         resources.brownCoal -= amount
+        resources.brownCoalUsed += amount
         return resources
     }
 
@@ -194,6 +210,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount black coal")
         }
         resources.blackCoal -= amount
+        resources.blackCoalUsed += amount
         return resources
     }
 
@@ -202,6 +219,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount simple genomes")
         }
         resources.simpleGenome -= amount
+        resources.simpleGenomeUsed += amount
         return resources
     }
 
@@ -210,6 +228,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount common genomes")
         }
         resources.commonGenome -= amount
+        resources.commonGenomeUsed += amount
         return resources
     }
 
@@ -218,6 +237,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount uncommon genomes")
         }
         resources.uncommonGenome -= amount
+        resources.uncommonGenomeUsed += amount
         return resources
     }
 
@@ -226,6 +246,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount rare genomes")
         }
         resources.rareGenome -= amount
+        resources.rareGenomeUsed += amount
         return resources
     }
 
@@ -234,6 +255,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw RuntimeException("You cannot spend $amount epic genomes")
         }
         resources.epicGenome -= amount
+        resources.epicGenomeUsed += amount
         return resources
     }
 
