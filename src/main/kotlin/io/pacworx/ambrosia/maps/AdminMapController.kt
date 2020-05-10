@@ -63,7 +63,7 @@ class AdminMapController(private val mapRepository: MapRepository,
                     throw RuntimeException("Tile ${it.posX}x${it.posY} has a building structure but a map portal to assigned")
                 }
                 if (it.buildingType == null) {
-                    throw RuntimeException("Tile ${it.posX}x${it.posY} has a building structure but building assigned")
+                    throw RuntimeException("Tile ${it.posX}x${it.posY} has a building structure but no building assigned")
                 } else if (it.buildingType.name != it.structure.name) {
                     throw RuntimeException("Tile ${it.posX}x${it.posY} has a different building structure than building assigned")
                 }

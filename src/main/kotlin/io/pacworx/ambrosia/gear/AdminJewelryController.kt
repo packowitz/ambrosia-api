@@ -10,11 +10,14 @@ import javax.transaction.Transactional
 @RequestMapping("admin/jewelry")
 class AdminJewelryController(private val jewelryRepository: JewelryRepository) {
 
-    @PostMapping("open/{type}/{amount}")
+    @PostMapping("open/{type}/{level}/{amount}")
     @Transactional
-    fun openJewel(@ModelAttribute("player") player: Player, @PathVariable type: JewelType, @PathVariable amount: Int): PlayerActionResponse {
+    fun openJewel(@ModelAttribute("player") player: Player,
+                  @PathVariable type: JewelType,
+                  @PathVariable level: Int,
+                  @PathVariable amount: Int): PlayerActionResponse {
         val jewelry = jewelryRepository.findByPlayerIdAndType(player.id, type) ?: Jewelry(playerId = player.id, type = type)
-        jewelry.lvl1 += amount
+        jewelry.increaseAmount(level, amount)
         jewelryRepository.save(jewelry)
         return PlayerActionResponse(jewelries = listOf(jewelry))
     }

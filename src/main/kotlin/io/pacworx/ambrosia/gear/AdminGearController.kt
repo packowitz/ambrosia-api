@@ -19,14 +19,22 @@ class AdminGearController(val gearService: GearService,
     @GetMapping("")
     fun getGears(): List<Gear> = gearRepository.findAll()
 
-    @PostMapping("open/{set}/{amount}")
+    @PostMapping("open/{set}/{rarity}/{amount}")
     @Transactional
-    fun openGear(@ModelAttribute("player") player: Player, @PathVariable set: GearSet, @PathVariable amount: Int): PlayerActionResponse {
+    fun openGear(@ModelAttribute("player") player: Player,
+                 @PathVariable set: GearSet,
+                 @PathVariable rarity: Rarity,
+                 @PathVariable amount: Int): PlayerActionResponse {
         (1..amount).forEach { _ ->
             gearRepository.save(gearService.createGear(
                 player.id,
                 listOf(set),
-                GearType.values().toList()
+                GearType.values().toList(),
+                if (rarity == Rarity.LEGENDARY) { 100 } else { 0 },
+                if (rarity == Rarity.EPIC) { 100 } else { 0 },
+                if (rarity == Rarity.RARE) { 100 } else { 0 },
+                if (rarity == Rarity.UNCOMMON) { 100 } else { 0 },
+                if (rarity == Rarity.COMMON) { 100 } else { 0 }
             ))
         }
         return PlayerActionResponse(gears = gearRepository.findAllByPlayerIdAndEquippedToIsNull(player.id))
