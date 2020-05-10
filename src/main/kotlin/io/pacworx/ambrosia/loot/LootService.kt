@@ -64,22 +64,23 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
     }
 
     fun openLootBox(player: Player, lootBox: LootBox, vehicle: Vehicle? = null): LootBoxResult {
-        var slotOpened = -1
         val items: MutableList<LootItemResult> = mutableListOf()
-        lootBox.items.forEach { item ->
-            if (item.slotNumber != slotOpened && itemProcs(player, item)) {
-                slotOpened = item.slotNumber
-                items.add(openLootItem(player, item, vehicle))
+        lootBox.items.groupBy { it.slotNumber }.forEach { _: Int, slotItems: List<LootItem> ->
+            var openRandom = Random.nextInt(100)
+            var proced = false
+            slotItems.filter { it.color == null || it.color == player.color }.forEach { slotItem ->
+                if (!proced && procs(slotItem.chance, openRandom)) {
+                    items.add(openLootItem(player, slotItem, vehicle))
+                    proced = true
+                } else {
+                    openRandom -= slotItem.chance
+                }
             }
         }
         return LootBoxResult(
             lootBoxId = lootBox.id,
             items = items
         )
-    }
-
-    private fun itemProcs(player: Player, item: LootItem): Boolean {
-        return item.color?.let { it == player.color } != false && procs(item.chance)
     }
 
     private fun openLootItem(player: Player, item: LootItem, vehicle: Vehicle?): LootItemResult {

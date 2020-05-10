@@ -92,12 +92,13 @@ class GearService(private val propertyService: PropertyService,
                    fourSlotChance: Int = 2,
                    specialSlotChance: Int = 10): Gear {
         val gearSet: GearSet = sets.random()
+        val rarityRandom = Random.nextInt(100)
         val rarity: Rarity = when {
-            procs(legendaryChance) -> Rarity.LEGENDARY
-            procs(epicChance) -> Rarity.EPIC
-            procs(rareChance) -> Rarity.RARE
-            procs(uncommonChance) -> Rarity.UNCOMMON
-            procs(commonChance) -> Rarity.COMMON
+            procs(legendaryChance, rarityRandom) -> Rarity.LEGENDARY
+            procs(epicChance, rarityRandom - legendaryChance) -> Rarity.EPIC
+            procs(rareChance, rarityRandom - legendaryChance - epicChance) -> Rarity.RARE
+            procs(uncommonChance, rarityRandom - legendaryChance - epicChance - rareChance) -> Rarity.UNCOMMON
+            procs(commonChance, rarityRandom - legendaryChance - epicChance - rareChance - uncommonChance) -> Rarity.COMMON
             else -> Rarity.SIMPLE
         }
         val type: GearType = gearTypes.random()
@@ -106,10 +107,11 @@ class GearService(private val propertyService: PropertyService,
         val statQuality = Random.nextInt(0, 101)
         val statValue = valueRange.first + ((statQuality * (valueRange.second - valueRange.first)) / 100)
 
-        val jewelSlot4: GearJewelSlot? = if (procs(fourSlotChance)) { getJewelSlot(type) } else { null }
-        val jewelSlot3: GearJewelSlot? = if (jewelSlot4 != null || procs(threeSlotChance)) { getJewelSlot(type) } else { null }
-        val jewelSlot2: GearJewelSlot? = if (jewelSlot3 != null || procs(twoSlotChance)) { getJewelSlot(type) } else { null }
-        val jewelSlot1: GearJewelSlot? = if (jewelSlot2 != null || procs(oneSlotChance)) { getJewelSlot(type) } else { null }
+        val slotRandom = Random.nextInt(100)
+        val jewelSlot4: GearJewelSlot? = if (procs(fourSlotChance, slotRandom)) { getJewelSlot(type) } else { null }
+        val jewelSlot3: GearJewelSlot? = if (jewelSlot4 != null || procs(threeSlotChance, slotRandom - fourSlotChance)) { getJewelSlot(type) } else { null }
+        val jewelSlot2: GearJewelSlot? = if (jewelSlot3 != null || procs(twoSlotChance, slotRandom - fourSlotChance - threeSlotChance)) { getJewelSlot(type) } else { null }
+        val jewelSlot1: GearJewelSlot? = if (jewelSlot2 != null || procs(oneSlotChance, slotRandom - fourSlotChance - threeSlotChance - twoSlotChance)) { getJewelSlot(type) } else { null }
         val specialJewelSlot = type == GearType.ARMOR && procs(specialSlotChance)
 
         return gearRepository.save(Gear(
