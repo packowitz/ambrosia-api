@@ -26,9 +26,9 @@ class AdminFightController(private val fightRepository: FightRepository,
         return fightRepository.save(fight)
     }
 
-    @PutMapping("{id}")
+    @PutMapping
     @Transactional
-    fun updateFight(@PathVariable id: Long, @RequestBody @Valid fight: Fight): FightService.FightResolved {
+    fun updateFight(@RequestBody @Valid fight: Fight): FightService.FightResolved {
         return fightService.asFightResolved(fightRepository.save(fight))
     }
 }
