@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
+import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.upgrade.UpgradeService
 import org.springframework.web.bind.annotation.*
@@ -22,7 +23,8 @@ class MapController(private val mapService: MapService,
                     private val buildingRepository: BuildingRepository,
                     private val resourcesService: ResourcesService,
                     private val lootService: LootService,
-                    private val upgradeService: UpgradeService) {
+                    private val upgradeService: UpgradeService,
+                    private val progressRepository: ProgressRepository) {
 
     @GetMapping("{mapId}")
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
@@ -61,8 +63,13 @@ class MapController(private val mapService: MapService,
             throw RuntimeException("Player ${player.id} has building ${buildingType.name} already discovered")
         }
         val building = buildingRepository.save(Building(playerId = player.id, type = buildingType))
-        upgradeService.applyBuildingLevel(player, building)
-        return PlayerActionResponse(buildings = listOf(building))
+        val progress = progressRepository.getOne(player.id)
+        upgradeService.applyBuildingLevel(player, building, progress)
+        return PlayerActionResponse(
+            progress = progress,
+            resources = resourcesService.getResources(player),
+            buildings = listOf(building)
+        )
     }
 
     @PostMapping("open_chest")
