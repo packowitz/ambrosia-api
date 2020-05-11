@@ -10,7 +10,7 @@ class FightController(private val fightRepository: FightRepository,
 ) {
 
     @GetMapping
-    fun getAllFights(): List<Fight> = fightRepository.findAll()
+    fun getAllFights(): List<Fight> = fightRepository.findAllByOrderByName()
 
     @GetMapping("{id}")
     fun getFight(@PathVariable id: Long): FightService.FightResolved {
