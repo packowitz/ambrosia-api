@@ -9,6 +9,7 @@ import io.pacworx.ambrosia.gear.GearType
 import io.pacworx.ambrosia.gear.HeroGearSet
 import io.pacworx.ambrosia.gear.JewelType
 import io.pacworx.ambrosia.hero.HeroDto
+import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.skills.HeroSkillAction
 import io.pacworx.ambrosia.hero.HeroStat
 import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
@@ -24,7 +25,8 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
                       private val gearRepository: GearRepository,
                       private val resourcesRepository: ResourcesRepository,
                       private val resourcesService: ResourcesService,
-                      private val buildingRepository: BuildingRepository) {
+                      private val buildingRepository: BuildingRepository,
+                      private val heroRepository: HeroRepository) {
 
     private lateinit var properties: MutableList<DynamicProperty>
 
@@ -58,11 +60,9 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
                             gear.statValue = newProp.value1 + ((gear.statQuality * (newProp.value2 - newProp.value1)) / 100)
                         }
                     }
-                } else {
-                    throw RuntimeException("Removing a gear combination is not allowed")
                 }
             }
-        } else if(type == PropertyType.STORAGE_BUILDING) {
+        } else if (type == PropertyType.STORAGE_BUILDING) {
             resourcesRepository.findAll().forEach { resources ->
                 val storageLvl = buildingRepository.findByPlayerIdAndType(resources.playerId, BuildingType.STORAGE)?.level ?: 0
                 var appliedLvl = 0
@@ -74,6 +74,24 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
                         .forEach {
                             resourcesService.gainResources(resources, it.resourceType!!, it.value1)
                         }
+                }
+            }
+        } else if (type == PropertyType.XP_MAX_HERO) {
+            prevProps.forEach { prevProp ->
+                val newProp = properties.find { it.level == prevProp.level && it.stat == prevProp.stat }
+                if (newProp != null) {
+                    if (newProp.value1 != prevProp.value1) {
+                        heroRepository.updateMaxXp(newProp.level!!, newProp.value1)
+                    }
+                }
+            }
+        } else if (type == PropertyType.ASC_POINTS_MAX_HERO) {
+            prevProps.forEach { prevProp ->
+                val newProp = properties.find { it.level == prevProp.level && it.stat == prevProp.stat }
+                if (newProp != null) {
+                    if (newProp.value1 != prevProp.value1) {
+                        heroRepository.updateMaxAsc(newProp.level!!, newProp.value1)
+                    }
                 }
             }
         }
