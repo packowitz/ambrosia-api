@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.buildings.BuildingType
-import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import mu.KotlinLogging
@@ -36,14 +35,7 @@ class MapService(val playerRepository: PlayerRepository,
         playerMap.playerTiles = map.tiles.filter { it.type != MapTileType.NONE }.map {
             PlayerMapTile(posX = it.posX, posY = it.posY)
         }.toMutableList()
-        map.tiles.filter {
-            when(player.color) {
-                Color.RED -> it.redAlwaysRevealed
-                Color.GREEN -> it.greenAlwaysRevealed
-                Color.BLUE -> it.blueAlwaysRevealed
-                else -> false
-            }
-        }.forEach { discoverMapTile(playerMap, it) }
+        map.tiles.filter { it.alwaysRevealed }.forEach { discoverMapTile(playerMap, it) }
 
         player.currentMapId = map.id
         playerRepository.save(player)

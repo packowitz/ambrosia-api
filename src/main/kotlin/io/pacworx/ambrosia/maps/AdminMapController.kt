@@ -41,10 +41,8 @@ class AdminMapController(private val mapRepository: MapRepository,
     @PutMapping("{id}")
     @Transactional
     fun updateMap(@PathVariable id: Long, @RequestBody @Valid map: Map): Map {
-        if (map.tiles.none { it.blueAlwaysRevealed } ||
-            map.tiles.none { it.greenAlwaysRevealed } ||
-            map.tiles.none { it.redAlwaysRevealed }) {
-            throw RuntimeException("There must be at least one tile that is revealed for each color")
+        if (map.tiles.none { it.alwaysRevealed }) {
+            throw RuntimeException("There must be at least one tile that is always revealed")
         }
         if (map.tiles.any { (it.posX == map.minX || it.posX == map.maxX) && it.type != MapTileType.NONE } ||
             map.tiles.any { (it.posY == map.minY || it.posY == map.maxY) && it.type != MapTileType.NONE }) {
@@ -88,14 +86,7 @@ class AdminMapController(private val mapRepository: MapRepository,
             it.chestOpened = if (request.chests) false else it.chestOpened
         }
         if (request.discovered) {
-            playerMap.map.tiles.filter {
-                when(player.color) {
-                    Color.RED -> it.redAlwaysRevealed
-                    Color.GREEN -> it.greenAlwaysRevealed
-                    Color.BLUE -> it.blueAlwaysRevealed
-                    else -> false
-                }
-            }.forEach { mapService.discoverMapTile(playerMap, it) }
+            playerMap.map.tiles.filter { it.alwaysRevealed }.forEach { mapService.discoverMapTile(playerMap, it) }
         }
         return PlayerActionResponse(currentMap = PlayerMapResolved(playerMap))
     }

@@ -139,7 +139,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
         val vehicles = vehicleRepository.findAllByPlayerId(player.id)
         val vehicleParts = vehiclePartRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
         val playerMaps = simplePlayerMapRepository.findAllByPlayerId(player.id)
-        val currentMap = player.color?.let { mapService.getCurrentPlayerMap(player) }
+        val currentMap = mapService.getCurrentPlayerMap(player)
         val missions = missionService.getAllMissions(player)
         val dnaCubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
         val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusInAndPreviousBattleIdNull(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN, BattleStatus.STAGE_PASSED))

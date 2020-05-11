@@ -11,9 +11,7 @@ data class MapTile(
     @Column(name = "pos_x") val posX: Int,
     @Column(name = "pos_y") val posY: Int,
     @Enumerated(EnumType.STRING) val type: MapTileType,
-    val redAlwaysRevealed: Boolean = false,
-    val greenAlwaysRevealed: Boolean = false,
-    val blueAlwaysRevealed: Boolean = false,
+    val alwaysRevealed: Boolean = false,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     val structure: MapTileStructure? = null,
