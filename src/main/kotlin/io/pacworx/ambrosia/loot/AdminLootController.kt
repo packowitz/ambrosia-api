@@ -12,7 +12,7 @@ class AdminLootController(private val gearLootRepository: GearLootRepository,
                           private val lootBoxRepository: LootBoxRepository) {
 
     @GetMapping("gear")
-    fun getGearLoot(): List<GearLoot> = gearLootRepository.findAll()
+    fun getGearLoot(): List<GearLoot> = gearLootRepository.findAllByOrderByName()
 
     @PostMapping("gear")
     @Transactional
@@ -21,7 +21,7 @@ class AdminLootController(private val gearLootRepository: GearLootRepository,
     }
 
     @GetMapping("box")
-    fun getLootBoxes(): List<LootBox> = lootBoxRepository.findAll()
+    fun getLootBoxes(): List<LootBox> = lootBoxRepository.findAllByOrderByName()
 
     @PostMapping("box")
     @Transactional

@@ -5,5 +5,8 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface LootBoxRepository: JpaRepository<LootBox, Long> {
+
+    fun findAllByOrderByName(): List<LootBox>
+
     fun findFirstByOrderById(): LootBox
 }
