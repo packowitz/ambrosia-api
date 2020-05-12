@@ -66,6 +66,10 @@ enum class PropertyType(
 
     ARMOR_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     COUNTERATTACK_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
+    CRIT_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
+    CRIT_MULT_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
+    DODGE_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
+    HASTE_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     HOT_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     STRENGTH_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
 
@@ -74,8 +78,11 @@ enum class PropertyType(
     TAUNT_BUFF(BUFF, "Intensity 1-5. Please select only BUFF_RESISTANCE as bonus."),
 
     CONFUSE_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
+    CRIT_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
+    CRIT_MULT_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     DOT_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     HEAL_BLOCK_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
+    SLOW_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     STUN_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     WEAK_DEBUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
 
