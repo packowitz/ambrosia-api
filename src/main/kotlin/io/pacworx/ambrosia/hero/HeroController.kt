@@ -20,7 +20,7 @@ class HeroController(val heroService: HeroService,
     @Transactional
     fun skillUp(@ModelAttribute("player") player: Player, @PathVariable heroId: Long, @PathVariable skillNumber: Int): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
-        if (hero.playerId != player.id || !player.admin) {
+        if (hero.playerId != player.id) {
             throw RuntimeException("not allowed")
         }
         if (hero.heroBase.skills.any { it.number == skillNumber }) {
@@ -33,7 +33,7 @@ class HeroController(val heroService: HeroService,
     @Transactional
     fun resetSkills(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
-        if (hero.playerId != player.id || !player.admin) {
+        if (hero.playerId != player.id) {
             throw RuntimeException("not allowed")
         }
         hero.resetSkills()

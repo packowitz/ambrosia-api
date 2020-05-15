@@ -1,8 +1,5 @@
 package io.pacworx.ambrosia.maps
 
-import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.hero.Color
-import io.pacworx.ambrosia.player.Player
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
@@ -12,9 +9,7 @@ import javax.validation.constraints.Min
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("admin/map")
-class AdminMapController(private val mapRepository: MapRepository,
-                         private val playerMapRepository: PlayerMapRepository,
-                         private val mapService: MapService) {
+class AdminMapController(private val mapRepository: MapRepository) {
 
     @GetMapping
     fun getAllMaps(): List<Map> = mapRepository.findAll()
@@ -72,23 +67,6 @@ class AdminMapController(private val mapRepository: MapRepository,
         }
         map.lastModified = LocalDateTime.now()
         return mapRepository.save(map)
-    }
-
-    @PostMapping("{mapId}/reset")
-    @Transactional
-    fun resetMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long, @RequestBody request: ResetMapRequest): PlayerActionResponse {
-        val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)
-            ?: throw RuntimeException("Map $mapId is unknown to player ${player.id}")
-        playerMap.playerTiles.forEach {
-            it.discoverable = if (request.discovered) false else it.discoverable
-            it.discovered = if (request.discovered) false else it.discovered
-            it.victoriousFight = if (request.fights) false else it.victoriousFight
-            it.chestOpened = if (request.chests) false else it.chestOpened
-        }
-        if (request.discovered) {
-            playerMap.map.tiles.filter { it.alwaysRevealed }.forEach { mapService.discoverMapTile(playerMap, it) }
-        }
-        return PlayerActionResponse(currentMap = PlayerMapResolved(playerMap))
     }
 }
 

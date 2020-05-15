@@ -22,7 +22,7 @@ class BetaTesterHeroController(val heroRepository: HeroRepository,
     @Transactional
     fun gainLevel(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
-        if (hero.playerId != player.id || !player.admin) {
+        if (hero.playerId != player.id) {
             throw RuntimeException("not allowed")
         }
         if (!heroService.evolveHero(hero)) {
@@ -35,7 +35,7 @@ class BetaTesterHeroController(val heroRepository: HeroRepository,
     @Transactional
     fun looseLevel(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
-        if (hero.playerId != player.id || !player.admin) {
+        if (hero.playerId != player.id) {
             throw RuntimeException("not allowed")
         }
         if (hero.level > 1) {
@@ -55,7 +55,7 @@ class BetaTesterHeroController(val heroRepository: HeroRepository,
     @Transactional
     fun gainAscLevel(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
-        if (hero.playerId != player.id || !player.admin) {
+        if (hero.playerId != player.id) {
             throw RuntimeException("not allowed")
         }
         heroService.heroGainAsc(hero, hero.ascPointsMax - hero.ascPoints)
@@ -66,7 +66,7 @@ class BetaTesterHeroController(val heroRepository: HeroRepository,
     @Transactional
     fun looseAscLevel(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroRepository.getOne(heroId)
-        if (hero.playerId != player.id || !player.admin) {
+        if (hero.playerId != player.id) {
             throw RuntimeException("not allowed")
         }
         if (hero.ascLvl > 0 && hero.skillPoints > 0) {
