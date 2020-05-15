@@ -29,6 +29,9 @@ class JwtRequestFilter(private val jwtService: JwtService,
                 if (player.admin) {
                     authorities.add(SimpleGrantedAuthority("ROLE_ADMIN"))
                 }
+                if (player.betaTester) {
+                    authorities.add(SimpleGrantedAuthority("BETA_TESTER"))
+                }
                 SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(player, null, authorities)
                 request.setAttribute("player", player)
             }
