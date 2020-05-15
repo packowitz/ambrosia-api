@@ -12,6 +12,7 @@ data class Player(
     @JsonIgnore val email: String,
     @JsonIgnore val password: String,
     val admin: Boolean = false,
+    val betaTester: Boolean = false,
     val serviceAccount: Boolean = false,
     var xp: Int = 0,
     var maxXp: Int = 100,
