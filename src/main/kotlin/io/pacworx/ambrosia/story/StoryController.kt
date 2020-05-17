@@ -26,7 +26,7 @@ class StoryController(
                 it.number,
                 replace(it.title, placeholders, player.color),
                 replace(it.message, placeholders, player.color)!!,
-                replace(it.nextText, placeholders, player.color),
+                replace(it.buttonText, placeholders, player.color),
                 replace(it.leftPic, placeholders, player.color),
                 replace(it.rightPic, placeholders, player.color)
             )

@@ -25,6 +25,7 @@ import io.pacworx.ambrosia.maps.MapTileType
 import io.pacworx.ambrosia.properties.PropertyCategory
 import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourceType
+import io.pacworx.ambrosia.story.StoryTrigger
 import io.pacworx.ambrosia.upgrade.Modification
 import io.pacworx.ambrosia.vehicle.PartQuality
 import io.pacworx.ambrosia.vehicle.PartType
@@ -72,6 +73,7 @@ class EnumController {
         val partTypes: List<PartType> = PartType.values().asList(),
         val vehicleStats: List<VehicleStat> = VehicleStat.values().asList(),
         val lootItemTypes: List<LootItemType> = LootItemType.values().asList(),
-        val modifications: List<Modification> = Modification.values().asList()
+        val modifications: List<Modification> = Modification.values().asList(),
+        val storyTriggers: List<StoryTrigger> = StoryTrigger.values().asList()
     )
 }

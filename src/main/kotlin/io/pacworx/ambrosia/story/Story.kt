@@ -13,7 +13,7 @@ data class Story(
     val number: Int,
     val title: String?,
     val message: String,
-    val nextText: String?,
+    val buttonText: String,
     val leftPic: String?,
     val rightPic: String?
 )
