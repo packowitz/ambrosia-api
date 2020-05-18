@@ -26,7 +26,7 @@ class StoryController(
                 it.number,
                 replace(it.title, placeholders, player.color),
                 replace(it.message, placeholders, player.color)!!,
-                replace(it.buttonText, placeholders, player.color),
+                replace(it.buttonText, placeholders, player.color)!!,
                 replace(it.leftPic, placeholders, player.color),
                 replace(it.rightPic, placeholders, player.color)
             )
@@ -53,7 +53,7 @@ class StoryController(
         val number: Int,
         val title: String?,
         val message: String,
-        val nextText: String?,
+        val buttonText: String,
         val leftPic: String?,
         val rightPic: String?
     )
