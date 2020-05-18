@@ -266,7 +266,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun gainResources(res: Resources, type: ResourceType, amount: Int): Resources {
         when (type) {
-            ResourceType.STEAM_MAX -> res.stealMax += amount
+            ResourceType.STEAM_MAX -> res.steamMax += amount
             ResourceType.PREMIUM_STEAM -> res.premiumSteam = min(res.premiumSteamMax, res.premiumSteam + amount)
             ResourceType.PREMIUM_STEAM_MAX -> res.premiumSteamMax += amount
             ResourceType.COGWHEELS_MAX -> res.cogwheelsMax += amount
