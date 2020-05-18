@@ -1,6 +1,8 @@
 package io.pacworx.ambrosia.story
 
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
@@ -9,6 +11,7 @@ import javax.persistence.Id
 data class Story(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
+    @Enumerated(EnumType.STRING)
     val trigger: StoryTrigger,
     val number: Int,
     val title: String?,
