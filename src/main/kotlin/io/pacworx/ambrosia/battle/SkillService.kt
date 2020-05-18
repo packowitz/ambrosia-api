@@ -17,6 +17,7 @@ import io.pacworx.ambrosia.properties.PropertyType
 import org.springframework.stereotype.Service
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.round
 
 @Service
 class SkillService(private val propertyService: PropertyService) {
@@ -62,7 +63,7 @@ class SkillService(private val propertyService: PropertyService) {
         battle.checkStatus()
     }
 
-    private fun executeSkillActions(battle: Battle, step: BattleStep, hero: BattleHero, skill: HeroSkill, target: BattleHero, excludedActionTypes: List<SkillActionType> = listOf()) {
+    private fun executeSkillActions(battle: Battle, step: BattleStep, hero: BattleHero, skill: HeroSkill, target: BattleHero) {
         var damage = 0
         var lastActionProced: Boolean? = null
         skill.actions.forEach { action ->
@@ -76,52 +77,37 @@ class SkillService(private val propertyService: PropertyService) {
             }
             lastActionProced = true
             when (action.type) {
-                SkillActionType.DAMAGE ->
-                    if (!excludedActionTypes.contains(SkillActionType.DAMAGE)) {
-                        damage += handleDamageAction(hero, action, damage)
-                    }
+                SkillActionType.DAMAGE -> damage += handleDamageAction(hero, action, damage)
                 SkillActionType.DEAL_DAMAGE ->
-                    if (!excludedActionTypes.contains(SkillActionType.DEAL_DAMAGE)) {
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    dealDamage(battle, it, hero, action, damage, step)
-                                }
-                    }
+                    findTargets(battle, hero, action, target)
+                        .forEach {
+                            dealDamage(battle, it, hero, action, damage, step)
+                        }
                 SkillActionType.BUFF, SkillActionType.DEBUFF ->
-                    if (!excludedActionTypes.contains(SkillActionType.DEBUFF)) {
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    step.addAction(applyBuff(battle, hero, action, it))
-                                }
-                    }
+                    findTargets(battle, hero, action, target)
+                        .forEach {
+                            step.addAction(applyBuff(battle, hero, action, it))
+                        }
                 SkillActionType.SPEEDBAR ->
-                    if (!excludedActionTypes.contains(SkillActionType.SPEEDBAR)) {
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    applySpeedbarAction(step, it, action)
-                                }
-                    }
+                    findTargets(battle, hero, action, target)
+                        .forEach {
+                            applySpeedbarAction(step, it, action)
+                        }
                 SkillActionType.HEAL ->
-                    if (!excludedActionTypes.contains(SkillActionType.HEAL)) {
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    step.addAction(applyHealingAction(battle, hero, action, it))
-                                }
-                    }
+                    findTargets(battle, hero, action, target)
+                        .forEach {
+                            step.addAction(applyHealingAction(battle, hero, action, it))
+                        }
                 SkillActionType.PASSIVE_STAT ->
-                    if (!excludedActionTypes.contains(SkillActionType.PASSIVE_STAT)) {
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    action.effect.stat?.apply(it, action.effectValue)
-                                }
-                    }
+                    findTargets(battle, hero, action, target)
+                        .forEach {
+                            action.effect.stat?.apply(it, action.effectValue)
+                        }
                 SkillActionType.SPECIAL ->
-                    if (!excludedActionTypes.contains(SkillActionType.SPECIAL)) {
-                        findTargets(battle, hero, action, target)
-                                .forEach {
-                                    applySpecialAction(battle, step, hero, action, it)
-                                }
-                    }
+                    findTargets(battle, hero, action, target)
+                        .forEach {
+                            applySpecialAction(battle, step, hero, action, it)
+                        }
             }
         }
     }
@@ -196,73 +182,74 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
-    private fun dealDamage(battle: Battle, hero: BattleHero, damageDealer: BattleHero, action: HeroSkillAction, baseDamage: Int, step: BattleStep, isFreeAttack: Boolean = false) {
-        if (procs(hero.getTotalDodgeChance())) {
+    private fun dealDamage(battle: Battle, target: BattleHero, damageDealer: BattleHero, action: HeroSkillAction, incomingDamage: Int, step: BattleStep, isFreeAttack: Boolean = false) {
+        if (procs(target.getTotalDodgeChance())) {
             step.addAction(BattleStepAction(
-                    heroPosition = hero.position,
-                    heroName = hero.heroBase.name,
+                    heroPosition = target.position,
+                    heroName = target.heroBase.name,
                     type = BattleStepActionType.DODGED
             ))
             return
         }
 
-        if (!isFreeAttack && areOpponents(hero, damageDealer)) {
-            hero.willCounter = hero.willCounter || procs(hero.getTotalCounterChance())
+        if (!isFreeAttack && areOpponents(target, damageDealer)) {
+            target.willCounter = target.willCounter || procs(target.getTotalCounterChance())
         }
 
         val crit = procs(damageDealer.getTotalCrit())
         val superCrit = crit && procs(damageDealer.heroSuperCritChance + damageDealer.superCritChanceBonus)
 
-        var baseDamage = (baseDamage * action.effectValue) / 100
+        var baseDamageDouble = (incomingDamage * action.effectValue).toDouble() / 100
         if (superCrit) {
-            baseDamage += ((baseDamage * (hero.getTotalCritMult() + 150)) / 100)
+            baseDamageDouble += ((baseDamageDouble * (target.getTotalCritMult() + 150)) / 100)
         } else if (crit) {
-            baseDamage += ((baseDamage * hero.getTotalCritMult()) / 100)
+            baseDamageDouble += ((baseDamageDouble * target.getTotalCritMult()) / 100)
         }
 
-        val reflectDamage = hero.getTotalReflect().takeIf { it > 0 }?.let { baseDamage * it / 100 } ?: 0
-        baseDamage -= reflectDamage
+        val reflectDamage = round(target.getTotalReflect().takeIf { it > 0 }?.let { (baseDamageDouble * it) / 100 } ?: 0.0).toInt()
+        baseDamageDouble -= reflectDamage
 
-        baseDamage *= damageDealer.getTotalRedDamageInc().takeIf { hero.color == Color.RED && it != 0 }?.let { (100 + it) / 100 } ?: 1
-        baseDamage *= damageDealer.getTotalGreenDamageInc().takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 } ?: 1
-        baseDamage *= damageDealer.getTotalBlueDamageInc().takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 } ?: 1
+        baseDamageDouble *= damageDealer.getTotalRedDamageInc().takeIf { target.color == Color.RED && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
+        baseDamageDouble *= damageDealer.getTotalGreenDamageInc().takeIf { target.color == Color.GREEN && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
+        baseDamageDouble *= damageDealer.getTotalBlueDamageInc().takeIf { target.color == Color.BLUE && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
 
-        if (battle.heroBelongsToPlayer(hero)) {
-            baseDamage *= battle.fight?.environment?.playerRedDmgInc?.takeIf { hero.color == Color.RED && it != 0 }?.let { (100 + it) / 100 } ?: 1
-            baseDamage *= battle.fight?.environment?.playerGreenDmgInc?.takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 + it) / 100 } ?: 1
-            baseDamage *= battle.fight?.environment?.playerBlueDmgInc?.takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 + it) / 100 } ?: 1
+        if (battle.heroBelongsToPlayer(target)) {
+            baseDamageDouble *= battle.fight?.environment?.playerRedDmgInc?.takeIf { target.color == Color.RED && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
+            baseDamageDouble *= battle.fight?.environment?.playerGreenDmgInc?.takeIf { target.color == Color.GREEN && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
+            baseDamageDouble *= battle.fight?.environment?.playerBlueDmgInc?.takeIf { target.color == Color.BLUE && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
         } else {
-            baseDamage *= battle.fight?.environment?.oppRedDmgDec?.takeIf { hero.color == Color.RED && it != 0 }?.let { (100 - it) / 100 } ?: 1
-            baseDamage *= battle.fight?.environment?.oppGreenDmgDec?.takeIf { hero.color == Color.GREEN && it != 0 }?.let { (100 - it) / 100 } ?: 1
-            baseDamage *= battle.fight?.environment?.oppBlueDmgDec?.takeIf { hero.color == Color.BLUE && it != 0 }?.let { (100 - it) / 100 } ?: 1
+            baseDamageDouble *= battle.fight?.environment?.oppRedDmgDec?.takeIf { target.color == Color.RED && it != 0 }?.let { (100 - it).toDouble() / 100 } ?: 1.0
+            baseDamageDouble *= battle.fight?.environment?.oppGreenDmgDec?.takeIf { target.color == Color.GREEN && it != 0 }?.let { (100 - it).toDouble() / 100 } ?: 1.0
+            baseDamageDouble *= battle.fight?.environment?.oppBlueDmgDec?.takeIf { target.color == Color.BLUE && it != 0 }?.let { (100 - it).toDouble() / 100 } ?: 1.0
         }
 
-        val damage = shieldCalculation(hero, baseDamage)
+        val baseDamage = round(baseDamageDouble).toInt()
+        val damage = shieldCalculation(target, baseDamage)
 
-        val armorPiercedDamage = damageDealer.getTotalArmorPiercing().takeIf { it > 0 }?.let { (damage * it) / 100 } ?: 0
+        val armorPiercedDamage = round(damageDealer.getTotalArmorPiercing().takeIf { it > 0 }?.let { (damage * it).toDouble() / 100 } ?: 0.0).toInt()
 
-        val targetArmor = hero.getTotalArmor()
-        val targetHealth = hero.currentHp
+        val targetArmor = target.getTotalArmor()
+        val targetHealth = target.currentHp
         val property = if (targetArmor > 0) {
-            val dmgArmorRatio: Int = 100 * (damage - armorPiercedDamage) / targetArmor
+            val dmgArmorRatio: Int = round(100 * (damage - armorPiercedDamage).toDouble() / targetArmor).toInt()
             battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
         } else {
             battleProps.last()
         }
 
-        var armorLoss = (hero.currentArmor * property.value1) / 100
-        armorLoss *= (100 + damageDealer.getTotalArmorExtraDamage()) / 100
+        var armorLoss = round((target.currentArmor * property.value1).toDouble() / 100).toInt()
+        armorLoss = round(armorLoss * (100 + damageDealer.getTotalArmorExtraDamage()).toDouble() / 100).toInt()
         armorLoss = min(armorLoss, targetArmor)
-        var healthLoss = armorPiercedDamage + ((damage - armorPiercedDamage) * property.value2!!) / 100
-        healthLoss *= (100 + damageDealer.getTotalHealthExtraDamage()) / 100
+        var healthLoss = armorPiercedDamage + round(((damage - armorPiercedDamage) * property.value2!!).toDouble() / 100).toInt()
+        healthLoss = round(healthLoss * (100 + damageDealer.getTotalHealthExtraDamage()).toDouble() / 100).toInt()
 
-        receiveDamage(battle, hero, armorLoss, healthLoss, damageDealer)
+        receiveDamage(battle, target, armorLoss, healthLoss, damageDealer)
 
-        val lifeSteal = damageDealer.getTotalLifesteal().takeIf { it > 0 }?.let { (healthLoss * it) / 100 } ?: 0
+        val lifeSteal = round(damageDealer.getTotalLifesteal().takeIf { it > 0 }?.let { (healthLoss * it).toDouble() / 100 } ?: 0.0).toInt()
 
         step.addAction(BattleStepAction(
-                heroPosition = hero.position,
-                heroName = hero.heroBase.name,
+                heroPosition = target.position,
+                heroName = target.heroBase.name,
                 type = BattleStepActionType.DAMAGE,
                 crit = crit,
                 superCrit = superCrit,
@@ -274,16 +261,16 @@ class SkillService(private val propertyService: PropertyService) {
                 healthDiff = -healthLoss
         ))
 
-        if (hero.status == HeroStatus.DEAD) {
+        if (target.status == HeroStatus.DEAD) {
             step.addAction(BattleStepAction(
-                    heroPosition = hero.position,
-                    heroName = hero.heroBase.name,
+                    heroPosition = target.position,
+                    heroName = target.heroBase.name,
                     type = BattleStepActionType.DEAD))
         }
 
         if (lifeSteal > 0 && damageDealer.currentHp < damageDealer.heroHp) {
             val maxHealing = max(damageDealer.heroHp - damageDealer.currentHp, 0)
-            var healing = lifeSteal * (100 + damageDealer.getTotalHealingInc()) / 100
+            var healing = round(lifeSteal * (100 + damageDealer.getTotalHealingInc()).toDouble() / 100).toInt()
             healing = min(healing, maxHealing)
             damageDealer.currentHp += healing
             step.addAction(BattleStepAction(heroPosition = damageDealer.position, heroName = damageDealer.heroBase.name, type = BattleStepActionType.HEALING, healthDiff = healing))
