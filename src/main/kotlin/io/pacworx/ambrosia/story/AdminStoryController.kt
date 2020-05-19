@@ -32,18 +32,6 @@ class AdminStoryController(
         return storyRepository.saveAll(request.stories)
     }
 
-    @PostMapping
-    @Transactional
-    fun saveStory(@RequestBody story: Story): Story {
-        return storyRepository.save(story)
-    }
-
-    @DeleteMapping("{id}")
-    @Transactional
-    fun deleteStory(@PathVariable("id") id: Long) {
-        storyRepository.deleteById(id)
-    }
-
     data class SaveStoryLineRequest(
         val stories: List<Story>,
         val toDelete: List<Long>?
