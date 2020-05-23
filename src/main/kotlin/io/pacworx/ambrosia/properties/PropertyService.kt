@@ -14,6 +14,7 @@ import io.pacworx.ambrosia.hero.skills.HeroSkillAction
 import io.pacworx.ambrosia.hero.HeroStat
 import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
 import io.pacworx.ambrosia.hero.Rarity
+import io.pacworx.ambrosia.hero.skills.HeroSkill
 import io.pacworx.ambrosia.hero.skills.SkillActionTrigger
 import io.pacworx.ambrosia.resources.ResourcesRepository
 import io.pacworx.ambrosia.resources.ResourcesService
@@ -143,7 +144,7 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
             .filter { it.number > 0 }
         hero.sets.forEach { applySet(hero, it) }
         hero.heroBase.skills.filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.STAT_CALC }.forEach { skill ->
-            skill.actions.filter { passiveActionTriggers(hero, it) }.forEach { action ->
+            skill.actions.filter { passiveActionTriggers(hero, skill, it) }.forEach { action ->
                 action.effect.stat?.apply(hero, action.effectValue)
             }
         }
@@ -180,17 +181,32 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
         }
     }
 
-    private fun passiveActionTriggers(hero: HeroDto, action: HeroSkillAction): Boolean {
+    private fun passiveActionTriggers(hero: HeroDto, skill: HeroSkill, action: HeroSkillAction): Boolean {
         return when (action.trigger) {
             SkillActionTrigger.ALWAYS -> true
-            SkillActionTrigger.S1_LVL -> action.triggerValue!!.contains(hero.skill1.toString())
-            SkillActionTrigger.S2_LVL -> hero.skill2?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S3_LVL -> hero.skill3?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S4_LVL -> hero.skill4?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S5_LVL -> hero.skill5?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S6_LVL -> hero.skill6?.let { action.triggerValue!!.contains(it.toString()) } ?: false
-            SkillActionTrigger.S7_LVL -> hero.skill7?.let { action.triggerValue!!.contains(it.toString()) } ?: false
+            SkillActionTrigger.SKILL_LVL -> triggerValueSkillLevel(action.triggerValue!!, hero.getSkillLevel(skill.number))
+            SkillActionTrigger.S1_LVL -> triggerValueSkillLevel(action.triggerValue!!, hero.skill1)
+            SkillActionTrigger.S2_LVL -> hero.skill2?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S3_LVL -> hero.skill3?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S4_LVL -> hero.skill4?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S5_LVL -> hero.skill5?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S6_LVL -> hero.skill6?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
+            SkillActionTrigger.S7_LVL -> hero.skill7?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
             else -> false
+        }
+    }
+
+    private fun triggerValueSkillLevel(triggerValue: String, skillLevel: Int): Boolean {
+        return if (triggerValue.startsWith(">")) {
+            skillLevel > triggerValue.substring(1).trim().toIntOrNull() ?: 99
+        } else if (triggerValue.startsWith(">=")) {
+            skillLevel >= triggerValue.substring(2).trim().toIntOrNull() ?: 99
+        } else if (triggerValue.startsWith("<")) {
+            skillLevel < triggerValue.substring(1).trim().toIntOrNull() ?: 99
+        } else if (triggerValue.startsWith("<=")) {
+            skillLevel <= triggerValue.substring(2).trim().toIntOrNull() ?: 99
+        } else {
+            triggerValue.contains(skillLevel.toString())
         }
     }
 }

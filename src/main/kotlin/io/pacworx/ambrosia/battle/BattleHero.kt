@@ -290,6 +290,19 @@ data class BattleHero(
         } ?: 99
     }
 
+    fun getSkillLevel(skillNr: Int): Int {
+        return when(skillNr) {
+            1 -> skill1Lvl
+            2 -> skill2Lvl ?: 0
+            3 -> skill3Lvl ?: 0
+            4 -> skill4Lvl ?: 0
+            5 -> skill5Lvl ?: 0
+            6 -> skill6Lvl ?: 0
+            7 -> skill7Lvl ?: 0
+            else -> 0
+        }
+    }
+
     fun skillUsed(skillNr: Int) {
         when (skillNr) {
             2 -> skill2Cooldown = heroBase.skills.find { it.number == 2 }?.getCooldown(skill2Lvl)

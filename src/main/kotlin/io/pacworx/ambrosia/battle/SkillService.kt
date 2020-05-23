@@ -67,7 +67,7 @@ class SkillService(private val propertyService: PropertyService) {
         var damage = 0
         var lastActionProced: Boolean? = null
         skill.actions.forEach { action ->
-            if (!actionTriggers(hero, action, step, lastActionProced)) {
+            if (!actionTriggers(hero, skill, action, step, lastActionProced)) {
                 lastActionProced = null
                 return@forEach
             }
@@ -112,9 +112,10 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
-    private fun actionTriggers(hero: BattleHero, action: HeroSkillAction, step: BattleStep, lastActionProced: Boolean?): Boolean {
+    private fun actionTriggers(hero: BattleHero, skill: HeroSkill, action: HeroSkillAction, step: BattleStep, lastActionProced: Boolean?): Boolean {
         return when (action.trigger) {
             SkillActionTrigger.ALWAYS -> true
+            SkillActionTrigger.SKILL_LVL -> triggerValueSkillLevel(action.triggerValue!!, hero.getSkillLevel(skill.number))
             SkillActionTrigger.S1_LVL -> action.triggerValue!!.contains(hero.skill1Lvl.toString())
             SkillActionTrigger.S2_LVL -> hero.skill2Lvl?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
             SkillActionTrigger.S3_LVL -> hero.skill3Lvl?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false

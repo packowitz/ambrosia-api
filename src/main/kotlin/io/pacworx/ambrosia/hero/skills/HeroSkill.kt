@@ -56,15 +56,30 @@ data class HeroSkill(
             .filter {
                 it.effect == effect && when (it.trigger) {
                     SkillActionTrigger.ALWAYS -> true
-                    SkillActionTrigger.S1_LVL -> this.number == 1 && it.triggerValue!!.contains(skillLevel.toString())
-                    SkillActionTrigger.S2_LVL -> this.number == 2 && it.triggerValue!!.contains(skillLevel.toString())
-                    SkillActionTrigger.S3_LVL -> this.number == 3 && it.triggerValue!!.contains(skillLevel.toString())
-                    SkillActionTrigger.S4_LVL -> this.number == 4 && it.triggerValue!!.contains(skillLevel.toString())
-                    SkillActionTrigger.S5_LVL -> this.number == 5 && it.triggerValue!!.contains(skillLevel.toString())
-                    SkillActionTrigger.S6_LVL -> this.number == 6 && it.triggerValue!!.contains(skillLevel.toString())
-                    SkillActionTrigger.S7_LVL -> this.number == 7 && it.triggerValue!!.contains(skillLevel.toString())
+                    SkillActionTrigger.SKILL_LVL -> triggerValueSkillLevel(it.triggerValue!!, skillLevel)
+                    SkillActionTrigger.S1_LVL -> this.number == 1 && triggerValueSkillLevel(it.triggerValue!!, skillLevel)
+                    SkillActionTrigger.S2_LVL -> this.number == 2 && triggerValueSkillLevel(it.triggerValue!!, skillLevel)
+                    SkillActionTrigger.S3_LVL -> this.number == 3 && triggerValueSkillLevel(it.triggerValue!!, skillLevel)
+                    SkillActionTrigger.S4_LVL -> this.number == 4 && triggerValueSkillLevel(it.triggerValue!!, skillLevel)
+                    SkillActionTrigger.S5_LVL -> this.number == 5 && triggerValueSkillLevel(it.triggerValue!!, skillLevel)
+                    SkillActionTrigger.S6_LVL -> this.number == 6 && triggerValueSkillLevel(it.triggerValue!!, skillLevel)
+                    SkillActionTrigger.S7_LVL -> this.number == 7 && triggerValueSkillLevel(it.triggerValue!!, skillLevel)
                     else -> false
                 }
             }
+    }
+
+    private fun triggerValueSkillLevel(triggerValue: String, skillLevel: Int): Boolean {
+        return if (triggerValue.startsWith(">")) {
+            skillLevel > triggerValue.substring(1).trim().toIntOrNull() ?: 99
+        } else if (triggerValue.startsWith(">=")) {
+            skillLevel >= triggerValue.substring(2).trim().toIntOrNull() ?: 99
+        } else if (triggerValue.startsWith("<")) {
+            skillLevel < triggerValue.substring(1).trim().toIntOrNull() ?: 99
+        } else if (triggerValue.startsWith("<=")) {
+            skillLevel <= triggerValue.substring(2).trim().toIntOrNull() ?: 99
+        } else {
+            triggerValue.contains(skillLevel.toString())
+        }
     }
 }
