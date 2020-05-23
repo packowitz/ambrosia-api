@@ -47,6 +47,10 @@ enum class JewelType(val slot: GearJewelSlot, val gearSet: GearSet? = null) {
     REVERSED_REALITY(
         GearJewelSlot.SPECIAL,
         GearSet.REVERSED_REALITY
+    ),
+    TERRIBLE_FATE(
+        GearJewelSlot.SPECIAL,
+        GearSet.TERRIBLE_FATE
     )
     ;
 
