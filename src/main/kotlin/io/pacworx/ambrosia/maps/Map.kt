@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.maps
 
+import io.pacworx.ambrosia.story.StoryTrigger
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -9,6 +10,7 @@ data class Map(
     val id: Long = 0,
     val name: String,
     val startingMap: Boolean = false,
+    @Enumerated(EnumType.STRING) val storyTrigger: StoryTrigger? = null,
     val discoverySteamCost: Int = 5,
     @Column(name = "min_x") val minX: Int,
     @Column(name = "max_x") val maxX: Int,

@@ -14,6 +14,7 @@ interface SimplePlayerMapRepository: JpaRepository<PlayerMapResolved, String> {
             m.name as name,
             m.background as background,
             m.discovery_steam_cost as discovery_steam_cost,
+            m.story_trigger as story_trigger,
             m.min_x as min_x,
             m.max_x as max_x,
             m.min_y as min_y,

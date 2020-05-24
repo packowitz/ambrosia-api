@@ -18,5 +18,6 @@ enum class StoryTrigger {
     FORGE_DISCOVERED,
     FORGE_ENTERED,
     VEHICLE_FOUND,
-    GENOMES_FOUND
+    GENOMES_FOUND,
+    MAP_DUNGEON
 }

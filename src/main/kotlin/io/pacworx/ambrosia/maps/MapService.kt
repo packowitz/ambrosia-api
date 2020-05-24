@@ -6,12 +6,11 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
+import io.pacworx.ambrosia.story.StoryTrigger
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
+import javax.persistence.*
 import javax.transaction.Transactional
 import kotlin.math.abs
 
@@ -131,6 +130,7 @@ data class PlayerMapResolved(
     val name: String,
     val background: String,
     val discoverySteamCost: Int,
+    @Enumerated(EnumType.STRING) val storyTrigger: StoryTrigger?,
     @Column(name = "min_x") val minX: Int,
     @Column(name = "max_x") val maxX: Int,
     @Column(name = "min_y") val minY: Int,
@@ -143,6 +143,7 @@ data class PlayerMapResolved(
         playerMap.map.name,
         playerMap.map.background.name,
         playerMap.map.discoverySteamCost,
+        playerMap.map.storyTrigger,
         playerMap.map.minX,
         playerMap.map.maxX,
         playerMap.map.minY,
@@ -179,7 +180,7 @@ data class PlayerMapTileResolved(
         playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightIcon },
         playerTile?.takeIf { it.discovered && (tile.fightRepeatable || !it.victoriousFight) }?.let { tile.fightId },
         playerTile?.takeIf { it.discovered }?.let { tile.fightRepeatable },
-        playerTile?.takeIf { it.discovered }?.let { it.victoriousFight },
+        playerTile?.takeIf { it.discovered }?.victoriousFight,
         playerTile?.takeIf { it.discovered }?.let { tile.portalToMapId },
         playerTile?.takeIf { it.discovered }?.let { tile.buildingType }
     )
