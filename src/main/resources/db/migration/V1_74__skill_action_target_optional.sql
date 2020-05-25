@@ -1,0 +1,1 @@
+alter table hero_skill_action alter column target drop not null;

@@ -15,7 +15,7 @@ data class HeroSkillAction(
     @Enumerated(EnumType.STRING)
     var type: SkillActionType,
     @Enumerated(EnumType.STRING)
-    var target: SkillActionTarget,
+    var target: SkillActionTarget? = null,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     var effect: SkillActionEffect,
