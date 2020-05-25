@@ -1,0 +1,9 @@
+update hero_skill_action set type = 'ADD_BASE_DMG' where type = 'DAMAGE';
+update hero_skill_action set effect = 'STRENGTH_SCALING' where effect = 'STRENGTH';
+update hero_skill_action set effect = 'ARMOR_SCALING' where effect = 'ARMOR';
+update hero_skill_action set effect = 'ARMOR_MAX_SCALING' where effect = 'ARMOR_MAX';
+update hero_skill_action set effect = 'HP_SCALING' where effect = 'HP';
+update hero_skill_action set effect = 'HP_MAX_SCALING' where effect = 'HP_MAX';
+update hero_skill_action set effect = 'DEXTERITY_SCALING' where effect = 'DEXTERITY';
+update hero_skill_action set effect = 'RESISTANCE_SCALING' where effect = 'RESISTANCE';
+update hero_skill_action set effect = 'DMG_MULTIPLIER' where effect = 'MULTIPLIER';

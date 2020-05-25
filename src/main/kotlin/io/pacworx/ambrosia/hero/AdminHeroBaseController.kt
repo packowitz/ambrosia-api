@@ -4,7 +4,6 @@ import io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.battle.offline.MissionRepository
 import io.pacworx.ambrosia.fights.FightStageRepository
-import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.skills.HeroSkill
 import io.pacworx.ambrosia.hero.skills.HeroSkillAction
 import io.pacworx.ambrosia.hero.skills.SkillActionEffect
@@ -64,9 +63,9 @@ class AdminHeroBaseController(val heroBaseRepository: HeroBaseRepository,
                     position = 1,
                     trigger = SkillActionTrigger.ALWAYS,
                     triggerChance = 100,
-                    type = SkillActionType.DAMAGE,
+                    type = SkillActionType.ADD_BASE_DMG,
                     target = SkillActionTarget.TARGET,
-                    effect = SkillActionEffect.STRENGTH,
+                    effect = SkillActionEffect.STRENGTH_SCALING,
                     effectValue = 150
                 ),
                 HeroSkillAction(

@@ -77,7 +77,7 @@ class SkillService(private val propertyService: PropertyService) {
             }
             lastActionProced = true
             when (action.type) {
-                SkillActionType.DAMAGE -> damage += handleDamageAction(hero, action, damage)
+                SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(hero, action, damage)
                 SkillActionType.DEAL_DAMAGE ->
                     findTargets(battle, hero, action, target)
                         .forEach {
@@ -169,16 +169,18 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
-    private fun handleDamageAction(hero: BattleHero, action: HeroSkillAction, damage: Int): Int {
+    private fun handleDefineDamageAction(hero: BattleHero, action: HeroSkillAction, damage: Int): Int {
         return when (action.effect) {
-            STRENGTH -> (hero.getTotalStrength() * action.effectValue) / 100
-            ARMOR -> (hero.getTotalArmor() * action.effectValue) / 100
-            ARMOR_MAX -> (hero.getTotalMaxArmor() * action.effectValue) / 100
-            HP -> (hero.currentHp * action.effectValue) / 100
-            HP_MAX -> (hero.heroHp * action.effectValue) / 100
-            DEXTERITY -> (hero.getTotalDexterity() * action.effectValue) / 100
-            RESISTANCE -> (hero.getTotalResistance() * action.effectValue) / 100
-            MULTIPLIER -> (damage * action.effectValue) / 100
+            STRENGTH_SCALING -> (hero.getTotalStrength() * action.effectValue) / 100
+            ARMOR_SCALING -> (hero.getTotalArmor() * action.effectValue) / 100
+            ARMOR_MAX_SCALING -> (hero.getTotalMaxArmor() * action.effectValue) / 100
+            HP_SCALING -> (hero.currentHp * action.effectValue) / 100
+            HP_MAX_SCALING -> (hero.heroHp * action.effectValue) / 100
+            DEXTERITY_SCALING -> (hero.getTotalDexterity() * action.effectValue) / 100
+            RESISTANCE_SCALING -> (hero.getTotalResistance() * action.effectValue) / 100
+            HERO_LVL_SCALING -> (hero.level * action.effectValue) / 100
+            DMG_MULTIPLIER -> (damage * action.effectValue) / 100
+            FIXED_DMG -> action.effectValue
             else -> 0
         }
     }
@@ -299,7 +301,7 @@ class SkillService(private val propertyService: PropertyService) {
             battle.steps.add(step)
             skill.actions.forEach { action ->
                 when (action.type) {
-                    SkillActionType.DAMAGE -> damage += handleDamageAction(counterHero, action, damage)
+                    SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(counterHero, action, damage)
                     SkillActionType.DEAL_DAMAGE ->
                         findTargets(battle, counterHero, action, hero)
                                 .forEach {
