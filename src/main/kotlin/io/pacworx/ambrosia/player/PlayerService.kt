@@ -62,7 +62,6 @@ class PlayerService(private val playerRepository: PlayerRepository,
             email = email,
             password = if (serviceAccount) { password } else { getHash(name, password) },
             serviceAccount = serviceAccount,
-            admin = serviceAccount,
             betaTester = serviceAccount
         ))
         resourcesRepository.save(Resources(
