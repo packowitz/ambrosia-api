@@ -55,6 +55,7 @@ data class Gear(
     var jewel4Level: Int? = null,
     var specialJewelSlot: Boolean = false,
     @Enumerated(EnumType.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     var specialJewelType: JewelType? = null,
     var specialJewelLevel: Int? = null
 ) {
