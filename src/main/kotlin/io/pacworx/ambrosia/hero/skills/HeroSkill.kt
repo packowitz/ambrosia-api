@@ -70,14 +70,14 @@ data class HeroSkill(
     }
 
     private fun triggerValueSkillLevel(triggerValue: String, skillLevel: Int): Boolean {
-        return if (triggerValue.startsWith(">")) {
-            skillLevel > triggerValue.substring(1).trim().toIntOrNull() ?: 99
-        } else if (triggerValue.startsWith(">=")) {
+        return if (triggerValue.startsWith(">=")) {
             skillLevel >= triggerValue.substring(2).trim().toIntOrNull() ?: 99
-        } else if (triggerValue.startsWith("<")) {
-            skillLevel < triggerValue.substring(1).trim().toIntOrNull() ?: 99
+        } else if (triggerValue.startsWith(">")) {
+            skillLevel > triggerValue.substring(1).trim().toIntOrNull() ?: 99
         } else if (triggerValue.startsWith("<=")) {
             skillLevel <= triggerValue.substring(2).trim().toIntOrNull() ?: 99
+        } else if (triggerValue.startsWith("<")) {
+            skillLevel < triggerValue.substring(1).trim().toIntOrNull() ?: 99
         } else {
             triggerValue.contains(skillLevel.toString())
         }
