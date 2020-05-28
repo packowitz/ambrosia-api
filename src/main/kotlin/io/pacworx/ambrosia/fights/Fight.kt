@@ -12,7 +12,8 @@ data class Fight(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-    var name: String,
+    val name: String,
+    val description: String,
     val serviceAccountId: Long,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
