@@ -154,6 +154,17 @@ data class Hero(
         }
     }
 
+    fun enableSkill(skillNumber: Int) {
+        when (skillNumber) {
+            2 -> if (skill2 ?: 0 <= 0) { skill2 = 1 }
+            3 -> if (skill3 ?: 0 <= 0) { skill3 = 1 }
+            4 -> if (skill4 ?: 0 <= 0) { skill4 = 1 }
+            5 -> if (skill5 ?: 0 <= 0) { skill5 = 1 }
+            6 -> if (skill6 ?: 0 <= 0) { skill6 = 1 }
+            7 -> if (skill7 ?: 0 <= 0) { skill7 = 1 }
+        }
+    }
+
     fun resetSkills() {
         skillPoints += skill1 - 1
         skill1 = 1
@@ -163,6 +174,64 @@ data class Hero(
         skill5 = skill5?.let { skillPoints += it - 1; 1 }
         skill6 = skill6?.let { skillPoints += it - 1; 1 }
         skill7 = skill7?.let { skillPoints += it - 1; 1 }
+    }
+
+    fun recheckSkillLevels() {
+        heroBase.skills.find { it.number == 1 }?.let { skill ->
+            if (skill1 > skill.maxLevel) {
+                skillPoints += (skill.maxLevel - skill1)
+                skill1 = skill.maxLevel
+            }
+        }
+
+        (2..7).forEach { skillNumber ->
+            heroBase.skills.find { it.number == skillNumber }?.let { skill ->
+                if (skill.skillActiveTrigger == SkillActiveTrigger.ASCENDED && ascLvl == 0) {
+                    ensureMaxLevel(skillNumber, null)
+                } else {
+                    ensureMaxLevel(skillNumber, skill.maxLevel)
+                }
+            } ?: ensureMaxLevel(skillNumber, null)
+        }
+    }
+
+    private fun ensureMaxLevel(skillNumber: Int, maxLevel: Int?) {
+        if (maxLevel != null) {
+            getSkillLevel(skillNumber)?.takeIf { it > 0 }?.let { skillLevel ->
+                if (skillLevel > maxLevel) {
+                    skillPoints += (maxLevel - skillLevel)
+                    setSkillLevel(skillNumber, maxLevel)
+                }
+            } ?: run { setSkillLevel(skillNumber, 1) }
+        } else {
+            skillPoints += getSkillLevel(skillNumber) ?: 0
+            setSkillLevel(skillNumber, null)
+        }
+    }
+
+    private fun getSkillLevel(skillNumber: Int): Int? {
+        return when (skillNumber) {
+            1 -> skill1
+            2 -> skill2
+            3 -> skill3
+            4 -> skill4
+            5 -> skill5
+            6 -> skill6
+            7 -> skill7
+            else -> null
+        }
+    }
+
+    private fun setSkillLevel(skillNumber: Int, level: Int?) {
+        when (skillNumber) {
+            1 -> skill1 = level!!
+            2 -> skill2 = level
+            3 -> skill3 = level
+            4 -> skill4 = level
+            5 -> skill5 = level
+            6 -> skill6 = level
+            7 -> skill7 = level
+        }
     }
 
 }

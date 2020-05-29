@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.fights.Fight
+import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.vehicle.Vehicle
@@ -166,6 +167,11 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
                 hero.skillPoints ++
                 hero.ascPoints = 0
                 hero.ascPointsMax = propertyService.getHeroMaxAsc(hero.ascLvl)
+                if (hero.ascLvl == 1) {
+                    hero.heroBase.skills.filter { it.skillActiveTrigger == SkillActiveTrigger.ASCENDED }.forEach {
+                        hero.enableSkill(it.number)
+                    }
+                }
                 heroGainAsc(hero, overflow)
             }
         }

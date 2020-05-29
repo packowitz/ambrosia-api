@@ -13,6 +13,7 @@ import io.pacworx.ambrosia.hero.skills.SkillActionType
 import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import io.pacworx.ambrosia.hero.skills.SkillTarget
 import io.pacworx.ambrosia.vehicle.VehicleRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -86,7 +87,29 @@ class AdminHeroBaseController(val heroBaseRepository: HeroBaseRepository,
     @PutMapping("{id}")
     @Transactional
     fun updateHeroBase(@PathVariable id: Long, @RequestBody @Valid heroBaseRequest: HeroBase): HeroBase {
-        return heroBaseRepository.save(heroBaseRequest)
+
+        val movedSkills = mutableListOf<Pair<Int, Int>>()
+        var needUpdate = false
+        heroBaseRepository.findByIdOrNull(heroBaseRequest.id)?.let { heroBefore ->
+            heroBefore.skills.forEach { skillBefore ->
+                heroBaseRequest.skills.find { it.id == skillBefore.id && it.number != skillBefore.number }?.let { movedSkill ->
+                    movedSkills.add(skillBefore.number to movedSkill.number)
+                }
+            }
+
+            needUpdate = movedSkills.isNotEmpty() || heroBefore.skills.size != heroBaseRequest.skills.size || heroBaseRequest.skills.any { skill ->
+                heroBefore.skills.find { it.number == skill.number }?.let { skillBefore -> skillBefore.skillActiveTrigger != skill.skillActiveTrigger || skillBefore.maxLevel > skill.maxLevel } == true
+            }
+        }
+
+        val heroBase = heroBaseRepository.save(heroBaseRequest)
+
+        if (needUpdate) {
+            heroRepository.findAllByHeroBase(heroBase).forEach {
+                it.recheckSkillLevels()
+            }
+        }
+        return heroBase
     }
 
     @DeleteMapping("{id}")
