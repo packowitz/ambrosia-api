@@ -13,7 +13,7 @@ interface BattleRepository : JpaRepository<Battle, Long> {
     fun findTopByPlayerIdAndStatusNotIn(playerId: Long, status: List<BattleStatus>): Battle?
 
     fun findTop10ByLastActionBeforeAndStatusInAndPreviousBattleIdNull(
-        lastAction: Instant = Instant.now().minus(3, ChronoUnit.DAYS),
+        lastAction: Instant = Instant.now().minus(1, ChronoUnit.DAYS),
         states: List<BattleStatus> = listOf(BattleStatus.WON, BattleStatus.LOST)): List<Battle>
 
     @Query("select id from battle where previous_battle_id is null and (hero1id = :heroId or hero2id = :heroId or hero3id = :heroId or hero4id = :heroId or opp_hero1id = :heroId or opp_hero2id = :heroId or opp_hero3id = :heroId or opp_hero4id = :heroId)", nativeQuery = true)
