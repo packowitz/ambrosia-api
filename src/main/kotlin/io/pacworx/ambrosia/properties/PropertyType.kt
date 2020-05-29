@@ -63,6 +63,7 @@ enum class PropertyType(
     MYTHICAL_MIRROR_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
     WARHORN_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
     REVERSED_REALITY_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
+    TERRIBLE_FATE_SET(SET, "NoGear: number of items to gain the bonus. Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a set per level."),
 
     ARMOR_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     COUNTERATTACK_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
