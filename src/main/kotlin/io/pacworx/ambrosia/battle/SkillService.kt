@@ -427,7 +427,7 @@ class SkillService(private val propertyService: PropertyService) {
             // PassiveSkillTrigger.KILLED_OPP
             executer?.let {
                 executer.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.KILLED_OPP && executer.getCooldown(it.number) <= 0 }
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.KILLED_OPP && executer.getSkillLevel(it.number) > 0 && executer.getCooldown(it.number) <= 0 }
                         .forEach { skill ->
                             if (hero.status == HeroStatus.DEAD) {
                                 val step = BattleStep(
@@ -451,7 +451,7 @@ class SkillService(private val propertyService: PropertyService) {
             // PassiveSkillTrigger.ANY_OPP_DIED
             battle.allOtherHeroesAlive(hero).forEach { oppHero ->
                 oppHero.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ANY_OPP_DIED && oppHero.getCooldown(it.number) <= 0 }
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ANY_OPP_DIED && oppHero.getSkillLevel(it.number) > 0 && oppHero.getCooldown(it.number) <= 0 }
                         .forEach { skill ->
                             if (hero.status == HeroStatus.DEAD) {
                                 val step = BattleStep(
@@ -474,7 +474,7 @@ class SkillService(private val propertyService: PropertyService) {
 
             // PassiveSkillTrigger.SELF_DIED
             hero.heroBase.skills
-                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DIED && hero.getCooldown(it.number) <= 0 }
+                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DIED && hero.getSkillLevel(it.number) > 0 && hero.getCooldown(it.number) <= 0 }
                     .forEach { skill ->
                         if (hero.status == HeroStatus.DEAD) {
                             val step = BattleStep(
@@ -497,7 +497,7 @@ class SkillService(private val propertyService: PropertyService) {
             // PassiveSkillTrigger.ALLY_DIED
             battle.allAlliedHeroesAlive(hero).forEach { alliedHero ->
                 alliedHero.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DIED && alliedHero.getCooldown(it.number) <= 0 }
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DIED && alliedHero.getSkillLevel(it.number) > 0 && alliedHero.getCooldown(it.number) <= 0 }
                         .forEach { skill ->
                             if (hero.status == HeroStatus.DEAD) {
                                 val step = BattleStep(
@@ -520,7 +520,7 @@ class SkillService(private val propertyService: PropertyService) {
         } else {
             // PassiveSkillTrigger.OWN_HEALTH_UNDER
             hero.heroBase.skills
-                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OWN_HEALTH_UNDER && hero.getCooldown(it.number) <= 0 }
+                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OWN_HEALTH_UNDER && hero.getSkillLevel(it.number) > 0 && hero.getCooldown(it.number) <= 0 }
                     .forEach { skill ->
                         if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
                             val step = BattleStep(
@@ -543,7 +543,7 @@ class SkillService(private val propertyService: PropertyService) {
             // PassiveSkillTrigger.ALLY_HEALTH_UNDER
             battle.allAlliedHeroesAlive(hero).forEach { alliedHero ->
                 alliedHero.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_HEALTH_UNDER && alliedHero.getCooldown(it.number) <= 0 }
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_HEALTH_UNDER && alliedHero.getSkillLevel(it.number) > 0 && alliedHero.getCooldown(it.number) <= 0 }
                         .forEach { skill ->
                             if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
                                 val step = BattleStep(
@@ -598,7 +598,7 @@ class SkillService(private val propertyService: PropertyService) {
             if (buff.type == BuffType.DEBUFF) {
                 // PassiveSkillTrigger.SELF_DEBUFF
                 target.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DEBUFF && target.getCooldown(it.number) <= 0 }
+                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DEBUFF && target.getSkillLevel(it.number) > 0 && target.getCooldown(it.number) <= 0 }
                         .forEach { skill ->
                             val step = BattleStep(
                                     turn = battle.turnsDone,
@@ -619,7 +619,7 @@ class SkillService(private val propertyService: PropertyService) {
                 // PassiveSkillTrigger.ALLY_DEBUFF
                 battle.allAlliedHeroesAlive(target).forEach { ally ->
                     ally.heroBase.skills
-                            .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DEBUFF && ally.getCooldown(it.number) <= 0 }
+                            .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DEBUFF && target.getSkillLevel(it.number) > 0 && ally.getCooldown(it.number) <= 0 }
                             .forEach { skill ->
                                 val step = BattleStep(
                                         turn = battle.turnsDone,
@@ -643,7 +643,7 @@ class SkillService(private val propertyService: PropertyService) {
                 // PassiveSkillTrigger.OPP_BUFF
                 battle.allOtherHeroesAlive(target).forEach { opp ->
                     opp.heroBase.skills
-                            .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OPP_BUFF && opp.getCooldown(it.number) <= 0 }
+                            .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OPP_BUFF && target.getSkillLevel(it.number) > 0 && opp.getCooldown(it.number) <= 0 }
                             .forEach { skill ->
                                 val step = BattleStep(
                                         turn = battle.turnsDone,

@@ -118,7 +118,7 @@ class BattleController(private val battleService: BattleService,
         }
         val activeHero = battle.allHeroesAlive().find { it.position == battle.activeHero }
         val skill = activeHero?.heroBase?.skills?.find { it.number == skillNumber }
-        if (activeHero == null || activeHero.getCooldown(skillNumber) > 0 || skill == null || skill.passive) {
+        if (activeHero == null || activeHero.getCooldown(skillNumber) > 0 || skill == null || skill.passive || activeHero.getSkillLevel(skill.number) <= 0) {
             throw RuntimeException("Hero $heroPos cannot use skill $skillNumber on battle $battleId")
         }
         val target = battle.allHeroes().find { it.position == targetPos }

@@ -143,11 +143,13 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
             .map { gearSet -> HeroGearSet(gearSet, hero.getGears().filter { it.set == gearSet }.size) }
             .filter { it.number > 0 }
         hero.sets.forEach { applySet(hero, it) }
-        hero.heroBase.skills.filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.STAT_CALC }.forEach { skill ->
-            skill.actions.filter { passiveActionTriggers(hero, skill, it) }.forEach { action ->
-                action.effect.stat?.apply(hero, action.effectValue)
+        hero.heroBase.skills
+            .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.STAT_CALC && hero.getSkillLevel(it.number) > 0 }
+            .forEach { skill ->
+                skill.actions.filter { passiveActionTriggers(hero, skill, it) }.forEach { action ->
+                    action.effect.stat?.apply(hero, action.effectValue)
+                }
             }
-        }
     }
 
     fun applyGear(hero: HeroDto, gear: Gear) {
@@ -202,9 +204,9 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
         } else if (triggerValue.startsWith(">=")) {
             skillLevel >= triggerValue.substring(2).trim().toIntOrNull() ?: 99
         } else if (triggerValue.startsWith("<")) {
-            skillLevel < triggerValue.substring(1).trim().toIntOrNull() ?: 99
+            skillLevel > 0 && skillLevel < triggerValue.substring(1).trim().toIntOrNull() ?: 99
         } else if (triggerValue.startsWith("<=")) {
-            skillLevel <= triggerValue.substring(2).trim().toIntOrNull() ?: 99
+            skillLevel > 0 && skillLevel <= triggerValue.substring(2).trim().toIntOrNull() ?: 99
         } else {
             triggerValue.contains(skillLevel.toString())
         }
