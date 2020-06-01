@@ -322,6 +322,7 @@ class SkillService(private val propertyService: PropertyService) {
 
     private fun doCounter(battle: Battle, counterHero: BattleHero, hero: BattleHero, phase: BattleStepPhase) {
         var damage = 0
+        var lastActionProced: Boolean? = null
         counterHero.heroBase.skills.find { it.number == 1 }?.let { skill ->
             val step = BattleStep(
                     turn = battle.turnsDone,
@@ -336,6 +337,15 @@ class SkillService(private val propertyService: PropertyService) {
             )
             battle.steps.add(step)
             skill.actions.forEach { action ->
+                if (!actionTriggers(hero, skill, action, step, lastActionProced)) {
+                    lastActionProced = null
+                    return@forEach
+                }
+                if (!procs(action.triggerChance)) {
+                    lastActionProced = false
+                    return@forEach
+                }
+                lastActionProced = true
                 when (action.type) {
                     SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(counterHero, action, step, damage)
                     SkillActionType.DEAL_DAMAGE ->
