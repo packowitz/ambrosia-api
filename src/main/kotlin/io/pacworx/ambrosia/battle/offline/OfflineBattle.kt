@@ -26,7 +26,7 @@ data class OfflineBattle(
     fun getDuration(): Long = startTimestamp.until(finishTimestamp, ChronoUnit.SECONDS)
 
     fun getSecondsUntilDone(): Long {
-        return if (battleFinished || !battleStarted) { 0 } else { Instant.now().until(finishTimestamp, ChronoUnit.SECONDS) + 1 }
+        return if (battleFinished || !battleStarted) { 0 } else { Instant.now().until(finishTimestamp, ChronoUnit.SECONDS) + 2 }
     }
 
     fun isBattleSuccess(): Boolean? {
