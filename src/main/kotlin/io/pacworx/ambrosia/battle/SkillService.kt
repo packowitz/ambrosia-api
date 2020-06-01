@@ -321,10 +321,9 @@ class SkillService(private val propertyService: PropertyService) {
                     SkillActionType.SPECIAL ->
                         findTargets(battle, counterHero, action, hero)
                                 .forEach {
-                                    applySpecialAction(battle, step, hero, action, it)
+                                    applySpecialAction(battle, step, counterHero, action, it)
                                 }
-                    else -> {
-                    }
+                    else -> {}
                 }
             }
         }
