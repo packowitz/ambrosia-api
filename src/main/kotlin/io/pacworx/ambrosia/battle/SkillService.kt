@@ -77,7 +77,7 @@ class SkillService(private val propertyService: PropertyService) {
             }
             lastActionProced = true
             when (action.type) {
-                SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(hero, action, damage)
+                SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(hero, action, step, damage)
                 SkillActionType.DEAL_DAMAGE ->
                     findTargets(battle, hero, action, target)
                         .forEach {
@@ -170,20 +170,21 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
-    private fun handleDefineDamageAction(hero: BattleHero, action: HeroSkillAction, damage: Int): Int {
+    private fun handleDefineDamageAction(hero: BattleHero, action: HeroSkillAction, step: BattleStep, damage: Int): Int {
+        var dmgSource: String? = null
         return when (action.effect) {
-            STRENGTH_SCALING -> (hero.getTotalStrength() * action.effectValue) / 100
-            ARMOR_SCALING -> (hero.getTotalArmor() * action.effectValue) / 100
-            ARMOR_MAX_SCALING -> (hero.getTotalMaxArmor() * action.effectValue) / 100
-            HP_SCALING -> (hero.currentHp * action.effectValue) / 100
-            HP_MAX_SCALING -> (hero.heroHp * action.effectValue) / 100
-            DEXTERITY_SCALING -> (hero.getTotalDexterity() * action.effectValue) / 100
-            RESISTANCE_SCALING -> (hero.getTotalResistance() * action.effectValue) / 100
-            HERO_LVL_SCALING -> (hero.level * action.effectValue) / 100
-            DMG_MULTIPLIER -> (damage * action.effectValue) / 100
-            FIXED_DMG -> action.effectValue
+            STRENGTH_SCALING -> ((hero.getTotalStrength() * action.effectValue) / 100).also { dmgSource = "STR" }
+            ARMOR_SCALING -> ((hero.getTotalArmor() * action.effectValue) / 100).also { dmgSource = "ARM" }
+            ARMOR_MAX_SCALING -> ((hero.getTotalMaxArmor() * action.effectValue) / 100).also { dmgSource = "ARM_M" }
+            HP_SCALING -> ((hero.currentHp * action.effectValue) / 100).also { dmgSource = "HP" }
+            HP_MAX_SCALING -> ((hero.heroHp * action.effectValue) / 100).also { dmgSource = "HP_M" }
+            DEXTERITY_SCALING -> ((hero.getTotalDexterity() * action.effectValue) / 100).also { dmgSource = "DEX" }
+            RESISTANCE_SCALING -> ((hero.getTotalResistance() * action.effectValue) / 100).also { dmgSource = "RES" }
+            HERO_LVL_SCALING -> ((hero.level * action.effectValue) / 100).also { dmgSource = "LVL" }
+            DMG_MULTIPLIER -> ((damage * action.effectValue) / 100).also { dmgSource = "MULT" }
+            FIXED_DMG -> (action.effectValue).also { dmgSource = "FIX" }
             else -> 0
-        }
+        }.also { step.addBaseDamageText("+$it ($dmgSource)") }
     }
 
     private fun dealDamage(battle: Battle, target: BattleHero, damageDealer: BattleHero, action: HeroSkillAction, incomingDamage: Int, step: BattleStep, isFreeAttack: Boolean = false) {
@@ -200,31 +201,64 @@ class SkillService(private val propertyService: PropertyService) {
             target.willCounter = target.willCounter || procs(target.getTotalCounterChance())
         }
 
+        var baseDamageText = step.baseDamageText ?: "0"
+
         val crit = procs(damageDealer.getTotalCrit())
         val superCrit = crit && procs(damageDealer.heroSuperCritChance + damageDealer.superCritChanceBonus)
 
-        var baseDamageDouble = (incomingDamage * action.effectValue).toDouble() / 100
+        var baseDamageDouble = if (action.effectValue == 100) {
+            incomingDamage.toDouble()
+        } else {
+            ((incomingDamage * action.effectValue).toDouble() / 100).also {
+                baseDamageText += if (it >= incomingDamage) { " +" } else { " " }
+                baseDamageText += "${it - incomingDamage} (EFF)"
+            }
+        }
         if (superCrit) {
-            baseDamageDouble += ((baseDamageDouble * (target.getTotalCritMult() + 150)) / 100)
+            baseDamageDouble += ((baseDamageDouble * (target.getTotalCritMult() + 150)) / 100).also { baseDamageText += " +$it (SUP_CR)" }
         } else if (crit) {
-            baseDamageDouble += ((baseDamageDouble * target.getTotalCritMult()) / 100)
+            baseDamageDouble += ((baseDamageDouble * target.getTotalCritMult()) / 100).also { baseDamageText += " +$it (CR)" }
         }
 
         val reflectDamage = round(target.getTotalReflect().takeIf { it > 0 }?.let { (baseDamageDouble * it) / 100 } ?: 0.0).toInt()
-        baseDamageDouble -= reflectDamage
+        baseDamageDouble -= reflectDamage.also { if (it > 0) { baseDamageText += " -$it (REFLECT)" } }
 
-        baseDamageDouble *= damageDealer.getTotalRedDamageInc().takeIf { target.color == Color.RED && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
-        baseDamageDouble *= damageDealer.getTotalGreenDamageInc().takeIf { target.color == Color.GREEN && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
-        baseDamageDouble *= damageDealer.getTotalBlueDamageInc().takeIf { target.color == Color.BLUE && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
+        baseDamageDouble += when (target.color) {
+            Color.RED -> baseDamageDouble * damageDealer.getTotalRedDamageInc() / 100
+            Color.GREEN -> baseDamageDouble * damageDealer.getTotalGreenDamageInc() / 100
+            Color.BLUE -> baseDamageDouble * damageDealer.getTotalBlueDamageInc() / 100
+            else -> 0.0
+        }.also {
+            if (it != 0.0) {
+                baseDamageText += if (it > 0.0) { " +" } else { " " }
+                baseDamageText += "$it (COL)"
+            }
+        }
 
         if (battle.heroBelongsToPlayer(target)) {
-            baseDamageDouble *= battle.fight?.environment?.playerRedDmgInc?.takeIf { target.color == Color.RED && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
-            baseDamageDouble *= battle.fight?.environment?.playerGreenDmgInc?.takeIf { target.color == Color.GREEN && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
-            baseDamageDouble *= battle.fight?.environment?.playerBlueDmgInc?.takeIf { target.color == Color.BLUE && it != 0 }?.let { (100 + it).toDouble() / 100 } ?: 1.0
+            baseDamageDouble += when (target.color) {
+                Color.RED -> baseDamageDouble * (battle.fight?.environment?.playerRedDmgInc ?: 0) / 100
+                Color.GREEN -> baseDamageDouble * (battle.fight?.environment?.playerGreenDmgInc ?: 0) / 100
+                Color.BLUE -> baseDamageDouble * (battle.fight?.environment?.playerBlueDmgInc ?: 0) / 100
+                else -> 0.0
+            }.also {
+                if (it != 0.0) {
+                    baseDamageText += if (it > 0.0) { " +" } else { " " }
+                    baseDamageText += "$it (ENV_COL)"
+                }
+            }
         } else {
-            baseDamageDouble *= battle.fight?.environment?.oppRedDmgDec?.takeIf { target.color == Color.RED && it != 0 }?.let { (100 - it).toDouble() / 100 } ?: 1.0
-            baseDamageDouble *= battle.fight?.environment?.oppGreenDmgDec?.takeIf { target.color == Color.GREEN && it != 0 }?.let { (100 - it).toDouble() / 100 } ?: 1.0
-            baseDamageDouble *= battle.fight?.environment?.oppBlueDmgDec?.takeIf { target.color == Color.BLUE && it != 0 }?.let { (100 - it).toDouble() / 100 } ?: 1.0
+            baseDamageDouble -= when (target.color) {
+                Color.RED -> baseDamageDouble * (battle.fight?.environment?.oppRedDmgDec ?: 0) / 100
+                Color.GREEN -> baseDamageDouble * (battle.fight?.environment?.oppGreenDmgDec ?: 0) / 100
+                Color.BLUE -> baseDamageDouble * (battle.fight?.environment?.oppBlueDmgDec ?: 0) / 100
+                else -> 0.0
+            }.also {
+                if (it != 0.0) {
+                    baseDamageText += if (it > 0.0) { " " } else { " +" }
+                    baseDamageText += "${it * -1} (ENV_COL)"
+                }
+            }
         }
 
         val baseDamage = round(baseDamageDouble).toInt()
@@ -252,17 +286,18 @@ class SkillService(private val propertyService: PropertyService) {
         val lifeSteal = round(damageDealer.getTotalLifesteal().takeIf { it > 0 }?.let { (healthLoss * it).toDouble() / 100 } ?: 0.0).toInt()
 
         step.addAction(BattleStepAction(
-                heroPosition = target.position,
-                heroName = target.heroBase.name,
-                type = BattleStepActionType.DAMAGE,
-                crit = crit,
-                superCrit = superCrit,
-                baseDamage = baseDamage,
-                shieldAbsorb = baseDamage - damage,
-                targetArmor = targetArmor,
-                targetHealth = targetHealth,
-                armorDiff = -armorLoss,
-                healthDiff = -healthLoss
+            heroPosition = target.position,
+            heroName = target.heroBase.name,
+            type = BattleStepActionType.DAMAGE,
+            crit = crit,
+            superCrit = superCrit,
+            baseDamage = baseDamage,
+            baseDamageText = baseDamageText,
+            shieldAbsorb = baseDamage - damage,
+            targetArmor = targetArmor,
+            targetHealth = targetHealth,
+            armorDiff = -armorLoss,
+            healthDiff = -healthLoss
         ))
 
         if (target.status == HeroStatus.DEAD) {
@@ -302,7 +337,7 @@ class SkillService(private val propertyService: PropertyService) {
             battle.steps.add(step)
             skill.actions.forEach { action ->
                 when (action.type) {
-                    SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(counterHero, action, damage)
+                    SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(counterHero, action, step, damage)
                     SkillActionType.DEAL_DAMAGE ->
                         findTargets(battle, counterHero, action, hero)
                                 .forEach {

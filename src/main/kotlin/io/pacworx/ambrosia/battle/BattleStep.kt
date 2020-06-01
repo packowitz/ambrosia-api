@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.battle
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity
@@ -24,7 +25,20 @@ data class BattleStep(
     @JoinColumn(name = "battle_step_id")
     val heroStates: List<BattleStepHeroState>
 ) {
+
+    @Transient
+    @JsonIgnore
+    var baseDamageText: String? = null
+
     fun addAction(action: BattleStepAction) {
         actions.add(action)
+    }
+
+    fun addBaseDamageText(text: String) {
+        if (baseDamageText.isNullOrBlank()) {
+            baseDamageText = text
+        } else {
+            baseDamageText += " $text"
+        }
     }
 }
