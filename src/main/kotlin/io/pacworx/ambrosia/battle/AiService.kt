@@ -18,7 +18,7 @@ class AiService(private val skillService: SkillService) {
 
     fun findSkillToUse(battle: Battle, hero: BattleHero): HeroSkill {
         return hero.heroBase.skills
-            .filter { !it.passive && hero.getCooldown(it.number) == 0 && it.target.resolve(battle, hero).isNotEmpty() }
+            .filter { !it.passive && hero.getSkillLevel(it.number) > 0 && hero.getCooldown(it.number) == 0 && it.target.resolve(battle, hero).isNotEmpty() }
             .maxBy { it.number }
                 ?: throw ConfigurationException("Found no skill to use on hero ${hero.heroBase.name} #${hero.heroBase.id}")
     }

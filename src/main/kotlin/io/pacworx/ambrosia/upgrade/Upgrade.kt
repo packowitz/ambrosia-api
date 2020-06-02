@@ -37,7 +37,7 @@ data class Upgrade(
     fun getDuration(): Long = startTimestamp.until(finishTimestamp, ChronoUnit.SECONDS)
 
     fun getSecondsUntilDone(): Long =
-        if (isFinished()) { 0 } else { Instant.now().until(finishTimestamp, ChronoUnit.SECONDS) + 1 }
+        if (isFinished()) { 0 } else { Instant.now().until(finishTimestamp, ChronoUnit.SECONDS) + 2 }
 
     fun setResources(costs: List<Cost>) {
         this.resources = costs.map { "${it.type}:${it.amount}" }.joinToString(separator = ";")

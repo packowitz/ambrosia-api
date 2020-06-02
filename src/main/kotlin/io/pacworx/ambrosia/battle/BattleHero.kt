@@ -198,6 +198,9 @@ data class BattleHero(
         damageReductionBonus = 0
         willCounter = false
 
+        if (this.currentHp > 0) {
+            this.status = HeroStatus.ALIVE
+        }
         buffs.forEach { it.buff.applyEffect(battle, this, it, propertyService) }
     }
 

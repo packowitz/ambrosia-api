@@ -50,6 +50,6 @@ data class Mission(
     fun getDuration(): Long = startTimestamp.until(finishTimestamp, ChronoUnit.SECONDS)
 
     fun getSecondsUntilDone(): Long =
-        if (isMissionFinished()) { 0 } else { Instant.now().until(finishTimestamp, ChronoUnit.SECONDS) + 1 }
+        if (isMissionFinished()) { 0 } else { Instant.now().until(finishTimestamp, ChronoUnit.SECONDS) + 2 }
 
 }
