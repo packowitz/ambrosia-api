@@ -65,4 +65,10 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         log.warn("Player ${exception.player.name} #${exception.player.id} tried to use a busy vehicle: ${exception.message}")
         return ResponseEntity(ExceptionResponse(exception), exception.httpStatus)
     }
+
+    @ExceptionHandler(InsufficientResourcesException::class)
+    fun handleInsufficientResourcesException(exception: InsufficientResourcesException): ResponseEntity<ExceptionResponse> {
+        log.warn("Player #${exception.playerId} tried to spend ${exception.amount} ${exception.resource} but had not enough")
+        return ResponseEntity(ExceptionResponse(exception), exception.httpStatus)
+    }
 }

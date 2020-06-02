@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.resources
 
+import io.pacworx.ambrosia.exceptions.InsufficientResourcesException
 import io.pacworx.ambrosia.player.Player
 import org.springframework.stereotype.Service
 import java.lang.Integer.min
@@ -82,7 +83,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
     fun spendSteam(resources: Resources, amount: Int): Resources {
         calcProduction(resources)
         if (amount > resources.steam + resources.premiumSteam) {
-            throw RuntimeException("You cannot spend $amount steam")
+            throw InsufficientResourcesException(resources.playerId, "Steam", amount)
         }
         if (resources.steam >= resources.steamMax) {
             resources.steamLastProduction = LocalDateTime.now()
@@ -104,7 +105,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
     fun spendCogwheels(resources: Resources, amount: Int): Resources {
         calcProduction(resources)
         if (amount > resources.cogwheels + resources.premiumCogwheels) {
-            throw RuntimeException("You cannot spend $amount cogwheels")
+            throw InsufficientResourcesException(resources.playerId, "Cogwheels", amount)
         }
         if (resources.cogwheels >= resources.cogwheelsMax) {
             resources.cogwheelsLastProduction = LocalDateTime.now()
@@ -126,7 +127,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
     fun spendTokens(resources: Resources, amount: Int): Resources {
         calcProduction(resources)
         if (amount > resources.tokens + resources.premiumTokens) {
-            throw RuntimeException("You cannot spend $amount tokens")
+            throw InsufficientResourcesException(resources.playerId, "Tokens", amount)
         }
         if (resources.tokens >= resources.tokensMax) {
             resources.tokensLastProduction = LocalDateTime.now()
@@ -144,7 +145,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendCoins(resources: Resources, amount: Int): Resources {
         if (amount > resources.coins) {
-            throw RuntimeException("You cannot spend $amount coins")
+            throw InsufficientResourcesException(resources.playerId, "Coins", amount)
         }
         resources.coins -= amount
         resources.coinsUsed += amount
@@ -153,7 +154,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendRubies(resources: Resources, amount: Int): Resources {
         if (amount > resources.rubies) {
-            throw RuntimeException("You cannot spend $amount rubies")
+            throw InsufficientResourcesException(resources.playerId, "Rubies", amount)
         }
         resources.rubies -= amount
         resources.rubiesUsed += amount
@@ -162,7 +163,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendMetal(resources: Resources, amount: Int): Resources {
         if (amount > resources.metal) {
-            throw RuntimeException("You cannot spend $amount metal")
+            throw InsufficientResourcesException(resources.playerId, "Metal", amount)
         }
         resources.metal -= amount
         resources.metalUsed += amount
@@ -171,7 +172,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendIron(resources: Resources, amount: Int): Resources {
         if (amount > resources.iron) {
-            throw RuntimeException("You cannot spend $amount iron")
+            throw InsufficientResourcesException(resources.playerId, "Iron", amount)
         }
         resources.iron -= amount
         resources.ironUsed += amount
@@ -180,7 +181,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendSteal(resources: Resources, amount: Int): Resources {
         if (amount > resources.steal) {
-            throw RuntimeException("You cannot spend $amount steal")
+            throw InsufficientResourcesException(resources.playerId, "Steal", amount)
         }
         resources.steal -= amount
         resources.stealUsed += amount
@@ -189,7 +190,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendWood(resources: Resources, amount: Int): Resources {
         if (amount > resources.wood) {
-            throw RuntimeException("You cannot spend $amount wood")
+            throw InsufficientResourcesException(resources.playerId, "Wood", amount)
         }
         resources.wood -= amount
         resources.woodUsed += amount
@@ -198,7 +199,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendBrownCoal(resources: Resources, amount: Int): Resources {
         if (amount > resources.brownCoal) {
-            throw RuntimeException("You cannot spend $amount brown coal")
+            throw InsufficientResourcesException(resources.playerId, "Brown coal", amount)
         }
         resources.brownCoal -= amount
         resources.brownCoalUsed += amount
@@ -207,7 +208,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendBlackCoal(resources: Resources, amount: Int): Resources {
         if (amount > resources.blackCoal) {
-            throw RuntimeException("You cannot spend $amount black coal")
+            throw InsufficientResourcesException(resources.playerId, "Black coal", amount)
         }
         resources.blackCoal -= amount
         resources.blackCoalUsed += amount
@@ -216,7 +217,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendSimpleGenome(resources: Resources, amount: Int): Resources {
         if (amount > resources.simpleGenome) {
-            throw RuntimeException("You cannot spend $amount simple genomes")
+            throw InsufficientResourcesException(resources.playerId, "Simple genomes", amount)
         }
         resources.simpleGenome -= amount
         resources.simpleGenomeUsed += amount
@@ -225,7 +226,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendCommonGenome(resources: Resources, amount: Int): Resources {
         if (amount > resources.commonGenome) {
-            throw RuntimeException("You cannot spend $amount common genomes")
+            throw InsufficientResourcesException(resources.playerId, "Common genomes", amount)
         }
         resources.commonGenome -= amount
         resources.commonGenomeUsed += amount
@@ -234,7 +235,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendUncommonGenome(resources: Resources, amount: Int): Resources {
         if (amount > resources.uncommonGenome) {
-            throw RuntimeException("You cannot spend $amount uncommon genomes")
+            throw InsufficientResourcesException(resources.playerId, "Uncommon genomes", amount)
         }
         resources.uncommonGenome -= amount
         resources.uncommonGenomeUsed += amount
@@ -243,7 +244,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendRareGenome(resources: Resources, amount: Int): Resources {
         if (amount > resources.rareGenome) {
-            throw RuntimeException("You cannot spend $amount rare genomes")
+            throw InsufficientResourcesException(resources.playerId, "Rare genomes", amount)
         }
         resources.rareGenome -= amount
         resources.rareGenomeUsed += amount
@@ -252,7 +253,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun spendEpicGenome(resources: Resources, amount: Int): Resources {
         if (amount > resources.epicGenome) {
-            throw RuntimeException("You cannot spend $amount epic genomes")
+            throw InsufficientResourcesException(resources.playerId, "Epic genomes", amount)
         }
         resources.epicGenome -= amount
         resources.epicGenomeUsed += amount

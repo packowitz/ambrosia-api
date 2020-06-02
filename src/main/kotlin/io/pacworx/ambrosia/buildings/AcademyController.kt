@@ -35,7 +35,7 @@ class AcademyController(private val heroRepository: HeroRepository,
         )
         heroes.find { it.missionId != null }?.let { throw HeroBusyException(player, it) }
         val hero = heroes.find { it.id == heroId }
-            ?: throw UnauthorizedException(player, "Given hero cannot get upgraded or evolved by you")
+            ?: throw UnauthorizedException(player, "Given hero cannot get upgraded by you")
         val progress = progressRepository.getOne(player.id)
         if (hero.level > progress.maxTrainingLevel) {
             throw GeneralException(player, "Cannot train hero", "Hero's level too high to get trained in the academy. Level up your Academy.")
@@ -69,20 +69,19 @@ class AcademyController(private val heroRepository: HeroRepository,
         val heroes = heroRepository.findAllByPlayerIdAndIdIn(player.id,
             listOfNotNull(heroId, request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id, request.hero5Id, request.hero6Id)
         )
-        if (heroes.any { it.missionId != null }) {
-            throw RuntimeException("You cannot level or feed heroes being on a mission")
-        }
+        heroes.find { it.missionId != null }?.let { throw HeroBusyException(player, it) }
+
         val hero = heroes.find { it.id == heroId }
-            ?: throw RuntimeException("Unknown hero $heroId for player ${player.id}")
+            ?: throw UnauthorizedException(player, "Given hero cannot get evolved by you")
 
         val progress = progressRepository.getOne(player.id)
         if (hero.level > progress.maxTrainingLevel) {
-            throw RuntimeException("Heros level too high to get evolved. Level up your Academy.")
+            throw GeneralException(player, "Cannot evolve hero", "Hero's level too high to get evolved. Level up your Academy.")
         }
         val updatedGear = mutableListOf<Gear>()
         val deletedHeroIds = heroes.filter { it.id != heroId }.map { fodder ->
             if (fodder.stars < hero.stars) {
-                throw RuntimeException("You need heroes of at least same number of stars to evolve a hero")
+                throw GeneralException(player, "Cannot evolve hero", "You need heroes of at least same number of stars to evolve a hero")
             }
             if (hero.heroBase.heroClass == fodder.heroBase.heroClass) {
                 val gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
@@ -96,7 +95,7 @@ class AcademyController(private val heroRepository: HeroRepository,
         }
         heroRepository.deleteAllByIdIn(deletedHeroIds)
         if (!heroService.evolveHero(hero)) {
-            throw RuntimeException("Evolving hero failed")
+            throw GeneralException(player, "Cannot evolve hero", "Evolving hero failed")
         }
         return PlayerActionResponse(
             heroes = listOf(heroService.asHeroDto(hero)),

@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.buildings
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.loot.LootItemType
@@ -30,9 +31,10 @@ class ForgeController(val gearRepository: GearRepository,
                   @RequestBody request: BreakDownRequest): PlayerActionResponse {
         val gears = gearRepository.findAllById(request.gearIds)
         val progress = progressRepository.getOne(player.id)
-        if (gears.any { it.equippedTo != null } || gears.any { it.rarity.stars > progress.gearBreakDownRarity } || gears.any { it.modificationInProgress }) {
-            throw RuntimeException("Cannot break down gear")
-        }
+        gears.find { it.equippedTo != null }?.let { throw GeneralException(player, "Cannot breakdown gear", "Gear is equipped") }
+        gears.find { it.rarity.stars > progress.gearBreakDownRarity }?.let { throw GeneralException(player, "Cannot breakdown gear", "Gear rarity is too high. Upgrade Forge.") }
+        gears.find { it.modificationInProgress }?.let { throw GeneralException(player, "Cannot breakdown gear", "Gear modification is in progress") }
+
         var resources: Resources? = null
 
         val looted = mutableListOf<Looted>()
