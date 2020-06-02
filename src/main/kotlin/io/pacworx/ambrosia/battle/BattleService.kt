@@ -1,5 +1,8 @@
 package io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.exceptions.ConfigurationException
+import io.pacworx.ambrosia.exceptions.HeroBusyException
+import io.pacworx.ambrosia.exceptions.VehicleBusyException
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
@@ -85,18 +88,17 @@ class BattleService(private val playerRepository: PlayerRepository,
             hero4Id = request.hero4Id
         }
         val vehicle = request.vehicleId?.let { vehicleRepository.getOne(it) }?.takeIf { it.playerId == player.id }
-        val fightStage = fight.stages.find { it.stage == 1 } ?: throw RuntimeException("Fight " + fight.name + " has no stages defined.")
+        val fightStage = fight.stages.find { it.stage == 1 } ?: throw ConfigurationException("Fight ${fight.name} #${fight.id} has no stages defined.")
         val heroes = heroService.loadHeroes(listOfNotNull(
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
             fightStage.hero1Id, fightStage.hero2Id, fightStage.hero3Id, fightStage.hero4Id))
         if (vehicle != null) {
             if (vehicle.slot == null || vehicle.missionId != null || vehicle.upgradeTriggered) {
-                throw RuntimeException("Vehicle is not ready to use for a campaign fight")
+                throw VehicleBusyException(player, vehicle)
             }
         }
-        if (heroes.any { it.playerId == player.id && it.missionId != null }) {
-            throw RuntimeException("Cannot use heroes on a mission for campaign fights")
-        }
+        heroes.find { it.playerId == player.id && it.missionId != null }?.let { throw HeroBusyException(player, it) }
+
         val battle = battleRepository.save(Battle(
             type = mapTile?.let { BattleType.CAMPAIGN } ?: BattleType.TEST,
             fight = fight,
@@ -299,7 +301,7 @@ class BattleService(private val playerRepository: PlayerRepository,
     private fun initNextStage(battle: Battle) {
         val fight = fightRepository.getOne(battle.fight!!.id)
         applyStageFinishedEffects(battle, fight)
-        val nextStage = fight.stages.find { it.stage > battle.fightStage!! } ?: throw RuntimeException("Fight " + fight.name + " has no next stage defined.")
+        val nextStage = fight.stages.find { it.stage > battle.fightStage!! } ?: throw ConfigurationException("Fight ${fight.name} has no next stage defined.")
         val heroes = heroService.loadHeroes(listOfNotNull(
             nextStage.hero1Id, nextStage.hero2Id, nextStage.hero3Id, nextStage.hero4Id))
         val nextBattle = battleRepository.save(Battle(

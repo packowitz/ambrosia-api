@@ -3,6 +3,13 @@ package io.pacworx.ambrosia.battle.offline
 import io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.battle.BattleStatus
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
+import io.pacworx.ambrosia.exceptions.GeneralException
+import io.pacworx.ambrosia.exceptions.HeroBusyException
+import io.pacworx.ambrosia.exceptions.MapTileActionException
+import io.pacworx.ambrosia.exceptions.OngoingBattleException
+import io.pacworx.ambrosia.exceptions.UnauthorizedException
+import io.pacworx.ambrosia.exceptions.VehicleBusyException
 import io.pacworx.ambrosia.team.TeamType
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroRepository
@@ -45,33 +52,33 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
                      @RequestBody request: StartMissionRequest
     ): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
-            throw RuntimeException("Finish your ongoing battle before starting a new one")
+            throw OngoingBattleException(player)
         }
         val mapTile = simplePlayerMapTileRepository.findPlayerMapTile(player.id, request.mapId, request.posX, request.posY)
         if (mapTile == null || !mapTile.discovered || mapTile.fightId == null || !mapTile.victoriousFight || !mapTile.fightRepeatable) {
-            throw RuntimeException("You cannot start a mission on that map tile.")
+            throw MapTileActionException(player, "start a mission on", request.mapId, request.posX, request.posY)
         }
         val progress = progressRepository.getOne(player.id)
         if (request.battleTimes <= 0 || request.battleTimes > progress.maxOfflineBattlesPerMission) {
-            throw RuntimeException("Invalid number of battles ${request.battleTimes}/${progress.maxOfflineBattlesPerMission}")
+            throw GeneralException(player, "Cannot start mission", "Invalid number of battles ${request.battleTimes}/${progress.maxOfflineBattlesPerMission}")
         }
-        val fight = fightRepository.getOne(mapTile.fightId)
+        val fight = fightRepository.findByIdOrNull(mapTile.fightId) ?: throw EntityNotFoundException(player, "fight", mapTile.fightId)
         val resources = resourcesService.spendResource(player, fight.resourceType, request.battleTimes * fight.costs)
 
-        val vehicle = vehicleRepository.getOne(request.vehicleId)
+        val vehicle = vehicleRepository.findByIdOrNull(request.vehicleId) ?: throw EntityNotFoundException(player, "vehicle", request.vehicleId)
         if (vehicle.slot == null || vehicle.missionId != null || vehicle.upgradeTriggered) {
-            throw RuntimeException("Vehicle is not ready to start a mission")
+            throw VehicleBusyException(player, vehicle)
         }
         val heroIds = listOfNotNull(request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id)
         if (heroIds.isEmpty()) {
-            throw RuntimeException("No heroes selected to start mission")
+            throw GeneralException(player, "Cannot start mission", "No heroes selected to start mission")
         }
         heroIds.map { heroRepository.getOne(it) }.forEach { hero ->
             if (hero.playerId != player.id) {
-                throw RuntimeException("You have to own the heroes sending to a mission")
+                throw UnauthorizedException(player, "You have to own the heroes sending to a mission")
             }
             if (hero.missionId != null) {
-                throw RuntimeException("You can only send heroes to a mission that are not already on a mission")
+                throw HeroBusyException(player, hero)
             }
         }
 
@@ -100,7 +107,7 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         val mission = missionRepository.findByIdOrNull(missionId)
             ?: return PlayerActionResponse(missionIdFinished = missionId)
         if (mission.playerId != player.id) {
-            throw RuntimeException("Cannot collect a mission you are not owning")
+            throw UnauthorizedException(player, "You do not own that mission")
         }
 
         val vehicle = vehicleRepository.getOne(mission.vehicleId)

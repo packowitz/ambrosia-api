@@ -1,6 +1,11 @@
 package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
+import io.pacworx.ambrosia.exceptions.GeneralException
+import io.pacworx.ambrosia.exceptions.MapTileActionException
+import io.pacworx.ambrosia.exceptions.OngoingBattleException
+import io.pacworx.ambrosia.exceptions.UnauthorizedException
 import io.pacworx.ambrosia.hero.skills.SkillTarget
 import io.pacworx.ambrosia.team.TeamType
 import io.pacworx.ambrosia.fights.FightRepository
@@ -38,7 +43,7 @@ class BattleController(private val battleService: BattleService,
     @GetMapping("{battleId}")
     @Transactional
     fun getBattle(@ModelAttribute("player") player: Player, @PathVariable battleId: Long): PlayerActionResponse {
-        val battle = battleRepository.getOne(battleId)
+        val battle = battleRepository.findByIdOrNull(battleId) ?: throw EntityNotFoundException(player, "battle", battleId)
         return afterBattleAction(player,
             if (battle.status == BattleStatus.INIT) {
                 battleService.startBattle(battle)
@@ -52,7 +57,7 @@ class BattleController(private val battleService: BattleService,
     @Transactional
     fun startTestDuellBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
-            throw RuntimeException("Finish your ongoing battle before starting a new one")
+            throw OngoingBattleException(player)
         }
         return afterBattleAction(player, battleService.initTestDuell(player, request))
     }
@@ -65,11 +70,11 @@ class BattleController(private val battleService: BattleService,
                      @PathVariable posY: Int,
                      @RequestBody request: StartBattleRequest): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
-            throw RuntimeException("Finish your ongoing battle before starting a new one")
+            throw OngoingBattleException(player)
         }
         val mapTile = simplePlayerMapTileRepository.findPlayerMapTile(player.id, mapId, posX, posY)
         if (mapTile == null || !mapTile.discovered || mapTile.fightId == null || (mapTile.victoriousFight && !mapTile.fightRepeatable)) {
-            throw RuntimeException("You cannot fight on that map tile.")
+            throw MapTileActionException(player, "battle on", mapId, posX, posY)
         }
         val fight = fightRepository.getOne(mapTile.fightId)
         val resources = resourcesService.spendResource(player, fight.resourceType, fight.costs)
@@ -82,7 +87,7 @@ class BattleController(private val battleService: BattleService,
                           @PathVariable fightId: Long,
                           @RequestBody request: StartBattleRequest): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
-            throw RuntimeException("Finish your ongoing battle before starting a new one")
+            throw OngoingBattleException(player)
         }
         val fight = fightRepository.getOne(fightId)
         return afterBattleAction(player, battleService.initCampaign(player, null, fight, request))
@@ -93,11 +98,11 @@ class BattleController(private val battleService: BattleService,
     fun repeatTestBattle(@ModelAttribute("player") player: Player,
                          @PathVariable battleId: Long): PlayerActionResponse {
         if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
-            throw RuntimeException("Finish your ongoing battle before starting a new one")
+            throw OngoingBattleException(player)
         }
-        val prevBattle = battleRepository.findByIdOrNull(battleId) ?: throw RuntimeException("Cannot repeat battle #$battleId bc it doesn't exist")
+        val prevBattle = battleRepository.findByIdOrNull(battleId) ?: throw EntityNotFoundException(player, "battle", battleId)
         if (prevBattle.type != BattleType.TEST) {
-            throw RuntimeException("Cannot repeat a battle other than test battles")
+            throw GeneralException(player, "Invalid action", "Cannot repeat a battle other than test battles")
         }
         return afterBattleAction(player, battleService.repeatTestBattle(prevBattle))
     }
@@ -109,22 +114,22 @@ class BattleController(private val battleService: BattleService,
                  @PathVariable heroPos: HeroPosition,
                  @PathVariable skillNumber: Int,
                  @PathVariable targetPos: HeroPosition): PlayerActionResponse {
-        val battle = battleRepository.getOne(battleId)
+        val battle = battleRepository.findByIdOrNull(battleId) ?: throw EntityNotFoundException(player, "battle", battleId)
         if (battle.playerId != player.id) {
-            throw RuntimeException("You don't own battle $battleId")
+            throw UnauthorizedException(player, "You don't own battle #$battleId")
         }
         if (battle.activeHero != heroPos) {
-            throw RuntimeException("It is not $heroPos's turn on battle $battleId")
+            throw GeneralException(player, "Not hero's turn", "It is not $heroPos's turn on battle $battleId")
         }
         val activeHero = battle.allHeroesAlive().find { it.position == battle.activeHero }
         val skill = activeHero?.heroBase?.skills?.find { it.number == skillNumber }
-        if (activeHero == null || activeHero.getCooldown(skillNumber) > 0 || skill == null || skill.passive) {
-            throw RuntimeException("Hero $heroPos cannot use skill $skillNumber on battle $battleId")
+        if (activeHero == null || activeHero.getCooldown(skillNumber) > 0 || skill == null || skill.passive || activeHero.getSkillLevel(skill.number) <= 0) {
+            throw GeneralException(player, "Invalid skill", "Hero $heroPos cannot use skill $skillNumber on battle $battleId")
         }
         val target = battle.allHeroes().find { it.position == targetPos }
-                ?: throw RuntimeException("Target $targetPos is not valid on battle $battleId")
+                ?: throw GeneralException(player, "Invalid target", "Target $targetPos is not valid on battle $battleId")
         if (!isTargetEligible(battle, activeHero, skill, target)) {
-            throw RuntimeException("Target ${target.position} is not valid target for skill ${skill.number} of hero ${activeHero.position} in battle ${battle.id}")
+            throw GeneralException(player, "Invalid target", "Target ${target.position} is not valid target for skill ${skill.number} of hero ${activeHero.position} in battle ${battle.id}")
         }
         return afterBattleAction(player, battleService.takeTurn(battle, activeHero, skill, target))
     }
@@ -136,13 +141,13 @@ class BattleController(private val battleService: BattleService,
                      @PathVariable heroPos: HeroPosition): PlayerActionResponse {
         val battle = battleRepository.getOne(battleId)
         if (battle.playerId != player.id) {
-            throw RuntimeException("You don't own battle $battleId")
+            throw UnauthorizedException(player, "You don't own battle #$battleId")
         }
         if (battle.activeHero != heroPos) {
-            throw RuntimeException("It is not $heroPos's turn on battle $battleId")
+            throw GeneralException(player, "Not hero's turn", "It is not $heroPos's turn on battle $battleId")
         }
         val activeHero = battle.allHeroesAlive().find { it.position == battle.activeHero }
-                ?: throw RuntimeException("It is not Hero $heroPos 's turn on battle $battleId")
+                ?: throw GeneralException(player, "Not hero's turn", "It is not $heroPos's turn on battle $battleId")
         return afterBattleAction(player, battleService.takeAutoTurn(battle, activeHero))
     }
 
@@ -152,7 +157,7 @@ class BattleController(private val battleService: BattleService,
                   @PathVariable battleId: Long): PlayerActionResponse {
         val battle = battleRepository.getOne(battleId)
         if (battle.playerId != player.id) {
-            throw RuntimeException("You don't own battle $battleId")
+            throw UnauthorizedException(player, "You don't own battle #$battleId")
         }
         battle.status = BattleStatus.LOST
         battleService.battleEnded(battle)

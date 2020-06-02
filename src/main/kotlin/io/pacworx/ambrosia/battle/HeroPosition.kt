@@ -1,6 +1,6 @@
 package io.pacworx.ambrosia.battle
 
-import java.lang.RuntimeException
+import io.pacworx.ambrosia.exceptions.ConfigurationException
 
 enum class HeroPosition {
     NONE,
@@ -14,6 +14,6 @@ enum class HeroPosition {
     OPP4 { override fun getBattleHero(battle: Battle): BattleHero = battle.oppHero4!! };
 
     open fun getBattleHero(battle: Battle): BattleHero {
-        throw RuntimeException("GetBattleHero not assigned")
+        throw ConfigurationException("HeroPosition.getBattleHero() not assigned")
     }
 }

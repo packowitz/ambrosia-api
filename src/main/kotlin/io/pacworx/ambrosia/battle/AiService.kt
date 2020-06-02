@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.exceptions.ConfigurationException
 import io.pacworx.ambrosia.hero.skills.HeroSkill
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -19,7 +20,7 @@ class AiService(private val skillService: SkillService) {
         return hero.heroBase.skills
             .filter { !it.passive && hero.getCooldown(it.number) == 0 && it.target.resolve(battle, hero).isNotEmpty() }
             .maxBy { it.number }
-                ?: throw RuntimeException("Found no skill to use")
+                ?: throw ConfigurationException("Found no skill to use on hero ${hero.heroBase.name} #${hero.heroBase.id}")
     }
 
     fun findTarget(battle: Battle, hero: BattleHero, skill: HeroSkill): BattleHero {

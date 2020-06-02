@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
 import io.pacworx.ambrosia.common.procs
+import io.pacworx.ambrosia.exceptions.ConfigurationException
 import io.pacworx.ambrosia.hero.skills.SkillActionEffect.*
 import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.hero.skills.HeroSkill
@@ -744,7 +745,7 @@ class SkillService(private val propertyService: PropertyService) {
                     MEDIUM_SHIELD -> (target.heroHp * 0.50).toInt()
                     LARGE_SHIELD -> target.heroHp
                     else -> {
-                        throw RuntimeException("Unreachable code")
+                        throw ConfigurationException("Reached unreachable code")
                     }
                 }
                 val intensity = action.effectValue + hero.buffIntensityIncBonus
