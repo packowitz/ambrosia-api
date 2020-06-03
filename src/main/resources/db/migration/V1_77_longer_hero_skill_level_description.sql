@@ -1,0 +1,1 @@
+alter table hero_skill_level alter column description type varchar(80) using description::varchar(80);
