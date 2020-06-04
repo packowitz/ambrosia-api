@@ -10,5 +10,6 @@ enum class SkillActionTarget {
     ALL_ALLIES,
     ALL_OTHER_ALLIES,
     RANDOM_ALLY,
-    RANDOM_OTHER_ALLY
+    RANDOM_OTHER_ALLY,
+    ALLY_LOWEST_HP
 }
