@@ -173,6 +173,8 @@ class SkillService(private val propertyService: PropertyService) {
             SkillActionTarget.RANDOM_ALLY -> listOfNotNull(battle.allAlliedHeroesAlive(hero).takeIf { it.isNotEmpty() }?.random())
             SkillActionTarget.RANDOM_OTHER_ALLY ->
                 listOfNotNull(battle.allAlliedHeroesAlive(hero).filter { it.position != hero.position }.takeIf { it.isNotEmpty() }?.random())
+            SkillActionTarget.ALLY_LOWEST_HP ->
+                listOfNotNull(battle.allAlliedHeroesAlive(hero).shuffled().minBy { it.currentHp.toDouble() / it.heroHp })
             else -> emptyList()
         }
     }
