@@ -42,6 +42,12 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity(ExceptionResponse(exception), exception.httpStatus)
     }
 
+    @ExceptionHandler(UnauthenticatedException::class)
+    fun handleUnauthenticatedException(exception: UnauthenticatedException): ResponseEntity<ExceptionResponse> {
+        log.warn(exception.message)
+        return ResponseEntity(ExceptionResponse(exception), exception.httpStatus)
+    }
+
     @ExceptionHandler(UnauthorizedException::class)
     fun handleUnauthorizedException(exception: UnauthorizedException): ResponseEntity<ExceptionResponse> {
         log.warn("Player ${exception.player.name} #${exception.player.id} tried to execute an action he is not allowed for: ${exception.message}")

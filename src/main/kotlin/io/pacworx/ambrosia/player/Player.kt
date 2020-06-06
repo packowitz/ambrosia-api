@@ -2,12 +2,14 @@ package io.pacworx.ambrosia.player
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.hero.Color
+import java.time.Instant
 import javax.persistence.*
 
 @Entity
 data class Player(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long = 0,
+    val id: Long = 0,
+    var locked: Instant? = null,
     var name: String,
     @JsonIgnore val email: String,
     @JsonIgnore val password: String,
@@ -18,6 +20,6 @@ data class Player(
     var maxXp: Int = 100,
     var level: Int = 1,
     @Enumerated(EnumType.STRING)
-        var color: Color? = null,
+    var color: Color? = null,
     var currentMapId: Long? = null
 )

@@ -27,8 +27,11 @@ import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.vehicle.VehiclePartRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
+import java.time.Instant
+import javax.transaction.Transactional
 
 
 @Service
@@ -55,6 +58,24 @@ class PlayerService(private val playerRepository: PlayerRepository,
     private lateinit var pwSalt1: String
     @Value("\${ambrosia.pw-salt-two}")
     private lateinit var pwSalt2: String
+
+    fun get(playerId: Long): Player? {
+        return playerRepository.findByIdOrNull(playerId)
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    fun getAndLock(playerId: Long): Player? {
+        return playerRepository.findByIdAndLockedIsNull(playerId)?.also { player ->
+            player.locked = Instant.now()
+        }
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    fun releaseLock(playerId: Long) {
+        playerRepository.findByIdAndLockedIsNotNull(playerId)?.also { player ->
+            player.locked = null
+        }
+    }
 
     fun signup(name: String, email: String, password: String, serviceAccount: Boolean = false): Player {
         val player = playerRepository.save(Player(
