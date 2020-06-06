@@ -10,6 +10,7 @@ import io.pacworx.ambrosia.vehicle.VehicleService
 import io.pacworx.ambrosia.vehicle.VehicleStat
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import kotlin.math.round
 import kotlin.random.Random
 
 @Service
@@ -126,8 +127,10 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         heroGainXp(hero, xp)
         when (hero.level) {
             in 1..fight.level -> heroGainAsc(hero, ascPoints)
-            fight.level + 1 -> heroGainAsc(hero, ascPoints / 2)
-            fight.level + 2 -> heroGainAsc(hero, ascPoints / 4)
+            fight.level + 1 -> heroGainAsc(hero, round(ascPoints * 4.0 / 5).toInt())
+            fight.level + 2 -> heroGainAsc(hero, round(ascPoints * 3.0 / 5).toInt())
+            fight.level + 3 -> heroGainAsc(hero, round(ascPoints * 2.0 / 5).toInt())
+            fight.level + 4 -> heroGainAsc(hero, round(ascPoints * 1.0 / 5).toInt())
             else -> {}
         }
     }
