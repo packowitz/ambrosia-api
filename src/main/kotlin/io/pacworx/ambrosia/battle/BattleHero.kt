@@ -317,6 +317,17 @@ data class BattleHero(
         }
     }
 
+    fun resetSkillCooldown(skillNr: Int) {
+        when (skillNr) {
+            2 -> skill2Cooldown = 0
+            3 -> skill3Cooldown = 0
+            4 -> skill4Cooldown = 0
+            5 -> skill5Cooldown = 0
+            6 -> skill6Cooldown = 0
+            7 -> skill7Cooldown = 0
+        }
+    }
+
     @JsonIgnore
     fun getTotalStrength(): Int = heroStrength + ((heroStrength * strengthBonus) / 100)
 

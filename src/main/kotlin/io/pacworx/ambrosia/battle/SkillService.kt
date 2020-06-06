@@ -64,9 +64,10 @@ class SkillService(private val propertyService: PropertyService) {
         battle.checkStatus()
     }
 
-    private fun executeSkillActions(battle: Battle, step: BattleStep, hero: BattleHero, skill: HeroSkill, target: BattleHero) {
+    private fun executeSkillActions(battle: Battle, step: BattleStep, hero: BattleHero, skill: HeroSkill, target: BattleHero): Boolean {
         var damage = 0
         var lastActionProced: Boolean? = null
+        var skillDidSomething = false
         skill.actions.forEach { action ->
             if (!actionTriggers(hero, skill, action, step, lastActionProced)) {
                 lastActionProced = null
@@ -83,21 +84,25 @@ class SkillService(private val propertyService: PropertyService) {
                     findTargets(battle, hero, action, target)
                         .forEach {
                             dealDamage(battle, it, hero, action, damage, step)
+                            skillDidSomething = true
                         }
                 SkillActionType.BUFF, SkillActionType.DEBUFF ->
                     findTargets(battle, hero, action, target)
                         .forEach {
                             step.addAction(applyBuff(battle, hero, action, it))
+                            skillDidSomething = true
                         }
                 SkillActionType.SPEEDBAR ->
                     findTargets(battle, hero, action, target)
                         .forEach {
                             applySpeedbarAction(step, it, action)
+                            skillDidSomething = true
                         }
                 SkillActionType.HEAL ->
                     findTargets(battle, hero, action, target)
                         .forEach {
                             step.addAction(applyHealingAction(battle, hero, action, it))
+                            skillDidSomething = true
                         }
                 SkillActionType.PASSIVE_STAT ->
                     findTargets(battle, hero, action, target)
@@ -107,10 +112,11 @@ class SkillService(private val propertyService: PropertyService) {
                 SkillActionType.SPECIAL ->
                     findTargets(battle, hero, action, target)
                         .forEach {
-                            applySpecialAction(battle, step, hero, action, it)
+                            skillDidSomething = applySpecialAction(battle, step, hero, action, it) || skillDidSomething
                         }
             }
         }
+        return skillDidSomething
     }
 
     private fun actionTriggers(hero: BattleHero, skill: HeroSkill, action: HeroSkillAction, step: BattleStep, lastActionProced: Boolean?): Boolean {
@@ -454,9 +460,12 @@ class SkillService(private val propertyService: PropertyService) {
                                         targetName = hero.heroBase.name,
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
-                                battle.steps.add(step)
                                 executer.skillUsed(skill.number)
-                                executeSkillActions(battle, step, executer, skill, hero)
+                                if (executeSkillActions(battle, step, executer, skill, hero)) {
+                                    battle.steps.add(step)
+                                } else {
+                                    executer.resetSkillCooldown(skill.number)
+                                }
                             }
                         }
             }
@@ -478,9 +487,12 @@ class SkillService(private val propertyService: PropertyService) {
                                         targetName = hero.heroBase.name,
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
-                                battle.steps.add(step)
                                 oppHero.skillUsed(skill.number)
-                                executeSkillActions(battle, step, oppHero, skill, hero)
+                                if (executeSkillActions(battle, step, oppHero, skill, hero)) {
+                                    battle.steps.add(step)
+                                } else {
+                                    oppHero.resetSkillCooldown(skill.number)
+                                }
                             }
                         }
             }
@@ -501,9 +513,12 @@ class SkillService(private val propertyService: PropertyService) {
                                     targetName = hero.heroBase.name,
                                     heroStates = battle.getBattleStepHeroStates()
                             )
-                            battle.steps.add(step)
                             hero.skillUsed(skill.number)
-                            executeSkillActions(battle, step, hero, skill, hero)
+                            if (executeSkillActions(battle, step, hero, skill, hero)) {
+                                battle.steps.add(step)
+                            } else {
+                                hero.resetSkillCooldown(skill.number)
+                            }
                         }
                     }
 
@@ -524,9 +539,12 @@ class SkillService(private val propertyService: PropertyService) {
                                         targetName = hero.heroBase.name,
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
-                                battle.steps.add(step)
                                 alliedHero.skillUsed(skill.number)
-                                executeSkillActions(battle, step, alliedHero, skill, hero)
+                                if (executeSkillActions(battle, step, alliedHero, skill, hero)) {
+                                    battle.steps.add(step)
+                                } else {
+                                    alliedHero.resetSkillCooldown(skill.number)
+                                }
                             }
                         }
             }
@@ -547,9 +565,12 @@ class SkillService(private val propertyService: PropertyService) {
                                     targetName = hero.heroBase.name,
                                     heroStates = battle.getBattleStepHeroStates()
                             )
-                            battle.steps.add(step)
                             hero.skillUsed(skill.number)
-                            executeSkillActions(battle, step, hero, skill, hero)
+                            if (executeSkillActions(battle, step, hero, skill, hero)) {
+                                battle.steps.add(step)
+                            } else {
+                                hero.resetSkillCooldown(skill.number)
+                            }
                         }
                     }
 
@@ -570,9 +591,12 @@ class SkillService(private val propertyService: PropertyService) {
                                         targetName = hero.heroBase.name,
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
-                                battle.steps.add(step)
                                 alliedHero.skillUsed(skill.number)
-                                executeSkillActions(battle, step, alliedHero, skill, hero)
+                                if (executeSkillActions(battle, step, alliedHero, skill, hero)) {
+                                    battle.steps.add(step)
+                                } else {
+                                    alliedHero.resetSkillCooldown(skill.number)
+                                }
                             }
                         }
             }
@@ -624,9 +648,12 @@ class SkillService(private val propertyService: PropertyService) {
                                     targetName = target.heroBase.name,
                                     heroStates = battle.getBattleStepHeroStates()
                             )
-                            battle.steps.add(step)
                             target.skillUsed(skill.number)
-                            executeSkillActions(battle, step, target, skill, target)
+                            if (executeSkillActions(battle, step, target, skill, target)) {
+                                battle.steps.add(step)
+                            } else {
+                                target.resetSkillCooldown(skill.number)
+                            }
                         }
 
                 // PassiveSkillTrigger.ALLY_DEBUFF
@@ -645,9 +672,12 @@ class SkillService(private val propertyService: PropertyService) {
                                         targetName = target.heroBase.name,
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
-                                battle.steps.add(step)
                                 ally.skillUsed(skill.number)
-                                executeSkillActions(battle, step, ally, skill, target)
+                                if (executeSkillActions(battle, step, ally, skill, target)) {
+                                    battle.steps.add(step)
+                                } else {
+                                    ally.resetSkillCooldown(skill.number)
+                                }
                             }
                 }
             }
@@ -669,9 +699,12 @@ class SkillService(private val propertyService: PropertyService) {
                                         targetName = target.heroBase.name,
                                         heroStates = battle.getBattleStepHeroStates()
                                 )
-                                battle.steps.add(step)
                                 opp.skillUsed(skill.number)
-                                executeSkillActions(battle, step, opp, skill, target)
+                                if (executeSkillActions(battle, step, opp, skill, target)) {
+                                    battle.steps.add(step)
+                                } else {
+                                    opp.resetSkillCooldown(skill.number)
+                                }
                             }
                 }
             }
@@ -711,11 +744,13 @@ class SkillService(private val propertyService: PropertyService) {
 
     }
 
-    private fun applySpecialAction(battle: Battle, step: BattleStep, hero: BattleHero, action: HeroSkillAction, target: BattleHero) {
+    private fun applySpecialAction(battle: Battle, step: BattleStep, hero: BattleHero, action: HeroSkillAction, target: BattleHero): Boolean {
+        var actionDidSomething = false
         when (action.effect) {
             REMOVE_BUFF -> {
                 val buff = target.buffs.filter { it.buff.type == BuffType.BUFF }.takeIf { it.isNotEmpty() }?.random()
                 if (buff != null) {
+                    actionDidSomething = true
                     val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance() - buff.resistance)
                     if (!resisted) {
                         target.buffs.remove(buff)
@@ -731,6 +766,7 @@ class SkillService(private val propertyService: PropertyService) {
             REMOVE_ALL_BUFFS -> {
                 val buffsRemoved = mutableListOf<BattleHeroBuff>()
                 target.buffs.filter { it.buff.type == BuffType.BUFF }.forEach { buff ->
+                    actionDidSomething = true
                     val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - target.getTotalResistance() - buff.resistance)
                     if (!resisted) {
                         buffsRemoved.add(buff)
@@ -747,6 +783,7 @@ class SkillService(private val propertyService: PropertyService) {
             REMOVE_DEBUFF -> {
                 val debuff = target.buffs.filter { it.buff.type == BuffType.DEBUFF }.takeIf { it.isNotEmpty() }?.random()
                 if (debuff != null) {
+                    actionDidSomething = true
                     val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - debuff.resistance)
                     if (!resisted) {
                         target.buffs.remove(debuff)
@@ -762,6 +799,7 @@ class SkillService(private val propertyService: PropertyService) {
             REMOVE_ALL_DEBUFFS -> {
                 val debuffsRemoved = mutableListOf<BattleHeroBuff>()
                 target.buffs.filter { it.buff.type == BuffType.DEBUFF }.forEach { debuff ->
+                    actionDidSomething = true
                     val resisted = action.effectValue == 0 && !procs(100 + hero.getTotalDexterity() - debuff.resistance)
                     if (!resisted) {
                         debuffsRemoved.add(debuff)
@@ -776,6 +814,7 @@ class SkillService(private val propertyService: PropertyService) {
                 target.buffs.removeAll(debuffsRemoved)
             }
             RESURRECT -> {
+                actionDidSomething = true
                 target.status = HeroStatus.ALIVE
                 target.currentHp = (action.effectValue * target.heroHp) / 100
                 step.addAction(BattleStepAction(
@@ -786,6 +825,7 @@ class SkillService(private val propertyService: PropertyService) {
                 ))
             }
             SMALL_SHIELD, MEDIUM_SHIELD, LARGE_SHIELD -> {
+                actionDidSomething = true
                 val value = when (action.effect) {
                     SMALL_SHIELD -> (target.heroHp * 0.25).toInt()
                     MEDIUM_SHIELD -> (target.heroHp * 0.50).toInt()
@@ -815,6 +855,7 @@ class SkillService(private val propertyService: PropertyService) {
             }
             else -> {}
         }
+        return actionDidSomething
     }
 
     private fun applyHealingAction(battle: Battle, hero: BattleHero, action: HeroSkillAction, target: BattleHero): BattleStepAction {
