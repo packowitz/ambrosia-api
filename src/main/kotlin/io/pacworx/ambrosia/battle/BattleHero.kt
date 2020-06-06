@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroBase
 import io.pacworx.ambrosia.properties.PropertyService
 import javax.persistence.*
+import kotlin.math.max
 import kotlin.math.min
 
 @Entity
@@ -198,19 +199,19 @@ data class BattleHero(
         damageReductionBonus = 0
         willCounter = false
 
-        if (this.currentHp > 0) {
+        if (this.status != HeroStatus.DEAD) {
             this.status = HeroStatus.ALIVE
         }
         buffs.forEach { it.buff.applyEffect(battle, this, it, propertyService) }
     }
 
     fun initTurn(propertyService: PropertyService, skillService: SkillService, battle: Battle) {
-        skill2Cooldown = skill2Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
-        skill3Cooldown = skill3Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
-        skill4Cooldown = skill4Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
-        skill5Cooldown = skill5Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
-        skill6Cooldown = skill6Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
-        skill7Cooldown = skill7Cooldown?.let { it.takeIf { it > 0 }?.dec() ?: 0 }
+        skill2Cooldown = skill2Cooldown?.let { max(it - 1, 0) }
+        skill3Cooldown = skill3Cooldown?.let { max(it - 1, 0) }
+        skill4Cooldown = skill4Cooldown?.let { max(it - 1, 0) }
+        skill5Cooldown = skill5Cooldown?.let { max(it - 1, 0) }
+        skill6Cooldown = skill6Cooldown?.let { max(it - 1, 0) }
+        skill7Cooldown = skill7Cooldown?.let { max(it - 1, 0) }
 
         var healthDiff = 0
         if (heroDmgPerTurn + dmgPerTurnBonus > 0) {
@@ -276,7 +277,7 @@ data class BattleHero(
 
     fun afterTurn(battle: Battle, propertyService: PropertyService) {
         currentSpeedBar -= SPEEDBAR_MAX
-        buffs.removeIf { it.duration == 0 }
+        buffs.removeIf { it.duration <= 0 }
         battle.allHeroesAlive().forEach { it.resetBonus(battle, propertyService) }
     }
 
