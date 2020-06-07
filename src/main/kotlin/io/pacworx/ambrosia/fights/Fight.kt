@@ -13,7 +13,7 @@ data class Fight(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val name: String,
-    val description: String,
+    val description: String = "Please describe me",
     val serviceAccountId: Long,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
