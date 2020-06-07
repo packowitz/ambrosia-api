@@ -48,9 +48,12 @@ class JwtRequestFilter(private val jwtService: JwtService,
         } catch (e: Exception) {
             log.warn(e.message)
         }
-        chain.doFilter(request, response)
-        if (playerLocked) {
-            player?.let { playerService.releaseLock(it.id) }
+        try {
+            chain.doFilter(request, response)
+        } finally {
+            if (playerLocked) {
+                player?.let { playerService.releaseLock(it.id) }
+            }
         }
     }
 }
