@@ -127,11 +127,15 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         heroGainXp(hero, xp)
         when (hero.level) {
             in 1..fight.level -> heroGainAsc(hero, ascPoints)
-            fight.level + 1 -> heroGainAsc(hero, round(ascPoints * 4.0 / 5).toInt())
-            fight.level + 2 -> heroGainAsc(hero, round(ascPoints * 3.0 / 5).toInt())
-            fight.level + 3 -> heroGainAsc(hero, round(ascPoints * 2.0 / 5).toInt())
-            fight.level + 4 -> heroGainAsc(hero, round(ascPoints * 1.0 / 5).toInt())
-            else -> {}
+            fight.level + 1 -> heroGainAsc(hero, round(ascPoints * 90.0 / 100).toInt())
+            fight.level + 2 -> heroGainAsc(hero, round(ascPoints * 80.0 / 100).toInt())
+            fight.level + 3 -> heroGainAsc(hero, round(ascPoints * 70.0 / 100).toInt())
+            fight.level + 4 -> heroGainAsc(hero, round(ascPoints * 60.0 / 100).toInt())
+            fight.level + 5 -> heroGainAsc(hero, round(ascPoints * 50.0 / 100).toInt())
+            fight.level + 6 -> heroGainAsc(hero, round(ascPoints * 40.0 / 100).toInt())
+            fight.level + 6 -> heroGainAsc(hero, round(ascPoints * 30.0 / 100).toInt())
+            fight.level + 7 -> heroGainAsc(hero, round(ascPoints * 20.0 / 100).toInt())
+            else -> heroGainAsc(hero, round(ascPoints * 10.0 / 100).toInt())
         }
     }
 
