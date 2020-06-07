@@ -30,5 +30,12 @@ enum class StoryTrigger {
     CAMPAIGN_FIGHT_LOST,
     MAP_FIGHT_REVEALED,
     MAP_CHEST_REVEALED,
-    MAP_DUNGEON
+    MAP_DUNGEON,
+    MAP_DUNGEON_2,
+    MAP_DUNGEON_3,
+    MAP_DUNGEON_4,
+    MAP_2,
+    MAP_3,
+    MAP_4,
+    MAP_5
 }
