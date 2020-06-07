@@ -133,8 +133,8 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
             fight.level + 4 -> heroGainAsc(hero, round(ascPoints * 60.0 / 100).toInt())
             fight.level + 5 -> heroGainAsc(hero, round(ascPoints * 50.0 / 100).toInt())
             fight.level + 6 -> heroGainAsc(hero, round(ascPoints * 40.0 / 100).toInt())
-            fight.level + 6 -> heroGainAsc(hero, round(ascPoints * 30.0 / 100).toInt())
-            fight.level + 7 -> heroGainAsc(hero, round(ascPoints * 20.0 / 100).toInt())
+            fight.level + 7 -> heroGainAsc(hero, round(ascPoints * 30.0 / 100).toInt())
+            fight.level + 8 -> heroGainAsc(hero, round(ascPoints * 20.0 / 100).toInt())
             else -> heroGainAsc(hero, round(ascPoints * 10.0 / 100).toInt())
         }
     }
