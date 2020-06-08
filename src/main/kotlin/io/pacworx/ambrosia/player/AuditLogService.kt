@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.player
 
 import org.springframework.stereotype.Service
+import javax.transaction.Transactional
 
 @Service
 class AuditLogService(
@@ -14,6 +15,15 @@ class AuditLogService(
             action = action,
             adminAction = adminAction,
             betaTesterAction = betaTesterAction
+        ))
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    fun logError(playerId: Long = 1, action: String) {
+        auditLogRepository.save(AuditLog(
+            playerId = playerId,
+            action = action,
+            error = true
         ))
     }
 }
