@@ -34,7 +34,8 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val teamRepository: TeamRepository,
                     private val vehicleRepository: VehicleRepository,
                     private val vehicleService: VehicleService,
-                    private val battleHeroRepository: BattleHeroRepository) {
+                    private val battleHeroRepository: BattleHeroRepository,
+                    private val battleStepRepository: BattleStepRepository) {
     private val log = KotlinLogging.logger {}
 
     companion object {
@@ -52,6 +53,13 @@ class BattleService(private val playerRepository: PlayerRepository,
         battle.hero2?.let { battleHeroRepository.delete(it) }
         battle.hero3?.let { battleHeroRepository.delete(it) }
         battle.hero4?.let { battleHeroRepository.delete(it) }
+        battleStepRepository.deleteAllByBattleId(battle.id)
+    }
+
+    fun getOngoingBattle(player: Player): Battle? {
+        return battleRepository.findTopByPlayerIdAndStatusInAndPreviousBattleIdNull(
+            player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN, BattleStatus.STAGE_PASSED)
+        )?.also { it.steps = battleStepRepository.findAllByBattleIdOrderByTurnAscPhaseAscIdAsc(it.id).toMutableList() }
     }
 
     @Transactional
@@ -172,7 +180,8 @@ class BattleService(private val playerRepository: PlayerRepository,
     fun startBattle(battle: Battle): Battle {
         battle.applyBonuses(propertyService)
         nextTurn(battle)
-        return battle
+        battle.steps?.filter { it.id == 0L }?.forEach { battleStepRepository.save(it) }
+        return battleRepository.save(battle).also { it.steps = battle.steps }
     }
 
     @Transactional
@@ -182,7 +191,8 @@ class BattleService(private val playerRepository: PlayerRepository,
         if (!battleEnded(battle)) {
             nextTurn(battle)
         }
-        return battleRepository.save(battle)
+        battle.steps?.filter { it.id == 0L }?.forEach { battleStepRepository.save(it) }
+        return battleRepository.save(battle).also { it.steps = battle.steps }
     }
 
     @Transactional
@@ -191,7 +201,8 @@ class BattleService(private val playerRepository: PlayerRepository,
         if (!battleEnded(battle)) {
             nextTurn(battle)
         }
-        return battleRepository.save(battle)
+        battle.steps?.filter { it.id == 0L }?.forEach { battleStepRepository.save(it) }
+        return battleRepository.save(battle).also { it.steps = battle.steps }
     }
 
     private fun asBattleHero(playerId: Long? = null, heroId: Long?, position: HeroPosition, heroes: List<Hero>): BattleHero? =
@@ -218,14 +229,15 @@ class BattleService(private val playerRepository: PlayerRepository,
                     activeHero.status = HeroStatus.STUNNED
                 }
                 if (activeHero.status == HeroStatus.STUNNED) {
-                    battle.steps.add(BattleStep(
-                            turn = battle.turnsDone,
-                            phase = BattleStepPhase.MAIN,
-                            actingHero = activeHero.position,
-                            actingHeroName = activeHero.heroBase.name,
-                            target = HeroPosition.NONE,
-                            targetName = "STUNNED",
-                            heroStates = battle.getBattleStepHeroStates()
+                    battle.addStep(BattleStep(
+                        battleId = battle.id,
+                        turn = battle.turnsDone,
+                        phase = BattleStepPhase.MAIN,
+                        actingHero = activeHero.position,
+                        actingHeroName = activeHero.heroBase.name,
+                        target = HeroPosition.NONE,
+                        targetName = "STUNNED",
+                        heroStates = battle.getBattleStepHeroStates()
                     ))
                     activeHero.afterTurn(battle, propertyService)
                     nextTurn(battle)

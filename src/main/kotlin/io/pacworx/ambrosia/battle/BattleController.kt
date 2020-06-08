@@ -40,12 +40,14 @@ class BattleController(private val battleService: BattleService,
                        private val resourcesService: ResourcesService,
                        private val heroService: HeroService,
                        private val lootService: LootService,
-                       private val auditLogService: AuditLogService) {
+                       private val auditLogService: AuditLogService,
+                       private val battleStepRepository: BattleStepRepository) {
 
     @GetMapping("{battleId}")
     @Transactional
     fun getBattle(@ModelAttribute("player") player: Player, @PathVariable battleId: Long): PlayerActionResponse {
         val battle = battleRepository.findByIdOrNull(battleId) ?: throw EntityNotFoundException(player, "battle", battleId)
+        battle.steps = battleStepRepository.findAllByBattleIdOrderByTurnAscPhaseAscIdAsc(battle.id).toMutableList()
         return afterBattleAction(player,
             if (battle.status == BattleStatus.INIT) {
                 battleService.startBattle(battle)

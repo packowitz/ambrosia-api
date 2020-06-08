@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.time.Instant
 import javax.persistence.*
+import kotlin.jvm.Transient
 import kotlin.math.max
 import kotlin.math.min
 
@@ -67,12 +68,18 @@ data class Battle(
     val oppHero3: BattleHero?,
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "opp_hero4id")
-    val oppHero4: BattleHero?,
-    @OneToMany(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "battle_id")
-    @OrderBy("turn asc, phase asc, id asc")
-    val steps: MutableList<BattleStep> = mutableListOf()
+    val oppHero4: BattleHero?
 ) {
+
+    @Transient
+    var steps: MutableList<BattleStep>? = null
+
+    fun addStep(step: BattleStep) {
+        if (steps == null) {
+            steps = mutableListOf()
+        }
+        steps!!.add(step)
+    }
 
     fun applyBonuses(propertyService: PropertyService) {
         hero1?.resetBonus(this, propertyService)
@@ -206,9 +213,10 @@ data class Battle(
 
     @JsonIgnore
     fun getPreTurnStep(): BattleStep {
-        return steps.find { it.turn == this.turnsDone && it.phase == BattleStepPhase.A_PRE_TURN }
+        return steps?.find { it.turn == this.turnsDone && it.phase == BattleStepPhase.A_PRE_TURN }
                 ?: run {
                     val step = BattleStep(
+                        battleId = this.id,
                         turn = this.turnsDone,
                         phase = BattleStepPhase.A_PRE_TURN,
                         actingHero = this.activeHero,
@@ -217,7 +225,7 @@ data class Battle(
                         targetName = resolveHeroName(this.activeHero),
                         heroStates = getBattleStepHeroStates()
                     )
-                    steps.add(step)
+                    addStep(step)
                     step
                 }
     }

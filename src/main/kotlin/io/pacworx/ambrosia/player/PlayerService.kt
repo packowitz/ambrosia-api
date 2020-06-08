@@ -1,10 +1,8 @@
 package io.pacworx.ambrosia.player
 
 import com.google.common.hash.Hashing
-import io.pacworx.ambrosia.battle.BattleRepository
-import io.pacworx.ambrosia.battle.BattleStatus
+import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.battle.offline.MissionService
-import io.pacworx.ambrosia.upgrade.UpgradeService
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
@@ -24,6 +22,7 @@ import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesRepository
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.upgrade.UpgradeService
 import io.pacworx.ambrosia.vehicle.VehiclePartRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.beans.factory.annotation.Value
@@ -41,7 +40,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
                     private val heroRepository: HeroRepository,
                     private val gearRepository: GearRepository,
                     private val jewelryRepository: JewelryRepository,
-                    private val battleRepository: BattleRepository,
+                    private val battleService: BattleService,
                     private val simplePlayerMapRepository: SimplePlayerMapRepository,
                     private val buildingRepository: BuildingRepository,
                     private val mapService: MapService,
@@ -166,7 +165,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
         val currentMap = mapService.getCurrentPlayerMap(player)
         val missions = missionService.getAllMissions(player)
         val dnaCubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
-        val ongoingBattle = battleRepository.findTopByPlayerIdAndStatusInAndPreviousBattleIdNull(player.id, listOf(BattleStatus.INIT, BattleStatus.PLAYER_TURN, BattleStatus.OPP_TURN, BattleStatus.STAGE_PASSED))
+        val ongoingBattle = battleService.getOngoingBattle(player)
         return PlayerActionResponse(
             resources = resources,
             token = token,

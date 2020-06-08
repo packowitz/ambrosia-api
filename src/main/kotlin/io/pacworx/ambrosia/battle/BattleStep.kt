@@ -7,6 +7,7 @@ import javax.persistence.*
 data class BattleStep(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
+    val battleId: Long,
     val turn: Int,
     @Enumerated(EnumType.STRING)
     val phase: BattleStepPhase,

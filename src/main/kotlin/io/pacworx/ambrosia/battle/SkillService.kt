@@ -38,17 +38,18 @@ class SkillService(private val propertyService: PropertyService) {
         initProps()
         battle.applyBonuses(propertyService)
         val step = BattleStep(
-                turn = battle.turnsDone,
-                phase = BattleStepPhase.MAIN,
-                actingHero = hero.position,
-                actingHeroName = hero.heroBase.name,
-                usedSkill = skill.number,
-                usedSkillName = skill.name,
-                target = target.position,
-                targetName = target.heroBase.name,
-                heroStates = battle.getBattleStepHeroStates()
+            battleId = battle.id,
+            turn = battle.turnsDone,
+            phase = BattleStepPhase.MAIN,
+            actingHero = hero.position,
+            actingHeroName = hero.heroBase.name,
+            usedSkill = skill.number,
+            usedSkillName = skill.name,
+            target = target.position,
+            targetName = target.heroBase.name,
+            heroStates = battle.getBattleStepHeroStates()
         )
-        battle.steps.add(step)
+        battle.addStep(step)
 
         hero.skillUsed(skill.number)
         executeSkillActions(battle, step, hero, skill, target)
@@ -334,17 +335,18 @@ class SkillService(private val propertyService: PropertyService) {
         var lastActionProced: Boolean? = null
         counterHero.heroBase.skills.find { it.number == 1 }?.let { skill ->
             val step = BattleStep(
-                    turn = battle.turnsDone,
-                    phase = phase,
-                    actingHero = counterHero.position,
-                    actingHeroName = counterHero.heroBase.name,
-                    usedSkill = skill.number,
-                    usedSkillName = skill.name,
-                    target = hero.position,
-                    targetName = hero.heroBase.name,
-                    heroStates = battle.getBattleStepHeroStates()
+                battleId = battle.id,
+                turn = battle.turnsDone,
+                phase = phase,
+                actingHero = counterHero.position,
+                actingHeroName = counterHero.heroBase.name,
+                usedSkill = skill.number,
+                usedSkillName = skill.name,
+                target = hero.position,
+                targetName = hero.heroBase.name,
+                heroStates = battle.getBattleStepHeroStates()
             )
-            battle.steps.add(step)
+            battle.addStep(step)
             skill.actions.forEach { action ->
                 if (!actionTriggers(hero, skill, action, step, lastActionProced)) {
                     lastActionProced = null
@@ -450,19 +452,20 @@ class SkillService(private val propertyService: PropertyService) {
                         .forEach { skill ->
                             if (hero.status == HeroStatus.DEAD) {
                                 val step = BattleStep(
-                                        turn = battle.turnsDone,
-                                        phase = BattleStepPhase.PASSIVE,
-                                        actingHero = executer.position,
-                                        actingHeroName = executer.heroBase.name,
-                                        usedSkill = skill.number,
-                                        usedSkillName = skill.name,
-                                        target = hero.position,
-                                        targetName = hero.heroBase.name,
-                                        heroStates = battle.getBattleStepHeroStates()
+                                    battleId = battle.id,
+                                    turn = battle.turnsDone,
+                                    phase = BattleStepPhase.PASSIVE,
+                                    actingHero = executer.position,
+                                    actingHeroName = executer.heroBase.name,
+                                    usedSkill = skill.number,
+                                    usedSkillName = skill.name,
+                                    target = hero.position,
+                                    targetName = hero.heroBase.name,
+                                    heroStates = battle.getBattleStepHeroStates()
                                 )
                                 executer.skillUsed(skill.number)
                                 if (executeSkillActions(battle, step, executer, skill, hero)) {
-                                    battle.steps.add(step)
+                                    battle.addStep(step)
                                 } else {
                                     executer.resetSkillCooldown(skill.number)
                                 }
@@ -477,19 +480,20 @@ class SkillService(private val propertyService: PropertyService) {
                         .forEach { skill ->
                             if (hero.status == HeroStatus.DEAD) {
                                 val step = BattleStep(
-                                        turn = battle.turnsDone,
-                                        phase = BattleStepPhase.PASSIVE,
-                                        actingHero = oppHero.position,
-                                        actingHeroName = oppHero.heroBase.name,
-                                        usedSkill = skill.number,
-                                        usedSkillName = skill.name,
-                                        target = hero.position,
-                                        targetName = hero.heroBase.name,
-                                        heroStates = battle.getBattleStepHeroStates()
+                                    battleId = battle.id,
+                                    turn = battle.turnsDone,
+                                    phase = BattleStepPhase.PASSIVE,
+                                    actingHero = oppHero.position,
+                                    actingHeroName = oppHero.heroBase.name,
+                                    usedSkill = skill.number,
+                                    usedSkillName = skill.name,
+                                    target = hero.position,
+                                    targetName = hero.heroBase.name,
+                                    heroStates = battle.getBattleStepHeroStates()
                                 )
                                 oppHero.skillUsed(skill.number)
                                 if (executeSkillActions(battle, step, oppHero, skill, hero)) {
-                                    battle.steps.add(step)
+                                    battle.addStep(step)
                                 } else {
                                     oppHero.resetSkillCooldown(skill.number)
                                 }
@@ -503,19 +507,20 @@ class SkillService(private val propertyService: PropertyService) {
                     .forEach { skill ->
                         if (hero.status == HeroStatus.DEAD) {
                             val step = BattleStep(
-                                    turn = battle.turnsDone,
-                                    phase = BattleStepPhase.PASSIVE,
-                                    actingHero = hero.position,
-                                    actingHeroName = hero.heroBase.name,
-                                    usedSkill = skill.number,
-                                    usedSkillName = skill.name,
-                                    target = hero.position,
-                                    targetName = hero.heroBase.name,
-                                    heroStates = battle.getBattleStepHeroStates()
+                                battleId = battle.id,
+                                turn = battle.turnsDone,
+                                phase = BattleStepPhase.PASSIVE,
+                                actingHero = hero.position,
+                                actingHeroName = hero.heroBase.name,
+                                usedSkill = skill.number,
+                                usedSkillName = skill.name,
+                                target = hero.position,
+                                targetName = hero.heroBase.name,
+                                heroStates = battle.getBattleStepHeroStates()
                             )
                             hero.skillUsed(skill.number)
                             if (executeSkillActions(battle, step, hero, skill, hero)) {
-                                battle.steps.add(step)
+                                battle.addStep(step)
                             } else {
                                 hero.resetSkillCooldown(skill.number)
                             }
@@ -529,19 +534,20 @@ class SkillService(private val propertyService: PropertyService) {
                         .forEach { skill ->
                             if (hero.status == HeroStatus.DEAD) {
                                 val step = BattleStep(
-                                        turn = battle.turnsDone,
-                                        phase = BattleStepPhase.PASSIVE,
-                                        actingHero = alliedHero.position,
-                                        actingHeroName = alliedHero.heroBase.name,
-                                        usedSkill = skill.number,
-                                        usedSkillName = skill.name,
-                                        target = hero.position,
-                                        targetName = hero.heroBase.name,
-                                        heroStates = battle.getBattleStepHeroStates()
+                                    battleId = battle.id,
+                                    turn = battle.turnsDone,
+                                    phase = BattleStepPhase.PASSIVE,
+                                    actingHero = alliedHero.position,
+                                    actingHeroName = alliedHero.heroBase.name,
+                                    usedSkill = skill.number,
+                                    usedSkillName = skill.name,
+                                    target = hero.position,
+                                    targetName = hero.heroBase.name,
+                                    heroStates = battle.getBattleStepHeroStates()
                                 )
                                 alliedHero.skillUsed(skill.number)
                                 if (executeSkillActions(battle, step, alliedHero, skill, hero)) {
-                                    battle.steps.add(step)
+                                    battle.addStep(step)
                                 } else {
                                     alliedHero.resetSkillCooldown(skill.number)
                                 }
@@ -555,19 +561,20 @@ class SkillService(private val propertyService: PropertyService) {
                     .forEach { skill ->
                         if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
                             val step = BattleStep(
-                                    turn = battle.turnsDone,
-                                    phase = BattleStepPhase.PASSIVE,
-                                    actingHero = hero.position,
-                                    actingHeroName = hero.heroBase.name,
-                                    usedSkill = skill.number,
-                                    usedSkillName = skill.name,
-                                    target = hero.position,
-                                    targetName = hero.heroBase.name,
-                                    heroStates = battle.getBattleStepHeroStates()
+                                battleId = battle.id,
+                                turn = battle.turnsDone,
+                                phase = BattleStepPhase.PASSIVE,
+                                actingHero = hero.position,
+                                actingHeroName = hero.heroBase.name,
+                                usedSkill = skill.number,
+                                usedSkillName = skill.name,
+                                target = hero.position,
+                                targetName = hero.heroBase.name,
+                                heroStates = battle.getBattleStepHeroStates()
                             )
                             hero.skillUsed(skill.number)
                             if (executeSkillActions(battle, step, hero, skill, hero)) {
-                                battle.steps.add(step)
+                                battle.addStep(step)
                             } else {
                                 hero.resetSkillCooldown(skill.number)
                             }
@@ -581,19 +588,20 @@ class SkillService(private val propertyService: PropertyService) {
                         .forEach { skill ->
                             if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
                                 val step = BattleStep(
-                                        turn = battle.turnsDone,
-                                        phase = BattleStepPhase.PASSIVE,
-                                        actingHero = alliedHero.position,
-                                        actingHeroName = alliedHero.heroBase.name,
-                                        usedSkill = skill.number,
-                                        usedSkillName = skill.name,
-                                        target = hero.position,
-                                        targetName = hero.heroBase.name,
-                                        heroStates = battle.getBattleStepHeroStates()
+                                    battleId = battle.id,
+                                    turn = battle.turnsDone,
+                                    phase = BattleStepPhase.PASSIVE,
+                                    actingHero = alliedHero.position,
+                                    actingHeroName = alliedHero.heroBase.name,
+                                    usedSkill = skill.number,
+                                    usedSkillName = skill.name,
+                                    target = hero.position,
+                                    targetName = hero.heroBase.name,
+                                    heroStates = battle.getBattleStepHeroStates()
                                 )
                                 alliedHero.skillUsed(skill.number)
                                 if (executeSkillActions(battle, step, alliedHero, skill, hero)) {
-                                    battle.steps.add(step)
+                                    battle.addStep(step)
                                 } else {
                                     alliedHero.resetSkillCooldown(skill.number)
                                 }
@@ -638,19 +646,20 @@ class SkillService(private val propertyService: PropertyService) {
                         .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DEBUFF && target.getSkillLevel(it.number) > 0 && target.getCooldown(it.number) <= 0 }
                         .forEach { skill ->
                             val step = BattleStep(
-                                    turn = battle.turnsDone,
-                                    phase = BattleStepPhase.PASSIVE,
-                                    actingHero = target.position,
-                                    actingHeroName = target.heroBase.name,
-                                    usedSkill = skill.number,
-                                    usedSkillName = skill.name,
-                                    target = target.position,
-                                    targetName = target.heroBase.name,
-                                    heroStates = battle.getBattleStepHeroStates()
+                                battleId = battle.id,
+                                turn = battle.turnsDone,
+                                phase = BattleStepPhase.PASSIVE,
+                                actingHero = target.position,
+                                actingHeroName = target.heroBase.name,
+                                usedSkill = skill.number,
+                                usedSkillName = skill.name,
+                                target = target.position,
+                                targetName = target.heroBase.name,
+                                heroStates = battle.getBattleStepHeroStates()
                             )
                             target.skillUsed(skill.number)
                             if (executeSkillActions(battle, step, target, skill, target)) {
-                                battle.steps.add(step)
+                                battle.addStep(step)
                             } else {
                                 target.resetSkillCooldown(skill.number)
                             }
@@ -662,19 +671,20 @@ class SkillService(private val propertyService: PropertyService) {
                             .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DEBUFF && target.getSkillLevel(it.number) > 0 && ally.getCooldown(it.number) <= 0 }
                             .forEach { skill ->
                                 val step = BattleStep(
-                                        turn = battle.turnsDone,
-                                        phase = BattleStepPhase.PASSIVE,
-                                        actingHero = ally.position,
-                                        actingHeroName = ally.heroBase.name,
-                                        usedSkill = skill.number,
-                                        usedSkillName = skill.name,
-                                        target = target.position,
-                                        targetName = target.heroBase.name,
-                                        heroStates = battle.getBattleStepHeroStates()
+                                    battleId = battle.id,
+                                    turn = battle.turnsDone,
+                                    phase = BattleStepPhase.PASSIVE,
+                                    actingHero = ally.position,
+                                    actingHeroName = ally.heroBase.name,
+                                    usedSkill = skill.number,
+                                    usedSkillName = skill.name,
+                                    target = target.position,
+                                    targetName = target.heroBase.name,
+                                    heroStates = battle.getBattleStepHeroStates()
                                 )
                                 ally.skillUsed(skill.number)
                                 if (executeSkillActions(battle, step, ally, skill, target)) {
-                                    battle.steps.add(step)
+                                    battle.addStep(step)
                                 } else {
                                     ally.resetSkillCooldown(skill.number)
                                 }
@@ -689,19 +699,20 @@ class SkillService(private val propertyService: PropertyService) {
                             .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OPP_BUFF && target.getSkillLevel(it.number) > 0 && opp.getCooldown(it.number) <= 0 }
                             .forEach { skill ->
                                 val step = BattleStep(
-                                        turn = battle.turnsDone,
-                                        phase = BattleStepPhase.PASSIVE,
-                                        actingHero = opp.position,
-                                        actingHeroName = opp.heroBase.name,
-                                        usedSkill = skill.number,
-                                        usedSkillName = skill.name,
-                                        target = target.position,
-                                        targetName = target.heroBase.name,
-                                        heroStates = battle.getBattleStepHeroStates()
+                                    battleId = battle.id,
+                                    turn = battle.turnsDone,
+                                    phase = BattleStepPhase.PASSIVE,
+                                    actingHero = opp.position,
+                                    actingHeroName = opp.heroBase.name,
+                                    usedSkill = skill.number,
+                                    usedSkillName = skill.name,
+                                    target = target.position,
+                                    targetName = target.heroBase.name,
+                                    heroStates = battle.getBattleStepHeroStates()
                                 )
                                 opp.skillUsed(skill.number)
                                 if (executeSkillActions(battle, step, opp, skill, target)) {
-                                    battle.steps.add(step)
+                                    battle.addStep(step)
                                 } else {
                                     opp.resetSkillCooldown(skill.number)
                                 }
