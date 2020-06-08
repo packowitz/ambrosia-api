@@ -12,6 +12,7 @@ import io.pacworx.ambrosia.vehicle.VehicleService
 import io.pacworx.ambrosia.vehicle.VehicleStat
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import kotlin.math.abs
 import kotlin.math.round
 import kotlin.random.Random
 
@@ -129,16 +130,16 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         val ascPoints = fight.ascPoints + (fight.ascPoints * vehicleService.getStat(vehicle, VehicleStat.BATTLE_ASC_POINTS) / 100)
 
         heroGainXp(hero, xp)
-        when (hero.level) {
-            in 1..fight.level -> heroGainAsc(hero, ascPoints)
-            fight.level + 1 -> heroGainAsc(hero, round(ascPoints * 90.0 / 100).toInt())
-            fight.level + 2 -> heroGainAsc(hero, round(ascPoints * 80.0 / 100).toInt())
-            fight.level + 3 -> heroGainAsc(hero, round(ascPoints * 70.0 / 100).toInt())
-            fight.level + 4 -> heroGainAsc(hero, round(ascPoints * 60.0 / 100).toInt())
-            fight.level + 5 -> heroGainAsc(hero, round(ascPoints * 50.0 / 100).toInt())
-            fight.level + 6 -> heroGainAsc(hero, round(ascPoints * 40.0 / 100).toInt())
-            fight.level + 7 -> heroGainAsc(hero, round(ascPoints * 30.0 / 100).toInt())
-            fight.level + 8 -> heroGainAsc(hero, round(ascPoints * 20.0 / 100).toInt())
+        when (abs(hero.level - fight.level)) {
+            in 0..1 -> heroGainAsc(hero, ascPoints)
+            2 -> heroGainAsc(hero, round(ascPoints * 90.0 / 100).toInt())
+            3 -> heroGainAsc(hero, round(ascPoints * 80.0 / 100).toInt())
+            4 -> heroGainAsc(hero, round(ascPoints * 70.0 / 100).toInt())
+            5 -> heroGainAsc(hero, round(ascPoints * 60.0 / 100).toInt())
+            6 -> heroGainAsc(hero, round(ascPoints * 50.0 / 100).toInt())
+            7 -> heroGainAsc(hero, round(ascPoints * 40.0 / 100).toInt())
+            8 -> heroGainAsc(hero, round(ascPoints * 30.0 / 100).toInt())
+            9 -> heroGainAsc(hero, round(ascPoints * 20.0 / 100).toInt())
             else -> heroGainAsc(hero, round(ascPoints * 10.0 / 100).toInt())
         }
     }
