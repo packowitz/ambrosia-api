@@ -194,7 +194,7 @@ class BattleController(private val battleService: BattleService,
             val heroes = heroService.wonFight(player, battle.allPlayerHeroes().map { it.heroId }, battle.fight, battle.vehicle)
             val loot = battle.fight?.lootBox?.let { lootService.openLootBox(player, it, battle.vehicle) }
             if (battle.type == BattleType.CAMPAIGN) {
-                auditLogService.log(player, "${battle.status.name} battle #${battle.id} releasing ${battle.vehicle?.let { "vehicle ${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} " +
+                auditLogService.log(player, "Won battle #${battle.id} releasing ${battle.vehicle?.let { "vehicle ${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} " +
                         "and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} #${it.id} level ${it.level}" }}. " +
                         "Looting ${loot?.items?.joinToString { it.auditLog() } ?: "nothing"}"
                 )
@@ -212,6 +212,11 @@ class BattleController(private val battleService: BattleService,
                 looted = loot?.items?.map { lootService.asLooted(it) }
             )
         } else {
+            if (battle.type == BattleType.CAMPAIGN && battle.status == BattleStatus.LOST) {
+                auditLogService.log(player, "Lost battle #${battle.id} releasing ${battle.vehicle?.let { "vehicle ${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} " +
+                        "and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} #${it.id} level ${it.level}" }}"
+                )
+            }
             PlayerActionResponse(resources = resources, ongoingBattle = battle)
         }
     }
