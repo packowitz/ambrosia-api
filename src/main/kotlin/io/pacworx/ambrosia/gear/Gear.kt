@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.gear
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.upgrade.Modification
 import io.pacworx.ambrosia.hero.HeroStat
 import io.pacworx.ambrosia.hero.Rarity
@@ -94,6 +95,17 @@ data class Gear(
             4 -> this.jewelSlot4
             else -> null
         }
+    }
+
+    @JsonIgnore
+    fun getNumberOfJewelSlots(): Int {
+        return when {
+            jewelSlot4 != null -> 4
+            jewelSlot3 != null -> 3
+            jewelSlot2 != null -> 2
+            jewelSlot1 != null -> 1
+            else -> 0
+        } + if (this.specialJewelSlot) { 1 } else { 0 }
     }
 
     fun pluginJewel(slot: Int, jewelType: JewelType, jewelLevel: Int) {

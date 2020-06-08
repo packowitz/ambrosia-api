@@ -43,10 +43,6 @@ class AdminGearController(val gearService: GearService,
     @PostMapping("create")
     @Transactional
     fun createSpecificGear(@ModelAttribute("player") player: Player, @Valid @RequestBody request: CreateGearRequest): PlayerActionResponse {
-        if (!player.admin) {
-            throw RuntimeException("not allowed")
-        }
-
         val valueRange = propertyService.getGearValueRange(request.type, request.rarity, request.stat)
         val statValue = valueRange.first + ((request.statQuality * (valueRange.second - valueRange.first)) / 100)
 

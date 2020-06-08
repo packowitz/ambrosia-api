@@ -6,17 +6,18 @@ import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.exceptions.MapTileActionException
 import io.pacworx.ambrosia.exceptions.OngoingBattleException
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
-import io.pacworx.ambrosia.hero.skills.SkillTarget
-import io.pacworx.ambrosia.team.TeamType
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.skills.HeroSkill
+import io.pacworx.ambrosia.hero.skills.SkillTarget
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
+import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.team.TeamType
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -38,7 +39,8 @@ class BattleController(private val battleService: BattleService,
                        private val fightRepository: FightRepository,
                        private val resourcesService: ResourcesService,
                        private val heroService: HeroService,
-                       private val lootService: LootService) {
+                       private val lootService: LootService,
+                       private val auditLogService: AuditLogService) {
 
     @GetMapping("{battleId}")
     @Transactional
@@ -78,7 +80,12 @@ class BattleController(private val battleService: BattleService,
         }
         val fight = fightRepository.getOne(mapTile.fightId)
         val resources = resourcesService.spendResource(player, fight.resourceType, fight.costs)
-        return afterBattleAction(player, battleService.initCampaign(player, mapTile, fight, request), resources)
+        val battle = battleService.initCampaign(player, mapTile, fight, request)
+        auditLogService.log(player, "Started a campaign battle #${battle.id} (status: ${battle.status.name}): fight #${mapTile.fightId} on map #${mapTile.mapId} ${mapTile.posX}x${mapTile.posY} " +
+                "using ${battle.vehicle?.let { "${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} #${it.id} level ${it.level}" }} " +
+                "paying ${fight.costs} ${fight.resourceType.name}"
+        )
+        return afterBattleAction(player, battle, resources)
     }
 
     @PostMapping("campaign/test/{fightId}")
@@ -131,6 +138,7 @@ class BattleController(private val battleService: BattleService,
         if (!isTargetEligible(battle, activeHero, skill, target)) {
             throw GeneralException(player, "Invalid target", "Target ${target.position} is not valid target for skill ${skill.number} of hero ${activeHero.position} in battle ${battle.id}")
         }
+
         return afterBattleAction(player, battleService.takeTurn(battle, activeHero, skill, target))
     }
 
@@ -161,6 +169,9 @@ class BattleController(private val battleService: BattleService,
         }
         battle.status = BattleStatus.LOST
         battleService.battleEnded(battle)
+        if (battle.type == BattleType.CAMPAIGN) {
+            auditLogService.log(player, "Surrendered battle #${battle.id}")
+        }
         return afterBattleAction(player, battle)
     }
 
@@ -182,6 +193,12 @@ class BattleController(private val battleService: BattleService,
             }
             val heroes = heroService.wonFight(player, battle.allPlayerHeroes().map { it.heroId }, battle.fight, battle.vehicle)
             val loot = battle.fight?.lootBox?.let { lootService.openLootBox(player, it, battle.vehicle) }
+            if (battle.type == BattleType.CAMPAIGN) {
+                auditLogService.log(player, "${battle.status.name} battle #${battle.id} releasing ${battle.vehicle?.let { "vehicle ${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} " +
+                        "and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} #${it.id} level ${it.level}" }}. " +
+                        "Looting ${loot?.items?.joinToString { it.auditLog() } ?: "nothing"}"
+                )
+            }
             PlayerActionResponse(
                 player = player,
                 resources = loot?.let { resourcesService.getResources(player) } ?: resources,

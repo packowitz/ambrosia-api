@@ -13,6 +13,9 @@ interface HeroRepository: JpaRepository<Hero, Long> {
 
     fun findAllByHeroBase(heroBase: HeroBase): List<Hero>
 
+    @Query("select count(*) from hero where player_id = :playerId", nativeQuery = true)
+    fun findNumberOfHeroes(@Param("playerId") playerId: Long): Int
+
     @Modifying
     @Query("update hero set max_xp = :maxXp where level = :level", nativeQuery = true)
     fun updateMaxXp(@Param("level") level: Int, @Param("maxXp") maxXp: Int)

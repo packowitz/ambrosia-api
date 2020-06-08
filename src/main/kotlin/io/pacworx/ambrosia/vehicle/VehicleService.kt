@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.vehicle
 
 import io.pacworx.ambrosia.battle.Battle
+import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyCategory
@@ -38,7 +39,7 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
         val vehicles = vehicleRepository.findAllByPlayerId(player.id).filter { it.slot != null }
         if (slot != null) {
             if (vehicles.any{ it.slot == slot }) {
-                throw RuntimeException("Slot $slot is already occupied")
+                throw GeneralException(player, "Cannot activate vehicle", "Slot $slot is already occupied")
             }
             vehicle.slot = slot
         } else {
@@ -51,11 +52,11 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
         }
     }
 
-    fun plugInPart(vehicle: Vehicle, part: VehiclePart): VehiclePart? {
+    fun plugInPart(player: Player, vehicle: Vehicle, part: VehiclePart): VehiclePart? {
         when(part.type.slot) {
             VehicleSlot.ENGINE -> {
                 if (part.quality.isHigherThan(vehicle.baseVehicle.engineQuality)) {
-                    throw RuntimeException("Part Quality is too high")
+                    throw GeneralException(player, "Plugin not possible", "Part Quality is too high")
                 }
                 val prevPart = vehicle.engine?.also { it.equippedTo = null }
                 part.equippedTo = vehicle.id
@@ -64,7 +65,7 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
             }
             VehicleSlot.FRAME -> {
                 if (part.quality.isHigherThan(vehicle.baseVehicle.frameQuality)) {
-                    throw RuntimeException("Part Quality is too high")
+                    throw GeneralException(player, "Plugin not possible", "Part Quality is too high")
                 }
                 val prevPart = vehicle.frame?.also { it.equippedTo = null }
                 part.equippedTo = vehicle.id
@@ -73,7 +74,7 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
             }
             VehicleSlot.COMPUTER -> {
                 if (part.quality.isHigherThan(vehicle.baseVehicle.computerQuality)) {
-                    throw RuntimeException("Part Quality is too high")
+                    throw GeneralException(player, "Plugin not possible", "Part Quality is too high")
                 }
                 val prevPart = vehicle.computer?.also { it.equippedTo = null }
                 part.equippedTo = vehicle.id
@@ -96,7 +97,7 @@ class VehicleService(private val vehicleRepository: VehicleRepository,
                     vehicle.specialPart3 = part
                     return null
                 }
-                throw RuntimeException("No valid spot for this special item")
+                throw GeneralException(player, "Plugin not possible", "No valid spot for this special item")
             }
         }
     }

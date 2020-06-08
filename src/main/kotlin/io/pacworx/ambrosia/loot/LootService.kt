@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.loot
 
 import io.pacworx.ambrosia.common.procs
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.GearService
 import io.pacworx.ambrosia.gear.Jewelry
@@ -59,7 +60,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
 
     fun openLootBox(player: Player, lootBoxId: Long): LootBoxResult {
         val lootBox = lootBoxRepository.findByIdOrNull(lootBoxId)
-            ?: throw RuntimeException("Unknown LootBox #$lootBoxId")
+            ?: throw EntityNotFoundException(player, "loot box", lootBoxId)
         return openLootBox(player, lootBox)
     }
 
@@ -107,7 +108,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
 
     private fun openGearItem(player: Player, item: LootItem): Gear {
         val gearLoot = gearLootRepository.findByIdOrNull(item.gearLootId)
-            ?: throw RuntimeException("Unknown gear loot #${item.gearLootId}")
+            ?: throw EntityNotFoundException(player, "gear loot", item.gearLootId ?: -1)
         return gearService.createGear(
             player.id,
             gearLoot.getSets(),
@@ -156,7 +157,19 @@ data class LootItemResult(
     val jewelLevel: Int? = null,
     val vehicle: Vehicle? = null,
     val vehiclePart: VehiclePart? = null
-)
+) {
+    fun auditLog(): String {
+        return when {
+            resource != null -> "${resource.amount} ${resource.type.name}"
+            hero != null -> "hero ${hero.heroBase.name} #${hero.id} level ${hero.level}"
+            gear != null -> "${gear.getGearQuality().name} (${gear.statQuality}%) ${gear.rarity.stars}* ${gear.set.name} ${gear.type.name} +${gear.statValue} ${gear.stat.name} with ${gear.getNumberOfJewelSlots()} jewels #${gear.id}"
+            jewelry != null -> "lvl $jewelLevel ${jewelry.type.name} jewel"
+            vehicle != null -> "vehicle ${vehicle.baseVehicle.name} #${vehicle.id}"
+            vehiclePart != null -> "vehiclePart ${vehiclePart.quality.name} ${vehiclePart.type.name} #${vehiclePart.id}"
+            else -> ""
+        }
+    }
+}
 
 data class ResourceLoot(
     val type: ResourceType,

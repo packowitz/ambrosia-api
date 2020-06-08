@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.story
 
+import io.pacworx.ambrosia.player.AuditLogService
+import io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
@@ -8,7 +10,8 @@ import javax.transaction.Transactional
 @RequestMapping("admin/story")
 class AdminStoryController(
     private val storyRepository: StoryRepository,
-    private val storyPlaceholderRepository: StoryPlaceholderRepository
+    private val storyPlaceholderRepository: StoryPlaceholderRepository,
+    private val auditLogService: AuditLogService
 ) {
 
     @GetMapping("placeholder")
@@ -16,7 +19,9 @@ class AdminStoryController(
 
     @PostMapping("placeholder")
     @Transactional
-    fun savePlaceholder(@RequestBody placeholder: StoryPlaceholder): StoryPlaceholder {
+    fun savePlaceholder(@ModelAttribute("player") player: Player,
+                        @RequestBody placeholder: StoryPlaceholder): StoryPlaceholder {
+        auditLogService.log(player, "Save placeholder ${placeholder.identifier}", adminAction = true)
         return storyPlaceholderRepository.save(placeholder)
     }
 
@@ -27,7 +32,9 @@ class AdminStoryController(
 
     @PostMapping
     @Transactional
-    fun saveStoryLine(@RequestBody request: SaveStoryLineRequest): List<Story> {
+    fun saveStoryLine(@ModelAttribute("player") player: Player,
+                      @RequestBody request: SaveStoryLineRequest): List<Story> {
+        auditLogService.log(player, "Save story line ${request.stories.getOrNull(0)?.trigger?.name ?: "unknown"}", adminAction = true)
         request.toDelete?.takeIf { it.isNotEmpty() }?.forEach { storyRepository.deleteById(it) }
         return storyRepository.saveAll(request.stories)
     }

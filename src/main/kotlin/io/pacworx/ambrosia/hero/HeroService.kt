@@ -1,6 +1,8 @@
 package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.battle.offline.Mission
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
+import io.pacworx.ambrosia.exceptions.UnauthorizedException
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import io.pacworx.ambrosia.player.Player
@@ -33,6 +35,8 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         return heroRepository.findAllById(heroIds.distinct())
     }
 
+    fun getNumberOfHeroes(player: Player): Int = heroRepository.findNumberOfHeroes(player.id)
+
     fun gainStartingHeroes(player: Player): List<HeroDto> {
         return heroBaseRepository.findAllByStartingHeroIsTrueAndColor(player.color!!).map {
             asHeroDto(recruitHero(player, it))
@@ -41,7 +45,7 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
 
     fun recruitHero(player: Player, heroBaseId: Long, level: Int): HeroDto {
         val heroBase = heroBaseRepository.findByIdOrNull(heroBaseId)
-            ?: throw RuntimeException("Unknown base hero #$heroBaseId")
+            ?: throw EntityNotFoundException(player, "heroBase", heroBaseId)
         return asHeroDto(recruitHero(player, heroBase, level))
     }
 
@@ -112,7 +116,7 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
             heroIds.map { heroId ->
                 val hero = heroRepository.getOne(heroId)
                 if (hero.playerId != player.id) {
-                    throw RuntimeException("Cannot gain xp for a hero you don't own.")
+                    throw UnauthorizedException(player, "You can only gain xp for heroes you own")
                 }
                 gainXpAndAsc(hero, fight, vehicle)
                 asHeroDto(hero)

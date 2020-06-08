@@ -1,8 +1,10 @@
 package io.pacworx.ambrosia.gear
 
 import io.pacworx.ambrosia.common.procs
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.hero.HeroStat
 import io.pacworx.ambrosia.hero.Rarity
+import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.upgrade.Modification
 import org.springframework.data.repository.findByIdOrNull
@@ -13,13 +15,13 @@ import kotlin.random.Random
 class GearService(private val propertyService: PropertyService,
                   private val gearRepository: GearRepository) {
 
-    fun getGear(gearId: Long): Gear {
+    fun getGear(player: Player, gearId: Long): Gear {
         return gearRepository.findByIdOrNull(gearId)
-            ?: throw RuntimeException("Unknown gear with id #$gearId")
+            ?: throw EntityNotFoundException(player, "gear", gearId)
     }
 
-    fun modifyGear(modification: Modification, gearId: Long): Gear {
-        val gear = getGear(gearId)
+    fun modifyGear(player: Player, modification: Modification, gearId: Long): Gear {
+        val gear = getGear(player, gearId)
         when (modification) {
             Modification.REROLL_QUALITY -> {
                 val valueRange = propertyService.getGearValueRange(gear.type, gear.rarity, gear.stat)

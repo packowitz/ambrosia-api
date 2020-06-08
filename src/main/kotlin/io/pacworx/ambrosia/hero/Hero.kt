@@ -1,8 +1,10 @@
 package io.pacworx.ambrosia.hero
 
+import io.pacworx.ambrosia.exceptions.InsufficientResourcesException
 import io.pacworx.ambrosia.gear.GearType
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
+import io.pacworx.ambrosia.player.Player
 import javax.persistence.*
 import kotlin.math.max
 
@@ -118,9 +120,9 @@ data class Hero(
         return unequipped
     }
 
-    fun skillLevelUp(skillNumber: Int) {
+    fun skillLevelUp(player: Player, skillNumber: Int) {
         if (this.skillPoints <= 0) {
-            throw RuntimeException("Hero has no available skill points")
+            throw InsufficientResourcesException(player.id, "skill points", 1)
         }
         when (skillNumber) {
             1 -> skill1.takeIf { it < this.heroBase.skills.find { it.number == 1 }!!.maxLevel }?.also {

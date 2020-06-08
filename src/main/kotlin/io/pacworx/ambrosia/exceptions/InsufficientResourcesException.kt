@@ -1,6 +1,5 @@
 package io.pacworx.ambrosia.exceptions
 
-import io.pacworx.ambrosia.player.Player
 import org.springframework.http.HttpStatus
 
 class InsufficientResourcesException(val playerId: Long, val resource: String, val amount: Int) : AmbrosiaException, RuntimeException("Insufficient $resource") {

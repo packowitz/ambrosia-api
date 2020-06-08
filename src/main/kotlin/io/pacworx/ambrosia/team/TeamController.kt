@@ -1,10 +1,12 @@
 package io.pacworx.ambrosia.team
 
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.player.AuditLogService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import java.lang.RuntimeException
@@ -15,7 +17,8 @@ import java.lang.RuntimeException
 class TeamController(private val teamRepository: TeamRepository,
                      private val playerRepository: PlayerRepository,
                      private val heroRepository: HeroRepository,
-                     private val heroService: HeroService) {
+                     private val heroService: HeroService,
+                     private val auditLogService: AuditLogService) {
 
     @GetMapping
     fun getOwnTeams(@ModelAttribute("player") player: Player): List<Team> {
@@ -24,14 +27,16 @@ class TeamController(private val teamRepository: TeamRepository,
 
     @PostMapping("type/{type}")
     fun saveNewTeam(@ModelAttribute("player") player: Player, @PathVariable type: TeamType, @RequestBody request: Team): Team {
+        auditLogService.log(player, "Save team ${type.name} with heroes ${request.hero1Id ?: "null"}, ${request.hero2Id ?: "null"}, ${request.hero3Id ?: "null"}, ${request.hero4Id ?: "null"}")
         return teamRepository.save(request.copy(id = 0, playerId = player.id, type = type))
     }
 
     @PutMapping("{id}")
     fun updateTeam(@ModelAttribute("player") player: Player, @PathVariable id: Long, @RequestBody request: Team): Team {
+        auditLogService.log(player, "Update team ${request.type.name} with heroes ${request.hero1Id ?: "null"}, ${request.hero2Id ?: "null"}, ${request.hero3Id ?: "null"}, ${request.hero4Id ?: "null"}")
         return teamRepository.findByIdOrNull(id)?.takeIf { it.playerId == player.id }?.let {
             teamRepository.save(it.copy(hero1Id = request.hero1Id, hero2Id = request.hero2Id, hero3Id = request.hero3Id, hero4Id = request.hero4Id))
-        } ?: throw RuntimeException("Cannot update team")
+        } ?: throw EntityNotFoundException(player, "team", id)
     }
 
     @GetMapping("type/{type}")

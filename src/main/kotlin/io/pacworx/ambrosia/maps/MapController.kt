@@ -6,13 +6,21 @@ import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.MapTileActionException
 import io.pacworx.ambrosia.loot.LootService
-import io.pacworx.ambrosia.loot.Looted
+import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.upgrade.UpgradeService
-import org.springframework.web.bind.annotation.*
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import javax.transaction.Transactional
 
 @RestController
@@ -26,7 +34,8 @@ class MapController(private val mapService: MapService,
                     private val resourcesService: ResourcesService,
                     private val lootService: LootService,
                     private val upgradeService: UpgradeService,
-                    private val progressRepository: ProgressRepository) {
+                    private val progressRepository: ProgressRepository,
+                    private val auditLogService: AuditLogService) {
 
     @GetMapping("{mapId}")
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
@@ -37,7 +46,10 @@ class MapController(private val mapService: MapService,
     @PostMapping("{mapId}/discover")
     @Transactional
     fun discoverMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerActionResponse {
-        return PlayerActionResponse(currentMap = PlayerMapResolved(mapService.discoverPlayerMap(player, mapRepository.getOne(mapId))))
+        val map = mapRepository.findByIdOrNull(mapId) ?: throw EntityNotFoundException(player, "map", mapId)
+        val discoveredMap = PlayerMapResolved(mapService.discoverPlayerMap(player, map))
+        auditLogService.log(player, "Discover map ${map.name} #${map.id}")
+        return PlayerActionResponse(currentMap = discoveredMap)
     }
 
     @PostMapping("discover")
@@ -48,7 +60,8 @@ class MapController(private val mapService: MapService,
         val tile = map.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discoverable }
             ?: throw MapTileActionException(player, "discover", request.mapId, request.posX, request.posY)
         val resources = resourcesService.spendSteam(player, map.map.discoverySteamCost)
-        mapService.discoverMapTile(map, tile)
+        mapService.discoverMapTile(player, map, tile)
+        auditLogService.log(player, "Discover tile ${tile.posX}x${tile.posY} on map ${map.map.name} #${map.map.id} paying ${map.map.discoverySteamCost} steam")
         return PlayerActionResponse(currentMap = PlayerMapResolved(playerMapRepository.save(map)), resources = resources)
     }
 
@@ -67,6 +80,7 @@ class MapController(private val mapService: MapService,
         val building = buildingRepository.save(Building(playerId = player.id, type = buildingType))
         val progress = progressRepository.getOne(player.id)
         upgradeService.applyBuildingLevel(player, building, progress)
+        auditLogService.log(player, "Discover building ${buildingType.name} on map ${playerMap.map.name} #${playerMap.map.id}")
         return PlayerActionResponse(
             progress = progress,
             resources = resourcesService.getResources(player),
@@ -89,6 +103,10 @@ class MapController(private val mapService: MapService,
         val result = lootService.openLootBox(player, lootBoxId)
         tile.chestOpened = true
 
+        auditLogService.log(player, "Open chest (loot box #${result.lootBoxId}) on map ${playerMap.map.name} #${playerMap.map.id} " +
+                "looting ${result.items.joinToString { it.auditLog() }}"
+        )
+
         return PlayerActionResponse(
             currentMap = PlayerMapResolved(playerMap),
             resources = resourcesService.getResources(player),
@@ -105,8 +123,9 @@ class MapController(private val mapService: MapService,
     @Transactional
     fun setCurrentMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerActionResponse {
         return playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)?.let {
-            mapService.checkMapForUpdates(it)
+            mapService.checkMapForUpdates(player, it)
             player.currentMapId = mapId
+            auditLogService.log(player, "Set map $mapId as current map")
             PlayerActionResponse(player = playerRepository.save(player), currentMap = PlayerMapResolved(it))
         } ?: throw EntityNotFoundException(player, "map", mapId)
     }

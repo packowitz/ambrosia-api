@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.hero
 import io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.battle.offline.MissionRepository
+import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.fights.FightStageRepository
 import io.pacworx.ambrosia.hero.skills.HeroSkill
 import io.pacworx.ambrosia.hero.skills.HeroSkillAction
@@ -12,10 +13,21 @@ import io.pacworx.ambrosia.hero.skills.SkillActionTrigger
 import io.pacworx.ambrosia.hero.skills.SkillActionType
 import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import io.pacworx.ambrosia.hero.skills.SkillTarget
+import io.pacworx.ambrosia.player.AuditLogService
+import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import javax.transaction.Transactional
 import javax.validation.Valid
@@ -23,13 +35,14 @@ import javax.validation.Valid
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("admin/hero_base")
-class AdminHeroBaseController(val heroBaseRepository: HeroBaseRepository,
-                              val heroRepository: HeroRepository,
-                              val fightStageRepository: FightStageRepository,
-                              val battleRepository: BattleRepository,
-                              val battleService: BattleService,
-                              val missionRepository: MissionRepository,
-                              val vehicleRepository: VehicleRepository) {
+class AdminHeroBaseController(private val heroBaseRepository: HeroBaseRepository,
+                              private val heroRepository: HeroRepository,
+                              private val fightStageRepository: FightStageRepository,
+                              private val battleRepository: BattleRepository,
+                              private val battleService: BattleService,
+                              private val missionRepository: MissionRepository,
+                              private val vehicleRepository: VehicleRepository,
+                              private val auditLogService: AuditLogService) {
 
     @GetMapping("")
     fun getHeroBases(): List<HeroBase> = heroBaseRepository.findAll()
@@ -39,7 +52,8 @@ class AdminHeroBaseController(val heroBaseRepository: HeroBaseRepository,
 
     @PostMapping("")
     @Transactional
-    fun postHeroBase(@RequestBody @Valid heroBaseRequest: HeroBase): HeroBase {
+    fun postHeroBase(@ModelAttribute("player") player: Player,
+                     @RequestBody @Valid heroBaseRequest: HeroBase): HeroBase {
         val heroClass = heroBaseRequest.heroClass
         val rarity = heroBaseRequest.rarity
         val color = heroBaseRequest.color
@@ -82,11 +96,14 @@ class AdminHeroBaseController(val heroBaseRepository: HeroBaseRepository,
             heroBaseRequest.skills = listOf(skill)
         }
         return heroBaseRepository.save(heroBaseRequest)
+            .also { auditLogService.log(player, "Create hero base ${it.name} #${it.id}", adminAction = true) }
     }
 
     @PutMapping("{id}")
     @Transactional
-    fun updateHeroBase(@PathVariable id: Long, @RequestBody @Valid heroBaseRequest: HeroBase): HeroBase {
+    fun updateHeroBase(@ModelAttribute("player") player: Player,
+                       @PathVariable id: Long,
+                       @RequestBody @Valid heroBaseRequest: HeroBase): HeroBase {
 
         val movedSkills = mutableListOf<Pair<Int, Int>>()
         var needUpdate = false
@@ -109,16 +126,18 @@ class AdminHeroBaseController(val heroBaseRepository: HeroBaseRepository,
                 it.recheckSkillLevels()
             }
         }
+        auditLogService.log(player, "Update hero base ${heroBase.name} #${heroBase.id}", adminAction = true)
         return heroBase
     }
 
     @DeleteMapping("{id}")
     @Transactional
-    fun deleteHeroBase(@PathVariable id: Long) {
+    fun deleteHeroBase(@ModelAttribute("player") player: Player,
+                       @PathVariable id: Long) {
         val heroBase = heroBaseRepository.getOne(id)
         heroRepository.findAllByHeroBase(heroBase).forEach { hero ->
             fightStageRepository.findStagesContainingHero(hero.id).takeIf { it.isNotEmpty() }?.let {
-                throw RuntimeException("BaseHero #$id cannot get deleted as there are fights configured using it. Fight ids: ${it.distinct().joinToString()}")
+                throw GeneralException(player, "Cannot delete hero base", "BaseHero #$id cannot get deleted as there are fights configured using it. Fight ids: ${it.distinct().joinToString()}")
             }
             battleRepository.findAllByContainingHero(hero.id).forEach { battleId ->
                 battleService.deleteBattle(battleRepository.getOne(battleId))
@@ -138,6 +157,7 @@ class AdminHeroBaseController(val heroBaseRepository: HeroBaseRepository,
             hero.unequipAll()
             heroRepository.delete(hero)
         }
+        auditLogService.log(player, "Deleted hero base ${heroBase.name} #${heroBase.id}", adminAction = true)
         heroBaseRepository.delete(heroBase)
     }
 }

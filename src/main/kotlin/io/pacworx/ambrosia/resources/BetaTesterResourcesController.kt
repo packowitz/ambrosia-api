@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.resources
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
@@ -8,7 +9,8 @@ import javax.transaction.Transactional
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("tester/resources")
-class BetaTesterResourcesController(private val resourcesService: ResourcesService) {
+class BetaTesterResourcesController(private val resourcesService: ResourcesService,
+                                    private val auditLogService: AuditLogService) {
 
     @PostMapping("gain/{resourceType}")
     @Transactional
@@ -38,6 +40,8 @@ class BetaTesterResourcesController(private val resourcesService: ResourcesServi
             ResourceType.EPIC_GENOME -> resources.epicGenome += 60
             else -> {}
         }
+
+        auditLogService.log(player, "Refills resource ${resourceType.name}", betaTesterAction = true)
 
         return PlayerActionResponse(resources = resources)
     }

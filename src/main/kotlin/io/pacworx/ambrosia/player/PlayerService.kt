@@ -82,6 +82,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
             name = name,
             email = email,
             password = if (serviceAccount) { password } else { getHash(name, password) },
+            admin = serviceAccount,
             serviceAccount = serviceAccount,
             betaTester = serviceAccount
         ))
@@ -150,6 +151,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
     }
 
     fun response(player: Player, token: String? = null): PlayerActionResponse {
+        player.didLogin()
         val upgrades = upgradeService.getAllUpgrades(player)
         val progress = progressRepository.getOne(player.id)
         val resources = resourcesService.getResources(player)

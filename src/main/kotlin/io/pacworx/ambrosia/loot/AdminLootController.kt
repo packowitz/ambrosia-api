@@ -1,6 +1,14 @@
 package io.pacworx.ambrosia.loot
 
-import org.springframework.web.bind.annotation.*
+import io.pacworx.ambrosia.player.AuditLogService
+import io.pacworx.ambrosia.player.Player
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import javax.transaction.Transactional
 import kotlin.math.max
 import kotlin.math.min
@@ -9,15 +17,19 @@ import kotlin.math.min
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("admin/loot")
 class AdminLootController(private val gearLootRepository: GearLootRepository,
-                          private val lootBoxRepository: LootBoxRepository) {
+                          private val lootBoxRepository: LootBoxRepository,
+                          private val auditLogService: AuditLogService) {
 
     @GetMapping("gear")
     fun getGearLoot(): List<GearLoot> = gearLootRepository.findAllByOrderByName()
 
     @PostMapping("gear")
     @Transactional
-    fun saveGearLoot(@RequestBody gearLoot: GearLoot): GearLoot {
-        return gearLootRepository.save(gearLoot)
+    fun saveGearLoot(@ModelAttribute("player") player: Player,
+                     @RequestBody gearLoot: GearLoot): GearLoot {
+        return gearLootRepository.save(gearLoot).also {
+            auditLogService.log(player, "Saved gear loot ${it.name} #${it.id}", adminAction = true)
+        }
     }
 
     @GetMapping("box")
@@ -25,7 +37,8 @@ class AdminLootController(private val gearLootRepository: GearLootRepository,
 
     @PostMapping("box")
     @Transactional
-    fun saveLootBox(@RequestBody lootBox: LootBox): LootBox {
+    fun saveLootBox(@ModelAttribute("player") player: Player,
+                    @RequestBody lootBox: LootBox): LootBox {
         lootBox.items.forEach {item ->
             item.resourceType = item.takeIf { item.type == LootItemType.RESOURCE }?.resourceType
             item.resourceFrom = item.takeIf { item.type == LootItemType.RESOURCE }?.let { min(it.resourceFrom!!, it.resourceTo!!) }
@@ -50,6 +63,8 @@ class AdminLootController(private val gearLootRepository: GearLootRepository,
                 throw RuntimeException("Invalid LootItem at ${item.slotNumber} pos ${item.itemOrder}")
             }
         }
-        return lootBoxRepository.save(lootBox)
+        return lootBoxRepository.save(lootBox).also {
+            auditLogService.log(player, "Saved loot box ${it.name} #${it.id}", adminAction = true)
+        }
     }
 }

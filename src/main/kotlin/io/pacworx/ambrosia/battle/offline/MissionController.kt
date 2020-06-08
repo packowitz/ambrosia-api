@@ -16,6 +16,9 @@ import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
+import io.pacworx.ambrosia.player.AuditLog
+import io.pacworx.ambrosia.player.AuditLogRepository
+import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
@@ -43,7 +46,8 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
                         private val heroRepository: HeroRepository,
                         private val missionRepository: MissionRepository,
                         private val lootService: LootService,
-                        private val heroService: HeroService
+                        private val heroService: HeroService,
+                        private val auditLogService: AuditLogService
 ) {
 
     @PostMapping
@@ -69,11 +73,11 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         if (vehicle.slot == null || vehicle.missionId != null || vehicle.upgradeTriggered) {
             throw VehicleBusyException(player, vehicle)
         }
-        val heroIds = listOfNotNull(request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id)
-        if (heroIds.isEmpty()) {
+        val heroes = listOfNotNull(request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id).let { heroRepository.findAllByPlayerIdAndIdIn(player.id, it) }
+        if (heroes.isEmpty()) {
             throw GeneralException(player, "Cannot start mission", "No heroes selected to start mission")
         }
-        heroIds.map { heroRepository.getOne(it) }.forEach { hero ->
+        heroes.forEach { hero ->
             if (hero.playerId != player.id) {
                 throw UnauthorizedException(player, "You have to own the heroes sending to a mission")
             }
@@ -83,11 +87,19 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         }
 
         val mission = missionService.executeMission(player, progress, mapTile, fight, vehicle, request)
+
+        auditLogService.log(player, "Start mission #${mission.id} " +
+                "(${request.battleTimes}x fight #${mapTile.fightId} on map #${mapTile.mapId} ${mapTile.posX}x${mapTile.posY}) " +
+                "with vehicle ${vehicle.baseVehicle.name} #${vehicle.id} in slot ${vehicle.slot} " +
+                "and heroes ${heroes.joinToString { "${it.heroBase.name} #${it.id} level ${it.level}" }} " +
+                "paying ${request.battleTimes * fight.costs} ${fight.resourceType.name}. Mission takes ${mission.getDuration()} seconds"
+        )
+
         return PlayerActionResponse(
             resources = resources,
             missions = listOf(mission),
             vehicles = listOf(vehicle),
-            heroes = heroService.loadHeroes(heroIds).map { heroService.asHeroDto(it) }
+            heroes = heroService.loadHeroes(heroes.map { it.id }).map { heroService.asHeroDto(it) }
         )
     }
 
@@ -120,8 +132,16 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
             lootBoxResult.items
         }
 
+        auditLogService.log(player, "Finish mission #${mission.id} ${mission.battles.count { !it.battleFinished }.takeIf { it > 0 }?.let{ "($it cancelled) " } ?: "" }" +
+                "${mission.battles.count { it.battleFinished && it.battleWon } } won ${mission.battles.count { it.battleFinished && !it.battleWon } } lost. " +
+                "Releasing vehicle ${vehicle.baseVehicle.name} #${vehicle.id} in slot ${vehicle.slot} " +
+                "and heroes ${heroes.joinToString { "${it.heroBase.name} #${it.id} level ${it.level}" }}. " +
+                "Looting ${lootItems.joinToString { it.auditLog() }}"
+        )
+
         missionRepository.delete(mission)
         mission.lootCollected = true
+
         return PlayerActionResponse(
             player = player,
             resources = resourcesService.getResources(player),

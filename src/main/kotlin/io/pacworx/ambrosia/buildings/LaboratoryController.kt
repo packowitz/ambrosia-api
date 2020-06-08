@@ -1,8 +1,13 @@
 package io.pacworx.ambrosia.buildings
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
+import io.pacworx.ambrosia.exceptions.GeneralException
+import io.pacworx.ambrosia.exceptions.InsufficientResourcesException
+import io.pacworx.ambrosia.exceptions.UnauthorizedException
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
@@ -11,7 +16,13 @@ import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.upgrade.Cost
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import javax.transaction.Transactional
 
@@ -22,7 +33,8 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
                            private val propertyService: PropertyService,
                            private val progressRepository: ProgressRepository,
                            private val resourcesService: ResourcesService,
-                           private val heroService: HeroService) {
+                           private val heroService: HeroService,
+                           private val auditLogService: AuditLogService) {
 
     @GetMapping("incubators")
     fun incubators(@ModelAttribute("player") player: Player): List<Incubator> =
@@ -36,7 +48,10 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
         val cubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
         val resources = resourcesService.getResources(player)
         if (cubes.size >= progress.incubators) {
-            throw RuntimeException("No incubator available to clone hero")
+            throw InsufficientResourcesException(player.id, "free incubator", 1)
+        }
+        if (heroService.getNumberOfHeroes(player) >= progress.barrackSize) {
+            throw InsufficientResourcesException(player.id, "barrack space", 1)
         }
         val costs: List<Cost>
         var time: Int
@@ -77,8 +92,10 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
             )
             cube.setResources(costs)
             incubator = incubatorRepository.save(cube)
+            auditLogService.log(player, "Starts cloning in incubator #${incubator.id} spending ${costs.joinToString { "${it.amount} ${it.type}" }}")
         } else {
             hero = heroService.asHeroDto(heroService.recruitHero(player, type.commonChance, type.uncommonChance, type.rareChance, type.epicChance, type.defaultRarity))
+            auditLogService.log(player, "Immediate cloning of hero ${hero.heroBase.name} #${hero.id} spending ${costs.joinToString { "${it.amount} ${it.type}" }}")
         }
         return PlayerActionResponse(
             resources = resources,
@@ -92,14 +109,15 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
     fun open(@ModelAttribute("player") player: Player,
              @PathVariable cubeId: Long): PlayerActionResponse {
         val cube = incubatorRepository.findByIdOrNull(cubeId)
-            ?: throw RuntimeException("Unknown incubator")
+            ?: throw EntityNotFoundException(player, "incubator", cubeId)
         if (cube.playerId != player.id) {
-            throw RuntimeException("You can only open incubators you own")
+            throw UnauthorizedException(player, "You can only open incubators you own")
         }
         if (!cube.isFinished()) {
-            throw RuntimeException("Incubator is not finished yet")
+            throw GeneralException(player, "Work in progress", "The incubator cannot be finished. It still needs ${cube.getSecondsUntilDone()} seconds")
         }
         val hero = heroService.asHeroDto(heroService.recruitHero(player, cube.type.commonChance, cube.type.uncommonChance, cube.type.rareChance, cube.type.epicChance, cube.type.defaultRarity))
+        auditLogService.log(player, "Finished incubator #${cube.id} and gained hero ${hero.heroBase.name} #${hero.id}")
         incubatorRepository.delete(cube)
         return PlayerActionResponse(
             heroes = listOfNotNull(hero),
@@ -112,12 +130,12 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
     fun cancel(@ModelAttribute("player") player: Player,
                @PathVariable cubeId: Long): PlayerActionResponse {
         val incubator = incubatorRepository.findByIdOrNull(cubeId)
-            ?: throw RuntimeException("Unknown incubator")
+            ?: throw EntityNotFoundException(player, "incubator", cubeId)
         if (incubator.playerId != player.id) {
-            throw RuntimeException("You can only cancel incubators you own")
+            throw UnauthorizedException(player, "You can only open incubators you own")
         }
         if (incubator.isFinished()) {
-            throw RuntimeException("Incubator is already finished")
+            throw GeneralException(player, "Cannot cancel incubation", "Incubator is already finished")
         }
 
         var resources: Resources? = null
@@ -125,6 +143,7 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
             resources = resourcesService.gainResources(player, it.type, it.amount)
         }
 
+        auditLogService.log(player, "Cancel incubation #${incubator.id} regaining ${incubator.getResourcesAsCosts().joinToString { "${it.amount} ${it.type}" }}")
         incubatorRepository.delete(incubator)
         return PlayerActionResponse(
             resources = resources,

@@ -6,13 +6,19 @@ import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.Looted
+import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import javax.transaction.Transactional
 import kotlin.math.round
 import kotlin.random.Random
@@ -23,7 +29,8 @@ import kotlin.random.Random
 class ForgeController(val gearRepository: GearRepository,
                       val progressRepository: ProgressRepository,
                       val propertyService: PropertyService,
-                      val resourcesService: ResourcesService) {
+                      val resourcesService: ResourcesService,
+                      val auditLogService: AuditLogService) {
 
     @PostMapping("breakdown")
     @Transactional
@@ -53,6 +60,10 @@ class ForgeController(val gearRepository: GearRepository,
                 }
             }
         }
+
+        auditLogService.log(player,"Breaking down ${gears.joinToString { "${it.rarity.stars}* ${it.type.name} #${it.id}" } }" +
+                "gaining ${looted.joinToString { "${it.value} ${it.resourceType?.name}" }}"
+        )
 
         gearRepository.deleteAll(gears)
         return PlayerActionResponse(

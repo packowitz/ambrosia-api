@@ -4,13 +4,19 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.story.StoryTrigger
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
+import javax.persistence.Id
+import javax.persistence.Transient
 import javax.transaction.Transactional
 import kotlin.math.abs
 
@@ -24,7 +30,7 @@ class MapService(val playerRepository: PlayerRepository,
     fun getCurrentPlayerMap(player: Player): PlayerMapResolved {
         return player.currentMapId?.let {
             val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, it)!!
-            checkMapForUpdates(playerMap)
+            checkMapForUpdates(player, playerMap)
             PlayerMapResolved(playerMap)
         } ?: PlayerMapResolved(discoverPlayerMap(player, mapRepository.getByStartingMapTrue()))
     }
@@ -34,26 +40,26 @@ class MapService(val playerRepository: PlayerRepository,
         playerMap.playerTiles = map.tiles.filter { it.type != MapTileType.NONE }.map {
             PlayerMapTile(posX = it.posX, posY = it.posY)
         }.toMutableList()
-        map.tiles.filter { it.alwaysRevealed }.forEach { discoverMapTile(playerMap, it) }
+        map.tiles.filter { it.alwaysRevealed }.forEach { discoverMapTile(player, playerMap, it) }
 
         player.currentMapId = map.id
         playerRepository.save(player)
         return playerMapRepository.save(playerMap)
     }
 
-    fun discoverMapTile(playerMap: PlayerMap, tile: MapTile) {
+    fun discoverMapTile(player: Player, playerMap: PlayerMap, tile: MapTile) {
         val playerMapTile = playerMap.playerTiles.find { it.posX == tile.posX && it.posY == tile.posY }
-            ?: throw RuntimeException("Cannot find playerMapTile ${tile.posX}/${tile.posY} on map ${playerMap.map.id} for player ${playerMap.playerId}")
-        discoverMapTile(playerMap, playerMapTile, tile)
+            ?: throw GeneralException(player, "player map tile", "Cannot find playerMapTile ${tile.posX}/${tile.posY} on map ${playerMap.map.id} for player ${playerMap.playerId}")
+        discoverMapTile(player, playerMap, playerMapTile, tile)
     }
 
-    fun discoverMapTile(playerMap: PlayerMap, playerMapTile: PlayerMapTile) {
+    fun discoverMapTile(player: Player, playerMap: PlayerMap, playerMapTile: PlayerMapTile) {
         val tile = playerMap.map.tiles.find { it.type != MapTileType.NONE && it.posX == playerMapTile.posX && it.posY == playerMapTile.posY }
-            ?: throw RuntimeException("Cannot find mapTile ${playerMapTile.posX}/${playerMapTile.posY} on map ${playerMap.map.id}")
-        discoverMapTile(playerMap, playerMapTile, tile)
+            ?: throw GeneralException(player, "player map tile", "Cannot find mapTile ${playerMapTile.posX}/${playerMapTile.posY} on map ${playerMap.map.id}")
+        discoverMapTile(player, playerMap, playerMapTile, tile)
     }
 
-    fun discoverMapTile(playerMap: PlayerMap, playerMapTile: PlayerMapTile, tile: MapTile) {
+    fun discoverMapTile(player: Player, playerMap: PlayerMap, playerMapTile: PlayerMapTile, tile: MapTile) {
         playerMapTile.discovered = true
         playerMapTile.discoverable = false
         if (tile.fightId == null || playerMapTile.victoriousFight) {
@@ -61,7 +67,7 @@ class MapService(val playerRepository: PlayerRepository,
                 it.discoverable = true
             }
         }
-        checkMapForUpdates(playerMap)
+        checkMapForUpdates(player, playerMap)
     }
 
     fun victoriousFight(player: Player, mapId: Long, posX: Int, posY: Int): PlayerMapResolved? {
@@ -70,14 +76,14 @@ class MapService(val playerRepository: PlayerRepository,
         val playerTile = playerMap.playerTiles.find { it.posX == posX && it.posY == posY }!!
         return if (!playerTile.victoriousFight) {
             playerTile.victoriousFight = true
-            discoverMapTile(playerMap, playerTile)
+            discoverMapTile(player, playerMap, playerTile)
             PlayerMapResolved(playerMap)
         } else {
             null
         }
     }
 
-    fun checkMapForUpdates(playerMap: PlayerMap) {
+    fun checkMapForUpdates(player: Player, playerMap: PlayerMap) {
         if (playerMap.map.lastModified.isAfter(playerMap.mapCheckedTimestamp)) {
             log.info("Checking map ${playerMap.map.id} for updates for player ${playerMap.playerId}")
             playerMap.mapCheckedTimestamp = LocalDateTime.now()
@@ -102,7 +108,7 @@ class MapService(val playerRepository: PlayerRepository,
 
             // set all tiles to not discoverable and recalculate discoverable tiles
             playerMap.playerTiles.forEach { it.discoverable = false }
-            playerMap.playerTiles.filter { it.discovered }.forEach { discoverMapTile(playerMap, it) }
+            playerMap.playerTiles.filter { it.discovered }.forEach { discoverMapTile(player, playerMap, it) }
         }
     }
 
