@@ -117,7 +117,7 @@ class GearController(private val gearRepository: GearRepository,
             modifiedJewelries.add(unpluggedJewelry)
         }
 
-        auditLogService.log(player, "Plugin lvl ${request.lvl} ${request.jewelType.name} jewel to gear ${gear.id}" +
+        auditLogService.log(player, "Plugin lvl ${request.lvl} ${request.jewelType.name} jewel to gear #${gear.id}" +
                 "${unpluggedJewel?.let { " taking out lvl ${it.second} ${it.first.name} jewel" } ?: ""}"
         )
 
