@@ -17,6 +17,7 @@ import io.pacworx.ambrosia.vehicle.VehicleService
 import io.pacworx.ambrosia.vehicle.VehicleStat
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import kotlin.math.round
 import kotlin.random.Random
 
 @Service
@@ -97,7 +98,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
 
     private fun openResourceItem(player: Player, item: LootItem, vehicle: Vehicle? = null): ResourceLoot {
         var amount =  Random.nextInt(item.resourceFrom!!, item.resourceTo!! + 1)
-        amount += amount * vehicleService.getStat(vehicle, VehicleStat.BATTLE_RESSOURCE_LOOT)
+        amount += round(amount.toDouble() * vehicleService.getStat(vehicle, VehicleStat.BATTLE_RESSOURCE_LOOT) / 100).toInt()
         resourcesService.gainResources(player, item.resourceType!!, amount)
         return ResourceLoot(item.resourceType!!, amount)
     }
