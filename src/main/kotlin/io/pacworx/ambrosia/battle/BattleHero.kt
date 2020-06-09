@@ -384,7 +384,7 @@ data class BattleHero(
     fun getTotalHealingInc(): Int = heroHealingInc + healingIncBonus
 
     @JsonIgnore
-    fun isTaunting(): Boolean = buffs.any { it.buff == Buff.TAUNT_BUFF }
+    fun isTaunting(): Boolean = status == HeroStatus.ALIVE && buffs.any { it.buff == Buff.TAUNT_BUFF }
 
     @JsonIgnore
     fun hasDeathshield(): Boolean = buffs.any { it.buff == Buff.DEATHSHIELD }
