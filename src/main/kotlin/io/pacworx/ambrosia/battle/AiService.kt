@@ -8,6 +8,7 @@ import io.pacworx.ambrosia.hero.skills.SkillTarget
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import kotlin.math.min
+import kotlin.math.round
 
 @Service
 class AiService(private val skillService: SkillService) {
@@ -36,7 +37,7 @@ class AiService(private val skillService: SkillService) {
             // assuming damage skill
             val expectedBaseDamage = expectedBaseDamage(hero, skill)
             if (expectedBaseDamage > 0) {
-                var currentScore = -1.0
+                var currentScore = -1
                 var currentTarget: BattleHero? = null
 
                 possibleTargets.forEach { target ->
@@ -54,7 +55,7 @@ class AiService(private val skillService: SkillService) {
                         damage -= (shieldSize / 2)
                     }
                     if (damage < target.currentHp || !target.hasDeathshield()) {
-                        val score = min(damage.toDouble() / target.currentHp, 1.0)
+                        val score = min(round(10 * damage.toDouble() / target.currentHp).toInt(), 10)
                         if (score > currentScore) {
                             currentScore = score
                             currentTarget = target
