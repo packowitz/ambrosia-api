@@ -42,11 +42,15 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
             BuildingType.ACADEMY -> {
                 progress.maxTrainingLevel = propertyService.getProperties(PropertyType.ACADEMY_BUILDING, building.level).sumBy { it.value1 }
             }
-            BuildingType.ARENA -> TODO()
+            BuildingType.ARENA -> {
+                // TODO
+            }
             BuildingType.BARRACKS -> {
                 progress.barrackSize += propertyService.getProperties(PropertyType.BARRACKS_BUILDING, building.level).sumBy { it.value1 }
             }
-            BuildingType.BAZAAR -> TODO()
+            BuildingType.BAZAAR -> {
+                // TODO
+            }
             BuildingType.FORGE -> {
                 propertyService.getProperties(PropertyType.FORGE_MOD_RARITY, building.level).forEach {
                     progress.gearModificationRarity = it.value1
