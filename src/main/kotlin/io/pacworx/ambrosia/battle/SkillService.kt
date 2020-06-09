@@ -80,7 +80,7 @@ class SkillService(private val propertyService: PropertyService) {
             }
             lastActionProced = true
             when (action.type) {
-                SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(hero, action, step, damage)
+                SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(hero, action, damage, step)
                 SkillActionType.DEAL_DAMAGE ->
                     findTargets(battle, hero, action, target)
                         .forEach {
@@ -120,7 +120,7 @@ class SkillService(private val propertyService: PropertyService) {
         return skillDidSomething
     }
 
-    private fun actionTriggers(hero: BattleHero, skill: HeroSkill, action: HeroSkillAction, step: BattleStep, lastActionProced: Boolean?): Boolean {
+    fun actionTriggers(hero: BattleHero, skill: HeroSkill, action: HeroSkillAction, step: BattleStep? = null, lastActionProced: Boolean? = null): Boolean {
         return when (action.trigger) {
             SkillActionTrigger.ALWAYS -> true
             SkillActionTrigger.SKILL_LVL -> triggerValueSkillLevel(action.triggerValue!!, hero.getSkillLevel(skill.number))
@@ -133,8 +133,8 @@ class SkillService(private val propertyService: PropertyService) {
             SkillActionTrigger.S7_LVL -> hero.skill7Lvl?.let { triggerValueSkillLevel(action.triggerValue!!, it) } ?: false
             SkillActionTrigger.PREV_ACTION_PROCED -> lastActionProced == true
             SkillActionTrigger.PREV_ACTION_NOT_PROCED -> lastActionProced == false
-            SkillActionTrigger.ANY_CRIT_DMG -> step.actions.any { it.crit == true }
-            SkillActionTrigger.DMG_OVER -> step.actions.sumBy { it.healthDiff ?: 0 } > action.triggerValue!!.toInt()
+            SkillActionTrigger.ANY_CRIT_DMG -> step?.actions?.any { it.crit == true } ?: false
+            SkillActionTrigger.DMG_OVER -> step?.actions?.sumBy { it.healthDiff ?: 0 } ?: 0 > action.triggerValue!!.toInt()
             SkillActionTrigger.ASC_LVL -> if (action.triggerValue == null) { hero.ascLvl > 0 } else { action.triggerValue!!.split(",").contains(hero.ascLvl.toString()) }
         }
     }
@@ -180,7 +180,7 @@ class SkillService(private val propertyService: PropertyService) {
         }
     }
 
-    private fun handleDefineDamageAction(hero: BattleHero, action: HeroSkillAction, step: BattleStep, damage: Int): Int {
+    fun handleDefineDamageAction(hero: BattleHero, action: HeroSkillAction, damage: Int, step: BattleStep? = null): Int {
         var dmgSource: String? = null
         return when (action.effect) {
             STRENGTH_SCALING -> ((hero.getTotalStrength() * action.effectValue) / 100).also { dmgSource = "STR" }
@@ -194,7 +194,7 @@ class SkillService(private val propertyService: PropertyService) {
             DMG_MULTIPLIER -> ((damage * action.effectValue) / 100).also { dmgSource = "MULT" }
             FIXED_DMG -> (action.effectValue).also { dmgSource = "FIX" }
             else -> 0
-        }.also { step.addBaseDamageText("+$it ($dmgSource)") }
+        }.also { step?.addBaseDamageText("+$it ($dmgSource)") }
     }
 
     private fun dealDamage(battle: Battle, target: BattleHero, damageDealer: BattleHero, action: HeroSkillAction, incomingDamage: Int, step: BattleStep, isFreeAttack: Boolean = false) {
@@ -358,7 +358,7 @@ class SkillService(private val propertyService: PropertyService) {
                 }
                 lastActionProced = true
                 when (action.type) {
-                    SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(counterHero, action, step, damage)
+                    SkillActionType.ADD_BASE_DMG -> damage += handleDefineDamageAction(counterHero, action, damage, step)
                     SkillActionType.DEAL_DAMAGE ->
                         findTargets(battle, counterHero, action, hero)
                                 .forEach {

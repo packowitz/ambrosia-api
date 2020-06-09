@@ -1,9 +1,13 @@
 package io.pacworx.ambrosia.battle
 
 import io.pacworx.ambrosia.exceptions.ConfigurationException
+import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.hero.skills.HeroSkill
+import io.pacworx.ambrosia.hero.skills.SkillActionType
+import io.pacworx.ambrosia.hero.skills.SkillTarget
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import kotlin.math.min
 
 @Service
 class AiService(private val skillService: SkillService) {
@@ -24,6 +28,58 @@ class AiService(private val skillService: SkillService) {
     }
 
     fun findTarget(battle: Battle, hero: BattleHero, skill: HeroSkill): BattleHero {
-        return skill.target.resolve(battle, hero).random()
+        val possibleTargets = skill.target.resolve(battle, hero)
+        if (possibleTargets.size == 1) {
+            return possibleTargets[0]
+        }
+        if (skill.target in listOf(SkillTarget.OPPONENT, SkillTarget.OPP_IGNORE_TAUNT)) {
+            // assuming damage skill
+            val expectedBaseDamage = expectedBaseDamage(hero, skill)
+            if (expectedBaseDamage > 0) {
+                var currentScore = -1.0
+                var currentTarget: BattleHero? = null
+
+                possibleTargets.forEach { target ->
+                    var damage = expectedBaseDamage
+                    when (target.color) {
+                        Color.RED -> damage += (expectedBaseDamage.toDouble() * hero.getTotalRedDamageInc() / 100).toInt()
+                        Color.GREEN -> damage += (expectedBaseDamage.toDouble() * hero.getTotalGreenDamageInc() / 100).toInt()
+                        Color.BLUE -> damage += (expectedBaseDamage.toDouble() * hero.getTotalBlueDamageInc() / 100).toInt()
+                        else -> {}
+                    }
+                    val shieldSize = target.buffs.filter { it.buff == Buff.SHIELD }.sumBy { it.value ?: 0 }
+                    if (shieldSize > damage) {
+                        damage /= 2
+                    } else {
+                        damage -= (shieldSize / 2)
+                    }
+                    if (damage < target.currentHp || !target.hasDeathshield()) {
+                        val score = min(damage.toDouble() / target.currentHp, 1.0)
+                        if (score > currentScore) {
+                            currentScore = score
+                            currentTarget = target
+                        } else if (score == currentScore) {
+                            currentTarget = listOfNotNull(currentTarget, target).maxBy { it.currentSpeedBar }
+                        }
+                    }
+                }
+                return currentTarget ?: possibleTargets.random()
+            }
+        } else if (skill.target == SkillTarget.ALL_OWN) {
+            // assuming healing skill
+            return possibleTargets.minBy { it.currentHp.toDouble() / it.heroHp } ?: possibleTargets.random()
+        }
+
+        return possibleTargets.random()
+    }
+
+    private fun expectedBaseDamage(hero: BattleHero, skill: HeroSkill): Int {
+        var baseDamage = 0
+        skill.actions.forEach { action ->
+            if (action.type == SkillActionType.ADD_BASE_DMG && skillService.actionTriggers(hero, skill, action)) {
+                baseDamage += skillService.handleDefineDamageAction(hero, action, baseDamage)
+            }
+        }
+        return baseDamage
     }
 }
