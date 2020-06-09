@@ -448,165 +448,63 @@ class SkillService(private val propertyService: PropertyService) {
             // PassiveSkillTrigger.KILLED_OPP
             executer?.let {
                 executer.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.KILLED_OPP && executer.getSkillLevel(it.number) > 0 && executer.getCooldown(it.number) <= 0 }
-                        .forEach { skill ->
-                            if (hero.status == HeroStatus.DEAD) {
-                                val step = BattleStep(
-                                    battleId = battle.id,
-                                    turn = battle.turnsDone,
-                                    phase = BattleStepPhase.PASSIVE,
-                                    actingHero = executer.position,
-                                    actingHeroName = executer.heroBase.name,
-                                    usedSkill = skill.number,
-                                    usedSkillName = skill.name,
-                                    target = hero.position,
-                                    targetName = hero.heroBase.name,
-                                    heroStates = battle.getBattleStepHeroStates()
-                                )
-                                executer.skillUsed(skill.number)
-                                if (executeSkillActions(battle, step, executer, skill, hero)) {
-                                    battle.addStep(step)
-                                } else {
-                                    executer.resetSkillCooldown(skill.number)
-                                }
-                            }
+                    .filter { isPassiveTriggerable(executer, it, PassiveSkillTrigger.KILLED_OPP) }
+                    .forEach { skill ->
+                        if (hero.status == HeroStatus.DEAD) {
+                            executePassiveSkill(battle, executer, hero, skill)
                         }
+                    }
             }
 
             // PassiveSkillTrigger.ANY_OPP_DIED
             battle.allOtherHeroesAlive(hero).forEach { oppHero ->
                 oppHero.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ANY_OPP_DIED && oppHero.getSkillLevel(it.number) > 0 && oppHero.getCooldown(it.number) <= 0 }
-                        .forEach { skill ->
-                            if (hero.status == HeroStatus.DEAD) {
-                                val step = BattleStep(
-                                    battleId = battle.id,
-                                    turn = battle.turnsDone,
-                                    phase = BattleStepPhase.PASSIVE,
-                                    actingHero = oppHero.position,
-                                    actingHeroName = oppHero.heroBase.name,
-                                    usedSkill = skill.number,
-                                    usedSkillName = skill.name,
-                                    target = hero.position,
-                                    targetName = hero.heroBase.name,
-                                    heroStates = battle.getBattleStepHeroStates()
-                                )
-                                oppHero.skillUsed(skill.number)
-                                if (executeSkillActions(battle, step, oppHero, skill, hero)) {
-                                    battle.addStep(step)
-                                } else {
-                                    oppHero.resetSkillCooldown(skill.number)
-                                }
-                            }
+                    .filter { isPassiveTriggerable(oppHero, it, PassiveSkillTrigger.ANY_OPP_DIED) }
+                    .forEach { skill ->
+                        if (hero.status == HeroStatus.DEAD) {
+                            executePassiveSkill(battle, oppHero, hero, skill)
                         }
+                    }
             }
 
             // PassiveSkillTrigger.SELF_DIED
             hero.heroBase.skills
-                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DIED && hero.getSkillLevel(it.number) > 0 && hero.getCooldown(it.number) <= 0 }
-                    .forEach { skill ->
-                        if (hero.status == HeroStatus.DEAD) {
-                            val step = BattleStep(
-                                battleId = battle.id,
-                                turn = battle.turnsDone,
-                                phase = BattleStepPhase.PASSIVE,
-                                actingHero = hero.position,
-                                actingHeroName = hero.heroBase.name,
-                                usedSkill = skill.number,
-                                usedSkillName = skill.name,
-                                target = hero.position,
-                                targetName = hero.heroBase.name,
-                                heroStates = battle.getBattleStepHeroStates()
-                            )
-                            hero.skillUsed(skill.number)
-                            if (executeSkillActions(battle, step, hero, skill, hero)) {
-                                battle.addStep(step)
-                            } else {
-                                hero.resetSkillCooldown(skill.number)
-                            }
-                        }
+                .filter { isPassiveTriggerable(hero, it, PassiveSkillTrigger.SELF_DIED) }
+                .forEach { skill ->
+                    if (hero.status == HeroStatus.DEAD) {
+                        executePassiveSkill(battle, hero, hero, skill)
                     }
+                }
 
             // PassiveSkillTrigger.ALLY_DIED
             battle.allAlliedHeroesAlive(hero).forEach { alliedHero ->
                 alliedHero.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DIED && alliedHero.getSkillLevel(it.number) > 0 && alliedHero.getCooldown(it.number) <= 0 }
-                        .forEach { skill ->
-                            if (hero.status == HeroStatus.DEAD) {
-                                val step = BattleStep(
-                                    battleId = battle.id,
-                                    turn = battle.turnsDone,
-                                    phase = BattleStepPhase.PASSIVE,
-                                    actingHero = alliedHero.position,
-                                    actingHeroName = alliedHero.heroBase.name,
-                                    usedSkill = skill.number,
-                                    usedSkillName = skill.name,
-                                    target = hero.position,
-                                    targetName = hero.heroBase.name,
-                                    heroStates = battle.getBattleStepHeroStates()
-                                )
-                                alliedHero.skillUsed(skill.number)
-                                if (executeSkillActions(battle, step, alliedHero, skill, hero)) {
-                                    battle.addStep(step)
-                                } else {
-                                    alliedHero.resetSkillCooldown(skill.number)
-                                }
-                            }
+                    .filter { isPassiveTriggerable(alliedHero, it, PassiveSkillTrigger.ALLY_DIED) }
+                    .forEach { skill ->
+                        if (hero.status == HeroStatus.DEAD) {
+                            executePassiveSkill(battle, alliedHero, hero, skill)
                         }
+                    }
             }
         } else {
             // PassiveSkillTrigger.OWN_HEALTH_UNDER
             hero.heroBase.skills
-                    .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OWN_HEALTH_UNDER && hero.getSkillLevel(it.number) > 0 && hero.getCooldown(it.number) <= 0 }
-                    .forEach { skill ->
-                        if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
-                            val step = BattleStep(
-                                battleId = battle.id,
-                                turn = battle.turnsDone,
-                                phase = BattleStepPhase.PASSIVE,
-                                actingHero = hero.position,
-                                actingHeroName = hero.heroBase.name,
-                                usedSkill = skill.number,
-                                usedSkillName = skill.name,
-                                target = hero.position,
-                                targetName = hero.heroBase.name,
-                                heroStates = battle.getBattleStepHeroStates()
-                            )
-                            hero.skillUsed(skill.number)
-                            if (executeSkillActions(battle, step, hero, skill, hero)) {
-                                battle.addStep(step)
-                            } else {
-                                hero.resetSkillCooldown(skill.number)
-                            }
-                        }
+                .filter { isPassiveTriggerable(hero, it, PassiveSkillTrigger.OWN_HEALTH_UNDER) }
+                .forEach { skill ->
+                    if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
+                        executePassiveSkill(battle, hero, hero, skill)
                     }
+                }
 
             // PassiveSkillTrigger.ALLY_HEALTH_UNDER
             battle.allAlliedHeroesAlive(hero).forEach { alliedHero ->
                 alliedHero.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_HEALTH_UNDER && alliedHero.getSkillLevel(it.number) > 0 && alliedHero.getCooldown(it.number) <= 0 }
-                        .forEach { skill ->
-                            if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
-                                val step = BattleStep(
-                                    battleId = battle.id,
-                                    turn = battle.turnsDone,
-                                    phase = BattleStepPhase.PASSIVE,
-                                    actingHero = alliedHero.position,
-                                    actingHeroName = alliedHero.heroBase.name,
-                                    usedSkill = skill.number,
-                                    usedSkillName = skill.name,
-                                    target = hero.position,
-                                    targetName = hero.heroBase.name,
-                                    heroStates = battle.getBattleStepHeroStates()
-                                )
-                                alliedHero.skillUsed(skill.number)
-                                if (executeSkillActions(battle, step, alliedHero, skill, hero)) {
-                                    battle.addStep(step)
-                                } else {
-                                    alliedHero.resetSkillCooldown(skill.number)
-                                }
-                            }
+                    .filter { isPassiveTriggerable(alliedHero, it, PassiveSkillTrigger.ALLY_HEALTH_UNDER) }
+                    .forEach { skill ->
+                        if ((100 * hero.currentHp) / hero.heroHp <= skill.passiveSkillTriggerValue ?: 0) {
+                            executePassiveSkill(battle, alliedHero, hero, skill)
                         }
+                    }
             }
         }
     }
@@ -643,52 +541,14 @@ class SkillService(private val propertyService: PropertyService) {
             if (buff.type == BuffType.DEBUFF) {
                 // PassiveSkillTrigger.SELF_DEBUFF
                 target.heroBase.skills
-                        .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.SELF_DEBUFF && target.getSkillLevel(it.number) > 0 && target.getCooldown(it.number) <= 0 }
-                        .forEach { skill ->
-                            val step = BattleStep(
-                                battleId = battle.id,
-                                turn = battle.turnsDone,
-                                phase = BattleStepPhase.PASSIVE,
-                                actingHero = target.position,
-                                actingHeroName = target.heroBase.name,
-                                usedSkill = skill.number,
-                                usedSkillName = skill.name,
-                                target = target.position,
-                                targetName = target.heroBase.name,
-                                heroStates = battle.getBattleStepHeroStates()
-                            )
-                            target.skillUsed(skill.number)
-                            if (executeSkillActions(battle, step, target, skill, target)) {
-                                battle.addStep(step)
-                            } else {
-                                target.resetSkillCooldown(skill.number)
-                            }
-                        }
+                    .filter { isPassiveTriggerable(target, it, PassiveSkillTrigger.SELF_DEBUFF) }
+                    .forEach { skill ->executePassiveSkill(battle, target, target, skill) }
 
                 // PassiveSkillTrigger.ALLY_DEBUFF
                 battle.allAlliedHeroesAlive(target).forEach { ally ->
                     ally.heroBase.skills
-                            .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.ALLY_DEBUFF && target.getSkillLevel(it.number) > 0 && ally.getCooldown(it.number) <= 0 }
-                            .forEach { skill ->
-                                val step = BattleStep(
-                                    battleId = battle.id,
-                                    turn = battle.turnsDone,
-                                    phase = BattleStepPhase.PASSIVE,
-                                    actingHero = ally.position,
-                                    actingHeroName = ally.heroBase.name,
-                                    usedSkill = skill.number,
-                                    usedSkillName = skill.name,
-                                    target = target.position,
-                                    targetName = target.heroBase.name,
-                                    heroStates = battle.getBattleStepHeroStates()
-                                )
-                                ally.skillUsed(skill.number)
-                                if (executeSkillActions(battle, step, ally, skill, target)) {
-                                    battle.addStep(step)
-                                } else {
-                                    ally.resetSkillCooldown(skill.number)
-                                }
-                            }
+                        .filter { isPassiveTriggerable(ally, it, PassiveSkillTrigger.ALLY_DEBUFF) }
+                        .forEach { skill ->executePassiveSkill(battle, ally, target, skill) }
                 }
             }
 
@@ -696,27 +556,8 @@ class SkillService(private val propertyService: PropertyService) {
                 // PassiveSkillTrigger.OPP_BUFF
                 battle.allOtherHeroesAlive(target).forEach { opp ->
                     opp.heroBase.skills
-                            .filter { it.passive && it.passiveSkillTrigger == PassiveSkillTrigger.OPP_BUFF && target.getSkillLevel(it.number) > 0 && opp.getCooldown(it.number) <= 0 }
-                            .forEach { skill ->
-                                val step = BattleStep(
-                                    battleId = battle.id,
-                                    turn = battle.turnsDone,
-                                    phase = BattleStepPhase.PASSIVE,
-                                    actingHero = opp.position,
-                                    actingHeroName = opp.heroBase.name,
-                                    usedSkill = skill.number,
-                                    usedSkillName = skill.name,
-                                    target = target.position,
-                                    targetName = target.heroBase.name,
-                                    heroStates = battle.getBattleStepHeroStates()
-                                )
-                                opp.skillUsed(skill.number)
-                                if (executeSkillActions(battle, step, opp, skill, target)) {
-                                    battle.addStep(step)
-                                } else {
-                                    opp.resetSkillCooldown(skill.number)
-                                }
-                            }
+                        .filter { isPassiveTriggerable(opp, it, PassiveSkillTrigger.OPP_BUFF) }
+                        .forEach { skill -> executePassiveSkill(battle, opp, target, skill) }
                 }
             }
 
@@ -902,6 +743,58 @@ class SkillService(private val propertyService: PropertyService) {
             opp_positions.contains(hero2.position)
         } else {
             hero_positions.contains(hero2.position)
+        }
+    }
+
+    fun executeStartBattlePassives(battle: Battle) {
+        battle.allHeroesAlive().forEach { hero ->
+            hero.heroBase.skills
+                .filter { isPassiveTriggerable(hero, it, PassiveSkillTrigger.START_STAGE_BUFFING) }
+                .forEach { skill ->
+                    executePassiveSkill(battle, hero, hero, skill)
+                }
+        }
+        battle.allHeroesAlive().forEach { hero ->
+            hero.heroBase.skills
+                .filter { isPassiveTriggerable(hero, it, PassiveSkillTrigger.START_STAGE_DEBUFFING) }
+                .forEach { skill ->
+                    executePassiveSkill(battle, hero, hero, skill)
+                }
+        }
+        battle.allHeroesAlive().forEach { hero ->
+            hero.heroBase.skills
+                .filter { isPassiveTriggerable(hero, it, PassiveSkillTrigger.START_STAGE_DAMAGING) }
+                .forEach { skill ->
+                    executePassiveSkill(battle, hero, hero, skill)
+                }
+        }
+    }
+
+    private fun isPassiveTriggerable(hero: BattleHero, skill: HeroSkill, trigger: PassiveSkillTrigger): Boolean {
+        return skill.passive &&
+                skill.passiveSkillTrigger == trigger &&
+                hero.getSkillLevel(skill.number) > 0 &&
+                hero.getCooldown(skill.number) <= 0
+    }
+
+    private fun executePassiveSkill(battle: Battle, actingHero: BattleHero, target: BattleHero, skill: HeroSkill) {
+        val step = BattleStep(
+            battleId = battle.id,
+            turn = battle.turnsDone,
+            phase = BattleStepPhase.PASSIVE,
+            actingHero = actingHero.position,
+            actingHeroName = actingHero.heroBase.name,
+            usedSkill = skill.number,
+            usedSkillName = skill.name,
+            target = target.position,
+            targetName = target.heroBase.name,
+            heroStates = battle.getBattleStepHeroStates()
+        )
+        actingHero.skillUsed(skill.number)
+        if (executeSkillActions(battle, step, actingHero, skill, target)) {
+            battle.addStep(step)
+        } else {
+            actingHero.resetSkillCooldown(skill.number)
         }
     }
 }

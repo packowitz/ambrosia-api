@@ -178,7 +178,9 @@ class BattleService(private val playerRepository: PlayerRepository,
 
     @Transactional
     fun startBattle(battle: Battle): Battle {
+        // apply buffs and debuffs left over from previous stage
         battle.applyBonuses(propertyService)
+        skillService.executeStartBattlePassives(battle)
         nextTurn(battle)
         battle.steps?.filter { it.id == 0L }?.forEach { battleStepRepository.save(it) }
         return battleRepository.save(battle).also { it.steps = battle.steps }

@@ -2,6 +2,9 @@ package io.pacworx.ambrosia.hero.skills
 
 enum class PassiveSkillTrigger {
     STAT_CALC,
+    START_STAGE_BUFFING,
+    START_STAGE_DEBUFFING,
+    START_STAGE_DAMAGING,
     OWN_HEALTH_UNDER,
     ALLY_HEALTH_UNDER,
     ALLY_DIED,
