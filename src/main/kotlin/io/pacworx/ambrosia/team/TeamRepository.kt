@@ -9,6 +9,13 @@ interface TeamRepository : JpaRepository<Team, Long> {
 
     fun findByPlayerIdAndType(playerId: Long, type: TeamType): Team?
 
-    @Query(value = "select * from team where type = :type order by random() limit :limit", nativeQuery = true)
+    @Query(value = """
+        select * from team 
+        where type = :type and 
+            (hero1id is not null or 
+            hero2id is not null or
+            hero3id is not null or
+            hero4id is not null)
+        order by random() limit :limit""", nativeQuery = true)
     fun getTeamsByType(@Param("type") type: String, @Param("limit") limit: Int = 10): List<Team>
 }
