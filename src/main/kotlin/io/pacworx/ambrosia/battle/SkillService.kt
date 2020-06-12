@@ -389,11 +389,15 @@ class SkillService(private val propertyService: PropertyService) {
         val targetArmor = hero.getTotalArmor()
         val targetHealth = hero.currentHp
         val damage = shieldCalculation(hero, reflectDamage)
-        val dmgArmorRatio: Int = 100 * damage / targetArmor
-        val property = battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
+//        val dmgArmorRatio: Int = 100 * damage / targetArmor
+//        val property = battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
+//
+//        val armorLoss = (hero.currentArmor * property.value1) / 100
+//        val healthLoss = (damage * property.value2!!) / 100
 
-        val armorLoss = (hero.currentArmor * property.value1) / 100
-        val healthLoss = (damage * property.value2!!) / 100
+        // try out that reflect ignores armor
+        val armorLoss = 0
+        val healthLoss = damage
 
         receiveDamage(battle, hero, armorLoss, healthLoss)
 
