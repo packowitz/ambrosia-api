@@ -73,7 +73,7 @@ enum class HeroStat {
     },
     CRIT_MULT {
         override fun desc(bonus: Int): String {
-            return "+$bonus% rrit damage"
+            return "+$bonus% crit damage"
         }
         override fun apply(hero: HeroDto, bonus: Int) {
             hero.critMultBonus += bonus
