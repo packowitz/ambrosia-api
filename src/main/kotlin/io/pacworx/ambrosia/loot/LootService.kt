@@ -69,11 +69,10 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
         val items: MutableList<LootItemResult> = mutableListOf()
         lootBox.items.groupBy { it.slotNumber }.forEach { _: Int, slotItems: List<LootItem> ->
             var openRandom = Random.nextInt(100)
-            var proced = false
             slotItems.filter { it.color == null || it.color == player.color }.forEach { slotItem ->
-                if (!proced && procs(slotItem.chance, openRandom)) {
+                if (procs(slotItem.chance, openRandom)) {
                     items.add(openLootItem(player, slotItem, vehicle))
-                    proced = true
+                    return@forEach
                 } else {
                     openRandom -= slotItem.chance
                 }
