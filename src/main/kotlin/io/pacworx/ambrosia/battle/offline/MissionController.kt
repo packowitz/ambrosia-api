@@ -3,34 +3,20 @@ package io.pacworx.ambrosia.battle.offline
 import io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.battle.BattleStatus
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.exceptions.EntityNotFoundException
-import io.pacworx.ambrosia.exceptions.GeneralException
-import io.pacworx.ambrosia.exceptions.HeroBusyException
-import io.pacworx.ambrosia.exceptions.MapTileActionException
-import io.pacworx.ambrosia.exceptions.OngoingBattleException
-import io.pacworx.ambrosia.exceptions.UnauthorizedException
-import io.pacworx.ambrosia.exceptions.VehicleBusyException
-import io.pacworx.ambrosia.team.TeamType
+import io.pacworx.ambrosia.exceptions.*
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
-import io.pacworx.ambrosia.player.AuditLog
-import io.pacworx.ambrosia.player.AuditLogRepository
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.team.TeamType
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
 @RestController

@@ -4,16 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.fights.Fight
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import javax.persistence.CascadeType
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.OneToMany
-import javax.persistence.OneToOne
-import javax.persistence.OrderBy
-import javax.persistence.Transient
+import javax.persistence.*
 
 @Entity
 data class Mission(
@@ -21,8 +12,11 @@ data class Mission(
     val id: Long = 0,
     val playerId: Long,
     @OneToOne
-    @JoinColumn(name = "fightId")
+    @JoinColumn(name = "fight_id")
     val fight: Fight,
+    val mapId: Long? = null,
+    @Column(name = "pos_x") val posX: Int? = null,
+    @Column(name = "pos_y") val posY: Int? = null,
     val vehicleId: Long,
     val slotNumber: Int,
     val hero1Id: Long?,

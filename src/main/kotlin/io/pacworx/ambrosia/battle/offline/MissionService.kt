@@ -51,7 +51,7 @@ class MissionService(private val battleService: BattleService,
         }
     }
 
-    fun executeMission(player: Player, progress: Progress, mapTile: SimplePlayerMapTile?, fight: Fight, vehicle: Vehicle, request: StartMissionRequest): Mission {
+    fun executeMission(player: Player, progress: Progress, mapTile: SimplePlayerMapTile, fight: Fight, vehicle: Vehicle, request: StartMissionRequest): Mission {
         val startBattleRequest = StartBattleRequest(
             type = request.type,
             vehicleId = request.vehicleId,
@@ -82,6 +82,9 @@ class MissionService(private val battleService: BattleService,
         val mission = missionRepository.save(Mission(
             playerId = player.id,
             fight = fight,
+            mapId = mapTile.mapId,
+            posX = mapTile.posX,
+            posY = mapTile.posY,
             vehicleId = vehicle.id,
             slotNumber = vehicle.slot!!,
             hero1Id = request.hero1Id,
