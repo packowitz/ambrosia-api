@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
+import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.properties.PropertyService
@@ -80,6 +81,13 @@ class BetaTesterHeroController(private val heroRepository: HeroRepository,
             hero.ascLvl --
             hero.ascPoints = 0
             hero.ascPointsMax = propertyService.getHeroMaxAsc(hero.ascLvl)
+            if (hero.ascLvl == 0) {
+                hero.heroBase.skills
+                    .filter { it.skillActiveTrigger == SkillActiveTrigger.ASCENDED }
+                    .forEach { skill ->
+                        hero.disableSkill(skill.number)
+                    }
+            }
         }
         auditLogService.log(player, "Decreased asc level of hero ${hero.heroBase.name} #${hero.id} to ${hero.ascLvl}", betaTesterAction = true)
         return PlayerActionResponse(hero = heroService.asHeroDto(hero))

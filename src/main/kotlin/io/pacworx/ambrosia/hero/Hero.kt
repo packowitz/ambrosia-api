@@ -167,6 +167,17 @@ data class Hero(
         }
     }
 
+    fun disableSkill(skillNumber: Int) {
+        when (skillNumber) {
+            2 -> skill2 = 0
+            3 -> skill3 = 0
+            4 -> skill4 = 0
+            5 -> skill5 = 0
+            6 -> skill6 = 0
+            7 -> skill7 = 0
+        }
+    }
+
     fun resetSkills() {
         skillPoints += skill1 - 1
         skill1 = 1
