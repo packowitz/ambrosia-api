@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.transaction.Transactional
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -29,15 +30,18 @@ class StoryController(
 ) {
 
     @PostMapping("{trigger}/finish")
+    @Transactional
     fun finishStory(@ModelAttribute("player") player: Player,
                     @PathVariable trigger: StoryTrigger): PlayerActionResponse {
         val storyProgresses = storyProgressRepository.findAllByPlayerId(player.id)
         if (storyProgresses.any { it.trigger == trigger }) {
             throw GeneralException(player, "Cannot finish story", "You've finished story ${trigger.name} already")
         }
-        val lootBoxResult = storyRepository.findLootBoxId(trigger)?.let { lootBoxId ->
-            lootService.openLootBox(player, lootBoxId)
-        }
+        val lootBoxResult = storyRepository.findStoryByTriggerAndNumber(trigger)
+            ?.takeIf { it.lootBoxId != null }
+            ?.let {
+                lootService.openLootBox(player, it.lootBoxId!!)
+            }
         storyProgressRepository.save(StoryProgress(playerId = player.id, trigger = trigger))
         auditLogService.log(player, "Finished story ${trigger.name}" +
                 "${lootBoxResult?.let { result -> " looting ${result.items.joinToString { it.auditLog() }}" } ?: ""}"

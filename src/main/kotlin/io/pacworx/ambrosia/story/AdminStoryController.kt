@@ -1,7 +1,9 @@
 package io.pacworx.ambrosia.story
 
+import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
@@ -11,7 +13,8 @@ import javax.transaction.Transactional
 class AdminStoryController(
     private val storyRepository: StoryRepository,
     private val storyPlaceholderRepository: StoryPlaceholderRepository,
-    private val auditLogService: AuditLogService
+    private val auditLogService: AuditLogService,
+    private val storyProgressRepository: StoryProgressRepository
 ) {
 
     @GetMapping("placeholder")
@@ -39,6 +42,16 @@ class AdminStoryController(
         request.stories.find { it.number == 1 }?.lootBoxId = request.lootBoxId
         request.stories.filter { it.number != 1 }.forEach { it.lootBoxId = null }
         return storyRepository.saveAll(request.stories)
+    }
+
+    @PostMapping("reset")
+    @Transactional
+    fun resetStoryLine(@ModelAttribute("player") player: Player): PlayerActionResponse {
+        storyProgressRepository.findAllByPlayerId(player.id).forEach {
+            storyProgressRepository.delete(it)
+        }
+        auditLogService.log(player, "Reset his story line", adminAction = true)
+        return PlayerActionResponse()
     }
 
     data class SaveStoryLineRequest(

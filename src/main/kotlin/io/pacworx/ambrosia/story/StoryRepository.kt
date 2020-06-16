@@ -9,6 +9,5 @@ interface StoryRepository : JpaRepository<Story, Long> {
 
     fun findAllByTriggerOrderByNumber(trigger: StoryTrigger): List<Story>
 
-    @Query("select loot_box_id from story where trigger = :trigger and number = 1", nativeQuery = true)
-    fun findLootBoxId(trigger: StoryTrigger): Long?
+    fun findStoryByTriggerAndNumber(trigger: StoryTrigger, number: Int = 1): Story?
 }
