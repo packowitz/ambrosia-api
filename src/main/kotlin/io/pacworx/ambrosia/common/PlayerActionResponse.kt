@@ -42,5 +42,6 @@ data class PlayerActionResponse(
     val upgrades: List<Upgrade>? = null,
     val upgradeRemoved: Long? = null,
     val incubators: List<Incubator>? = null,
-    val incubatorDone: Long? = null
+    val incubatorDone: Long? = null,
+    val knownStories: List<String>? = null
 )

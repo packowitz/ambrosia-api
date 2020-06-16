@@ -22,6 +22,7 @@ import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesRepository
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.story.StoryProgressRepository
 import io.pacworx.ambrosia.upgrade.UpgradeService
 import io.pacworx.ambrosia.vehicle.VehiclePartRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
@@ -51,7 +52,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
                     private val vehiclePartRepository: VehiclePartRepository,
                     private val missionService: MissionService,
                     private val upgradeService: UpgradeService,
-                    private val incubatorRepository: IncubatorRepository) {
+                    private val incubatorRepository: IncubatorRepository,
+                    private val storyProgressRepository: StoryProgressRepository) {
 
     @Value("\${ambrosia.pw-salt-one}")
     private lateinit var pwSalt1: String
@@ -166,6 +168,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
         val missions = missionService.getAllMissions(player)
         val dnaCubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
         val ongoingBattle = battleService.getOngoingBattle(player)
+        val knownStories = storyProgressRepository.findAllByPlayerId(player.id).map { it.trigger.name }
         return PlayerActionResponse(
             resources = resources,
             token = token,
@@ -182,7 +185,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
             missions = missions,
             incubators = dnaCubes,
             ongoingBattle = ongoingBattle,
-            upgrades = upgrades)
+            upgrades = upgrades,
+            knownStories = knownStories)
     }
 
     private fun getHash(name: String, password: String): String {

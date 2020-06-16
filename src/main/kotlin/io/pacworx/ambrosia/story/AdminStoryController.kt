@@ -36,11 +36,14 @@ class AdminStoryController(
                       @RequestBody request: SaveStoryLineRequest): List<Story> {
         auditLogService.log(player, "Save story line ${request.stories.getOrNull(0)?.trigger?.name ?: "unknown"}", adminAction = true)
         request.toDelete?.takeIf { it.isNotEmpty() }?.forEach { storyRepository.deleteById(it) }
+        request.stories.find { it.number == 1 }?.lootBoxId = request.lootBoxId
+        request.stories.filter { it.number != 1 }.forEach { it.lootBoxId = null }
         return storyRepository.saveAll(request.stories)
     }
 
     data class SaveStoryLineRequest(
         val stories: List<Story>,
-        val toDelete: List<Long>?
+        val toDelete: List<Long>?,
+        val lootBoxId: Long?
     )
 }
