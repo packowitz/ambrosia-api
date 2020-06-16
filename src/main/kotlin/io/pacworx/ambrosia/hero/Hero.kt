@@ -168,14 +168,7 @@ data class Hero(
     }
 
     fun disableSkill(skillNumber: Int) {
-        when (skillNumber) {
-            2 -> skill2 = 0
-            3 -> skill3 = 0
-            4 -> skill4 = 0
-            5 -> skill5 = 0
-            6 -> skill6 = 0
-            7 -> skill7 = 0
-        }
+        setSkillLevel(skillNumber, null)
     }
 
     fun resetSkills() {
@@ -200,7 +193,10 @@ data class Hero(
         (2..7).forEach { skillNumber ->
             heroBase.skills.find { it.number == skillNumber }?.let { skill ->
                 if (skill.skillActiveTrigger == SkillActiveTrigger.ASCENDED && ascLvl == 0) {
-                    ensureMaxLevel(skillNumber, null)
+                    if (getSkillLevel(skill.number) ?: 0 > 1) {
+                        skillPoints += getSkillLevel(skill.number)!! - 1
+                    }
+                    disableSkill(skill.number)
                 } else {
                     ensureMaxLevel(skillNumber, skill.maxLevel)
                 }
@@ -218,7 +214,7 @@ data class Hero(
             } ?: run { setSkillLevel(skillNumber, 1) }
         } else {
             skillPoints += getSkillLevel(skillNumber) ?: 0
-            setSkillLevel(skillNumber, null)
+            disableSkill(skillNumber)
         }
     }
 
