@@ -22,6 +22,7 @@ import io.pacworx.ambrosia.maps.FightIcon
 import io.pacworx.ambrosia.maps.MapBackground
 import io.pacworx.ambrosia.maps.MapTileStructure
 import io.pacworx.ambrosia.maps.MapTileType
+import io.pacworx.ambrosia.progress.ProgressStat
 import io.pacworx.ambrosia.properties.PropertyCategory
 import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourceType
@@ -74,6 +75,7 @@ class EnumController {
         val vehicleStats: List<VehicleStat> = VehicleStat.values().asList(),
         val lootItemTypes: List<LootItemType> = LootItemType.values().asList(),
         val modifications: List<Modification> = Modification.values().asList(),
-        val storyTriggers: List<StoryTrigger> = StoryTrigger.values().asList()
+        val storyTriggers: List<StoryTrigger> = StoryTrigger.values().asList(),
+        val progressStats: List<ProgressStat> = ProgressStat.values().asList()
     )
 }

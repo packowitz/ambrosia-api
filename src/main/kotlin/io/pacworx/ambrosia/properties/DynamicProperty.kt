@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.properties
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.pacworx.ambrosia.hero.HeroStat
+import io.pacworx.ambrosia.progress.ProgressStat
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.vehicle.VehicleStat
 import javax.persistence.*
@@ -19,6 +20,8 @@ data class DynamicProperty(
     val level: Int?,
     @Enumerated(EnumType.STRING)
     val stat: HeroStat?,
+    @Enumerated(EnumType.STRING)
+    val progressStat: ProgressStat?,
     @Enumerated(EnumType.STRING)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     val resourceType: ResourceType?,

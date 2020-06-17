@@ -216,6 +216,10 @@ class UpgradeController(private val upgradeService: UpgradeService,
         if (vehicle.level >= vehicle.baseVehicle.maxLevel) {
             throw GeneralException(player, "Cannot upgrade vehicle", "Vehicle $vehicleId is already at max level")
         }
+        val progress = progressRepository.getOne(player.id)
+        if (vehicle.level >= progress.vehicleUpgradeLevel) {
+            throw GeneralException(player, "Cannot upgrade vehicle", "You need to upgrade garage to be able to upgrade vehicles of level ${vehicle.level}")
+        }
         val propTypeUpgradeTime: PropertyType
         val propTypeUpgradeCost: PropertyType
         when {
@@ -269,6 +273,10 @@ class UpgradeController(private val upgradeService: UpgradeService,
         }
         if (vehiclePart.equippedTo != null) {
             throw GeneralException(player, "Cannot upgrade part", "You can only upgrade vehicle parts that are not plugged into a vehicle")
+        }
+        val progress = progressRepository.getOne(player.id)
+        if (vehiclePart.level >= progress.vehicleUpgradeLevel) {
+            throw GeneralException(player, "Cannot upgrade part", "You need to upgrade garage to be able to upgrade parts of level ${vehiclePart.level}")
         }
         val propTypeUpgradeTime: PropertyType
         val propTypeUpgradeCost: PropertyType

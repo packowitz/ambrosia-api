@@ -8,6 +8,7 @@ enum class PropertyCategory(
     val value1name: String,
     val showStat: Boolean = false,
     val showResources: Boolean = false,
+    val showProgressStat: Boolean = false,
     val showVehicleStat: Boolean = false,
     val showValue2: Boolean = false,
     val value2name: String? = null
