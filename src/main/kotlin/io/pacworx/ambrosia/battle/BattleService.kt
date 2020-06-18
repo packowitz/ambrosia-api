@@ -10,6 +10,7 @@ import io.pacworx.ambrosia.hero.Hero
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.skills.HeroSkill
 import io.pacworx.ambrosia.maps.SimplePlayerMapTile
+import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.properties.PropertyService
@@ -35,7 +36,8 @@ class BattleService(private val playerRepository: PlayerRepository,
                     private val vehicleRepository: VehicleRepository,
                     private val vehicleService: VehicleService,
                     private val battleHeroRepository: BattleHeroRepository,
-                    private val battleStepRepository: BattleStepRepository) {
+                    private val battleStepRepository: BattleStepRepository,
+                    private val auditLogService: AuditLogService) {
     private val log = KotlinLogging.logger {}
 
     companion object {
@@ -333,12 +335,14 @@ class BattleService(private val playerRepository: PlayerRepository,
             hero2 = battle.hero2,
             hero3 = battle.hero3,
             hero4 = battle.hero4,
+            vehicle = battle.vehicle,
             oppHero1 = asBattleHero(heroId = nextStage.hero1Id, position = HeroPosition.OPP1, heroes = heroes),
             oppHero2 = asBattleHero(heroId = nextStage.hero2Id, position = HeroPosition.OPP2, heroes = heroes),
             oppHero3 = asBattleHero(heroId = nextStage.hero3Id, position = HeroPosition.OPP3, heroes = heroes),
             oppHero4 = asBattleHero(heroId = nextStage.hero4Id, position = HeroPosition.OPP4, heroes = heroes)
         ))
         battle.nextBattleId = nextBattle.id
+        auditLogService.log(battle.playerId, "Start battle #${nextBattle.id} stage-${nextStage.stage} as follow up on battle #${battle.id}")
         nextBattle.allHeroes().shuffled().forEachIndexed { idx, hero ->
             hero.priority = idx
         }

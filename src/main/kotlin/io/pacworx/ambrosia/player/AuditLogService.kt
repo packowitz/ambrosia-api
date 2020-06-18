@@ -18,6 +18,15 @@ class AuditLogService(
         ))
     }
 
+    fun log(playerId: Long, action: String, adminAction: Boolean = false, betaTesterAction: Boolean = false) {
+        auditLogRepository.save(AuditLog(
+            playerId = playerId,
+            action = action,
+            adminAction = adminAction,
+            betaTesterAction = betaTesterAction
+        ))
+    }
+
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     fun logError(playerId: Long = 1, action: String) {
         auditLogRepository.save(AuditLog(
