@@ -218,6 +218,7 @@ data class BattleHero(
         if (heroDmgPerTurn + dmgPerTurnBonus > 0) {
             var damage = heroHp * (heroDmgPerTurn + dmgPerTurnBonus).toDouble() / 100
             damage -= damage * getTotalDamageReduction() / 100
+            damage = max(damage, 0.0)
             if (battle.heroBelongsToPlayer(this)) {
                 battle.fight?.environment?.playerDotDmgInc?.takeIf { it > 0 }?.let { increase ->
                     damage += (damage * increase) / 100
@@ -225,9 +226,7 @@ data class BattleHero(
             } else {
                 battle.fight?.environment?.oppDotDmgDec?.takeIf { it > 0 }?.let { decrease ->
                     damage -= (damage * decrease) / 100
-                    if (damage < 0.0) {
-                        damage = 0.0
-                    }
+                    damage = max(damage, 0.0)
                 }
             }
             val damageInt = round(damage).toInt()
