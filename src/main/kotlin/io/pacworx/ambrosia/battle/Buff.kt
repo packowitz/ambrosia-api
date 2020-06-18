@@ -22,6 +22,7 @@ enum class Buff(
     COUNTERATTACK(BuffType.BUFF, PropertyType.COUNTERATTACK_BUFF, "Increases the possibility to counter an attack"),
     CRIT_BUFF(BuffType.BUFF, PropertyType.CRIT_BUFF, "Increases hero's chance to land a critical hit"),
     CRIT_MULT_BUFF(BuffType.BUFF, PropertyType.CRIT_MULT_BUFF, "Increases hero's damage multiplier for critical hits"),
+    DAMAGE_REDUCTION_BUFF(BuffType.BUFF, PropertyType.DAMAGE_REDUCTION_BUFF, "Increases hero's damage reduction stat"),
     DEXTERITY_BUFF(BuffType.BUFF, PropertyType.DEXTERITY_BUFF, "Increases hero's dexterity"),
     DEATHSHIELD(BuffType.BUFF, PropertyType.DEATHSHIELD_BUFF, "Hero cannot die (stay at 1 HP lowest)"),
     DODGE_BUFF(BuffType.BUFF, PropertyType.DODGE_BUFF, "Increases hero's chance to dodge an attack"),
@@ -45,6 +46,7 @@ enum class Buff(
     DEXTERITY_DEBUFF(BuffType.DEBUFF, PropertyType.DEXTERITY_DEBUFF, "Reducing hero's dexterity"),
     DAMAGE_OVER_TIME(BuffType.DEBUFF, PropertyType.DOT_DEBUFF, "Dealing damage to the hero in the beginning of his turn"),
     HEAL_BLOCK(BuffType.DEBUFF, PropertyType.HEAL_BLOCK_DEBUFF, "Reducing any healing the hero receives"),
+    MARKED(BuffType.DEBUFF, PropertyType.MARKED_DEBUFF, "Reducing hero's damage reduction stat"),
     RESISTANCE_DEBUFF(BuffType.DEBUFF, PropertyType.RESISTANCE_DEBUFF, "Reducing hero's resistance"),
     SLOW(BuffType.DEBUFF, PropertyType.SLOW_DEBUFF, "Reducing hero's speed"),
     STUN(BuffType.DEBUFF, PropertyType.STUN_DEBUFF, "Stunned heroes are skipping their turn") {

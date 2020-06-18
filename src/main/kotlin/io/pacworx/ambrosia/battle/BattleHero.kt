@@ -9,6 +9,7 @@ import io.pacworx.ambrosia.properties.PropertyService
 import javax.persistence.*
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.round
 
 @Entity
 data class BattleHero(
@@ -215,7 +216,8 @@ data class BattleHero(
 
         var healthDiff = 0
         if (heroDmgPerTurn + dmgPerTurnBonus > 0) {
-            var damage = heroHp * (heroDmgPerTurn + dmgPerTurnBonus) / 100
+            var damage = heroHp * (heroDmgPerTurn + dmgPerTurnBonus).toDouble() / 100
+            damage -= damage * getTotalDamageReduction() / 100
             if (battle.heroBelongsToPlayer(this)) {
                 battle.fight?.environment?.playerDotDmgInc?.takeIf { it > 0 }?.let { increase ->
                     damage += (damage * increase) / 100
@@ -223,22 +225,23 @@ data class BattleHero(
             } else {
                 battle.fight?.environment?.oppDotDmgDec?.takeIf { it > 0 }?.let { decrease ->
                     damage -= (damage * decrease) / 100
-                    if (damage < 0) {
-                        damage = 0
+                    if (damage < 0.0) {
+                        damage = 0.0
                     }
                 }
             }
+            val damageInt = round(damage).toInt()
             battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,
                     heroName = this.heroBase.name,
                     type = BattleStepActionType.DOT,
-                    healthDiff = -damage
+                    healthDiff = -damageInt
             ))
-            healthDiff -= damage
+            healthDiff -= damageInt
         }
         if (heroHealPerTurn + healPerTurnBonus > 0 &&
                 (battle.heroBelongsToOpponent(this) || battle.fight?.environment?.playerHotBlocked != true)) {
-            var healing = heroHp * (heroHealPerTurn + healPerTurnBonus) / 100
+            var healing = heroHp * (heroHealPerTurn + healPerTurnBonus).toDouble() / 100
             if (heroHealingInc + healingIncBonus > 0) {
                 healing *= (heroHealingInc + healingIncBonus) / 100
             }
@@ -247,13 +250,14 @@ data class BattleHero(
                     healing -= (healing * decrease) / 100
                 }
             }
+            val healingInt = round(healing).toInt()
             battle.getPreTurnStep().addAction(BattleStepAction(
                     heroPosition = this.position,
                     heroName = this.heroBase.name,
                     type = BattleStepActionType.HOT,
-                    healthDiff = healing
+                    healthDiff = healingInt
             ))
-            healthDiff += healing
+            healthDiff += healingInt
         }
         if (healthDiff > 0) {
             currentHp = min(currentHp + healthDiff, heroHp)
@@ -382,6 +386,9 @@ data class BattleHero(
 
     @JsonIgnore
     fun getTotalHealingInc(): Int = heroHealingInc + healingIncBonus
+
+    @JsonIgnore
+    fun getTotalDamageReduction(): Int = heroDamageReduction + damageReductionBonus
 
     @JsonIgnore
     fun isTaunting(): Boolean = status == HeroStatus.ALIVE && buffs.any { it.buff == Buff.TAUNT_BUFF }

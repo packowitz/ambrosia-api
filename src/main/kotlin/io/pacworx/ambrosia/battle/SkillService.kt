@@ -271,6 +271,12 @@ class SkillService(private val propertyService: PropertyService) {
             }
         }
 
+        baseDamageDouble -= (baseDamageDouble * target.getTotalDamageReduction() / 100).also {
+            if (it != 0.0) {
+                baseDamageText += if (it > 0.0) { " -$it (DMG_RED)" } else { " +${it * -1} (DMG_INC)" }
+            }
+        }
+
         val baseDamage = round(baseDamageDouble).toInt()
         val damage = shieldCalculation(target, baseDamage)
 
@@ -388,7 +394,8 @@ class SkillService(private val propertyService: PropertyService) {
     private fun applyReflectDamage(battle: Battle, hero: BattleHero, step: BattleStep, reflectDamage: Int) {
         val targetArmor = hero.getTotalArmor()
         val targetHealth = hero.currentHp
-        val damage = shieldCalculation(hero, reflectDamage)
+        var damage = reflectDamage - reflectDamage * (hero.getTotalDamageReduction() / 100)
+        damage = shieldCalculation(hero, damage)
 //        val dmgArmorRatio: Int = 100 * damage / targetArmor
 //        val property = battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
 //
