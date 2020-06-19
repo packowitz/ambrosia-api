@@ -44,9 +44,9 @@ data class Resources(
     var iron: Int = 0,
     var ironUsed: Int = 0,
     var ironMax: Int,
-    var steal: Int = 0,
-    var stealUsed: Int = 0,
-    var stealMax: Int,
+    var steel: Int = 0,
+    var steelUsed: Int = 0,
+    var steelMax: Int,
     var wood: Int = 0,
     var woodUsed: Int = 0,
     var woodMax: Int,
@@ -103,7 +103,7 @@ data class Resources(
         premiumTokensMax = 0
         metalMax = 0
         ironMax = 0
-        stealMax = 0
+        steelMax = 0
         woodMax = 0
         blackCoalMax = 0
         brownCoalMax = 0

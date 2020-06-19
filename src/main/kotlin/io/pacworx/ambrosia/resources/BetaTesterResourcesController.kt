@@ -29,7 +29,7 @@ class BetaTesterResourcesController(private val resourcesService: ResourcesServi
             ResourceType.RUBIES -> resources.rubies += 50
             ResourceType.METAL -> resources.metal = resources.metalMax
             ResourceType.IRON -> resources.iron = resources.ironMax
-            ResourceType.STEAL -> resources.steal = resources.stealMax
+            ResourceType.STEEL -> resources.steel = resources.steelMax
             ResourceType.WOOD -> resources.wood = resources.woodMax
             ResourceType.BROWN_COAL -> resources.brownCoal = resources.brownCoalMax
             ResourceType.BLACK_COAL -> resources.blackCoal = resources.blackCoalMax
