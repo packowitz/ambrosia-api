@@ -124,33 +124,12 @@ data class Hero(
         if (this.skillPoints <= 0) {
             throw InsufficientResourcesException(player.id, "skill points", 1)
         }
-        when (skillNumber) {
-            1 -> skill1.takeIf { it < this.heroBase.skills.find { it.number == 1 }!!.maxLevel }?.also {
-                skill1 = it + 1
-                skillPoints --
-            }
-            2 -> skill2?.takeIf { it < this.heroBase.skills.find { it.number == 2 }!!.maxLevel }?.also {
-                skill2 = it + 1
-                skillPoints --
-            }
-            3 -> skill3?.takeIf { it < this.heroBase.skills.find { it.number == 3 }!!.maxLevel }?.also {
-                skill3 = it + 1
-                skillPoints --
-            }
-            4 -> skill4?.takeIf { it < this.heroBase.skills.find { it.number == 4 }!!.maxLevel }?.also {
-                skill4 = it + 1
-                skillPoints --
-            }
-            5 -> skill5?.takeIf { it < this.heroBase.skills.find { it.number == 5 }!!.maxLevel }?.also {
-                skill5 = it + 1
-                skillPoints --
-            }
-            6 -> skill6?.takeIf { it < this.heroBase.skills.find { it.number == 6 }!!.maxLevel }?.also {
-                skill6 = it + 1
-                skillPoints --
-            }
-            7 -> skill7?.takeIf { it < this.heroBase.skills.find { it.number == 7 }!!.maxLevel }?.also {
-                skill7 = it + 1
+        heroBase.getSkill(skillNumber)?.let { skill ->
+            val currentSkillLevel = getSkillLevel(skillNumber)
+                ?: if (skill.skillActiveTrigger == SkillActiveTrigger.NPC_ONLY && player.serviceAccount) { 0 }
+                else { null }
+            if (currentSkillLevel != null && currentSkillLevel < skill.maxLevel) {
+                setSkillLevel(skillNumber, currentSkillLevel + 1)
                 skillPoints --
             }
         }
