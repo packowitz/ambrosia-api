@@ -18,6 +18,7 @@ enum class StoryTrigger {
     FORGE_DISCOVERED,
     FORGE_ENTERED,
     FIGHT_ENTERED,
+    FIGHT_TOO_HIGH,
     BATTLE_ENTERED,
     GEAR_FOUND,
     JEWEL_FOUND,
