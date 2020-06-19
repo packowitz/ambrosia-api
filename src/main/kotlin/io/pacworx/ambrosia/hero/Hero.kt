@@ -216,7 +216,8 @@ data class Hero(
 
         (2..7).forEach { skillNumber ->
             heroBase.skills.find { it.number == skillNumber }?.let { skill ->
-                if (skill.skillActiveTrigger == SkillActiveTrigger.ASCENDED && ascLvl == 0) {
+                if (skill.skillActiveTrigger == SkillActiveTrigger.NPC_ONLY
+                    || (skill.skillActiveTrigger == SkillActiveTrigger.ASCENDED && ascLvl == 0)) {
                     if (getSkillLevel(skill.number) ?: 0 > 1) {
                         skillPoints += getSkillLevel(skill.number)!! - 1
                     }
