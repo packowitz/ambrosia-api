@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
+import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -32,8 +33,11 @@ class HeroController(private val heroService: HeroService,
         if (hero.playerId != player.id) {
             throw UnauthorizedException(player, "You can only modify a hero you own")
         }
-        if (hero.heroBase.skills.any { it.number == skillNumber }) {
-            hero.skillLevelUp(player, skillNumber)
+        hero.heroBase.skills.find { it.number == skillNumber }?.let { skill ->
+            if (skill.skillActiveTrigger == SkillActiveTrigger.NPC_ONLY && !player.serviceAccount) {
+                throw UnauthorizedException(player, "You are not allowed to skill up a NPC-Skill")
+            }
+            hero.skillLevelUp(player, skill.number)
         }
         auditLogService.log(player, "Skilled up S$skillNumber of hero ${hero.heroBase.name} #${hero.id}")
         return PlayerActionResponse(hero = heroService.asHeroDto(hero))

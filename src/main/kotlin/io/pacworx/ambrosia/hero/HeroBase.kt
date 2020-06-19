@@ -75,4 +75,6 @@ data class HeroBase(
     @JoinColumn(name = "hero_id")
     @OrderBy("number ASC")
     var skills: List<HeroSkill> = ArrayList()
+
+    fun getSkill(skillNumber: Int): HeroSkill? = skills.find { it.number == skillNumber }
 }

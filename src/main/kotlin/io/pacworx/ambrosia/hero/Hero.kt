@@ -172,17 +172,41 @@ data class Hero(
     }
 
     fun resetSkills() {
-        skillPoints += skill1 - 1
         skill1 = 1
-        skill2 = skill2?.let { skillPoints += it - 1; 1 }
-        skill3 = skill3?.let { skillPoints += it - 1; 1 }
-        skill4 = skill4?.let { skillPoints += it - 1; 1 }
-        skill5 = skill5?.let { skillPoints += it - 1; 1 }
-        skill6 = skill6?.let { skillPoints += it - 1; 1 }
-        skill7 = skill7?.let { skillPoints += it - 1; 1 }
+        skill2 = minSkillLevel(2)
+        skill3 = minSkillLevel(3)
+        skill4 = minSkillLevel(4)
+        skill5 = minSkillLevel(5)
+        skill6 = minSkillLevel(6)
+        skill7 = minSkillLevel(7)
+        skillPoints = ascLvl
     }
 
-    fun recheckSkillLevels() {
+    private fun minSkillLevel(skillNumber: Int): Int? {
+        return heroBase.getSkill(skillNumber)
+            ?.takeIf {
+                it.skillActiveTrigger != SkillActiveTrigger.NPC_ONLY
+                        && (it.skillActiveTrigger == SkillActiveTrigger.ALWAYS || ascLvl > 0)
+            }?.let { 1 }
+    }
+
+    fun recheckSkillLevels(movedSkills: List<Pair<Int, Int>>?) {
+        movedSkills?.takeIf { it.isNotEmpty() }?.let { m ->
+            val new1 = m.find { it.second == 1 }?.let { getSkillLevel(it.first) ?: 1 } ?: skill1
+            val new2 = if (m.any { it.second == 2 }) (m.find { it.second == 2 }?.let { getSkillLevel(it.first) }) else { skill2 }
+            val new3 = if (m.any { it.second == 3 }) (m.find { it.second == 3 }?.let { getSkillLevel(it.first) }) else { skill3 }
+            val new4 = if (m.any { it.second == 4 }) (m.find { it.second == 4 }?.let { getSkillLevel(it.first) }) else { skill4 }
+            val new5 = if (m.any { it.second == 5 }) (m.find { it.second == 5 }?.let { getSkillLevel(it.first) }) else { skill5 }
+            val new6 = if (m.any { it.second == 6 }) (m.find { it.second == 6 }?.let { getSkillLevel(it.first) }) else { skill6 }
+            val new7 = if (m.any { it.second == 7 }) (m.find { it.second == 7 }?.let { getSkillLevel(it.first) }) else { skill7 }
+            skill1 = new1
+            skill2 = new2
+            skill3 = new3
+            skill4 = new4
+            skill5 = new5
+            skill6 = new6
+            skill7 = new7
+        }
         heroBase.skills.find { it.number == 1 }?.let { skill ->
             if (skill1 > skill.maxLevel) {
                 skillPoints += (skill.maxLevel - skill1)

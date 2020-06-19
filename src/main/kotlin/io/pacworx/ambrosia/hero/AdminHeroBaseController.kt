@@ -123,7 +123,7 @@ class AdminHeroBaseController(private val heroBaseRepository: HeroBaseRepository
 
         if (needUpdate) {
             heroRepository.findAllByHeroBase(heroBase).forEach {
-                it.recheckSkillLevels()
+                it.recheckSkillLevels(movedSkills)
             }
         }
         auditLogService.log(player, "Update hero base ${heroBase.name} #${heroBase.id}", adminAction = true)
