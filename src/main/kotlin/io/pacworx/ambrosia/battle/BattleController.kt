@@ -84,7 +84,7 @@ class BattleController(private val battleService: BattleService,
         val resources = resourcesService.spendResource(player, fight.resourceType, fight.costs)
         val battle = battleService.initCampaign(player, mapTile, fight, request)
         auditLogService.log(player, "Started a campaign battle #${battle.id} (status: ${battle.status.name}): fight #${mapTile.fightId} on map #${mapTile.mapId} ${mapTile.posX}x${mapTile.posY} " +
-                "using ${battle.vehicle?.let { "${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} #${it.id} level ${it.level}" }} " +
+                "using ${battle.vehicle?.let { "${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} level ${it.level}" }} " +
                 "paying ${fight.costs} ${fight.resourceType.name}"
         )
         return afterBattleAction(player, battle, resources)
@@ -197,7 +197,7 @@ class BattleController(private val battleService: BattleService,
             val loot = battle.fight?.lootBox?.let { lootService.openLootBox(player, it, battle.vehicle) }
             if (battle.type == BattleType.CAMPAIGN) {
                 auditLogService.log(player, "Won battle #${battle.id} releasing ${battle.vehicle?.let { "vehicle ${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} " +
-                        "and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} #${it.id} level ${it.level}" }}. " +
+                        "and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} level ${it.level}" }}. " +
                         "Looting ${loot?.items?.joinToString { it.auditLog() } ?: "nothing"}"
                 )
             }
@@ -216,7 +216,7 @@ class BattleController(private val battleService: BattleService,
         } else {
             if (battle.type == BattleType.CAMPAIGN && battle.status == BattleStatus.LOST) {
                 auditLogService.log(player, "Lost battle #${battle.id} releasing ${battle.vehicle?.let { "vehicle ${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} " +
-                        "and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} #${it.id} level ${it.level}" }}"
+                        "and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} level ${it.level}" }}"
                 )
             }
             PlayerActionResponse(resources = resources, ongoingBattle = battle)

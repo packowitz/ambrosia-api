@@ -1,10 +1,12 @@
 package io.pacworx.ambrosia.hero
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
 import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -29,7 +31,7 @@ class HeroController(private val heroService: HeroService,
     @PostMapping("{heroId}/skill_up/{skillNumber}")
     @Transactional
     fun skillUp(@ModelAttribute("player") player: Player, @PathVariable heroId: Long, @PathVariable skillNumber: Int): PlayerActionResponse {
-        val hero = heroRepository.getOne(heroId)
+        val hero = heroRepository.findByIdOrNull(heroId) ?: throw EntityNotFoundException(player, "hero", heroId)
         if (hero.playerId != player.id) {
             throw UnauthorizedException(player, "You can only modify a hero you own")
         }
@@ -46,7 +48,7 @@ class HeroController(private val heroService: HeroService,
     @PostMapping("{heroId}/reset_skills")
     @Transactional
     fun resetSkills(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
-        val hero = heroRepository.getOne(heroId)
+        val hero = heroRepository.findByIdOrNull(heroId) ?: throw EntityNotFoundException(player, "hero", heroId)
         if (hero.playerId != player.id) {
             throw UnauthorizedException(player, "You can only modify a hero you own")
         }

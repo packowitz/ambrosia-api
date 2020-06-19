@@ -32,6 +32,7 @@ data class Hero(
     var ascLvl: Int = 0,
     var ascPoints: Int = 0,
     var ascPointsMax: Int,
+    var markedAsBoss: Boolean = false,
     @OneToOne
     @JoinColumn(name = "weapon_id")
     var weapon: Gear? = null,
