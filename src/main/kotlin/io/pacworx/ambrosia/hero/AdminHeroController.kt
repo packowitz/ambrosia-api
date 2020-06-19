@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import javax.transaction.Transactional
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -22,6 +23,7 @@ class AdminHeroController(private val heroBaseRepository: HeroBaseRepository,
                           private val auditLogService: AuditLogService) {
 
     @PostMapping("recruit/{heroId}")
+    @Transactional
     fun recruit(@ModelAttribute("player") player: Player, @PathVariable heroId: Long): PlayerActionResponse {
         val hero = heroService.recruitHero(player, heroBaseRepository.getOne(heroId))
         auditLogService.log(player, "Direct recruits hero ${hero.heroBase.name} #${hero.id}", adminAction = true)
@@ -29,6 +31,7 @@ class AdminHeroController(private val heroBaseRepository: HeroBaseRepository,
     }
 
     @PostMapping("{heroId}/boss/{isBoss}")
+    @Transactional
     fun boss(@ModelAttribute("player") player: Player,
              @PathVariable heroId: Long,
              @PathVariable isBoss: Boolean): PlayerActionResponse {
