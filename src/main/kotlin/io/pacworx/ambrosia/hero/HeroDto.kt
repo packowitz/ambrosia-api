@@ -24,6 +24,7 @@ data class HeroDto(val id: Long,
                    var ascLvl: Int,
                    var ascPoints: Int,
                    var ascPointsMax: Int,
+                   var markedAsBoss: Boolean,
                    var weapon: Gear?,
                    var shield: Gear?,
                    var helmet: Gear?,
@@ -114,7 +115,33 @@ data class HeroDto(val id: Long,
     var confuseChance: Int = 0
     var damageReduction: Int = 0
 
-    constructor(hero: Hero) : this(hero.id, hero.missionId, hero.heroBase, hero.stars, hero.level, hero.xp, hero.maxXp, hero.skill1, hero.skill2, hero.skill3, hero.skill4, hero.skill5, hero.skill6, hero.skill7, hero.skillPoints, hero.ascLvl, hero.ascPoints, hero.ascPointsMax, hero.weapon, hero.shield, hero.helmet, hero.armor, hero.gloves, hero.boots)
+    constructor(hero: Hero) : this(
+        id = hero.id,
+        missionId = hero.missionId,
+        heroBase = hero.heroBase,
+        stars = hero.stars,
+        level = hero.level,
+        xp = hero.xp,
+        maxXp = hero.maxXp,
+        skill1 = hero.skill1,
+        skill2 = hero.skill2,
+        skill3 = hero.skill3,
+        skill4 = hero.skill4,
+        skill5 = hero.skill5,
+        skill6 = hero.skill6,
+        skill7 = hero.skill7,
+        skillPoints = hero.skillPoints,
+        ascLvl = hero.ascLvl,
+        ascPoints = hero.ascPoints,
+        ascPointsMax = hero.ascPointsMax,
+        markedAsBoss = hero.markedAsBoss,
+        weapon = hero.weapon,
+        shield = hero.shield,
+        helmet = hero.helmet,
+        armor = hero.armor,
+        gloves = hero.gloves,
+        boots = hero.boots
+    )
 
     fun getGears(): List<Gear> {
         val gears = mutableListOf<Gear>()

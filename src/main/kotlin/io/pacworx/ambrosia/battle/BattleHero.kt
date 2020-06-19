@@ -20,6 +20,7 @@ data class BattleHero(
     @Enumerated(EnumType.STRING)
     var status: HeroStatus = HeroStatus.ALIVE,
     var priority: Int = 0,
+    val markedAsBoss: Boolean = false,
 
     @ManyToOne
     @JoinColumn(name = "hero_base_id")
@@ -124,6 +125,7 @@ data class BattleHero(
         level = hero.level,
         stars = hero.stars,
         ascLvl = hero.ascLvl,
+        markedAsBoss = hero.markedAsBoss,
         skill1Lvl = hero.skill1,
         skill2Lvl = hero.skill2,
         skill2Cooldown = hero.skill2?.let { heroBase.skills.find { it.number == 2 }?.getInitCooldown(it) },
