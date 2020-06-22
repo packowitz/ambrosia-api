@@ -4,6 +4,8 @@ import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.GearRepository
+import io.pacworx.ambrosia.gear.Jewelry
+import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.player.AuditLogService
@@ -30,7 +32,8 @@ class ForgeController(val gearRepository: GearRepository,
                       val progressRepository: ProgressRepository,
                       val propertyService: PropertyService,
                       val resourcesService: ResourcesService,
-                      val auditLogService: AuditLogService) {
+                      val auditLogService: AuditLogService,
+                      val jewelryRepository: JewelryRepository) {
 
     @PostMapping("breakdown")
     @Transactional
@@ -41,6 +44,9 @@ class ForgeController(val gearRepository: GearRepository,
         gears.find { it.equippedTo != null }?.let { throw GeneralException(player, "Cannot breakdown gear", "Gear is equipped") }
         gears.find { it.rarity.stars > progress.gearBreakDownRarity }?.let { throw GeneralException(player, "Cannot breakdown gear", "Gear rarity is too high. Upgrade Forge.") }
         gears.find { it.modificationInProgress }?.let { throw GeneralException(player, "Cannot breakdown gear", "Gear modification is in progress") }
+
+        val jewelries: MutableList<Jewelry> = mutableListOf()
+        gears.forEach { unplugJewels(player, jewelries, it) }
 
         var resources: Resources? = null
 
@@ -69,8 +75,21 @@ class ForgeController(val gearRepository: GearRepository,
         return PlayerActionResponse(
             resources = resources,
             gearIdsRemovedFromArmory = gears.map { it.id },
-            looted = looted
+            looted = looted,
+            jewelries = jewelries
         )
+    }
+
+    private fun unplugJewels(player: Player, jewelries: MutableList<Jewelry>, gear: Gear) {
+        (0..4).forEach { slotNumber ->
+            gear.getJewel(slotNumber)?.let { jewel ->
+                val jewelry = jewelries.find { it.type == jewel.first }
+                    ?: jewelryRepository.findByPlayerIdAndType(player.id, jewel.first)
+                    ?: jewelryRepository.save(Jewelry(playerId = player.id, type = jewel.first))
+                jewelry.increaseAmount(jewel.second, 1)
+                gear.unplugJewel(slotNumber)
+            }
+        }
     }
 
     private fun resolveBreakdownPropertyType(gear: Gear): PropertyType {

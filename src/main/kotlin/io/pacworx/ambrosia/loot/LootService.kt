@@ -129,7 +129,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
 
     private fun openJewelItem(player: Player, item: LootItem): Jewelry {
         item.getJewelTypes().random().let { type ->
-            val jewelry = jewelryRepository.findByPlayerIdAndType(player.id, type)  ?: Jewelry(playerId = player.id, type = type)
+            val jewelry = jewelryRepository.findByPlayerIdAndType(player.id, type) ?: Jewelry(playerId = player.id, type = type)
             jewelry.increaseAmount(item.jewelLevel!!, 1)
             return jewelryRepository.save(jewelry)
         }
