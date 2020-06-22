@@ -64,7 +64,7 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             ResourceType.RUBIES -> spendRubies(resources, amount)
             ResourceType.METAL -> spendMetal(resources, amount)
             ResourceType.IRON -> spendIron(resources, amount)
-            ResourceType.STEAL -> spendSteal(resources, amount)
+            ResourceType.STEEL -> spendSteel(resources, amount)
             ResourceType.WOOD -> spendWood(resources, amount)
             ResourceType.BROWN_COAL -> spendBrownCoal(resources, amount)
             ResourceType.BLACK_COAL -> spendBlackCoal(resources, amount)
@@ -179,12 +179,12 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
         return resources
     }
 
-    fun spendSteal(resources: Resources, amount: Int): Resources {
-        if (amount > resources.steal) {
-            throw InsufficientResourcesException(resources.playerId, "Steal", amount)
+    fun spendSteel(resources: Resources, amount: Int): Resources {
+        if (amount > resources.steel) {
+            throw InsufficientResourcesException(resources.playerId, "Steel", amount)
         }
-        resources.steal -= amount
-        resources.stealUsed += amount
+        resources.steel -= amount
+        resources.steelUsed += amount
         return resources
     }
 
@@ -282,8 +282,8 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             ResourceType.METAL_MAX -> res.metalMax += amount
             ResourceType.IRON -> res.iron = min(res.ironMax, res.iron + amount)
             ResourceType.IRON_MAX -> res.ironMax += amount
-            ResourceType.STEAL -> res.steal = min(res.stealMax, res.steal + amount)
-            ResourceType.STEAL_MAX -> res.stealMax += amount
+            ResourceType.STEEL -> res.steel = min(res.steelMax, res.steel + amount)
+            ResourceType.STEEL_MAX -> res.steelMax += amount
             ResourceType.WOOD -> res.wood = min(res.woodMax, res.wood + amount)
             ResourceType.WOOD_MAX -> res.woodMax += amount
             ResourceType.BROWN_COAL -> res.brownCoal = min(res.brownCoalMax, res.brownCoal + amount)
