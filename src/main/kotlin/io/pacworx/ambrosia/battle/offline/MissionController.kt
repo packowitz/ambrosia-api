@@ -111,7 +111,10 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         val vehicle = vehicleRepository.getOne(mission.vehicleId)
         val heroes = heroService.wonMission(mission, vehicle)
 
-        mission.battles.filter { !it.battleFinished }.forEach { it.cancelled = true }
+        mission.battles.filter { !it.battleFinished }.forEach {
+            it.cancelled = true
+            resourcesService.gainResources(player, mission.fight.resourceType, mission.fight.costs)
+        }
         val lootItems = mission.battles.filter { it.isBattleSuccess() == true }.flatMap { battle ->
             val lootBoxResult = lootService.openLootBox(player, mission.fight.lootBox, vehicle)
             battle.looted = lootBoxResult.items.map { lootService.asLooted(it) }
