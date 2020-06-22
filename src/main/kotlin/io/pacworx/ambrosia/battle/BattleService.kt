@@ -49,6 +49,7 @@ class BattleService(private val playerRepository: PlayerRepository,
         while (stage.nextBattleId != null) {
             stage = battleRepository.getOne(stage.nextBattleId!!)
             battleRepository.delete(stage)
+            battleStepRepository.deleteAllByBattleId(stage.id)
         }
         battleRepository.delete(battle)
         battle.hero1?.let { battleHeroRepository.delete(it) }
