@@ -1,7 +1,7 @@
 package io.pacworx.ambrosia.progress
 
-import io.pacworx.ambrosia.upgrade.Modification
 import io.pacworx.ambrosia.hero.Rarity
+import io.pacworx.ambrosia.upgrade.Modification
 import javax.persistence.Entity
 import javax.persistence.Id
 
@@ -9,6 +9,10 @@ import javax.persistence.Id
 data class Progress(
     @Id
     val playerId: Long,
+    var xp: Int = 0,
+    var maxXp: Int = 100,
+    var level: Int = 1,
+    var currentMapId: Long? = null,
     var garageSlots: Int = 1,
     var offlineBattleSpeed: Int = 100,
     var maxOfflineBattlesPerMission: Int = 5,

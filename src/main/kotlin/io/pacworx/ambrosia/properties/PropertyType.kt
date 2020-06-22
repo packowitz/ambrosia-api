@@ -41,10 +41,14 @@ enum class PropertyType(
     MYTHICAL_MIRROR_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
     WARHORN_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
     REVERSED_REALITY_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
+    TERRIBLE_FATE_JEWEL(JEWEL, "Jewel level (1-10). Stat defines the bonus and amount how high that bonus is. You can have multiple bonuses on a jewel."),
+
+    XP_MAX_PLAYER(PLAYER, "Defines max XP for each player level", value1name = "Max XP"),
+    LEVEL_REWARD_PLAYER(PLAYER, "Defines the rewards a player gets reaching a certain level", showResources = true, showProgressStat = true, value1name = "amount"),
 
     XP_MAX_HERO(HERO, "Level: hero level (1-60). Value: max xp to reach next level."),
     ASC_POINTS_MAX_HERO(HERO, "Level: hero ascension level (1-??). Value: max asc points to reach next level."),
-    MERGE_XP_HERO(HERO, "Level: hero level (1-60) to be feeded. Value: amount of xp gained."),
+    MERGE_XP_HERO(HERO, "Level: hero level (1-60) to be fed. Value: amount of xp gained."),
     MERGE_ASC_HERO(HERO, "Level: Rarity (1-6). Value: Asc points gained when merging hero of same class"),
 
     WEAPON_GEAR(GEAR, "Gear rarity (1-6). Stat: which stat the gear gives. From - To defines the range for this stat."),

@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.player.PlayerRepository
+import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.story.StoryTrigger
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -27,21 +28,22 @@ class MapService(val playerRepository: PlayerRepository,
     private val log = KotlinLogging.logger {}
 
     @Transactional
-    fun getCurrentPlayerMap(player: Player): PlayerMapResolved {
+    fun getCurrentPlayerMap(player: Player, progress: Progress): PlayerMapResolved {
         return player.currentMapId?.let {
             val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, it)!!
             checkMapForUpdates(player, playerMap)
             PlayerMapResolved(playerMap)
-        } ?: PlayerMapResolved(discoverPlayerMap(player, mapRepository.getByStartingMapTrue()))
+        } ?: PlayerMapResolved(discoverPlayerMap(player, progress, mapRepository.getByStartingMapTrue()))
     }
 
-    fun discoverPlayerMap(player: Player, map: Map): PlayerMap {
+    fun discoverPlayerMap(player: Player, progress: Progress, map: Map): PlayerMap {
         val playerMap = PlayerMap(playerId = player.id, map = map)
         playerMap.playerTiles = map.tiles.filter { it.type != MapTileType.NONE }.map {
             PlayerMapTile(posX = it.posX, posY = it.posY)
         }.toMutableList()
         map.tiles.filter { it.alwaysRevealed }.forEach { discoverMapTile(player, playerMap, it) }
 
+        progress.currentMapId = map.id
         player.currentMapId = map.id
         playerRepository.save(player)
         return playerMapRepository.save(playerMap)

@@ -164,7 +164,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
         val vehicles = vehicleRepository.findAllByPlayerId(player.id)
         val vehicleParts = vehiclePartRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
         val playerMaps = simplePlayerMapRepository.findAllByPlayerId(player.id)
-        val currentMap = mapService.getCurrentPlayerMap(player)
+        val currentMap = mapService.getCurrentPlayerMap(player, progress)
         val missions = missionService.getAllMissions(player)
         val dnaCubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
         val ongoingBattle = battleService.getOngoingBattle(player)
@@ -172,7 +172,7 @@ class PlayerService(private val playerRepository: PlayerRepository,
         return PlayerActionResponse(
             resources = resources,
             token = token,
-            player = player,
+            player = save(player),
             progress = progress,
             heroes = heroes,
             gears = gears,

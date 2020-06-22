@@ -9,7 +9,6 @@ class AuditLogService(
 ) {
 
     fun log(player: Player, action: String, adminAction: Boolean = false, betaTesterAction: Boolean = false) {
-        player.didAction()
         auditLogRepository.save(AuditLog(
             playerId = player.id,
             action = action,

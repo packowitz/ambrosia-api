@@ -1,6 +1,11 @@
 package io.pacworx.ambrosia.progress
 
 enum class ProgressStat {
+    PLAYER_XP {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.xp += bonus
+        }
+    },
     GARAGE_SLOT {
         override fun apply(progress: Progress, bonus: Int) {
             progress.garageSlots += bonus

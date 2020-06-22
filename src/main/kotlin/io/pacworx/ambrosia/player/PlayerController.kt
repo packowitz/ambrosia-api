@@ -3,16 +3,19 @@ package io.pacworx.ambrosia.player
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.hero.HeroService
-import io.pacworx.ambrosia.maps.MapService
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import javax.transaction.Transactional
 
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("player")
 class PlayerController(private val playerService: PlayerService,
-                       private val heroService: HeroService,
-                       private val mapService: MapService) {
+                       private val heroService: HeroService) {
 
     @PostMapping("")
     @Transactional
@@ -31,11 +34,9 @@ class PlayerController(private val playerService: PlayerService,
         }
         player.color = request.color
         val startingHeroes = heroService.gainStartingHeroes(player)
-        val currentMap = mapService.getCurrentPlayerMap(player)
         return PlayerActionResponse(
             player = playerService.save(player),
-            heroes = startingHeroes,
-            currentMap = currentMap
+            heroes = startingHeroes
         )
     }
 }

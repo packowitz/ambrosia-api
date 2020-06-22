@@ -13,6 +13,7 @@ enum class PropertyCategory(
     val showValue2: Boolean = false,
     val value2name: String? = null
 ) {
+    PLAYER("Level", "Value"),
     HERO("Level", "Value"),
     GEAR("Rarity", "From", showStat = true, showValue2 = true, value2name = "To"),
     JEWEL("Jewel Lvl", "Amount", true),

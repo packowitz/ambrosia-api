@@ -46,10 +46,14 @@ class MapController(private val mapService: MapService,
     @PostMapping("{mapId}/discover")
     @Transactional
     fun discoverMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerActionResponse {
+        val progress = progressRepository.getOne(player.id)
         val map = mapRepository.findByIdOrNull(mapId) ?: throw EntityNotFoundException(player, "map", mapId)
-        val discoveredMap = PlayerMapResolved(mapService.discoverPlayerMap(player, map))
+        val discoveredMap = PlayerMapResolved(mapService.discoverPlayerMap(player, progress, map))
         auditLogService.log(player, "Discover map ${map.name} #${map.id}")
-        return PlayerActionResponse(currentMap = discoveredMap)
+        return PlayerActionResponse(
+            progress = progress,
+            currentMap = discoveredMap
+        )
     }
 
     @PostMapping("discover")
@@ -124,9 +128,14 @@ class MapController(private val mapService: MapService,
     fun setCurrentMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerActionResponse {
         return playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)?.let {
             mapService.checkMapForUpdates(player, it)
+            val progress = progressRepository.getOne(player.id)
+            progress.currentMapId = mapId
             player.currentMapId = mapId
             auditLogService.log(player, "Set map $mapId as current map")
-            PlayerActionResponse(player = playerRepository.save(player), currentMap = PlayerMapResolved(it))
+            PlayerActionResponse(
+                player = playerRepository.save(player),
+                currentMap = PlayerMapResolved(it)
+            )
         } ?: throw EntityNotFoundException(player, "map", mapId)
     }
 
