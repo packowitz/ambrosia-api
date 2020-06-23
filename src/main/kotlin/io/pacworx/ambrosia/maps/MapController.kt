@@ -8,19 +8,11 @@ import io.pacworx.ambrosia.exceptions.MapTileActionException
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.upgrade.UpgradeService
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 
 @RestController
@@ -29,7 +21,6 @@ import javax.transaction.Transactional
 class MapController(private val mapService: MapService,
                     private val playerMapRepository: PlayerMapRepository,
                     private val mapRepository: MapRepository,
-                    private val playerRepository: PlayerRepository,
                     private val buildingRepository: BuildingRepository,
                     private val resourcesService: ResourcesService,
                     private val lootService: LootService,
@@ -113,6 +104,7 @@ class MapController(private val mapService: MapService,
 
         return PlayerActionResponse(
             currentMap = PlayerMapResolved(playerMap),
+            progress = if (result.items.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
             resources = resourcesService.getResources(player),
             heroes = result.items.filter { it.hero != null }.map { it.hero!! }.takeIf { it.isNotEmpty() },
             gears = result.items.filter { it.gear != null }.map { it.gear!! }.takeIf{ it.isNotEmpty() },
@@ -130,10 +122,9 @@ class MapController(private val mapService: MapService,
             mapService.checkMapForUpdates(player, it)
             val progress = progressRepository.getOne(player.id)
             progress.currentMapId = mapId
-            player.currentMapId = mapId
             auditLogService.log(player, "Set map $mapId as current map")
             PlayerActionResponse(
-                player = playerRepository.save(player),
+                progress = progress,
                 currentMap = PlayerMapResolved(it)
             )
         } ?: throw EntityNotFoundException(player, "map", mapId)
