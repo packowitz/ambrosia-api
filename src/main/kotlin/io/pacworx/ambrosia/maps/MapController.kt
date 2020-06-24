@@ -124,7 +124,6 @@ class MapController(private val mapService: MapService,
             progress.currentMapId = mapId
             auditLogService.log(player, "Set map $mapId as current map")
             PlayerActionResponse(
-                player = player,
                 progress = progress,
                 currentMap = PlayerMapResolved(it)
             )
