@@ -22,14 +22,13 @@ import javax.transaction.Transactional
 import kotlin.math.abs
 
 @Service
-class MapService(val playerRepository: PlayerRepository,
-                 val playerMapRepository: PlayerMapRepository,
+class MapService(val playerMapRepository: PlayerMapRepository,
                  val mapRepository: MapRepository) {
     private val log = KotlinLogging.logger {}
 
     @Transactional
     fun getCurrentPlayerMap(player: Player, progress: Progress): PlayerMapResolved {
-        return player.currentMapId?.let {
+        return progress.currentMapId?.let {
             val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, it)!!
             checkMapForUpdates(player, playerMap)
             PlayerMapResolved(playerMap)
@@ -44,8 +43,6 @@ class MapService(val playerRepository: PlayerRepository,
         map.tiles.filter { it.alwaysRevealed }.forEach { discoverMapTile(player, playerMap, it) }
 
         progress.currentMapId = map.id
-        player.currentMapId = map.id
-        playerRepository.save(player)
         return playerMapRepository.save(playerMap)
     }
 
