@@ -6,6 +6,8 @@ import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.MapTileActionException
 import io.pacworx.ambrosia.loot.LootService
+import io.pacworx.ambrosia.loot.Looted
+import io.pacworx.ambrosia.loot.LootedType
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -111,7 +113,7 @@ class MapController(private val mapService: MapService,
             jewelries = result.items.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },
             vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
-            looted = result.items.map { lootService.asLooted(it) }
+            looted = Looted(LootedType.CHEST, result.items.map { lootService.asLootedItem(it) })
         )
     }
 

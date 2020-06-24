@@ -3,17 +3,17 @@ package io.pacworx.ambrosia.common
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.offline.Mission
-import io.pacworx.ambrosia.upgrade.Upgrade
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.Incubator
-import io.pacworx.ambrosia.maps.PlayerMapResolved
 import io.pacworx.ambrosia.gear.Gear
-import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.gear.Jewelry
+import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.loot.Looted
+import io.pacworx.ambrosia.maps.PlayerMapResolved
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.resources.Resources
+import io.pacworx.ambrosia.upgrade.Upgrade
 import io.pacworx.ambrosia.vehicle.Vehicle
 import io.pacworx.ambrosia.vehicle.VehiclePart
 
@@ -36,7 +36,7 @@ data class PlayerActionResponse(
     val playerMaps: List<PlayerMapResolved>? = null,
     val currentMap: PlayerMapResolved? = null,
     val ongoingBattle: Battle? = null,
-    val looted: List<Looted>? = null,
+    val looted: Looted? = null,
     val missions: List<Mission>? = null,
     val missionIdFinished: Long? = null,
     val upgrades: List<Upgrade>? = null,

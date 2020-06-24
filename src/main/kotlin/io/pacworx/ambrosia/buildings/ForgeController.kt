@@ -8,6 +8,8 @@ import io.pacworx.ambrosia.gear.Jewelry
 import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.Looted
+import io.pacworx.ambrosia.loot.LootedItem
+import io.pacworx.ambrosia.loot.LootedType
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -50,16 +52,16 @@ class ForgeController(val gearRepository: GearRepository,
 
         var resources: Resources? = null
 
-        val looted = mutableListOf<Looted>()
+        val lootedItems = mutableListOf<LootedItem>()
         gears.map { gear ->
             propertyService.getProperties(resolveBreakdownPropertyType(gear), gear.rarity.stars).map { prop ->
                 val amount = round(Random.nextInt(prop.value1, prop.value2!! + 1) * (100.0 + progress.gearBreakDownResourcesInc) / 100).toInt()
                 resources = resourcesService.gainResources(player, prop.resourceType!!, amount)
-                val loot = looted.find { it.resourceType ==  prop.resourceType}
+                val loot = lootedItems.find { it.resourceType ==  prop.resourceType}
                 if (loot != null) {
                     loot.value += amount.toLong()
                 } else {
-                    looted.add(Looted(
+                    lootedItems.add(LootedItem(
                         type = LootItemType.RESOURCE,
                         resourceType = prop.resourceType,
                         value = amount.toLong()))
@@ -68,14 +70,14 @@ class ForgeController(val gearRepository: GearRepository,
         }
 
         auditLogService.log(player,"Breaking down ${gears.joinToString { "${it.rarity.stars}* ${it.type.name} #${it.id}" } }" +
-                "gaining ${looted.joinToString { "${it.value} ${it.resourceType?.name}" }}"
+                "gaining ${lootedItems.joinToString { "${it.value} ${it.resourceType?.name}" }}"
         )
 
         gearRepository.deleteAll(gears)
         return PlayerActionResponse(
             resources = resources,
             gearIdsRemovedFromArmory = gears.map { it.id },
-            looted = looted,
+            looted = Looted(LootedType.BREAKDOWN, lootedItems),
             jewelries = jewelries
         )
     }

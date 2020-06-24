@@ -11,6 +11,8 @@ import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.skills.HeroSkill
 import io.pacworx.ambrosia.hero.skills.SkillTarget
 import io.pacworx.ambrosia.loot.LootService
+import io.pacworx.ambrosia.loot.Looted
+import io.pacworx.ambrosia.loot.LootedType
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
 import io.pacworx.ambrosia.player.AuditLogService
@@ -214,7 +216,7 @@ class BattleController(private val battleService: BattleService,
                 vehicles = loot?.items?.filter { it.vehicle != null }?.map { it.vehicle!! }?.takeIf { it.isNotEmpty() },
                 vehicleParts = loot?.items?.filter { it.vehiclePart != null }?.map { it.vehiclePart!! }?.takeIf { it.isNotEmpty() },
                 ongoingBattle = battle,
-                looted = loot?.items?.map { lootService.asLooted(it) }
+                looted = loot?.items?.let { items -> Looted(LootedType.BATTLE, items.map { lootService.asLootedItem(it) })  }
             )
         } else {
             if (battle.type == BattleType.CAMPAIGN && battle.status == BattleStatus.LOST) {

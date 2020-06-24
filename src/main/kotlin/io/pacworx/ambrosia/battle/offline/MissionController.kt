@@ -117,7 +117,7 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         }
         val lootItems = mission.battles.filter { it.isBattleSuccess() == true }.flatMap { battle ->
             val lootBoxResult = lootService.openLootBox(player, mission.fight.lootBox, vehicle)
-            battle.looted = lootBoxResult.items.map { lootService.asLooted(it) }
+            battle.lootedItems = lootBoxResult.items.map { lootService.asLootedItem(it) }
             lootBoxResult.items
         }
 

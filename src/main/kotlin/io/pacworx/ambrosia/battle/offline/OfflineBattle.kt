@@ -1,7 +1,7 @@
 package io.pacworx.ambrosia.battle.offline
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.pacworx.ambrosia.loot.Looted
+import io.pacworx.ambrosia.loot.LootedItem
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.persistence.Entity
@@ -19,7 +19,7 @@ data class OfflineBattle(
 ) {
 
     @Transient
-    var looted: List<Looted>? = null
+    var lootedItems: List<LootedItem>? = null
     @Transient
     var cancelled: Boolean? = null
 

@@ -34,8 +34,8 @@ class LootService(
     private val progressRepository: ProgressRepository
 ) {
 
-    fun asLooted(item: LootItemResult): Looted =
-        Looted(
+    fun asLootedItem(item: LootItemResult): LootedItem =
+        LootedItem(
             type = resolveLootType(item),
             resourceType = item.resource?.type,
             progressStat = item.progress?.type,
