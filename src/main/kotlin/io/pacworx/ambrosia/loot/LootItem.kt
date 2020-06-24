@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.gear.JewelType
+import io.pacworx.ambrosia.progress.ProgressStat
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.vehicle.PartQuality
 import io.pacworx.ambrosia.vehicle.PartType
@@ -31,8 +32,13 @@ data class LootItem(
     @JsonIgnore var jewelTypeNames: String?,
     var jewelLevel: Int? = null,
     var vehicleBaseId: Long? = null,
+    @Enumerated(EnumType.STRING)
     var vehiclePartType: PartType? = null,
-    var vehiclePartQuality: PartQuality? = null
+    @Enumerated(EnumType.STRING)
+    var vehiclePartQuality: PartQuality? = null,
+    @Enumerated(EnumType.STRING)
+    var progressStat: ProgressStat? = null,
+    var progressStatBonus: Int? = null
     ) {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)

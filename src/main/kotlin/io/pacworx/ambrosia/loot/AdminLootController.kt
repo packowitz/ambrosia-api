@@ -51,6 +51,8 @@ class AdminLootController(private val gearLootRepository: GearLootRepository,
             item.vehicleBaseId = item.takeIf { item.type == LootItemType.VEHICLE }?.vehicleBaseId
             item.vehiclePartType = item.takeIf { item.type == LootItemType.VEHICLE_PART }?.vehiclePartType
             item.vehiclePartQuality = item.takeIf { item.type == LootItemType.VEHICLE_PART }?.vehiclePartQuality
+            item.progressStat = item.takeIf { item.type == LootItemType.PROGRESS }?.progressStat
+            item.progressStatBonus = item.takeIf { item.type == LootItemType.PROGRESS }?.progressStatBonus
 
             if (when (item.type) {
                 LootItemType.RESOURCE -> item.resourceType == null || item.resourceFrom == null || item.resourceTo == null || item.resourceFrom!! > item.resourceTo!!
@@ -59,6 +61,7 @@ class AdminLootController(private val gearLootRepository: GearLootRepository,
                 LootItemType.JEWEL -> item.jewelTypeNames == null || item.jewelLevel == null || item.jewelLevel!! < 1 || item.jewelLevel!! > 10
                 LootItemType.VEHICLE -> item.vehicleBaseId == null
                 LootItemType.VEHICLE_PART -> item.vehiclePartType == null || item.vehiclePartQuality == null
+                LootItemType.PROGRESS -> item.progressStat == null || item.progressStatBonus == null
             }) {
                 throw RuntimeException("Invalid LootItem at ${item.slotNumber} pos ${item.itemOrder}")
             }

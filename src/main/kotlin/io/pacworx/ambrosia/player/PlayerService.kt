@@ -125,11 +125,15 @@ class PlayerService(private val playerRepository: PlayerRepository,
         val barracks = buildingRepository.save(Building(playerId = player.id, type = BuildingType.BARRACKS))
         buildingRepository.save(Building(playerId = player.id, type = BuildingType.STORAGE))
 
-        val progress = Progress(playerId = player.id)
+        val progress = Progress(playerId = player.id, maxXp = getStartingAmount(PropertyType.XP_MAX_PLAYER))
         upgradeService.applyBuildingLevel(player, barracks, progress)
         progressRepository.save(progress)
 
         return player
+    }
+
+    fun getStartingAmount(propertyType: PropertyType): Int {
+        return propertyService.getProperties(propertyType, 1).first().value1
     }
 
     fun getStartingAmount(type: ResourceType): Int {

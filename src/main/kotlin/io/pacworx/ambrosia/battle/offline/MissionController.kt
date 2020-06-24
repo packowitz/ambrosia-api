@@ -134,6 +134,7 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         return PlayerActionResponse(
             player = player,
             resources = resourcesService.getResources(player),
+            progress = if (lootItems.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
             heroes = heroes + lootItems.filter { it.hero != null }.map { it.hero!! },
             gears = lootItems.filter { it.gear != null }.map { it.gear!! }.takeIf { it.isNotEmpty() },
             jewelries = lootItems.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },

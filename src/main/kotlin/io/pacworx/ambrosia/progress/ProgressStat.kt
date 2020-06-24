@@ -6,6 +6,11 @@ enum class ProgressStat {
             progress.xp += bonus
         }
     },
+    EXPEDITION_LEVEL {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.expeditionLevel += bonus
+        }
+    },
     GARAGE_SLOT {
         override fun apply(progress: Progress, bonus: Int) {
             progress.garageSlots += bonus

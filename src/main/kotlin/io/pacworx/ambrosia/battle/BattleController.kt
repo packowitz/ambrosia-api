@@ -15,6 +15,7 @@ import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.team.TeamType
@@ -38,6 +39,7 @@ class BattleController(private val battleService: BattleService,
                        private val mapService: MapService,
                        private val fightRepository: FightRepository,
                        private val resourcesService: ResourcesService,
+                       private val progressRepository: ProgressRepository,
                        private val heroService: HeroService,
                        private val lootService: LootService,
                        private val auditLogService: AuditLogService,
@@ -203,6 +205,7 @@ class BattleController(private val battleService: BattleService,
             }
             PlayerActionResponse(
                 player = player,
+                progress = if (loot?.items?.any { it.progress != null } == true) { progressRepository.getOne(player.id) } else { null },
                 resources = loot?.let { resourcesService.getResources(player) } ?: resources,
                 currentMap = map,
                 heroes = (heroes ?: listOf()) + (loot?.items?.filter { it.hero != null }?.map { it.hero!! } ?: listOf()),

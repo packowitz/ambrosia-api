@@ -104,7 +104,7 @@ class MapController(private val mapService: MapService,
 
         return PlayerActionResponse(
             currentMap = PlayerMapResolved(playerMap),
-            //progress = if (result.items.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
+            progress = if (result.items.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
             resources = resourcesService.getResources(player),
             heroes = result.items.filter { it.hero != null }.map { it.hero!! }.takeIf { it.isNotEmpty() },
             gears = result.items.filter { it.gear != null }.map { it.gear!! }.takeIf{ it.isNotEmpty() },

@@ -18,8 +18,7 @@ data class Player(
     val betaTester: Boolean = false,
     val serviceAccount: Boolean = false,
     @Enumerated(EnumType.STRING)
-    var color: Color? = null,
-    var currentMapId: Long? = null
+    var color: Color? = null
 ) {
 
     fun didLogin() {

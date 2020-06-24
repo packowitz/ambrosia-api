@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.maps.PlayerMapResolved
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,7 +27,8 @@ class StoryController(
     private val storyProgressRepository: StoryProgressRepository,
     private val lootService: LootService,
     private val resourcesService: ResourcesService,
-    private val auditLogService: AuditLogService
+    private val auditLogService: AuditLogService,
+    private val progressRepository: ProgressRepository
 ) {
 
     @PostMapping("{trigger}/finish")
@@ -49,6 +51,7 @@ class StoryController(
         return PlayerActionResponse(
             knownStories = listOf(trigger.name),
             resources = resourcesService.getResources(player),
+            progress = if (lootBoxResult?.items?.any { it.progress != null } == true) { progressRepository.getOne(player.id) } else { null },
             heroes = lootBoxResult?.items?.filter { it.hero != null }?.map { it.hero!! }?.takeIf { it.isNotEmpty() },
             gears = lootBoxResult?.items?.filter { it.gear != null }?.map { it.gear!! }?.takeIf{ it.isNotEmpty() },
             jewelries = lootBoxResult?.items?.filter { it.jewelry != null }?.map { it.jewelry!! }?.takeIf { it.isNotEmpty() },

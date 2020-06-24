@@ -9,6 +9,8 @@ import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.progress.ProgressRepository
+import io.pacworx.ambrosia.progress.ProgressStat
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.vehicle.Vehicle
@@ -21,18 +23,22 @@ import kotlin.math.round
 import kotlin.random.Random
 
 @Service
-class LootService(private val lootBoxRepository: LootBoxRepository,
-                  private val resourcesService: ResourcesService,
-                  private val heroService: HeroService,
-                  private val gearLootRepository: GearLootRepository,
-                  private val gearService: GearService,
-                  private val jewelryRepository: JewelryRepository,
-                  private val vehicleService: VehicleService) {
+class LootService(
+    private val lootBoxRepository: LootBoxRepository,
+    private val resourcesService: ResourcesService,
+    private val heroService: HeroService,
+    private val gearLootRepository: GearLootRepository,
+    private val gearService: GearService,
+    private val jewelryRepository: JewelryRepository,
+    private val vehicleService: VehicleService,
+    private val progressRepository: ProgressRepository
+) {
 
     fun asLooted(item: LootItemResult): Looted =
         Looted(
             type = resolveLootType(item),
             resourceType = item.resource?.type,
+            progressStat = item.progress?.type,
             jewelType = item.jewelry?.type,
             value = resolveLootValue(item)
         )
@@ -45,6 +51,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
             item.jewelry != null -> LootItemType.JEWEL
             item.vehicle != null -> LootItemType.VEHICLE
             item.vehiclePart != null -> LootItemType.VEHICLE_PART
+            item.progress != null -> LootItemType.PROGRESS
             else -> throw RuntimeException("LootItemType not resolvable")
         }
 
@@ -56,6 +63,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
             item.jewelry != null -> item.jewelLevel!!.toLong()
             item.vehicle != null -> item.vehicle.id
             item.vehiclePart != null -> item.vehiclePart.id
+            item.progress != null -> item.progress.amount.toLong()
             else -> throw RuntimeException("LootItemType not resolvable")
         }
 
@@ -93,6 +101,7 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
             LootItemType.JEWEL -> LootItemResult(jewelry = openJewelItem(player, item), jewelLevel = item.jewelLevel)
             LootItemType.VEHICLE -> LootItemResult(vehicle = openVehicleItem(player, item))
             LootItemType.VEHICLE_PART -> LootItemResult(vehiclePart = openVehiclePartItem(player, item))
+            LootItemType.PROGRESS -> LootItemResult(progress = openProgressItem(player, item))
         }
     }
 
@@ -101,6 +110,12 @@ class LootService(private val lootBoxRepository: LootBoxRepository,
         amount += round(amount.toDouble() * vehicleService.getStat(vehicle, VehicleStat.BATTLE_RESSOURCE_LOOT) / 100).toInt()
         resourcesService.gainResources(player, item.resourceType!!, amount)
         return ResourceLoot(item.resourceType!!, amount)
+    }
+
+    private fun openProgressItem(player: Player, item: LootItem): ProgressLoot {
+        val progress = progressRepository.getOne(player.id)
+        item.progressStat!!.apply(progress, item.progressStatBonus!!)
+        return ProgressLoot(item.progressStat!!, item.progressStatBonus!!)
     }
 
     private fun openHeroItem(player: Player, item: LootItem): HeroDto {
@@ -157,7 +172,8 @@ data class LootItemResult(
     val jewelry: Jewelry? = null,
     val jewelLevel: Int? = null,
     val vehicle: Vehicle? = null,
-    val vehiclePart: VehiclePart? = null
+    val vehiclePart: VehiclePart? = null,
+    val progress: ProgressLoot? = null
 ) {
     fun auditLog(): String {
         return when {
@@ -167,6 +183,7 @@ data class LootItemResult(
             jewelry != null -> "lvl $jewelLevel ${jewelry.type.name} jewel"
             vehicle != null -> "vehicle ${vehicle.baseVehicle.name} #${vehicle.id}"
             vehiclePart != null -> "vehiclePart ${vehiclePart.quality.name} ${vehiclePart.type.name} #${vehiclePart.id}"
+            progress != null -> "${progress.amount} ${progress.type.name}"
             else -> ""
         }
     }
@@ -174,5 +191,10 @@ data class LootItemResult(
 
 data class ResourceLoot(
     val type: ResourceType,
+    val amount: Int
+)
+
+data class ProgressLoot(
+    val type: ProgressStat,
     val amount: Int
 )
