@@ -17,7 +17,8 @@ data class ExpeditionBase(
     @Max(6)
     val level: Int,
     val rarity: Rarity,
-    val durationMinutes: Int
+    val durationMinutes: Int,
+    val xp: Int
 ) {
 
     @ManyToOne
