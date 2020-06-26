@@ -16,12 +16,8 @@ data class ExpeditionBase(
     @Min(1)
     @Max(6)
     val level: Int,
-    val rarity: Rarity,
+    @Enumerated(EnumType.STRING) val rarity: Rarity,
     val durationMinutes: Int,
-    val xp: Int
-) {
-
-    @ManyToOne
-    @JoinColumn(name = "loot_box_id")
-    lateinit var lootBox: LootBox
-}
+    val xp: Int,
+    val lootBoxId: Long
+)

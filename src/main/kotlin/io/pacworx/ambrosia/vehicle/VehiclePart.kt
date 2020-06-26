@@ -8,6 +8,7 @@ data class VehiclePart(
     val id: Long = 0,
     val playerId: Long,
     var equippedTo: Long? = null,
+    @Enumerated(EnumType.STRING)
     val type: PartType,
     @Enumerated(EnumType.STRING)
     val quality: PartQuality,

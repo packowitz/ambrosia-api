@@ -1,9 +1,6 @@
 package io.pacworx.ambrosia.vehicle
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
 data class VehicleBase(
@@ -12,13 +9,13 @@ data class VehicleBase(
     val name: String,
     val avatar: String = "default",
     val maxLevel: Int = 6,
-    val engineQuality: PartQuality = PartQuality.BASIC,
-    val frameQuality: PartQuality = PartQuality.BASIC,
-    val computerQuality: PartQuality = PartQuality.BASIC,
-    val specialPart1: PartType?,
-    var specialPart1Quality: PartQuality?,
-    val specialPart2: PartType?,
-    var specialPart2Quality: PartQuality?,
-    val specialPart3: PartType?,
-    var specialPart3Quality: PartQuality?
+    @Enumerated(EnumType.STRING) val engineQuality: PartQuality = PartQuality.BASIC,
+    @Enumerated(EnumType.STRING) val frameQuality: PartQuality = PartQuality.BASIC,
+    @Enumerated(EnumType.STRING) val computerQuality: PartQuality = PartQuality.BASIC,
+    @Enumerated(EnumType.STRING) val specialPart1: PartType?,
+    @Enumerated(EnumType.STRING) var specialPart1Quality: PartQuality?,
+    @Enumerated(EnumType.STRING) val specialPart2: PartType?,
+    @Enumerated(EnumType.STRING) var specialPart2Quality: PartQuality?,
+    @Enumerated(EnumType.STRING) val specialPart3: PartType?,
+    @Enumerated(EnumType.STRING) var specialPart3Quality: PartQuality?
 )
