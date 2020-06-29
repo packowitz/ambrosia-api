@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.hero
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.exceptions.InsufficientResourcesException
 import io.pacworx.ambrosia.gear.GearType
 import io.pacworx.ambrosia.gear.Gear
@@ -14,6 +15,7 @@ data class Hero(
     val id: Long = 0,
     val playerId: Long,
     var missionId: Long? = null,
+    var playerExpeditionId: Long? = null,
     @ManyToOne
     @JoinColumn(name = "hero_base_id")
     val heroBase: HeroBase,
@@ -72,6 +74,11 @@ data class Hero(
                 7 -> this.skill7 = 1
             }
         }
+    }
+
+    @JsonIgnore
+    fun isAvailable(): Boolean {
+        return missionId == null && playerExpeditionId == null
     }
 
     fun getGear(type: GearType): Gear? = when (type) {

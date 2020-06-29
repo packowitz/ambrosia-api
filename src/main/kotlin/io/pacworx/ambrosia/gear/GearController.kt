@@ -36,7 +36,7 @@ class GearController(private val gearRepository: GearRepository,
     @Transactional
     fun equipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): PlayerActionResponse {
         val hero = heroRepository.getOne(request.heroId)
-        if (hero.missionId != null) {
+        if (!hero.isAvailable()) {
             throw HeroBusyException(player, hero)
         }
         val gear = gearRepository.getOne(request.gearId)
@@ -63,7 +63,7 @@ class GearController(private val gearRepository: GearRepository,
     @Transactional
     fun unequipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): PlayerActionResponse {
         val hero = heroRepository.getOne(request.heroId)
-        if (hero.missionId != null) {
+        if (!hero.isAvailable()) {
             throw HeroBusyException(player, hero)
         }
         val gear = gearRepository.getOne(request.gearId)

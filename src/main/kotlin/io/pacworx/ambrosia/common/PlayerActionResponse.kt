@@ -5,6 +5,8 @@ import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.Incubator
+import io.pacworx.ambrosia.expedition.Expedition
+import io.pacworx.ambrosia.expedition.PlayerExpedition
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.Jewelry
 import io.pacworx.ambrosia.hero.HeroDto
@@ -43,5 +45,8 @@ data class PlayerActionResponse(
     val upgradeRemoved: Long? = null,
     val incubators: List<Incubator>? = null,
     val incubatorDone: Long? = null,
-    val knownStories: List<String>? = null
+    val knownStories: List<String>? = null,
+    val expeditions: List<Expedition>? = null,
+    val playerExpeditions: List<PlayerExpedition>? = null,
+    val playerExpeditionCancelled: Long? = null
 )

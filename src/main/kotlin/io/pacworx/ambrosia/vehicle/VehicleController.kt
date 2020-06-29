@@ -52,7 +52,7 @@ class VehicleController(
         if (vehicle.playerId != player.id) {
             throw UnauthorizedException(player, "You don't own vehicle #$vehicleId")
         }
-        if (vehicle.missionId != null || vehicle.slot == null || vehicle.upgradeTriggered) {
+        if (!vehicle.isAvailable()) {
             throw VehicleBusyException(player, vehicle)
         }
         vehicle.slot = null
@@ -74,7 +74,7 @@ class VehicleController(
         if (part.playerId != player.id) {
             throw UnauthorizedException(player, "You don't own part $partId")
         }
-        if (vehicle.upgradeTriggered || vehicle.missionId != null || vehicle.slot == null) {
+        if (!vehicle.isAvailable()) {
             throw VehicleBusyException(player, vehicle)
         }
         if (part.level > vehicle.level) {
@@ -100,7 +100,7 @@ class VehicleController(
         if (part.playerId != player.id) {
             throw UnauthorizedException(player, "You don't own part $partId")
         }
-        if (vehicle.missionId != null || vehicle.slot == null) {
+        if (!vehicle.isAvailable()) {
             throw VehicleBusyException(player, vehicle)
         }
         if (part.equippedTo != vehicle.id) {

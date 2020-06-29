@@ -56,7 +56,7 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
         val resources = resourcesService.spendResource(player, fight.resourceType, request.battleTimes * fight.costs)
 
         val vehicle = vehicleRepository.findByIdOrNull(request.vehicleId) ?: throw EntityNotFoundException(player, "vehicle", request.vehicleId)
-        if (vehicle.slot == null || vehicle.missionId != null || vehicle.upgradeTriggered) {
+        if (!vehicle.isAvailable()) {
             throw VehicleBusyException(player, vehicle)
         }
         val heroes = listOfNotNull(request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id).let { heroRepository.findAllByPlayerIdAndIdIn(player.id, it) }
@@ -64,10 +64,7 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
             throw GeneralException(player, "Cannot start mission", "No heroes selected to start mission")
         }
         heroes.forEach { hero ->
-            if (hero.playerId != player.id) {
-                throw UnauthorizedException(player, "You have to own the heroes sending to a mission")
-            }
-            if (hero.missionId != null) {
+            if (!hero.isAvailable()) {
                 throw HeroBusyException(player, hero)
             }
         }

@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.hero
 import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
+import io.pacworx.ambrosia.expedition.PlayerExpedition
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import io.pacworx.ambrosia.player.Player
@@ -108,6 +109,17 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
                     (1..mission.wonCount).forEach { _ -> gainXpAndAsc(hero, mission.fight, vehicle) }
                 }
                 hero.missionId = null
+                hero
+            }.map { asHeroDto(it) }
+    }
+
+    fun finishedExpedition(playerExpedition: PlayerExpedition, vehicle: Vehicle, xp: Int): List<HeroDto> {
+        vehicle.playerExpeditionId = null
+        return listOfNotNull(playerExpedition.hero1Id, playerExpedition.hero2Id, playerExpedition.hero3Id, playerExpedition.hero4Id)
+            .map { heroRepository.getOne(it) }
+            .map { hero ->
+                heroGainXp(hero, xp)
+                hero.playerExpeditionId = null
                 hero
             }.map { asHeroDto(it) }
     }

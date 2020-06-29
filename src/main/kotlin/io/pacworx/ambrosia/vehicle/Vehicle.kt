@@ -15,6 +15,7 @@ data class Vehicle(
     var upgradeTriggered: Boolean = false,
     var slot: Int? = null,
     var missionId: Long? = null,
+    var playerExpeditionId: Long? = null,
     @OneToOne
     @JoinColumn(name = "engine_part_id")
     var engine: VehiclePart? = null,
@@ -38,5 +39,13 @@ data class Vehicle(
     @JsonIgnore
     fun getAllParts(): List<VehiclePart> {
         return listOfNotNull(engine, frame, computer, specialPart1, specialPart2, specialPart3)
+    }
+
+    @JsonIgnore
+    fun isAvailable(): Boolean {
+        return slot != null &&
+            missionId == null &&
+            playerExpeditionId == null &&
+            !upgradeTriggered
     }
 }

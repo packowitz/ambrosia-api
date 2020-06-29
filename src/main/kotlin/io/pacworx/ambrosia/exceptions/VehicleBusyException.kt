@@ -13,6 +13,8 @@ class VehicleBusyException(val player: Player, val vehicle: Vehicle) : AmbrosiaE
                 msg += "not parked in a garage slot"
             } else if (vehicle.missionId != null) {
                 msg += "on mission"
+            } else if (vehicle.playerExpeditionId != null) {
+                msg += "on expedition"
             } else if (vehicle.upgradeTriggered) {
                 msg += "currently upgrading"
             }

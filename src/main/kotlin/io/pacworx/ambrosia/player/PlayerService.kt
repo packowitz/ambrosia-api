@@ -8,6 +8,8 @@ import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.buildings.IncubatorRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.expedition.ExpeditionRepository
+import io.pacworx.ambrosia.expedition.PlayerExpeditionRepository
 import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.hero.HeroRepository
@@ -35,25 +37,29 @@ import javax.transaction.Transactional
 
 
 @Service
-class PlayerService(private val playerRepository: PlayerRepository,
-                    private val progressRepository: ProgressRepository,
-                    private val heroService: HeroService,
-                    private val heroRepository: HeroRepository,
-                    private val gearRepository: GearRepository,
-                    private val jewelryRepository: JewelryRepository,
-                    private val battleService: BattleService,
-                    private val simplePlayerMapRepository: SimplePlayerMapRepository,
-                    private val buildingRepository: BuildingRepository,
-                    private val mapService: MapService,
-                    private val propertyService: PropertyService,
-                    private val resourcesRepository: ResourcesRepository,
-                    private val resourcesService: ResourcesService,
-                    private val vehicleRepository: VehicleRepository,
-                    private val vehiclePartRepository: VehiclePartRepository,
-                    private val missionService: MissionService,
-                    private val upgradeService: UpgradeService,
-                    private val incubatorRepository: IncubatorRepository,
-                    private val storyProgressRepository: StoryProgressRepository) {
+class PlayerService(
+    private val playerRepository: PlayerRepository,
+    private val progressRepository: ProgressRepository,
+    private val heroService: HeroService,
+    private val heroRepository: HeroRepository,
+    private val gearRepository: GearRepository,
+    private val jewelryRepository: JewelryRepository,
+    private val battleService: BattleService,
+    private val simplePlayerMapRepository: SimplePlayerMapRepository,
+    private val buildingRepository: BuildingRepository,
+    private val mapService: MapService,
+    private val propertyService: PropertyService,
+    private val resourcesRepository: ResourcesRepository,
+    private val resourcesService: ResourcesService,
+    private val vehicleRepository: VehicleRepository,
+    private val vehiclePartRepository: VehiclePartRepository,
+    private val missionService: MissionService,
+    private val upgradeService: UpgradeService,
+    private val incubatorRepository: IncubatorRepository,
+    private val storyProgressRepository: StoryProgressRepository,
+    private val expeditionRepository: ExpeditionRepository,
+    private val playerExpeditionRepository: PlayerExpeditionRepository
+) {
 
     @Value("\${ambrosia.pw-salt-one}")
     private lateinit var pwSalt1: String
@@ -171,6 +177,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
         val currentMap = mapService.getCurrentPlayerMap(player, progress)
         val missions = missionService.getAllMissions(player)
         val dnaCubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
+        val expeditions = expeditionRepository.findAllByExpeditionBase_LevelAndActiveIsTrue(progress.expeditionLevel)
+        val playerExpeditions = playerExpeditionRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
         val ongoingBattle = battleService.getOngoingBattle(player)
         val knownStories = storyProgressRepository.findAllByPlayerId(player.id).map { it.trigger.name }
         return PlayerActionResponse(
@@ -188,6 +196,8 @@ class PlayerService(private val playerRepository: PlayerRepository,
             currentMap = currentMap,
             missions = missions,
             incubators = dnaCubes,
+            expeditions = expeditions,
+            playerExpeditions = playerExpeditions,
             ongoingBattle = ongoingBattle,
             upgrades = upgrades,
             knownStories = knownStories)

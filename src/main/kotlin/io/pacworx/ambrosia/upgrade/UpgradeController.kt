@@ -210,7 +210,7 @@ class UpgradeController(private val upgradeService: UpgradeService,
         if (vehicle.playerId != player.id) {
             throw UnauthorizedException(player, "You can only upgrade vehicles you own")
         }
-        if (vehicle.upgradeTriggered || vehicle.missionId != null || vehicle.slot == null) {
+        if (!vehicle.isAvailable()) {
             throw VehicleBusyException(player, vehicle)
         }
         if (vehicle.level >= vehicle.baseVehicle.maxLevel) {

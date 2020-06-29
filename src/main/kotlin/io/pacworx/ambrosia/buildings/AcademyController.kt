@@ -41,7 +41,7 @@ class AcademyController(private val heroRepository: HeroRepository,
         val heroes = heroRepository.findAllByPlayerIdAndIdIn(player.id,
             listOfNotNull(heroId, request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id, request.hero5Id, request.hero6Id)
         )
-        heroes.find { it.missionId != null }?.let { throw HeroBusyException(player, it) }
+        heroes.find { !it.isAvailable() }?.let { throw HeroBusyException(player, it) }
         val hero = heroes.find { it.id == heroId }
             ?: throw UnauthorizedException(player, "Given hero cannot get upgraded by you")
         val progress = progressRepository.getOne(player.id)
@@ -83,7 +83,7 @@ class AcademyController(private val heroRepository: HeroRepository,
         val heroes = heroRepository.findAllByPlayerIdAndIdIn(player.id,
             listOfNotNull(heroId, request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id, request.hero5Id, request.hero6Id)
         )
-        heroes.find { it.missionId != null }?.let { throw HeroBusyException(player, it) }
+        heroes.find { !it.isAvailable() }?.let { throw HeroBusyException(player, it) }
 
         val hero = heroes.find { it.id == heroId }
             ?: throw UnauthorizedException(player, "Given hero cannot get evolved by you")

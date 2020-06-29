@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.expedition
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.Instant
 import javax.persistence.*
 
@@ -11,7 +12,7 @@ data class Expedition(
     @ManyToOne
     @JoinColumn(name = "expedition_base_id")
     val expeditionBase: ExpeditionBase,
-    var active: Boolean,
-    val created: Instant,
-    val availableUntil: Instant
+    @JsonIgnore var active: Boolean,
+    @JsonIgnore val created: Instant,
+    @JsonIgnore val availableUntil: Instant
 )

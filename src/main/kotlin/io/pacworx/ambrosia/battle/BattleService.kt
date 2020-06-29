@@ -104,11 +104,11 @@ class BattleService(private val playerRepository: PlayerRepository,
             request.hero1Id, request.hero2Id, request.hero3Id, request.hero4Id,
             fightStage.hero1Id, fightStage.hero2Id, fightStage.hero3Id, fightStage.hero4Id))
         if (vehicle != null) {
-            if (vehicle.slot == null || vehicle.missionId != null || vehicle.upgradeTriggered) {
+            if (!vehicle.isAvailable()) {
                 throw VehicleBusyException(player, vehicle)
             }
         }
-        heroes.find { it.playerId == player.id && it.missionId != null }?.let { throw HeroBusyException(player, it) }
+        heroes.find { it.playerId == player.id && !it.isAvailable() }?.let { throw HeroBusyException(player, it) }
 
         val battle = battleRepository.save(Battle(
             type = mapTile?.let { BattleType.CAMPAIGN } ?: BattleType.TEST,
