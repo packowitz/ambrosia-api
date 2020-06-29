@@ -8,6 +8,7 @@ import kotlin.math.roundToInt
 
 data class HeroDto(val id: Long,
                    val missionId: Long?,
+                   val playerExpeditionId: Long?,
                    val heroBase: HeroBase,
                    var stars: Int,
                    var level: Int,
@@ -118,6 +119,7 @@ data class HeroDto(val id: Long,
     constructor(hero: Hero) : this(
         id = hero.id,
         missionId = hero.missionId,
+        playerExpeditionId = hero.playerExpeditionId,
         heroBase = hero.heroBase,
         stars = hero.stars,
         level = hero.level,
