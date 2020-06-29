@@ -36,8 +36,15 @@ enum class StoryTrigger {
     MAP_DUNGEON_2,
     MAP_DUNGEON_3,
     MAP_DUNGEON_4,
+    MAP_DUNGEON_5,
+    MAP_DUNGEON_6,
+    MAP_DUNGEON_7,
+    MAP_DUNGEON_8,
+    MAP_DUNGEON_9,
+    MAP_DUNGEON_10,
     MAP_2,
     MAP_3,
     MAP_4,
-    MAP_5
+    MAP_5,
+    MAP_6
 }
