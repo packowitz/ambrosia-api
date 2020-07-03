@@ -15,6 +15,8 @@ import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedType
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
+import io.pacworx.ambrosia.oddjobs.OddJob
+import io.pacworx.ambrosia.oddjobs.OddJobService
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -35,17 +37,20 @@ import javax.transaction.Transactional
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("battle")
-class BattleController(private val battleService: BattleService,
-                       private val battleRepository: BattleRepository,
-                       private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository,
-                       private val mapService: MapService,
-                       private val fightRepository: FightRepository,
-                       private val resourcesService: ResourcesService,
-                       private val progressRepository: ProgressRepository,
-                       private val heroService: HeroService,
-                       private val lootService: LootService,
-                       private val auditLogService: AuditLogService,
-                       private val battleStepRepository: BattleStepRepository) {
+class BattleController(
+    private val battleService: BattleService,
+    private val battleRepository: BattleRepository,
+    private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository,
+    private val mapService: MapService,
+    private val fightRepository: FightRepository,
+    private val resourcesService: ResourcesService,
+    private val progressRepository: ProgressRepository,
+    private val heroService: HeroService,
+    private val lootService: LootService,
+    private val auditLogService: AuditLogService,
+    private val battleStepRepository: BattleStepRepository,
+    private val oddJobService: OddJobService
+) {
 
     @GetMapping("{battleId}")
     @Transactional
@@ -86,12 +91,13 @@ class BattleController(private val battleService: BattleService,
         }
         val fight = fightRepository.getOne(mapTile.fightId)
         val resources = resourcesService.spendResource(player, fight.resourceType, fight.costs)
+        val oddJobsEffected = oddJobService.resourcesSpend(player, fight.resourceType, fight.costs)
         val battle = battleService.initCampaign(player, mapTile, fight, request)
         auditLogService.log(player, "Started a campaign battle #${battle.id} (status: ${battle.status.name}): fight #${mapTile.fightId} on map #${mapTile.mapId} ${mapTile.posX}x${mapTile.posY} " +
                 "using ${battle.vehicle?.let { "${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} level ${it.level}" }} " +
                 "paying ${fight.costs} ${fight.resourceType.name}"
         )
-        return afterBattleAction(player, battle, resources)
+        return afterBattleAction(player, battle, resources, oddJobsEffected.toMutableList())
     }
 
     @PostMapping("campaign/test/{fightId}")
@@ -192,7 +198,7 @@ class BattleController(private val battleService: BattleService,
         }
     }
 
-    private fun afterBattleAction(player: Player, battle: Battle, resources: Resources? = null): PlayerActionResponse {
+    private fun afterBattleAction(player: Player, battle: Battle, resources: Resources? = null, oddJobsEffected: MutableList<OddJob> = mutableListOf()): PlayerActionResponse {
         return if (battle.status == BattleStatus.WON && battle.type != BattleType.TEST) {
             val map = battle.mapId?.let {
                 mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
@@ -205,6 +211,7 @@ class BattleController(private val battleService: BattleService,
                         "Looting ${loot?.items?.joinToString { it.auditLog() } ?: "nothing"}"
                 )
             }
+            oddJobsEffected.addAll((loot?.let { oddJobService.looted(player, it.items) } ?: emptyList()))
             PlayerActionResponse(
                 player = player,
                 progress = if (loot?.items?.any { it.progress != null } == true) { progressRepository.getOne(player.id) } else { null },
@@ -216,7 +223,8 @@ class BattleController(private val battleService: BattleService,
                 vehicles = loot?.items?.filter { it.vehicle != null }?.map { it.vehicle!! }?.takeIf { it.isNotEmpty() },
                 vehicleParts = loot?.items?.filter { it.vehiclePart != null }?.map { it.vehiclePart!! }?.takeIf { it.isNotEmpty() },
                 ongoingBattle = battle,
-                looted = loot?.items?.let { items -> Looted(LootedType.BATTLE, items.map { lootService.asLootedItem(it) })  }
+                looted = loot?.items?.let { items -> Looted(LootedType.BATTLE, items.map { lootService.asLootedItem(it) })  },
+                oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
             )
         } else {
             if (battle.type == BattleType.CAMPAIGN && battle.status == BattleStatus.LOST) {

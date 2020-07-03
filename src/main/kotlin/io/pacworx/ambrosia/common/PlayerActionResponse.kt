@@ -12,6 +12,8 @@ import io.pacworx.ambrosia.gear.Jewelry
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.maps.PlayerMapResolved
+import io.pacworx.ambrosia.oddjobs.DailyActivity
+import io.pacworx.ambrosia.oddjobs.OddJob
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.resources.Resources
@@ -48,5 +50,8 @@ data class PlayerActionResponse(
     val knownStories: List<String>? = null,
     val expeditions: List<Expedition>? = null,
     val playerExpeditions: List<PlayerExpedition>? = null,
-    val playerExpeditionCancelled: Long? = null
+    val playerExpeditionCancelled: Long? = null,
+    val oddJobs: List<OddJob>? = null,
+    val oddJobDone: Long? = null,
+    val dailyActivity: DailyActivity? = null
 )

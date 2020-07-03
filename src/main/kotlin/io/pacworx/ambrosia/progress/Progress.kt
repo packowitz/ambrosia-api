@@ -14,6 +14,7 @@ data class Progress(
     var level: Int = 1,
     var currentMapId: Long? = null,
     var expeditionLevel: Int = 0,
+    var numberOddJobs: Int = 3,
     var garageSlots: Int = 1,
     var offlineBattleSpeed: Int = 100,
     var maxOfflineBattlesPerMission: Int = 5,

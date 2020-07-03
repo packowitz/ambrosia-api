@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.gear
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.upgrade.Modification
 import io.pacworx.ambrosia.hero.HeroStat
 import io.pacworx.ambrosia.hero.Rarity
@@ -9,6 +10,7 @@ import java.lang.RuntimeException
 import javax.persistence.*
 
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class Gear(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,

@@ -45,6 +45,7 @@ enum class PropertyType(
 
     XP_MAX_PLAYER(PLAYER, "Defines max XP for each player level", value1name = "Max XP"),
     LEVEL_REWARD_PLAYER(PLAYER, "Defines the rewards a player gets reaching a certain level", showResources = true, showProgressStat = true, value1name = "amount"),
+    DAILY_REWARD(PLAYER, "Defines the rewards a player gets for being active. Level is the activity day.", showResources = true, value1name = "amount"),
 
     XP_MAX_HERO(HERO, "Level: hero level (1-60). Value: max xp to reach next level."),
     ASC_POINTS_MAX_HERO(HERO, "Level: hero ascension level (1-??). Value: max asc points to reach next level."),

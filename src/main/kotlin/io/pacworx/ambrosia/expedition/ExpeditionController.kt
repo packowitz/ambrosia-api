@@ -5,9 +5,14 @@ import io.pacworx.ambrosia.exceptions.*
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.loot.LootBoxResult
+import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.LootService
+import io.pacworx.ambrosia.loot.LootedItem
+import io.pacworx.ambrosia.oddjobs.OddJob
+import io.pacworx.ambrosia.oddjobs.OddJobService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
+import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -27,7 +32,8 @@ class ExpeditionController(
     private val heroRepository: HeroRepository,
     private val heroService: HeroService,
     private val lootService: LootService,
-    private val resourcesService: ResourcesService
+    private val resourcesService: ResourcesService,
+    private val oddJobService: OddJobService
 ) {
 
     @GetMapping("active")
@@ -124,14 +130,22 @@ class ExpeditionController(
         val vehicle = vehicleRepository.findByIdOrNull(playerExpedition.vehicleId)
             ?: throw EntityNotFoundException(player, "vehicle", playerExpedition.vehicleId)
         var xp = 0
+        var oddJobsEffected: List<OddJob>? = null
         var cancelledId: Long? = null
         var lootBoxResult: LootBoxResult? = null
         if (playerExpedition.getSecondsUntilDone() <= 2) {
             val expedition = expeditionRepository.findByIdOrNull(playerExpedition.expeditionId)
                 ?: throw EntityNotFoundException(player, "expedition", playerExpedition.expeditionId)
             xp = expedition.expeditionBase.xp
+            val oddJob = oddJobService.createOddJob(player, playerExpedition.level)
             lootBoxResult = lootService.openLootBox(player, expedition.expeditionBase.lootBoxId)
-            playerExpedition.lootedItems = lootBoxResult.items.map { lootService.asLootedItem(it) }
+            playerExpedition.lootedItems = lootBoxResult.items.map { lootService.asLootedItem(it) } +
+                listOfNotNull(oddJob?.let { LootedItem(
+                    type = LootItemType.RESOURCE,
+                    resourceType = ResourceType.ODD_JOB,
+                    value = 1
+                )})
+            oddJobsEffected = listOfNotNull(oddJob) + oddJobService.expeditionFinished(player, expedition)
         } else {
             // expedition got cancelled
             cancelledId = playerExpeditionId
@@ -149,7 +163,8 @@ class ExpeditionController(
             jewelries = lootItems.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },
             vehicleParts = lootItems.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
             playerExpeditions = playerExpedition.takeIf { cancelledId == null }?.let { listOf(it) },
-            playerExpeditionCancelled = cancelledId
+            playerExpeditionCancelled = cancelledId,
+            oddJobs = oddJobsEffected?.takeIf { it.isNotEmpty() }
         )
     }
 

@@ -9,11 +9,11 @@ import javax.persistence.*
 data class Player(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-    var locked: Instant? = null,
+    @JsonIgnore var locked: Instant? = null,
     var name: String,
     @JsonIgnore val email: String,
     @JsonIgnore val password: String,
-    var lastLogin: Instant = Instant.now(),
+    @JsonIgnore var lastLogin: Instant = Instant.now(),
     val admin: Boolean = false,
     val betaTester: Boolean = false,
     val serviceAccount: Boolean = false,

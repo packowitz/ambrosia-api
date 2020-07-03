@@ -9,6 +9,7 @@ import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
+import io.pacworx.ambrosia.oddjobs.OddJobService
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -22,18 +23,20 @@ import javax.transaction.Transactional
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("battle/mission")
-class MissionController(private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository,
-                        private val missionService: MissionService,
-                        private val battleRepository: BattleRepository,
-                        private val fightRepository: FightRepository,
-                        private val resourcesService: ResourcesService,
-                        private val progressRepository: ProgressRepository,
-                        private val vehicleRepository: VehicleRepository,
-                        private val heroRepository: HeroRepository,
-                        private val missionRepository: MissionRepository,
-                        private val lootService: LootService,
-                        private val heroService: HeroService,
-                        private val auditLogService: AuditLogService
+class MissionController(
+    private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository,
+    private val missionService: MissionService,
+    private val battleRepository: BattleRepository,
+    private val fightRepository: FightRepository,
+    private val resourcesService: ResourcesService,
+    private val progressRepository: ProgressRepository,
+    private val vehicleRepository: VehicleRepository,
+    private val heroRepository: HeroRepository,
+    private val missionRepository: MissionRepository,
+    private val lootService: LootService,
+    private val heroService: HeroService,
+    private val auditLogService: AuditLogService,
+    private val oddJobService: OddJobService
 ) {
 
     @PostMapping
@@ -105,18 +108,22 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
             throw UnauthorizedException(player, "You do not own that mission")
         }
 
+        val resources = resourcesService.getResources(player)
+
         val vehicle = vehicleRepository.getOne(mission.vehicleId)
         val heroes = heroService.wonMission(mission, vehicle)
 
         mission.battles.filter { !it.battleFinished }.forEach {
             it.cancelled = true
-            resourcesService.gainResources(player, mission.fight.resourceType, mission.fight.costs)
+            resourcesService.gainResources(resources, mission.fight.resourceType, mission.fight.costs)
         }
         val lootItems = mission.battles.filter { it.isBattleSuccess() == true }.flatMap { battle ->
             val lootBoxResult = lootService.openLootBox(player, mission.fight.lootBox, vehicle)
             battle.lootedItems = lootBoxResult.items.map { lootService.asLootedItem(it) }
             lootBoxResult.items
         }
+        val oddJobsEffected = oddJobService.missionFinished(player, mission) + oddJobService.looted(player, lootItems) +
+            oddJobService.resourcesSpend(player, mission.fight.resourceType, mission.battles.count { it.battleFinished } * mission.fight.costs)
 
         auditLogService.log(player, "Finish mission #${mission.id} ${mission.battles.count { !it.battleFinished }.takeIf { it > 0 }?.let{ "($it cancelled) " } ?: "" }" +
                 "${mission.battles.count { it.battleFinished && it.battleWon } } won ${mission.battles.count { it.battleFinished && !it.battleWon } } lost. " +
@@ -130,7 +137,7 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
 
         return PlayerActionResponse(
             player = player,
-            resources = resourcesService.getResources(player),
+            resources = resources,
             progress = if (lootItems.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
             heroes = heroes + lootItems.filter { it.hero != null }.map { it.hero!! },
             gears = lootItems.filter { it.gear != null }.map { it.gear!! }.takeIf { it.isNotEmpty() },
@@ -138,7 +145,8 @@ class MissionController(private val simplePlayerMapTileRepository: SimplePlayerM
             vehicles = listOf(vehicle) + (lootItems.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() } ?: listOf()),
             vehicleParts = lootItems.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
             missions = listOf(mission),
-            missionIdFinished = missionId
+            missionIdFinished = missionId,
+            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
         )
     }
 

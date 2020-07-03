@@ -8,9 +8,11 @@ import io.pacworx.ambrosia.exceptions.MapTileActionException
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedType
+import io.pacworx.ambrosia.oddjobs.OddJobService
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
+import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.upgrade.UpgradeService
 import org.springframework.data.repository.findByIdOrNull
@@ -20,15 +22,18 @@ import javax.transaction.Transactional
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("map")
-class MapController(private val mapService: MapService,
-                    private val playerMapRepository: PlayerMapRepository,
-                    private val mapRepository: MapRepository,
-                    private val buildingRepository: BuildingRepository,
-                    private val resourcesService: ResourcesService,
-                    private val lootService: LootService,
-                    private val upgradeService: UpgradeService,
-                    private val progressRepository: ProgressRepository,
-                    private val auditLogService: AuditLogService) {
+class MapController(
+    private val mapService: MapService,
+    private val playerMapRepository: PlayerMapRepository,
+    private val mapRepository: MapRepository,
+    private val buildingRepository: BuildingRepository,
+    private val resourcesService: ResourcesService,
+    private val lootService: LootService,
+    private val upgradeService: UpgradeService,
+    private val progressRepository: ProgressRepository,
+    private val auditLogService: AuditLogService,
+    private val oddJobService: OddJobService
+) {
 
     @GetMapping("{mapId}")
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
@@ -57,9 +62,14 @@ class MapController(private val mapService: MapService,
         val tile = map.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discoverable }
             ?: throw MapTileActionException(player, "discover", request.mapId, request.posX, request.posY)
         val resources = resourcesService.spendSteam(player, map.map.discoverySteamCost)
+        val oddJobsEffected = oddJobService.resourcesSpend(player, ResourceType.STEAM, map.map.discoverySteamCost)
         mapService.discoverMapTile(player, map, tile)
         auditLogService.log(player, "Discover tile ${tile.posX}x${tile.posY} on map ${map.map.name} #${map.map.id} paying ${map.map.discoverySteamCost} steam")
-        return PlayerActionResponse(currentMap = PlayerMapResolved(playerMapRepository.save(map)), resources = resources)
+        return PlayerActionResponse(
+            currentMap = PlayerMapResolved(playerMapRepository.save(map)),
+            resources = resources,
+            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
+        )
     }
 
     @PostMapping("new_building")
@@ -99,6 +109,7 @@ class MapController(private val mapService: MapService,
             ?: throw MapTileActionException(player, "open chest on", request.mapId, request.posX, request.posY)
         val result = lootService.openLootBox(player, lootBoxId)
         tile.chestOpened = true
+        val oddJobsEffected = oddJobService.chestOpened(player) + oddJobService.looted(player, result.items)
 
         auditLogService.log(player, "Open chest (loot box #${result.lootBoxId}) on map ${playerMap.map.name} #${playerMap.map.id} " +
                 "looting ${result.items.joinToString { it.auditLog() }}"
@@ -113,7 +124,8 @@ class MapController(private val mapService: MapService,
             jewelries = result.items.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },
             vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
-            looted = Looted(LootedType.CHEST, result.items.map { lootService.asLootedItem(it) })
+            looted = Looted(LootedType.CHEST, result.items.map { lootService.asLootedItem(it) }),
+            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
         )
     }
 

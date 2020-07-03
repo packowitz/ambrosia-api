@@ -1,15 +1,12 @@
 package io.pacworx.ambrosia.expedition
 
-import io.pacworx.ambrosia.common.procs
-import io.pacworx.ambrosia.hero.Rarity
+import io.pacworx.ambrosia.common.randomRarity
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.Instant
-import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import javax.transaction.Transactional
-import kotlin.random.Random
 
 @Component
 class ExpeditionScheduler(
@@ -41,15 +38,5 @@ class ExpeditionScheduler(
                 ))
             }
         }
-    }
-
-    private fun randomRarity(): Rarity {
-        val random = Random.nextInt(100)
-        if (procs(1, random)) { return Rarity.LEGENDARY }
-        if (procs(3, random)) { return Rarity.EPIC }
-        if (procs(6, random)) { return Rarity.RARE }
-        if (procs(15, random)) { return Rarity.UNCOMMON }
-        if (procs(25, random)) { return Rarity.COMMON }
-        return Rarity.SIMPLE
     }
 }

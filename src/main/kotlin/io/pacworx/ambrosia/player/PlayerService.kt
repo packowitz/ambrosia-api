@@ -16,6 +16,9 @@ import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.maps.SimplePlayerMapRepository
+import io.pacworx.ambrosia.oddjobs.DailyActivity
+import io.pacworx.ambrosia.oddjobs.DailyActivityRepository
+import io.pacworx.ambrosia.oddjobs.OddJobService
 import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
@@ -58,7 +61,9 @@ class PlayerService(
     private val incubatorRepository: IncubatorRepository,
     private val storyProgressRepository: StoryProgressRepository,
     private val expeditionRepository: ExpeditionRepository,
-    private val playerExpeditionRepository: PlayerExpeditionRepository
+    private val playerExpeditionRepository: PlayerExpeditionRepository,
+    private val oddJobService: OddJobService,
+    private val dailyActivityRepository: DailyActivityRepository
 ) {
 
     @Value("\${ambrosia.pw-salt-one}")
@@ -134,6 +139,7 @@ class PlayerService(
         val progress = Progress(playerId = player.id, maxXp = getStartingAmount(PropertyType.XP_MAX_PLAYER))
         upgradeService.applyBuildingLevel(player, barracks, progress)
         progressRepository.save(progress)
+        dailyActivityRepository.save(DailyActivity(playerId = player.id))
 
         return player
     }
@@ -179,8 +185,10 @@ class PlayerService(
         val dnaCubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
         val expeditions = expeditionRepository.findAllByExpeditionBase_LevelAndActiveIsTrue(progress.expeditionLevel)
         val playerExpeditions = playerExpeditionRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
+        val oddJobs = oddJobService.getOddJobs(player)
         val ongoingBattle = battleService.getOngoingBattle(player)
         val knownStories = storyProgressRepository.findAllByPlayerId(player.id).map { it.trigger.name }
+        val dailyActivity = dailyActivityRepository.getOne(player.id).also { it.checkForReset() }
         return PlayerActionResponse(
             resources = resources,
             token = token,
@@ -198,9 +206,12 @@ class PlayerService(
             incubators = dnaCubes,
             expeditions = expeditions,
             playerExpeditions = playerExpeditions,
+            oddJobs = oddJobs,
             ongoingBattle = ongoingBattle,
             upgrades = upgrades,
-            knownStories = knownStories)
+            knownStories = knownStories,
+            dailyActivity = dailyActivity
+        )
     }
 
     private fun getHash(name: String, password: String): String {

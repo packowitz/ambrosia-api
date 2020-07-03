@@ -10,6 +10,7 @@ import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedItem
 import io.pacworx.ambrosia.loot.LootedType
+import io.pacworx.ambrosia.oddjobs.OddJobService
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -30,12 +31,15 @@ import kotlin.random.Random
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("forge")
-class ForgeController(val gearRepository: GearRepository,
-                      val progressRepository: ProgressRepository,
-                      val propertyService: PropertyService,
-                      val resourcesService: ResourcesService,
-                      val auditLogService: AuditLogService,
-                      val jewelryRepository: JewelryRepository) {
+class ForgeController(
+    val gearRepository: GearRepository,
+    val progressRepository: ProgressRepository,
+    val propertyService: PropertyService,
+    val resourcesService: ResourcesService,
+    val auditLogService: AuditLogService,
+    val jewelryRepository: JewelryRepository,
+    val oddJobService: OddJobService
+) {
 
     @PostMapping("breakdown")
     @Transactional
@@ -73,12 +77,14 @@ class ForgeController(val gearRepository: GearRepository,
                 "gaining ${lootedItems.joinToString { "${it.value} ${it.resourceType?.name}" }}"
         )
 
+        val oddJobsEffected = oddJobService.gearBreakDownGear(player, gears)
         gearRepository.deleteAll(gears)
         return PlayerActionResponse(
             resources = resources,
             gearIdsRemovedFromArmory = gears.map { it.id },
             looted = Looted(LootedType.BREAKDOWN, lootedItems),
-            jewelries = jewelries
+            jewelries = jewelries,
+            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
         )
     }
 

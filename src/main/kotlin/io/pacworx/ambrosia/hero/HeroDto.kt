@@ -1,11 +1,14 @@
 package io.pacworx.ambrosia.hero
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.HeroGearSet
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class HeroDto(val id: Long,
                    val missionId: Long?,
                    val playerExpeditionId: Long?,
@@ -81,40 +84,40 @@ data class HeroDto(val id: Long,
     var sets = listOf<HeroGearSet>()
 
     // Stat bonuses
-    var strengthAbsBonus: Int = 0
-    var strengthPercBonus: Int = 0
-    var hpAbsBonus: Int = 0
-    var hpPercBonus: Int = 0
-    var armorAbsBonus: Int = 0
-    var armorPercBonus: Int = 0
-    var initiativeBonus: Int = 0
-    var critBonus: Int = 0
-    var critMultBonus: Int = 0
-    var dexterityBonus: Int = 0
-    var resistanceBonus: Int = 0
+    @JsonIgnore var strengthAbsBonus: Int = 0
+    @JsonIgnore var strengthPercBonus: Int = 0
+    @JsonIgnore var hpAbsBonus: Int = 0
+    @JsonIgnore var hpPercBonus: Int = 0
+    @JsonIgnore var armorAbsBonus: Int = 0
+    @JsonIgnore var armorPercBonus: Int = 0
+    @JsonIgnore var initiativeBonus: Int = 0
+    @JsonIgnore var critBonus: Int = 0
+    @JsonIgnore var critMultBonus: Int = 0
+    @JsonIgnore var dexterityBonus: Int = 0
+    @JsonIgnore var resistanceBonus: Int = 0
 
     // Hidden stats
-    var lifesteal: Int = 0
-    var counterChance: Int = 0
-    var reflect: Int = 0
-    var dodgeChance: Int = 0
-    var speedBarFilling: Int = 100
-    var armorPiercing: Int = 0
-    var armorExtraDmg: Int = 0
-    var healthExtraDmg: Int = 0
-    var redDamageInc: Int = 0
-    var greenDamageInc: Int = 0
-    var blueDamageInc: Int = 0
-    var healingInc: Int = 0
-    var superCritChance: Int = 0
-    var buffIntensityInc: Int = 0
-    var debuffIntensityInc: Int = 0
-    var buffDurationInc: Int = 0
-    var debuffDurationInc: Int = 0
-    var healPerTurn: Int = 0
-    var dmgPerTurn: Int = 0
-    var confuseChance: Int = 0
-    var damageReduction: Int = 0
+    @JsonIgnore var lifesteal: Int = 0
+    @JsonIgnore var counterChance: Int = 0
+    @JsonIgnore var reflect: Int = 0
+    @JsonIgnore var dodgeChance: Int = 0
+    @JsonIgnore var speedBarFilling: Int = 100
+    @JsonIgnore var armorPiercing: Int = 0
+    @JsonIgnore var armorExtraDmg: Int = 0
+    @JsonIgnore var healthExtraDmg: Int = 0
+    @JsonIgnore var redDamageInc: Int = 0
+    @JsonIgnore var greenDamageInc: Int = 0
+    @JsonIgnore var blueDamageInc: Int = 0
+    @JsonIgnore var healingInc: Int = 0
+    @JsonIgnore var superCritChance: Int = 0
+    @JsonIgnore var buffIntensityInc: Int = 0
+    @JsonIgnore var debuffIntensityInc: Int = 0
+    @JsonIgnore var buffDurationInc: Int = 0
+    @JsonIgnore var debuffDurationInc: Int = 0
+    @JsonIgnore var healPerTurn: Int = 0
+    @JsonIgnore var dmgPerTurn: Int = 0
+    @JsonIgnore var confuseChance: Int = 0
+    @JsonIgnore var damageReduction: Int = 0
 
     constructor(hero: Hero) : this(
         id = hero.id,
@@ -145,6 +148,7 @@ data class HeroDto(val id: Long,
         boots = hero.boots
     )
 
+    @JsonIgnore
     fun getGears(): List<Gear> {
         val gears = mutableListOf<Gear>()
         weapon?.let { gears.add(it) }

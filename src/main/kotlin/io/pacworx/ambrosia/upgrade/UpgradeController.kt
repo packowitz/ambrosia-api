@@ -12,6 +12,7 @@ import io.pacworx.ambrosia.exceptions.VehicleBusyException
 import io.pacworx.ambrosia.gear.GearService
 import io.pacworx.ambrosia.gear.JewelType
 import io.pacworx.ambrosia.gear.JewelryRepository
+import io.pacworx.ambrosia.oddjobs.OddJobService
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -37,17 +38,20 @@ import javax.transaction.Transactional
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("upgrade")
-class UpgradeController(private val upgradeService: UpgradeService,
-                        private val buildingRepository: BuildingRepository,
-                        private val upgradeRepository: UpgradeRepository,
-                        private val propertyService: PropertyService,
-                        private val progressRepository: ProgressRepository,
-                        private val resourcesService: ResourcesService,
-                        private val vehicleRepository: VehicleRepository,
-                        private val vehiclePartRepository: VehiclePartRepository,
-                        private val jewelryRepository: JewelryRepository,
-                        private val gearService: GearService,
-                        private val auditLogService: AuditLogService) {
+class UpgradeController(
+    private val upgradeService: UpgradeService,
+    private val buildingRepository: BuildingRepository,
+    private val upgradeRepository: UpgradeRepository,
+    private val propertyService: PropertyService,
+    private val progressRepository: ProgressRepository,
+    private val resourcesService: ResourcesService,
+    private val vehicleRepository: VehicleRepository,
+    private val vehiclePartRepository: VehiclePartRepository,
+    private val jewelryRepository: JewelryRepository,
+    private val gearService: GearService,
+    private val auditLogService: AuditLogService,
+    private val oddJobService: OddJobService
+) {
 
     @PostMapping("{upgradeId}/finish")
     @Transactional
@@ -59,6 +63,7 @@ class UpgradeController(private val upgradeService: UpgradeService,
         if (!upgrade.isFinished()) {
             throw GeneralException(player, "Cannot finish upgrade", "Ugrade has not been finished")
         }
+        val oddJobsEffected = oddJobService.upgradeFinished(player, upgrade)
         upgradeRepository.delete(upgrade)
         currentUpgrades = currentUpgrades.filter { it.id != upgrade.id }
         currentUpgrades.filter { it.position > upgrade.position }.forEach { it.position -- }
@@ -83,7 +88,8 @@ class UpgradeController(private val upgradeService: UpgradeService,
             jewelries = listOfNotNull(jewelry),
             gears = listOfNotNull(gear),
             upgrades = currentUpgrades,
-            upgradeRemoved = upgrade.id
+            upgradeRemoved = upgrade.id,
+            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
         )
     }
 
