@@ -55,6 +55,7 @@ class OddJobController(
         }
         lootService.openLootBox(player, oddJob.lootBoxId)
         val dailyActivity = dailyActivityRepository.getOne(player.id)
+        oddJobRepository.delete(oddJob)
         return PlayerActionResponse(
             resources = resourcesService.getResources(player),
             progress = progressRepository.getOne(player.id),
