@@ -13,6 +13,7 @@ data class Mission(
     val playerId: Long,
     @OneToOne
     @JoinColumn(name = "fight_id")
+    @JsonIgnore
     val fight: Fight,
     val mapId: Long? = null,
     @Column(name = "pos_x") val posX: Int? = null,

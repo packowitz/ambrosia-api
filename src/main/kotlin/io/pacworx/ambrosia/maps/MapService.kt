@@ -153,7 +153,7 @@ data class PlayerMapResolved(
         playerMap.map.maxX,
         playerMap.map.minY,
         playerMap.map.maxY,
-        playerMap.map.tiles.map { tile ->
+        playerMap.map.tiles.filter { it.type != MapTileType.NONE }.map { tile ->
             PlayerMapTileResolved(
                 tile,
                 playerMap.playerTiles.find { tile.posX == it.posX && tile.posY == it.posY })
