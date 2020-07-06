@@ -66,6 +66,31 @@ enum class ProgressStat {
             progress.labSpeed += bonus
         }
     },
+    SIMPLE_GENOMES_NEEDED {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.simpleGenomesNeeded += bonus
+        }
+    },
+    COMMON_GENOMES_NEEDED {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.commonGenomesNeeded += bonus
+        }
+    },
+    UNCOMMON_GENOMES_NEEDED {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.uncommonGenomesNeeded += bonus
+        }
+    },
+    RARE_GENOMES_NEEDED {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.rareGenomesNeeded += bonus
+        }
+    },
+    EPIC_GENOMES_NEEDED {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.epicGenomesNeeded += bonus
+        }
+    },
     JEWEL_UPGRADE_LEVEL {
         override fun apply(progress: Progress, bonus: Int) {
             progress.maxJewelUpgradingLevel += bonus

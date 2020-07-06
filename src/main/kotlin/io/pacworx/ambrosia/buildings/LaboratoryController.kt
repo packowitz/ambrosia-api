@@ -12,6 +12,7 @@ import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
+import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.upgrade.Cost
@@ -57,23 +58,23 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
         var time: Int
         when (type) {
             GenomeType.SIMPLE_GENOME -> {
-                costs = propertyService.getProperties(PropertyType.SIMPLE_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                costs = listOf(Cost(progress.simpleGenomesNeeded, ResourceType.SIMPLE_GENOME))
                 time = propertyService.getProperties(PropertyType.SIMPLE_GENOME_TIME).first().value1
             }
             GenomeType.COMMON_GENOME -> {
-                costs = propertyService.getProperties(PropertyType.COMMON_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                costs = listOf(Cost(progress.commonGenomesNeeded, ResourceType.COMMON_GENOME))
                 time = propertyService.getProperties(PropertyType.COMMON_GENOME_TIME).first().value1
             }
             GenomeType.UNCOMMON_GENOME -> {
-                costs = propertyService.getProperties(PropertyType.UNCOMMON_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                costs = listOf(Cost(progress.uncommonGenomesNeeded, ResourceType.UNCOMMON_GENOME))
                 time = propertyService.getProperties(PropertyType.UNCOMMON_GENOME_TIME).first().value1
             }
             GenomeType.RARE_GENOME -> {
-                costs = propertyService.getProperties(PropertyType.RARE_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                costs = listOf(Cost(progress.rareGenomesNeeded, ResourceType.RARE_GENOME))
                 time = propertyService.getProperties(PropertyType.RARE_GENOME_TIME).first().value1
             }
             GenomeType.EPIC_GENOME -> {
-                costs = propertyService.getProperties(PropertyType.EPIC_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                costs = listOf(Cost(progress.epicGenomesNeeded, ResourceType.EPIC_GENOME))
                 time = propertyService.getProperties(PropertyType.EPIC_GENOME_TIME).first().value1
             }
         }
