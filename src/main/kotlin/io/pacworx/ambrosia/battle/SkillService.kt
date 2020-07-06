@@ -31,7 +31,7 @@ class SkillService(private val propertyService: PropertyService) {
     var battleProps = listOf<DynamicProperty>()
 
     fun initProps() {
-        battleProps = propertyService.getAllProperties(PropertyType.BATTLE_ARMOR)
+        battleProps = propertyService.getProperties(PropertyType.BATTLE_ARMOR)
     }
 
     fun useSkill(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero) {

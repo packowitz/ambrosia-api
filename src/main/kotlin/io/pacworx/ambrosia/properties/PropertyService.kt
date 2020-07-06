@@ -2,50 +2,53 @@ package io.pacworx.ambrosia.properties
 
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
-import io.pacworx.ambrosia.gear.Gear
-import io.pacworx.ambrosia.gear.GearRepository
-import io.pacworx.ambrosia.gear.GearSet
-import io.pacworx.ambrosia.gear.GearType
-import io.pacworx.ambrosia.gear.HeroGearSet
-import io.pacworx.ambrosia.gear.JewelType
+import io.pacworx.ambrosia.gear.*
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroRepository
-import io.pacworx.ambrosia.hero.skills.HeroSkillAction
 import io.pacworx.ambrosia.hero.HeroStat
-import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
 import io.pacworx.ambrosia.hero.Rarity
 import io.pacworx.ambrosia.hero.skills.HeroSkill
+import io.pacworx.ambrosia.hero.skills.HeroSkillAction
+import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
 import io.pacworx.ambrosia.hero.skills.SkillActionTrigger
 import io.pacworx.ambrosia.resources.ResourcesRepository
 import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.stereotype.Service
-import javax.annotation.PostConstruct
 
 @Service
-class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepository,
-                      private val gearRepository: GearRepository,
-                      private val resourcesRepository: ResourcesRepository,
-                      private val resourcesService: ResourcesService,
-                      private val buildingRepository: BuildingRepository,
-                      private val heroRepository: HeroRepository) {
+class PropertyService(
+    private val dynamicPropertyRepository: DynamicPropertyRepository,
+    private val gearRepository: GearRepository,
+    private val resourcesRepository: ResourcesRepository,
+    private val resourcesService: ResourcesService,
+    private val buildingRepository: BuildingRepository,
+    private val heroRepository: HeroRepository,
+    private val propertyVersionRepository: PropertyVersionRepository
+) {
 
-    private lateinit var properties: MutableList<DynamicProperty>
+    private val cache: MutableMap<Pair<PropertyType, Int>, List<DynamicProperty>> = mutableMapOf()
+    private val propertyVersions: MutableList<PropertyVersion> = mutableListOf()
 
-    @PostConstruct
-    fun init() {
-        properties = dynamicPropertyRepository.findAll()
+    fun getVersion(type: PropertyType): PropertyVersion {
+        return propertyVersions.find { it.propertyType == type }
+            ?: (propertyVersionRepository.findByPropertyTypeAndActiveIsTrue(type)
+                ?: propertyVersionRepository.save(PropertyVersion(propertyType = type, version = 1, active = true))).also { propertyVersions.add(it) }
     }
 
-    fun getAllProperties(type: PropertyType): List<DynamicProperty> {
-        return this.properties.filter { it.type == type }.sortedWith(compareBy({it.level}, {it.value1}))
+    fun getProperties(typeAndVersion: Pair<PropertyType, Int>): List<DynamicProperty> {
+        return cache.getOrPut(typeAndVersion, { dynamicPropertyRepository.findAllByTypeAndVersionOrderByLevelAscValue1Asc(typeAndVersion.first, typeAndVersion.second) })
+    }
+
+    fun getProperties(type: PropertyType): List<DynamicProperty> {
+        return getProperties(Pair(type, getVersion(type).version))
     }
 
     fun getProperties(type: PropertyType, level: Int): List<DynamicProperty> {
-        return this.properties.filter { it.type == type && it.level == level}
+        return getProperties(type).filter { it.level == level }
     }
 
     fun upsertProperties(type: PropertyType, properties: List<DynamicProperty>): List<DynamicProperty> {
-        val prevProps = getAllProperties(type)
+        val prevProps = getProperties(type)
         if (type.category == PropertyCategory.GEAR) {
             // if gear values have changed, existing gear needs to recalc it's stat
             prevProps.forEach { prevProp ->
@@ -97,49 +100,57 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
             }
         }
 
-        dynamicPropertyRepository.saveAll(properties)
-        init()
-        return getAllProperties(type)
+        val prevVersion = propertyVersions.find { it.propertyType == type }?.let {
+            it.active = false
+            propertyVersionRepository.save(it)
+        }
+        val version = propertyVersionRepository.save(PropertyVersion(
+            propertyType = type,
+            version = (prevVersion?.version ?: 1) + 1,
+            active = true
+        ))
+        propertyVersions.removeIf { it.propertyType == type }
+        val newProps = properties.map {
+            DynamicProperty(it, version.version)
+        }
+        val props = dynamicPropertyRepository.saveAll(newProps)
+        cache.remove(Pair(type, version.version))
+        return props
     }
 
     fun getPlayerMaxXp(level: Int): Int {
-        return properties.find { it.type == PropertyType.XP_MAX_PLAYER && it.level == level }?.value1
+        return getProperties(PropertyType.XP_MAX_PLAYER, level).takeIf { it.isNotEmpty() }?.first()?.value1
             ?: throw RuntimeException("No Max XP defined for player level $level")
     }
 
     fun getHeroMaxXp(level: Int): Int {
-        return properties.find { it.type == PropertyType.XP_MAX_HERO && it.level == level }?.value1
+        return getProperties(PropertyType.XP_MAX_HERO, level).takeIf { it.isNotEmpty() }?.first()?.value1
             ?: throw RuntimeException("No Max XP defined for hero level $level")
     }
 
     fun getHeroMergedXp(heroLevel: Int): Int {
-        return properties.find { it.type == PropertyType.MERGE_XP_HERO && it.level == heroLevel }?.value1
+        return getProperties(PropertyType.MERGE_XP_HERO, heroLevel).takeIf { it.isNotEmpty() }?.first()?.value1
             ?: throw RuntimeException("No Merge XP defined for hero level $heroLevel")
     }
 
     fun getHeroMaxAsc(level: Int): Int {
-        return properties.find { it.type == PropertyType.ASC_POINTS_MAX_HERO && it.level == level }?.value1
+        return getProperties(PropertyType.ASC_POINTS_MAX_HERO, level).takeIf { it.isNotEmpty() }?.first()?.value1
             ?: throw RuntimeException("No Max Ascension points defined for asc level $level")
     }
 
     fun getHeroMergedAsc(rarity: Int): Int {
-        return properties.find { it.type == PropertyType.MERGE_ASC_HERO && it.level == rarity }?.value1
+        return getProperties(PropertyType.MERGE_ASC_HERO, rarity).takeIf { it.isNotEmpty() }?.first()?.value1
             ?: throw RuntimeException("No Merge Ascension points defined for rarity $rarity")
     }
 
     fun getPossibleGearStats(gearType: GearType, rarity: Rarity): List<HeroStat> {
         val propertyType = PropertyType.valueOf(gearType.name + "_GEAR")
-        return properties
-                .filter {
-                    it.category == PropertyCategory.GEAR && it.type == propertyType && it.level == rarity.stars && it.stat != null
-                }.map { it.stat!! }.distinct()
+        return getProperties(propertyType, rarity.stars).mapNotNull { it.stat }.distinct()
     }
 
     fun getGearValueRange(gearType: GearType, rarity: Rarity, stat: HeroStat): Pair<Int, Int> {
         val propertyType = PropertyType.valueOf(gearType.name + "_GEAR")
-        return properties
-                .find { it.category == PropertyCategory.GEAR && it.type == propertyType && it.level == rarity.stars && it.stat == stat }!!
-                .let { it.value1 to it.value2!! }
+        return getProperties(propertyType, rarity.stars).find { it.stat == stat }!!.let { it.value1 to it.value2!! }
     }
 
     fun applyBonuses(hero: HeroDto) {
@@ -167,16 +178,16 @@ class PropertyService(private val dynamicPropertyRepository: DynamicPropertyRepo
     }
 
     fun applyJewel(hero: HeroDto, jewelType: JewelType, level: Int) {
-        properties.find { it.type.name == jewelType.name + "_JEWEL" && it.level == level }?.let {
-            it.stat?.apply(hero, it.value1)
-        }
+        val type = PropertyType.valueOf(jewelType.name + "_JEWEL")
+        getProperties(type, level).forEach { it.stat?.apply(hero, it.value1) }
     }
 
     fun applySet(hero: HeroDto, set: HeroGearSet) {
         var setNumber = set.number
         val prop = mutableListOf<DynamicProperty>()
+        val type = PropertyType.valueOf(set.gearSet.name + "_SET")
         while (setNumber > 0 && prop.isEmpty()) {
-            prop.addAll(properties.filter { it.type.name == set.gearSet.name + "_SET" && it.level!! == setNumber })
+            prop.addAll(getProperties(type, setNumber))
             setNumber --
         }
         prop.forEach {

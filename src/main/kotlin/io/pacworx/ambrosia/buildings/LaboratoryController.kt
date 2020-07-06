@@ -57,24 +57,24 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
         var time: Int
         when (type) {
             GenomeType.SIMPLE_GENOME -> {
-                costs = propertyService.getAllProperties(PropertyType.SIMPLE_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
-                time = propertyService.getAllProperties(PropertyType.SIMPLE_GENOME_TIME).first().value1
+                costs = propertyService.getProperties(PropertyType.SIMPLE_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                time = propertyService.getProperties(PropertyType.SIMPLE_GENOME_TIME).first().value1
             }
             GenomeType.COMMON_GENOME -> {
-                costs = propertyService.getAllProperties(PropertyType.COMMON_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
-                time = propertyService.getAllProperties(PropertyType.COMMON_GENOME_TIME).first().value1
+                costs = propertyService.getProperties(PropertyType.COMMON_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                time = propertyService.getProperties(PropertyType.COMMON_GENOME_TIME).first().value1
             }
             GenomeType.UNCOMMON_GENOME -> {
-                costs = propertyService.getAllProperties(PropertyType.UNCOMMON_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
-                time = propertyService.getAllProperties(PropertyType.UNCOMMON_GENOME_TIME).first().value1
+                costs = propertyService.getProperties(PropertyType.UNCOMMON_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                time = propertyService.getProperties(PropertyType.UNCOMMON_GENOME_TIME).first().value1
             }
             GenomeType.RARE_GENOME -> {
-                costs = propertyService.getAllProperties(PropertyType.RARE_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
-                time = propertyService.getAllProperties(PropertyType.RARE_GENOME_TIME).first().value1
+                costs = propertyService.getProperties(PropertyType.RARE_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                time = propertyService.getProperties(PropertyType.RARE_GENOME_TIME).first().value1
             }
             GenomeType.EPIC_GENOME -> {
-                costs = propertyService.getAllProperties(PropertyType.EPIC_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
-                time = propertyService.getAllProperties(PropertyType.EPIC_GENOME_TIME).first().value1
+                costs = propertyService.getProperties(PropertyType.EPIC_GENOME_COST).map { Cost(it.value1, it.resourceType!!) }
+                time = propertyService.getProperties(PropertyType.EPIC_GENOME_TIME).first().value1
             }
         }
         costs.forEach { resourcesService.spendResource(resources, it.type, it.amount) }

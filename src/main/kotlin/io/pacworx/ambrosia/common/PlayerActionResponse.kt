@@ -16,6 +16,7 @@ import io.pacworx.ambrosia.oddjobs.DailyActivity
 import io.pacworx.ambrosia.oddjobs.OddJob
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.Progress
+import io.pacworx.ambrosia.properties.PropertyVersion
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.upgrade.Upgrade
 import io.pacworx.ambrosia.vehicle.Vehicle
@@ -53,5 +54,6 @@ data class PlayerActionResponse(
     val playerExpeditionCancelled: Long? = null,
     val oddJobs: List<OddJob>? = null,
     val oddJobDone: Long? = null,
-    val dailyActivity: DailyActivity? = null
+    val dailyActivity: DailyActivity? = null,
+    val propertyVersions: List<PropertyVersion>? = null
 )
