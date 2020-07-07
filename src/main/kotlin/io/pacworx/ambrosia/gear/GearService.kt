@@ -12,12 +12,27 @@ import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 @Service
-class GearService(private val propertyService: PropertyService,
-                  private val gearRepository: GearRepository) {
+class GearService(
+    private val propertyService: PropertyService,
+    private val gearRepository: GearRepository,
+    private val jewelryRepository: JewelryRepository
+) {
 
     fun getGear(player: Player, gearId: Long): Gear {
         return gearRepository.findByIdOrNull(gearId)
             ?: throw EntityNotFoundException(player, "gear", gearId)
+    }
+
+    fun unplugJewels(player: Player, jewelries: MutableList<Jewelry>, gear: Gear) {
+        (0..4).forEach { slotNumber ->
+            gear.getJewel(slotNumber)?.let { jewel ->
+                val jewelry = jewelries.find { it.type == jewel.first }
+                    ?: jewelryRepository.findByPlayerIdAndType(player.id, jewel.first)?.also { jewelries.add(it) }
+                    ?: jewelryRepository.save(Jewelry(playerId = player.id, type = jewel.first)).also { jewelries.add(it) }
+                jewelry.increaseAmount(jewel.second, 1)
+                gear.unplugJewel(slotNumber)
+            }
+        }
     }
 
     fun modifyGear(player: Player, modification: Modification, gearId: Long): Gear {

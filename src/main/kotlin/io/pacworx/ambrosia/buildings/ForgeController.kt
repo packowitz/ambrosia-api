@@ -2,10 +2,7 @@ package io.pacworx.ambrosia.buildings
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.GeneralException
-import io.pacworx.ambrosia.gear.Gear
-import io.pacworx.ambrosia.gear.GearRepository
-import io.pacworx.ambrosia.gear.Jewelry
-import io.pacworx.ambrosia.gear.JewelryRepository
+import io.pacworx.ambrosia.gear.*
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedItem
@@ -37,7 +34,7 @@ class ForgeController(
     val propertyService: PropertyService,
     val resourcesService: ResourcesService,
     val auditLogService: AuditLogService,
-    val jewelryRepository: JewelryRepository,
+    val gearService: GearService,
     val oddJobService: OddJobService
 ) {
 
@@ -52,7 +49,7 @@ class ForgeController(
         gears.find { it.modificationInProgress }?.let { throw GeneralException(player, "Cannot breakdown gear", "Gear modification is in progress") }
 
         val jewelries: MutableList<Jewelry> = mutableListOf()
-        gears.forEach { unplugJewels(player, jewelries, it) }
+        gears.forEach { gearService.unplugJewels(player, jewelries, it) }
 
         var resources: Resources? = null
 
@@ -83,21 +80,9 @@ class ForgeController(
             resources = resources,
             gearIdsRemovedFromArmory = gears.map { it.id },
             looted = Looted(LootedType.BREAKDOWN, lootedItems),
-            jewelries = jewelries,
+            jewelries = jewelries.takeIf { it.isNotEmpty() },
             oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
         )
-    }
-
-    private fun unplugJewels(player: Player, jewelries: MutableList<Jewelry>, gear: Gear) {
-        (0..4).forEach { slotNumber ->
-            gear.getJewel(slotNumber)?.let { jewel ->
-                val jewelry = jewelries.find { it.type == jewel.first }
-                    ?: jewelryRepository.findByPlayerIdAndType(player.id, jewel.first)
-                    ?: jewelryRepository.save(Jewelry(playerId = player.id, type = jewel.first))
-                jewelry.increaseAmount(jewel.second, 1)
-                gear.unplugJewel(slotNumber)
-            }
-        }
     }
 
     private fun resolveBreakdownPropertyType(gear: Gear): PropertyType {

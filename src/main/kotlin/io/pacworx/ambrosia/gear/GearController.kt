@@ -21,11 +21,14 @@ import javax.transaction.Transactional
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("gear")
-class GearController(private val gearRepository: GearRepository,
-                     private val jewelryRepository: JewelryRepository,
-                     private val heroRepository: HeroRepository,
-                     private val heroService: HeroService,
-                     private val auditLogService: AuditLogService) {
+class GearController(
+    private val gearRepository: GearRepository,
+    private val jewelryRepository: JewelryRepository,
+    private val heroRepository: HeroRepository,
+    private val heroService: HeroService,
+    private val auditLogService: AuditLogService,
+    private val gearService: GearService
+) {
 
     @GetMapping
     fun getAllGear(@ModelAttribute("player") player: Player): List<Gear> {
@@ -56,7 +59,14 @@ class GearController(private val gearRepository: GearRepository,
         auditLogService.log(player, "Equips ${gear.rarity.stars}* ${gear.set.name} ${gear.type.name} ${gear.statValue} ${gear.stat.name} #${gear.id} " +
                 "to hero $${hero.heroBase.name} #${hero.id}${unequipped?.let { " unequipping gear #${it.id}" } ?: ""}"
         )
-        return PlayerActionResponse(hero = heroService.asHeroDto(hero), gear = unequipped, gearIdsRemovedFromArmory = listOf(gear.id))
+        val jewelries: MutableList<Jewelry> = mutableListOf()
+        unequipped?.let { gearService.unplugJewels(player, jewelries, it) }
+        return PlayerActionResponse(
+            hero = heroService.asHeroDto(hero),
+            gear = unequipped,
+            gearIdsRemovedFromArmory = listOf(gear.id),
+            jewelries = jewelries.takeIf { it.isNotEmpty() }
+        )
     }
 
     @PostMapping("unequip")
@@ -74,7 +84,13 @@ class GearController(private val gearRepository: GearRepository,
         auditLogService.log(player, "Unequips ${gear.rarity.stars}* ${gear.set.name} ${gear.type.name} ${gear.statValue} ${gear.stat.name} #${gear.id} " +
                 "from hero $${hero.heroBase.name} #${hero.id}"
         )
-        return PlayerActionResponse(hero = heroService.asHeroDto(hero), gear = unequipped)
+        val jewelries: MutableList<Jewelry> = mutableListOf()
+        unequipped?.let { gearService.unplugJewels(player, jewelries, it) }
+        return PlayerActionResponse(
+            hero = heroService.asHeroDto(hero),
+            gear = unequipped,
+            jewelries = jewelries.takeIf { it.isNotEmpty() }
+        )
     }
 
 
