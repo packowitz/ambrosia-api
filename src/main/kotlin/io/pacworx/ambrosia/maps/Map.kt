@@ -12,12 +12,20 @@ data class Map(
     val startingMap: Boolean = false,
     @Enumerated(EnumType.STRING) val storyTrigger: StoryTrigger? = null,
     val discoverySteamCost: Int = 5,
-    @Column(name = "min_x") val minX: Int,
-    @Column(name = "max_x") val maxX: Int,
-    @Column(name = "min_y") val minY: Int,
-    @Column(name = "max_y") val maxY: Int,
-    @Enumerated(EnumType.STRING) val background: MapBackground,
-    var lastModified: LocalDateTime = LocalDateTime.now()
+    @Column(name = "min_x")
+    val minX: Int,
+    @Column(name = "max_x")
+    val maxX: Int,
+    @Column(name = "min_y")
+    val minY: Int,
+    @Column(name = "max_y")
+    val maxY: Int,
+    @Enumerated(EnumType.STRING)
+    val background: MapBackground,
+    var lastModified: LocalDateTime = LocalDateTime.now(),
+    val resetIntervalHours: Int? = null,
+    var intervalFrom: LocalDateTime? = null,
+    var intervalTo: LocalDateTime? = null
 ) {
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "map_id")

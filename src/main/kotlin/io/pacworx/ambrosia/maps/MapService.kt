@@ -4,20 +4,16 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.player.Player
-import io.pacworx.ambrosia.player.PlayerRepository
 import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.story.StoryTrigger
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.Id
-import javax.persistence.Transient
+import java.time.temporal.ChronoUnit
+import javax.persistence.*
 import javax.transaction.Transactional
 import kotlin.math.abs
 
@@ -29,10 +25,16 @@ class MapService(val playerMapRepository: PlayerMapRepository,
     @Transactional
     fun getCurrentPlayerMap(player: Player, progress: Progress): PlayerMapResolved {
         return progress.currentMapId?.let {
-            val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, it)!!
+            val playerMap = getPlayerMap(player, it)
             checkMapForUpdates(player, playerMap)
             PlayerMapResolved(playerMap)
         } ?: PlayerMapResolved(discoverPlayerMap(player, progress, mapRepository.getByStartingMapTrue()))
+    }
+
+    fun getPlayerMap(player: Player, mapId: Long): PlayerMap {
+        return playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)
+            ?.also { checkForReset(player, it) }
+            ?: throw EntityNotFoundException(player, "map", mapId)
     }
 
     fun discoverPlayerMap(player: Player, progress: Progress, map: Map): PlayerMap {
@@ -71,11 +73,13 @@ class MapService(val playerMapRepository: PlayerMapRepository,
 
     fun victoriousFight(player: Player, mapId: Long, posX: Int, posY: Int): PlayerMapResolved? {
         log.info("player ${player.id} was victorious on map $mapId $posX/$posY")
-        val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)!!
+        val playerMap = getPlayerMap(player, mapId)
         val playerTile = playerMap.playerTiles.find { it.posX == posX && it.posY == posY }!!
         return if (!playerTile.victoriousFight) {
-            playerTile.victoriousFight = true
-            discoverMapTile(player, playerMap, playerTile)
+            if (playerTile.discovered) {
+                playerTile.victoriousFight = true
+                discoverMapTile(player, playerMap, playerTile)
+            }
             PlayerMapResolved(playerMap)
         } else {
             null
@@ -125,22 +129,54 @@ class MapService(val playerMapRepository: PlayerMapRepository,
         }
     }
 
+    private fun checkForReset(player: Player, playerMap: PlayerMap) {
+        if (playerMap.map.resetIntervalHours != null) {
+            val resetTime = if (LocalDateTime.now().isAfter(playerMap.map.intervalTo)) {
+                playerMap.map.intervalTo
+            } else {
+                playerMap.map.intervalFrom
+            }
+            if (playerMap.created.isEqual(resetTime) || playerMap.created.isBefore(resetTime)) {
+                playerMap.created = LocalDateTime.now()
+                playerMap.playerTiles.forEach { playerTile ->
+                    playerTile.discovered = false
+                    playerTile.chestOpened = false
+                    playerTile.discoverable = false
+                    playerTile.victoriousFight = false
+                }
+                playerMap.map.tiles.filter { it.alwaysRevealed }.forEach {
+                    discoverMapTile(player, playerMap, it)
+                }
+            }
+        }
+    }
+
 }
 
 @Entity
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PlayerMapResolved(
-    @Id @JsonIgnore val id: String,
+    @Id
+    @JsonIgnore
+    val id: String,
     val mapId: Long,
     val name: String,
     val background: String,
     val discoverySteamCost: Int,
-    @Enumerated(EnumType.STRING) val storyTrigger: StoryTrigger?,
-    @Column(name = "min_x") val minX: Int,
-    @Column(name = "max_x") val maxX: Int,
-    @Column(name = "min_y") val minY: Int,
-    @Column(name = "max_y") val maxY: Int,
-    @Transient val tiles: List<PlayerMapTileResolved>? = null
+    @Enumerated(EnumType.STRING)
+    val storyTrigger: StoryTrigger?,
+    @Column(name = "min_x")
+    val minX: Int,
+    @Column(name = "max_x")
+    val maxX: Int,
+    @Column(name = "min_y")
+    val minY: Int,
+    @Column(name = "max_y")
+    val maxY: Int,
+    @Transient
+    val secondsToReset: Long?,
+    @Transient
+    val tiles: List<PlayerMapTileResolved>? = null
 ) {
     constructor(playerMap: PlayerMap): this(
         "${playerMap.playerId}_${playerMap.map.id}",
@@ -153,6 +189,15 @@ data class PlayerMapResolved(
         playerMap.map.maxX,
         playerMap.map.minY,
         playerMap.map.maxY,
+        playerMap.map.resetIntervalHours?.let {
+            val now = LocalDateTime.now()
+            val resetTime = if (now.isAfter(playerMap.map.intervalTo)) {
+                playerMap.map.intervalTo?.plusHours(playerMap.map.resetIntervalHours.toLong())
+            } else {
+                playerMap.map.intervalTo
+            }
+            now.until(resetTime, ChronoUnit.SECONDS) + 1
+        },
         playerMap.map.tiles.filter { it.type != MapTileType.NONE }.map { tile ->
             PlayerMapTileResolved(
                 tile,

@@ -63,6 +63,23 @@ class AdminMapController(
             map.tiles.any { (it.posY == map.minY || it.posY == map.maxY) && it.type != MapTileType.NONE }) {
             throw GeneralException(player, "Invalid map", "Border tiles must be of type NONE")
         }
+        if (map.resetIntervalHours != null) {
+            if (map.resetIntervalHours <= 0) {
+                throw GeneralException(player, "Invalid map", "Reset interval must not be 0 or negativ")
+            }
+            if (map.intervalFrom == null) {
+                throw GeneralException(player, "Invalid map", "Maps with reset interval need a start time")
+            }
+            map.intervalFrom = map.intervalFrom!!.withSecond(0).withNano(0)
+            if (map.intervalTo == null) {
+                map.intervalTo = map.intervalFrom!!.plusHours(map.resetIntervalHours.toLong())
+            } else {
+                map.intervalTo = map.intervalTo!!.withSecond(0).withNano(0)
+            }
+        } else {
+            map.intervalFrom = null
+            map.intervalTo = null
+        }
         map.tiles.filter { it.structure != null }.forEach {
             if (it.structure!!.type == MapTileStructureType.PORTAL) {
                 if (it.buildingType != null) {

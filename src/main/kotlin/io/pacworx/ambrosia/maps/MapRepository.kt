@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 
 @Repository
 interface MapRepository: JpaRepository<Map, Long> {
@@ -14,4 +15,6 @@ interface MapRepository: JpaRepository<Map, Long> {
     fun markStartingMap(@Param("id") mapId: Long): Int
 
     fun getByStartingMapTrue(): Map
+
+    fun findAllByIntervalToIsBefore(intervalTo: LocalDateTime = LocalDateTime.now()): List<Map>
 }

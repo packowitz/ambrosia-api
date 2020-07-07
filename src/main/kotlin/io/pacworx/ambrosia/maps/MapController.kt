@@ -36,9 +36,9 @@ class MapController(
 ) {
 
     @GetMapping("{mapId}")
+    @Transactional
     fun getPlayerMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerMapResolved {
-        return playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)?.let { PlayerMapResolved(it) }
-            ?: throw EntityNotFoundException(player, "map", mapId)
+        return PlayerMapResolved(mapService.getPlayerMap(player, mapId))
     }
 
     @PostMapping("{mapId}/discover")
@@ -57,8 +57,7 @@ class MapController(
     @PostMapping("discover")
     @Transactional
     fun discoverTile(@ModelAttribute("player") player: Player, @RequestBody request: TileRequest): PlayerActionResponse {
-        val map = playerMapRepository.getByPlayerIdAndMapId(player.id, request.mapId)
-            ?: throw EntityNotFoundException(player, "map", request.mapId)
+        val map = mapService.getPlayerMap(player, request.mapId)
         val tile = map.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discoverable }
             ?: throw MapTileActionException(player, "discover", request.mapId, request.posX, request.posY)
         val resources = resourcesService.spendSteam(player, map.map.discoverySteamCost)
@@ -75,8 +74,7 @@ class MapController(
     @PostMapping("new_building")
     @Transactional
     fun newBuilding(@ModelAttribute("player") player: Player, @RequestBody request: TileRequest): PlayerActionResponse {
-        val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, request.mapId)
-            ?: throw EntityNotFoundException(player, "map", request.mapId)
+        val playerMap = mapService.getPlayerMap(player, request.mapId)
         playerMap.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discovered }
             ?: throw MapTileActionException(player, "discover building on", request.mapId, request.posX, request.posY)
         val buildingType = mapRepository.getOne(request.mapId).tiles.find { it.posX == request.posX && it.posY == request.posY }?.takeIf { it.buildingType != null }?.buildingType
@@ -98,8 +96,7 @@ class MapController(
     @PostMapping("open_chest")
     @Transactional
     fun openChest(@ModelAttribute("player") player: Player, @RequestBody request: TileRequest): PlayerActionResponse {
-        val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, request.mapId)
-            ?: throw EntityNotFoundException(player, "map", request.mapId)
+        val playerMap = mapService.getPlayerMap(player, request.mapId)
         val tile = playerMap.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discovered}
             ?: throw MapTileActionException(player, "open chest on", request.mapId, request.posX, request.posY)
         if (tile.chestOpened) {
@@ -132,7 +129,7 @@ class MapController(
     @PostMapping("{mapId}/current")
     @Transactional
     fun setCurrentMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerActionResponse {
-        return playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)?.let {
+        return mapService.getPlayerMap(player, mapId).let {
             mapService.checkMapForUpdates(player, it)
             val progress = progressRepository.getOne(player.id)
             progress.currentMapId = mapId
@@ -141,7 +138,7 @@ class MapController(
                 progress = progress,
                 currentMap = PlayerMapResolved(it)
             )
-        } ?: throw EntityNotFoundException(player, "map", mapId)
+        }
     }
 
 }
