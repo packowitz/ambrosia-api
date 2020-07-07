@@ -25,7 +25,7 @@ class GearService(private val propertyService: PropertyService,
         when (modification) {
             Modification.REROLL_QUALITY -> {
                 val valueRange = propertyService.getGearValueRange(gear.type, gear.rarity, gear.stat)
-                gear.statQuality = Random.nextInt(0, 101)
+                gear.statQuality = Random.nextInt(gear.statQuality, 101)
                 gear.statValue = valueRange.first + ((gear.statQuality * (valueRange.second - valueRange.first)) / 100)
                 gear.modificationAllowed = modification
             }
