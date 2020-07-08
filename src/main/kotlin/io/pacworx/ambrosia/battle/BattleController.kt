@@ -232,7 +232,11 @@ class BattleController(
                         "and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} level ${it.level}" }}"
                 )
             }
-            PlayerActionResponse(resources = resources, ongoingBattle = battle)
+            PlayerActionResponse(
+                resources = resources,
+                ongoingBattle = battle,
+                oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
+            )
         }
     }
 }
