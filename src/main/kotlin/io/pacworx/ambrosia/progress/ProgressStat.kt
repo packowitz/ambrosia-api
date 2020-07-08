@@ -91,6 +91,26 @@ enum class ProgressStat {
             progress.epicGenomesNeeded += bonus
         }
     },
+    SIMPLE_INCUBATION_UP_PER_MIL {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.simpleIncubationUpPerMil += bonus
+        }
+    },
+    COMMON_INCUBATION_UP_PER_MIL {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.commonIncubationUpPerMil += bonus
+        }
+    },
+    UNCOMMON_INCUBATION_UP_PER_MIL {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.uncommonIncubationUpPerMil += bonus
+        }
+    },
+    RARE_INCUBATION_UP_PER_MIL {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.rareIncubationUpPerMil += bonus
+        }
+    },
     JEWEL_UPGRADE_LEVEL {
         override fun apply(progress: Progress, bonus: Int) {
             progress.maxJewelUpgradingLevel += bonus

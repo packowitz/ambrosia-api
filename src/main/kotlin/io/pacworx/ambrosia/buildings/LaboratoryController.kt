@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.exceptions.InsufficientResourcesException
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.hero.Rarity
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -60,18 +61,34 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
             GenomeType.SIMPLE_GENOME -> {
                 costs = listOf(Cost(progress.simpleGenomesNeeded, ResourceType.SIMPLE_GENOME))
                 time = propertyService.getProperties(PropertyType.SIMPLE_GENOME_TIME).first().value1
+                if (progress.simpleIncubationUpPerMil > 0) {
+                    val upTime = propertyService.getProperties(PropertyType.COMMON_GENOME_TIME).first().value1
+                    time += (progress.simpleIncubationUpPerMil * upTime) / 100
+                }
             }
             GenomeType.COMMON_GENOME -> {
                 costs = listOf(Cost(progress.commonGenomesNeeded, ResourceType.COMMON_GENOME))
                 time = propertyService.getProperties(PropertyType.COMMON_GENOME_TIME).first().value1
+                if (progress.commonIncubationUpPerMil > 0) {
+                    val upTime = propertyService.getProperties(PropertyType.UNCOMMON_GENOME_TIME).first().value1
+                    time += (progress.commonIncubationUpPerMil * upTime) / 100
+                }
             }
             GenomeType.UNCOMMON_GENOME -> {
                 costs = listOf(Cost(progress.uncommonGenomesNeeded, ResourceType.UNCOMMON_GENOME))
                 time = propertyService.getProperties(PropertyType.UNCOMMON_GENOME_TIME).first().value1
+                if (progress.uncommonIncubationUpPerMil > 0) {
+                    val upTime = propertyService.getProperties(PropertyType.RARE_GENOME_TIME).first().value1
+                    time += (progress.uncommonIncubationUpPerMil * upTime) / 100
+                }
             }
             GenomeType.RARE_GENOME -> {
                 costs = listOf(Cost(progress.rareGenomesNeeded, ResourceType.RARE_GENOME))
                 time = propertyService.getProperties(PropertyType.RARE_GENOME_TIME).first().value1
+                if (progress.rareIncubationUpPerMil > 0) {
+                    val upTime = propertyService.getProperties(PropertyType.EPIC_GENOME_TIME).first().value1
+                    time += (progress.rareIncubationUpPerMil * upTime) / 100
+                }
             }
             GenomeType.EPIC_GENOME -> {
                 costs = listOf(Cost(progress.epicGenomesNeeded, ResourceType.EPIC_GENOME))
@@ -117,13 +134,24 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
         if (!cube.isFinished()) {
             throw GeneralException(player, "Work in progress", "The incubator cannot be finished. It still needs ${cube.getSecondsUntilDone()} seconds")
         }
-        val hero = heroService.asHeroDto(heroService.recruitHero(player, cube.type.commonChance, cube.type.uncommonChance, cube.type.rareChance, cube.type.epicChance, cube.type.defaultRarity))
+        val progress = progressRepository.getOne(player.id)
+        val hero = heroService.asHeroDto(when (cube.type) {
+            GenomeType.SIMPLE_GENOME -> heroService.recruitHero(player, commonChance = asDoubleChance(progress.simpleIncubationUpPerMil), default = Rarity.SIMPLE)
+            GenomeType.COMMON_GENOME -> heroService.recruitHero(player, uncommonChance = asDoubleChance(progress.commonIncubationUpPerMil), default = Rarity.COMMON)
+            GenomeType.UNCOMMON_GENOME -> heroService.recruitHero(player, rareChance = asDoubleChance(progress.uncommonIncubationUpPerMil), default = Rarity.UNCOMMON)
+            GenomeType.RARE_GENOME -> heroService.recruitHero(player, epicChance = asDoubleChance(progress.rareIncubationUpPerMil), default = Rarity.RARE)
+            GenomeType.EPIC_GENOME -> heroService.recruitHero(player, default = Rarity.EPIC)
+        })
         auditLogService.log(player, "Finished incubator #${cube.id} and gained hero ${hero.heroBase.name} #${hero.id}")
         incubatorRepository.delete(cube)
         return PlayerActionResponse(
             heroes = listOfNotNull(hero),
             incubatorDone = cube.id
         )
+    }
+
+    private fun asDoubleChance(chancePerMil: Int): Double {
+        return chancePerMil.toDouble() / 1000.0
     }
 
     @PostMapping("cancel/{cubeId}")
