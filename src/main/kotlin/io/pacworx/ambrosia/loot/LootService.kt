@@ -67,10 +67,10 @@ class LootService(
             else -> throw RuntimeException("LootItemType not resolvable")
         }
 
-    fun openLootBox(player: Player, lootBoxId: Long): LootBoxResult {
+    fun openLootBox(player: Player, lootBoxId: Long, vehicle: Vehicle? = null): LootBoxResult {
         val lootBox = lootBoxRepository.findByIdOrNull(lootBoxId)
             ?: throw EntityNotFoundException(player, "loot box", lootBoxId)
-        return openLootBox(player, lootBox)
+        return openLootBox(player, lootBox, vehicle)
     }
 
     fun openLootBox(player: Player, lootBox: LootBox, vehicle: Vehicle? = null): LootBoxResult {

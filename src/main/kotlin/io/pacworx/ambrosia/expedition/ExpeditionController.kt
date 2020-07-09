@@ -138,7 +138,7 @@ class ExpeditionController(
                 ?: throw EntityNotFoundException(player, "expedition", playerExpedition.expeditionId)
             xp = expedition.expeditionBase.xp
             val oddJob = oddJobService.createOddJob(player, playerExpedition.level)
-            lootBoxResult = lootService.openLootBox(player, expedition.expeditionBase.lootBoxId)
+            lootBoxResult = lootService.openLootBox(player, expedition.expeditionBase.lootBoxId, vehicle)
             playerExpedition.lootedItems = lootBoxResult.items.map { lootService.asLootedItem(it) } +
                 listOfNotNull(oddJob?.let { LootedItem(
                     type = LootItemType.RESOURCE,
