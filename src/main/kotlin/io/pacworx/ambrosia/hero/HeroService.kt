@@ -97,7 +97,7 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
             }
         }
 
-        return recruitHero(player, heroBaseRepository.findAllByRarityAndRecruitableIsTrue(rarity?.let { it } ?: default).random())
+        return recruitHero(player, heroBaseRepository.findAllByRarityAndRecruitableIsTrue(rarity ?: default).random())
     }
 
     fun wonMission(mission: Mission, vehicle: Vehicle): List<HeroDto> {
@@ -156,7 +156,8 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         }
     }
 
-    fun heroGainXp(hero: Hero, xp: Int) {
+    fun heroGainXp(hero: Hero, xp: Int): Int {
+        val gapToMax = hero.maxXp - hero.xp
         hero.xp += xp
         if (hero.xp >= hero.maxXp) {
             val overflow = hero.xp - hero.maxXp
@@ -165,8 +166,12 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
                 hero.level ++
                 hero.xp = 0
                 hero.maxXp = propertyService.getHeroMaxXp(hero.level)
-                heroGainXp(hero, overflow)
+                return gapToMax + heroGainXp(hero, overflow)
+            } else {
+                return gapToMax
             }
+        } else {
+            return xp
         }
     }
 
@@ -181,7 +186,8 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
         return false
     }
 
-    fun heroGainAsc(hero: Hero, asc: Int) {
+    fun heroGainAsc(hero: Hero, asc: Int): Int {
+        val gapToMax = hero.ascPointsMax - hero.ascPoints
         hero.ascPoints += asc
         if (hero.ascPoints >= hero.ascPointsMax) {
             val overflow = hero.ascPoints - hero.ascPointsMax
@@ -196,8 +202,12 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
                         hero.enableSkill(it.number)
                     }
                 }
-                heroGainAsc(hero, overflow)
+                return gapToMax + heroGainAsc(hero, overflow)
+            } else {
+                return gapToMax
             }
+        } else {
+            return asc
         }
     }
 }

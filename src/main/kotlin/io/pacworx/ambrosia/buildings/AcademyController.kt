@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.buildings
 
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.battle.BattleRepository
 import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.common.PlayerActionResponse
@@ -25,13 +26,16 @@ import javax.transaction.Transactional
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("academy")
-class AcademyController(private val heroRepository: HeroRepository,
-                        private val heroService: HeroService,
-                        private val propertyService: PropertyService,
-                        private val progressRepository: ProgressRepository,
-                        private val battleRepository: BattleRepository,
-                        private val battleService: BattleService,
-                        private val auditLogService: AuditLogService) {
+class AcademyController(
+    private val heroRepository: HeroRepository,
+    private val heroService: HeroService,
+    private val propertyService: PropertyService,
+    private val progressRepository: ProgressRepository,
+    private val battleRepository: BattleRepository,
+    private val battleService: BattleService,
+    private val auditLogService: AuditLogService,
+    private val achievementsRepository: AchievementsRepository
+) {
 
     @PostMapping("hero/{heroId}/level")
     @Transactional
@@ -48,15 +52,16 @@ class AcademyController(private val heroRepository: HeroRepository,
         if (hero.level > progress.maxTrainingLevel) {
             throw GeneralException(player, "Cannot train hero", "Hero's level too high to get trained in the academy. Level up your Academy.")
         }
+        val achievements = achievementsRepository.getOne(player.id)
         val heroLevelBefore = hero.level
         val heroXpBefore = hero.xp
         val updatedGear = mutableListOf<Gear>()
         val deletedHeroes = heroes.filter { it.id != heroId }.map { fodder ->
             val gainedXp = propertyService.getHeroMergedXp(fodder.level)
-            heroService.heroGainXp(hero, gainedXp)
+            achievements.academyXpGained += heroService.heroGainXp(hero, gainedXp)
             if (hero.heroBase.heroClass == fodder.heroBase.heroClass) {
                 val gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
-                heroService.heroGainAsc(hero, gainedAsc)
+                achievements.academyAscGained += heroService.heroGainAsc(hero, gainedAsc)
             }
             battleRepository.findAllByContainingHero(fodder.id).forEach { battleId ->
                 battleService.deleteBattle(battleRepository.getOne(battleId))
@@ -70,6 +75,7 @@ class AcademyController(private val heroRepository: HeroRepository,
         )
         heroRepository.deleteAllByIdIn(deletedHeroes.map { it.id })
         return PlayerActionResponse(
+            achievements = achievements,
             heroes = listOf(heroService.asHeroDto(hero)),
             gears = updatedGear,
             heroIdsRemoved = deletedHeroes.map { it.id })
@@ -92,6 +98,7 @@ class AcademyController(private val heroRepository: HeroRepository,
         if (hero.level > progress.maxTrainingLevel) {
             throw GeneralException(player, "Cannot evolve hero", "Hero's level too high to get evolved. Level up your Academy.")
         }
+        val achievements = achievementsRepository.getOne(player.id)
         val updatedGear = mutableListOf<Gear>()
         val deletedHeroes = heroes.filter { it.id != heroId }.map { fodder ->
             if (fodder.stars < hero.stars) {
@@ -99,7 +106,7 @@ class AcademyController(private val heroRepository: HeroRepository,
             }
             if (hero.heroBase.heroClass == fodder.heroBase.heroClass) {
                 val gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
-                heroService.heroGainAsc(hero, gainedAsc)
+                achievements.academyAscGained += heroService.heroGainAsc(hero, gainedAsc)
             }
             battleRepository.findAllByContainingHero(fodder.id).forEach { battleId ->
                 battleService.deleteBattle(battleRepository.getOne(battleId))
@@ -116,6 +123,7 @@ class AcademyController(private val heroRepository: HeroRepository,
                 "unequipped gear from fodder: ${updatedGear.joinToString { "${it.rarity.stars}* ${it.set.name} ${it.type.name} #${it.id}" }}"
         )
         return PlayerActionResponse(
+            achievements = achievements,
             heroes = listOf(heroService.asHeroDto(hero)),
             gears = updatedGear,
             heroIdsRemoved = deletedHeroes.map { it.id }

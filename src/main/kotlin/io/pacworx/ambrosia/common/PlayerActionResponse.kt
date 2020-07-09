@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.common
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.buildings.Building
@@ -26,6 +27,7 @@ import io.pacworx.ambrosia.vehicle.VehiclePart
 data class PlayerActionResponse(
     val player: Player? = null,
     val progress: Progress? = null,
+    val achievements: Achievements? = null,
     val resources: Resources? = null,
     val token: String? = null,
     val hero: HeroDto? = null,

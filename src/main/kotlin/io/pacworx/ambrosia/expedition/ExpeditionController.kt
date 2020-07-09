@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.expedition
 
+import io.pacworx.ambrosia.achievements.Achievements
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.*
 import io.pacworx.ambrosia.hero.HeroRepository
@@ -33,7 +35,8 @@ class ExpeditionController(
     private val heroService: HeroService,
     private val lootService: LootService,
     private val resourcesService: ResourcesService,
-    private val oddJobService: OddJobService
+    private val oddJobService: OddJobService,
+    private val achievementsRepository: AchievementsRepository
 ) {
 
     @GetMapping("active")
@@ -133,6 +136,7 @@ class ExpeditionController(
         var oddJobsEffected: List<OddJob>? = null
         var cancelledId: Long? = null
         var lootBoxResult: LootBoxResult? = null
+        var achievements: Achievements? = null
         if (playerExpedition.getSecondsUntilDone() <= 2) {
             val expedition = expeditionRepository.findByIdOrNull(playerExpedition.expeditionId)
                 ?: throw EntityNotFoundException(player, "expedition", playerExpedition.expeditionId)
@@ -146,6 +150,8 @@ class ExpeditionController(
                     value = 1
                 )})
             oddJobsEffected = listOfNotNull(oddJob) + oddJobService.expeditionFinished(player, expedition)
+            achievements = achievementsRepository.getOne(player.id)
+            achievements.expeditionsDone ++
         } else {
             // expedition got cancelled
             cancelledId = playerExpeditionId
@@ -157,6 +163,7 @@ class ExpeditionController(
         return PlayerActionResponse(
             resources = if (lootItems.any { it.resource != null }) { resourcesService.getResources(player) } else { null },
             progress = if (lootItems.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
+            achievements = achievements,
             vehicles = listOf(vehicle) + lootItems.filter { it.vehicle != null }.map { it.vehicle!! },
             heroes = heroes + lootItems.filter { it.hero != null }.map { it.hero!! },
             gears = lootItems.filter { it.gear != null }.map { it.gear!! }.takeIf { it.isNotEmpty() },

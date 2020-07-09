@@ -1,6 +1,8 @@
 package io.pacworx.ambrosia.player
 
 import com.google.common.hash.Hashing
+import io.pacworx.ambrosia.achievements.Achievements
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.battle.offline.MissionService
 import io.pacworx.ambrosia.buildings.Building
@@ -63,7 +65,8 @@ class PlayerService(
     private val expeditionRepository: ExpeditionRepository,
     private val playerExpeditionRepository: PlayerExpeditionRepository,
     private val oddJobService: OddJobService,
-    private val dailyActivityRepository: DailyActivityRepository
+    private val dailyActivityRepository: DailyActivityRepository,
+    private val achievementsRepository: AchievementsRepository
 ) {
 
     @Value("\${ambrosia.pw-salt-one}")
@@ -140,6 +143,7 @@ class PlayerService(
         upgradeService.applyBuildingLevel(player, barracks, progress)
         progressRepository.save(progress)
         dailyActivityRepository.save(DailyActivity(playerId = player.id))
+        achievementsRepository.save(Achievements(player.id))
 
         return player
     }
@@ -171,6 +175,7 @@ class PlayerService(
         player.didLogin()
         val upgrades = upgradeService.getAllUpgrades(player)
         val progress = progressRepository.getOne(player.id)
+        val achievements = achievementsRepository.getOne(player.id)
         val resources = resourcesService.getResources(player)
         val heroes = heroRepository.findAllByPlayerIdOrderByLevelDescStarsDescHeroBase_IdAscIdAsc(player.id)
             .map { heroService.asHeroDto(it) }
@@ -194,6 +199,7 @@ class PlayerService(
             token = token,
             player = save(player),
             progress = progress,
+            achievements = achievements,
             heroes = heroes,
             gears = gears,
             jewelries = jewelries,

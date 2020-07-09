@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.oddjobs
 
+import io.pacworx.ambrosia.achievements.Achievements
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
@@ -23,7 +25,8 @@ class OddJobController(
     private val resourcesService: ResourcesService,
     private val progressRepository: ProgressRepository,
     private val dailyActivityRepository: DailyActivityRepository,
-    private val propertyService: PropertyService
+    private val propertyService: PropertyService,
+    private val achievementsRepository: AchievementsRepository
 ) {
 
     @PostMapping("{oddJobId}/remove")
@@ -55,10 +58,13 @@ class OddJobController(
         }
         lootService.openLootBox(player, oddJob.lootBoxId)
         val dailyActivity = dailyActivityRepository.getOne(player.id)
+        val achievements = achievementsRepository.getOne(player.id)
+        achievements.oddJobsDone ++
         oddJobRepository.delete(oddJob)
         return PlayerActionResponse(
             resources = resourcesService.getResources(player),
             progress = progressRepository.getOne(player.id),
+            achievements = achievements,
             oddJobDone = oddJobId,
             dailyActivity = dailyActivity.takeIf { it.activityDetected() }
         )
@@ -77,8 +83,11 @@ class OddJobController(
             resourcesService.gainResources(resources, it.resourceType!!, it.value1)
         }
         dailyActivity.claim(day)
+        val achievements = achievementsRepository.getOne(player.id)
+        achievements.dailyRewardsClaimed ++
         return PlayerActionResponse(
             resources = resources,
+            achievements = achievements,
             dailyActivity = dailyActivity
         )
     }

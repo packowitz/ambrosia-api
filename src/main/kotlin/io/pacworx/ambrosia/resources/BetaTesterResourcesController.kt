@@ -33,11 +33,6 @@ class BetaTesterResourcesController(private val resourcesService: ResourcesServi
             ResourceType.WOOD -> resources.wood = resources.woodMax
             ResourceType.BROWN_COAL -> resources.brownCoal = resources.brownCoalMax
             ResourceType.BLACK_COAL -> resources.blackCoal = resources.blackCoalMax
-            ResourceType.SIMPLE_GENOME -> resources.simpleGenome += 60
-            ResourceType.COMMON_GENOME -> resources.commonGenome += 60
-            ResourceType.UNCOMMON_GENOME -> resources.uncommonGenome += 60
-            ResourceType.RARE_GENOME -> resources.rareGenome += 60
-            ResourceType.EPIC_GENOME -> resources.epicGenome += 60
             else -> {}
         }
 

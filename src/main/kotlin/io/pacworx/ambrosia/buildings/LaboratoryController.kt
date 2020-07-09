@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.buildings
 
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
@@ -31,12 +32,15 @@ import javax.transaction.Transactional
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("laboratory")
-class LaboratoryController(private val incubatorRepository: IncubatorRepository,
-                           private val propertyService: PropertyService,
-                           private val progressRepository: ProgressRepository,
-                           private val resourcesService: ResourcesService,
-                           private val heroService: HeroService,
-                           private val auditLogService: AuditLogService) {
+class LaboratoryController(
+    private val incubatorRepository: IncubatorRepository,
+    private val propertyService: PropertyService,
+    private val progressRepository: ProgressRepository,
+    private val resourcesService: ResourcesService,
+    private val heroService: HeroService,
+    private val auditLogService: AuditLogService,
+    private val achievementsRepository: AchievementsRepository
+) {
 
     @GetMapping("incubators")
     fun incubators(@ModelAttribute("player") player: Player): List<Incubator> =
@@ -144,7 +148,10 @@ class LaboratoryController(private val incubatorRepository: IncubatorRepository,
         })
         auditLogService.log(player, "Finished incubator #${cube.id} and gained hero ${hero.heroBase.name} #${hero.id}")
         incubatorRepository.delete(cube)
+        val achievements = achievementsRepository.getOne(player.id)
+        achievements.incubationDone(cube.type)
         return PlayerActionResponse(
+            achievements = achievements,
             heroes = listOfNotNull(hero),
             incubatorDone = cube.id
         )
