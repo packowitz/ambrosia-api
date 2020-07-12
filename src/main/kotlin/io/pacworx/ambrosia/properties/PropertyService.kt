@@ -123,6 +123,11 @@ class PropertyService(
             ?: throw RuntimeException("No Max XP defined for player level $level")
     }
 
+    fun getPlayerVipMax(level: Int): Int {
+        return getProperties(PropertyType.VIP_MAX_PLAYER, level).takeIf { it.isNotEmpty() }?.first()?.value1
+            ?: throw RuntimeException("No Max VIP defined for player level $level")
+    }
+
     fun getHeroMaxXp(level: Int): Int {
         return getProperties(PropertyType.XP_MAX_HERO, level).takeIf { it.isNotEmpty() }?.first()?.value1
             ?: throw RuntimeException("No Max XP defined for hero level $level")

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import javax.transaction.Transactional
+import kotlin.math.round
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -57,10 +58,12 @@ class AcademyController(
         val heroXpBefore = hero.xp
         val updatedGear = mutableListOf<Gear>()
         val deletedHeroes = heroes.filter { it.id != heroId }.map { fodder ->
-            val gainedXp = propertyService.getHeroMergedXp(fodder.level)
+            var gainedXp = propertyService.getHeroMergedXp(fodder.level)
+            gainedXp += round((progress.trainingXpBoost * gainedXp) / 100.0).toInt()
             achievements.academyXpGained += heroService.heroGainXp(hero, gainedXp)
             if (hero.heroBase.heroClass == fodder.heroBase.heroClass) {
-                val gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
+                var gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
+                gainedAsc += round((progress.trainingAscBoost * gainedAsc) / 100.0).toInt()
                 achievements.academyAscGained += heroService.heroGainAsc(hero, gainedAsc)
             }
             battleRepository.findAllByContainingHero(fodder.id).forEach { battleId ->
@@ -105,7 +108,8 @@ class AcademyController(
                 throw GeneralException(player, "Cannot evolve hero", "You need heroes of at least same number of stars to evolve a hero")
             }
             if (hero.heroBase.heroClass == fodder.heroBase.heroClass) {
-                val gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
+                var gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
+                gainedAsc += round((progress.trainingAscBoost * gainedAsc) / 100.0).toInt()
                 achievements.academyAscGained += heroService.heroGainAsc(hero, gainedAsc)
             }
             battleRepository.findAllByContainingHero(fodder.id).forEach { battleId ->

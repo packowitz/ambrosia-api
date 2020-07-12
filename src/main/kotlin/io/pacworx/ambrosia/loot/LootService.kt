@@ -138,7 +138,9 @@ class LootService(
             gearLoot.jewel2chance,
             gearLoot.jewel3chance,
             gearLoot.jewel4chance,
-            gearLoot.specialJewelChance
+            gearLoot.specialJewelChance,
+            gearLoot.statFrom,
+            gearLoot.statTo
         )
     }
 

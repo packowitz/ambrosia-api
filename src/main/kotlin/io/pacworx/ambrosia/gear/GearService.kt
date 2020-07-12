@@ -5,17 +5,20 @@ import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.hero.HeroStat
 import io.pacworx.ambrosia.hero.Rarity
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.upgrade.Modification
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import kotlin.math.min
 import kotlin.random.Random
 
 @Service
 class GearService(
     private val propertyService: PropertyService,
     private val gearRepository: GearRepository,
-    private val jewelryRepository: JewelryRepository
+    private val jewelryRepository: JewelryRepository,
+    private val progressRepository: ProgressRepository
 ) {
 
     fun getGear(player: Player, gearId: Long): Gear {
@@ -107,7 +110,10 @@ class GearService(
                    twoSlotChance: Int = 40,
                    threeSlotChance: Int = 18,
                    fourSlotChance: Int = 2,
-                   specialSlotChance: Int = 10): Gear {
+                   specialSlotChance: Int = 10,
+                   qualityFrom: Int = 0,
+                   qualityTo: Int = 100): Gear {
+        val progress = progressRepository.getOne(playerId)
         val gearSet: GearSet = sets.random()
         val rarityRandom = Random.nextInt(100)
         val rarity: Rarity = when {
@@ -121,7 +127,7 @@ class GearService(
         val type: GearType = gearTypes.random()
         val stat: HeroStat = propertyService.getPossibleGearStats(type, rarity).random()
         val valueRange = propertyService.getGearValueRange(type, rarity, stat)
-        val statQuality = Random.nextInt(0, 101)
+        val statQuality = Random.nextInt(min(qualityTo - 10, qualityFrom + progress.gearQualityIncrease), qualityTo + 1)
         val statValue = valueRange.first + ((statQuality * (valueRange.second - valueRange.first)) / 100)
 
         val slotRandom = Random.nextInt(100)

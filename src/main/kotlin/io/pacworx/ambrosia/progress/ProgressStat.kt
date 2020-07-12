@@ -51,9 +51,24 @@ enum class ProgressStat {
             progress.barrackSize += bonus
         }
     },
+    GEAR_QUALITY_INCREASE {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.gearQualityIncrease += bonus
+        }
+    },
     HERO_TRAIN_LEVEL {
         override fun apply(progress: Progress, bonus: Int) {
             progress.maxTrainingLevel += bonus
+        }
+    },
+    TRAINING_XP_BOOST {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.trainingXpBoost += bonus
+        }
+    },
+    TRAINING_ASC_BOOST {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.trainingAscBoost += bonus
         }
     },
     VEHICLE_UPGRADE_LEVEL {
@@ -114,6 +129,11 @@ enum class ProgressStat {
     RARE_INCUBATION_UP_PER_MIL {
         override fun apply(progress: Progress, bonus: Int) {
             progress.rareIncubationUpPerMil += bonus
+        }
+    },
+    UNCOMMON_STARTING_LEVEL {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.uncommonStartingLevel += bonus
         }
     },
     JEWEL_UPGRADE_LEVEL {

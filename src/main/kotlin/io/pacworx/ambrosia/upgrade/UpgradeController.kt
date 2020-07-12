@@ -178,6 +178,7 @@ class UpgradeController(
         if (building.upgradeTriggered) {
             throw GeneralException(player, "Cannot upgrade building", "Upgrade for building $buildingType is already in progress")
         }
+        val progress = progressRepository.getOne(player.id)
         val propTypeUpgradeTime = PropertyType.values()
             .filter { it.category == PropertyCategory.UPGRADE_TIME && it.buildingType == buildingType }
             .takeIf { it.size == 1 }
@@ -190,7 +191,7 @@ class UpgradeController(
             ?: throw ConfigurationException("Found not exactly one property for upgrade cost for $buildingType")
         val upgradeSeconds = propertyService.getProperties(propTypeUpgradeTime, building.level + 1)
             .takeIf { it.size == 1 }
-            ?.first()?.value1?.toLong()
+            ?.first()?.let { (it.value1 * 100) / progress.builderSpeed }?.toLong()
             ?: throw ConfigurationException("Building $buildingType cannot be upgraded to higher than level ${building.level}")
 
         val resources = resourcesService.getResources(player)
@@ -364,7 +365,7 @@ class UpgradeController(
 
         val upgradeSeconds = propertyService.getProperties(modification.upTimeProp, gear.rarity.stars)
             .takeIf { it.size == 1 }
-            ?.first()?.value1?.let { it * 100 / progress.gearModificationSpeed }?.toLong()
+            ?.first()?.value1?.let { (it * 100) / progress.gearModificationSpeed }?.toLong()
             ?: throw ConfigurationException("Cannot find configuration for this modification")
 
         val resources = resourcesService.getResources(player)

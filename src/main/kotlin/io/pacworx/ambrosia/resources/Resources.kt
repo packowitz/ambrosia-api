@@ -10,6 +10,7 @@ import javax.persistence.Id
 data class Resources(
     @Id
     val playerId: Long,
+    var resourceGenerationSpeed: Int = 100,
     var steam: Int,
     var steamUsed: Int = 0,
     var steamMax: Int,

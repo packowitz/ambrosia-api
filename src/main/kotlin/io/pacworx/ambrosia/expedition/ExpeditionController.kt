@@ -89,7 +89,8 @@ class ExpeditionController(
         }
 
         val now = Instant.now()
-        val until = now.plus(expedition.expeditionBase.durationMinutes.toLong(), ChronoUnit.MINUTES)
+        val duration = ((expedition.expeditionBase.durationMinutes * 100) / progress.expeditionSpeed).toLong()
+        val until = now.plus(duration, ChronoUnit.MINUTES)
         val playerExpedition = playerExpeditionRepository.save(PlayerExpedition(
             playerId = player.id,
             expeditionId = expeditionId,

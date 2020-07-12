@@ -19,35 +19,38 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
     fun calcProduction(resources: Resources) {
         if (resources.steam < resources.steamMax) {
             val now = LocalDateTime.now()
-            val gained = resources.steamLastProduction.until(now, ChronoUnit.SECONDS) / resources.steamProduceSeconds
+            val duration = (resources.steamProduceSeconds * 100) / resources.resourceGenerationSpeed
+            val gained = resources.steamLastProduction.until(now, ChronoUnit.SECONDS) / duration
             if ((resources.steam + gained) >= resources.steamMax) {
                 resources.steam = resources.steamMax
                 resources.steamLastProduction = now
             } else {
                 resources.steam += gained.toInt()
-                resources.steamLastProduction = resources.steamLastProduction.plusSeconds(gained * resources.steamProduceSeconds)
+                resources.steamLastProduction = resources.steamLastProduction.plusSeconds(gained * duration)
             }
         }
         if (resources.cogwheels < resources.cogwheelsMax) {
             val now = LocalDateTime.now()
-            val gained = resources.cogwheelsLastProduction.until(now, ChronoUnit.SECONDS) / resources.cogwheelsProduceSeconds
+            val duration = (resources.cogwheelsProduceSeconds * 100) / resources.resourceGenerationSpeed
+            val gained = resources.cogwheelsLastProduction.until(now, ChronoUnit.SECONDS) / duration
             if ((resources.cogwheels + gained) >= resources.cogwheelsMax) {
                 resources.cogwheels = resources.cogwheelsMax
                 resources.cogwheelsLastProduction = now
             } else {
                 resources.cogwheels += gained.toInt()
-                resources.cogwheelsLastProduction = resources.cogwheelsLastProduction.plusSeconds(gained * resources.cogwheelsProduceSeconds)
+                resources.cogwheelsLastProduction = resources.cogwheelsLastProduction.plusSeconds(gained * duration)
             }
         }
         if (resources.tokens < resources.tokensMax) {
             val now = LocalDateTime.now()
-            val gained = resources.tokensLastProduction.until(now, ChronoUnit.SECONDS) / resources.tokensProduceSeconds
+            val duration = (resources.tokensProduceSeconds * 100) / resources.resourceGenerationSpeed
+            val gained = resources.tokensLastProduction.until(now, ChronoUnit.SECONDS) / duration
             if ((resources.tokens + gained) >= resources.tokensMax) {
                 resources.tokens = resources.tokensMax
                 resources.tokensLastProduction = now
             } else {
                 resources.tokens += gained.toInt()
-                resources.tokensLastProduction = resources.tokensLastProduction.plusSeconds(gained * resources.tokensProduceSeconds)
+                resources.tokensLastProduction = resources.tokensLastProduction.plusSeconds(gained * duration)
             }
         }
     }

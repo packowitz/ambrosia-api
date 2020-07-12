@@ -59,6 +59,42 @@ class ProgressController(
         )
     }
 
+    @PostMapping("vip_level_up")
+    @Transactional
+    fun vipLevelUp(@ModelAttribute("player") player: Player): PlayerActionResponse {
+        val lootedItems = mutableListOf<LootedItem>()
+        val progress = progressRepository.getOne(player.id)
+        val resources = resourcesService.getResources(player)
+        if (progress.vipPoints >= progress.vipMaxPoints && progress.vipLevel < 20) {
+            progress.vipLevel ++
+            progress.vipPoints -= progress.vipMaxPoints
+            progress.vipMaxPoints = propertyService.getPlayerVipMax(progress.level)
+            propertyService.getProperties(PropertyType.VIP_LEVEL_REWARD_PLAYER, progress.vipLevel).forEach {
+                if (it.resourceType != null) {
+                    resourcesService.gainResources(resources, it.resourceType, it.value1)
+                    lootedItems.add(LootedItem(
+                        type = LootItemType.RESOURCE,
+                        resourceType = it.resourceType,
+                        value = it.value1.toLong()
+                    ))
+                }
+                if (it.progressStat != null) {
+                    it.progressStat.apply(progress, it.value1)
+                    lootedItems.add(LootedItem(
+                        type = LootItemType.PROGRESS,
+                        progressStat = it.progressStat,
+                        value = it.value1.toLong()
+                    ))
+                }
+            }
+        }
+        return PlayerActionResponse(
+            progress = progress,
+            resources = resources,
+            looted = lootedItems.takeIf { it.isNotEmpty() }?.let { Looted(LootedType.VIP_LEVEL_UP, it) }
+        )
+    }
+
     @PostMapping("exp_level_up")
     @Transactional
     fun expLevelUp(@ModelAttribute("player") player: Player): PlayerActionResponse {

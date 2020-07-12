@@ -139,20 +139,25 @@ class LaboratoryController(
             throw GeneralException(player, "Work in progress", "The incubator cannot be finished. It still needs ${cube.getSecondsUntilDone()} seconds")
         }
         val progress = progressRepository.getOne(player.id)
-        val hero = heroService.asHeroDto(when (cube.type) {
+        val hero = when (cube.type) {
             GenomeType.SIMPLE_GENOME -> heroService.recruitHero(player, commonChance = asDoubleChance(progress.simpleIncubationUpPerMil), default = Rarity.SIMPLE)
             GenomeType.COMMON_GENOME -> heroService.recruitHero(player, uncommonChance = asDoubleChance(progress.commonIncubationUpPerMil), default = Rarity.COMMON)
             GenomeType.UNCOMMON_GENOME -> heroService.recruitHero(player, rareChance = asDoubleChance(progress.uncommonIncubationUpPerMil), default = Rarity.UNCOMMON)
             GenomeType.RARE_GENOME -> heroService.recruitHero(player, epicChance = asDoubleChance(progress.rareIncubationUpPerMil), default = Rarity.RARE)
             GenomeType.EPIC_GENOME -> heroService.recruitHero(player, default = Rarity.EPIC)
-        })
+        }
+        if (hero.heroBase.rarity == Rarity.UNCOMMON && progress.uncommonStartingLevel > 1) {
+            hero.level = progress.uncommonStartingLevel
+            hero.maxXp = propertyService.getHeroMaxXp(hero.level)
+        }
+
         auditLogService.log(player, "Finished incubator #${cube.id} and gained hero ${hero.heroBase.name} #${hero.id}")
         incubatorRepository.delete(cube)
         val achievements = achievementsRepository.getOne(player.id)
         achievements.incubationDone(cube.type)
         return PlayerActionResponse(
             achievements = achievements,
-            heroes = listOfNotNull(hero),
+            heroes = listOfNotNull(heroService.asHeroDto(hero)),
             incubatorDone = cube.id
         )
     }
