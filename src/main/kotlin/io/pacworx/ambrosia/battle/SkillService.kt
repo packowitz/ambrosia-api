@@ -16,6 +16,7 @@ import io.pacworx.ambrosia.properties.DynamicProperty
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
 import org.springframework.stereotype.Service
+import java.lang.RuntimeException
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
@@ -32,6 +33,9 @@ class SkillService(private val propertyService: PropertyService) {
 
     fun initProps() {
         battleProps = propertyService.getProperties(PropertyType.BATTLE_ARMOR)
+        if (battleProps.isEmpty()) {
+            throw ConfigurationException("Found no properties for battle_armor")
+        }
     }
 
     fun useSkill(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero) {
