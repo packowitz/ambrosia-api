@@ -54,6 +54,21 @@ class MapController(
         )
     }
 
+    @PostMapping("{mapId}/favorite/{favorite}")
+    @Transactional
+    fun favorite(
+        @ModelAttribute("player") player: Player,
+        @PathVariable mapId: Long,
+        @PathVariable favorite: Boolean
+    ): PlayerActionResponse {
+        val playerMap = playerMapRepository.getByPlayerIdAndMapId(player.id, mapId)
+            ?: throw EntityNotFoundException(player, "playerMap", mapId)
+        playerMap.favorite = favorite
+        return PlayerActionResponse(
+            currentMap = PlayerMapResolved(playerMap)
+        )
+    }
+
     @PostMapping("discover")
     @Transactional
     fun discoverTile(@ModelAttribute("player") player: Player, @RequestBody request: TileRequest): PlayerActionResponse {

@@ -17,7 +17,6 @@ import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.maps.MapService
-import io.pacworx.ambrosia.maps.SimplePlayerMapRepository
 import io.pacworx.ambrosia.oddjobs.DailyActivity
 import io.pacworx.ambrosia.oddjobs.DailyActivityRepository
 import io.pacworx.ambrosia.oddjobs.OddJobService
@@ -40,7 +39,6 @@ import java.nio.charset.StandardCharsets
 import java.time.Instant
 import javax.transaction.Transactional
 
-
 @Service
 class PlayerService(
     private val playerRepository: PlayerRepository,
@@ -50,7 +48,6 @@ class PlayerService(
     private val gearRepository: GearRepository,
     private val jewelryRepository: JewelryRepository,
     private val battleService: BattleService,
-    private val simplePlayerMapRepository: SimplePlayerMapRepository,
     private val buildingRepository: BuildingRepository,
     private val mapService: MapService,
     private val propertyService: PropertyService,
@@ -71,6 +68,7 @@ class PlayerService(
 
     @Value("\${ambrosia.pw-salt-one}")
     private lateinit var pwSalt1: String
+
     @Value("\${ambrosia.pw-salt-two}")
     private lateinit var pwSalt2: String
 
@@ -96,7 +94,11 @@ class PlayerService(
         val player = playerRepository.save(Player(
             name = name,
             email = email,
-            password = if (serviceAccount) { password } else { getHash(name, password) },
+            password = if (serviceAccount) {
+                password
+            } else {
+                getHash(name, password)
+            },
             admin = serviceAccount,
             serviceAccount = serviceAccount,
             betaTester = serviceAccount
@@ -168,7 +170,7 @@ class PlayerService(
 
     fun login(email: String, password: String): Player {
         return playerRepository.findByEmailIgnoreCase(email.trim())?.takeIf { getHash(it.name, password) == it.password }
-                ?: throw RuntimeException("Auth failed")
+            ?: throw RuntimeException("Auth failed")
     }
 
     fun save(player: Player): Player {
@@ -188,7 +190,7 @@ class PlayerService(
         val buildings = buildingRepository.findAllByPlayerId(player.id)
         val vehicles = vehicleRepository.findAllByPlayerId(player.id)
         val vehicleParts = vehiclePartRepository.findAllByPlayerIdAndEquippedToIsNull(player.id)
-        val playerMaps = simplePlayerMapRepository.findAllByPlayerId(player.id)
+        val playerMaps = mapService.getPlayerMaps(player)
         val currentMap = mapService.getCurrentPlayerMap(player, progress)
         val missions = missionService.getAllMissions(player)
         val dnaCubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)

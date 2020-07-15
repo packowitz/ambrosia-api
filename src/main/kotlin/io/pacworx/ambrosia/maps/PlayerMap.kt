@@ -8,6 +8,7 @@ data class PlayerMap (
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val playerId: Long,
+    var favorite: Boolean = true,
     @ManyToOne
     @JoinColumn(name = "map_id", updatable = false)
     val map: Map,

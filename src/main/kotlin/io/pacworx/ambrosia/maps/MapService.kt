@@ -18,9 +18,16 @@ import javax.transaction.Transactional
 import kotlin.math.abs
 
 @Service
-class MapService(val playerMapRepository: PlayerMapRepository,
-                 val mapRepository: MapRepository) {
+class MapService(
+    val playerMapRepository: PlayerMapRepository,
+    val mapRepository: MapRepository,
+    val simplePlayerMapRepository: SimplePlayerMapRepository
+) {
     private val log = KotlinLogging.logger {}
+
+    fun getPlayerMaps(player: Player): List<PlayerMapResolved> {
+        return simplePlayerMapRepository.findAllByPlayerId(player.id)
+    }
 
     @Transactional
     fun getCurrentPlayerMap(player: Player, progress: Progress): PlayerMapResolved {
@@ -165,6 +172,7 @@ data class PlayerMapResolved(
     val discoverySteamCost: Int,
     @Enumerated(EnumType.STRING)
     val storyTrigger: StoryTrigger?,
+    val favorite: Boolean,
     @Column(name = "min_x")
     val minX: Int,
     @Column(name = "max_x")
@@ -173,8 +181,10 @@ data class PlayerMapResolved(
     val minY: Int,
     @Column(name = "max_y")
     val maxY: Int,
-    @Transient
-    val secondsToReset: Long?,
+    @JsonIgnore
+    val intervalTo: LocalDateTime? = null,
+    @JsonIgnore
+    val resetIntervalHours: Int? = null,
     @Transient
     val tiles: List<PlayerMapTileResolved>? = null
 ) {
@@ -185,24 +195,30 @@ data class PlayerMapResolved(
         playerMap.map.background.name,
         playerMap.map.discoverySteamCost,
         playerMap.map.storyTrigger,
+        playerMap.favorite,
         playerMap.map.minX,
         playerMap.map.maxX,
         playerMap.map.minY,
         playerMap.map.maxY,
-        playerMap.map.resetIntervalHours?.let {
-            val now = LocalDateTime.now()
-            val resetTime = if (now.isAfter(playerMap.map.intervalTo)) {
-                playerMap.map.intervalTo?.plusHours(playerMap.map.resetIntervalHours.toLong())
-            } else {
-                playerMap.map.intervalTo
-            }
-            now.until(resetTime, ChronoUnit.SECONDS) + 1
-        },
+        playerMap.map.intervalTo,
+        playerMap.map.resetIntervalHours,
         playerMap.map.tiles.filter { it.type != MapTileType.NONE }.map { tile ->
             PlayerMapTileResolved(
                 tile,
                 playerMap.playerTiles.find { tile.posX == it.posX && tile.posY == it.posY })
         })
+
+    fun getSecondsToReset(): Long? {
+        return resetIntervalHours?.let {
+            val now = LocalDateTime.now()
+            val resetTime = if (now.isAfter(intervalTo)) {
+                intervalTo?.plusHours(resetIntervalHours.toLong())
+            } else {
+                intervalTo
+            }
+            now.until(resetTime, ChronoUnit.SECONDS) + 1
+        }
+    }
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
