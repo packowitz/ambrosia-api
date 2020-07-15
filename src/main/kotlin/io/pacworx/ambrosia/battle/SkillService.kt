@@ -3,20 +3,13 @@ package io.pacworx.ambrosia.battle
 import io.pacworx.ambrosia.battle.BattleService.Companion.SPEEDBAR_MAX
 import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.exceptions.ConfigurationException
-import io.pacworx.ambrosia.hero.skills.SkillActionEffect.*
 import io.pacworx.ambrosia.hero.Color
-import io.pacworx.ambrosia.hero.skills.HeroSkill
-import io.pacworx.ambrosia.hero.skills.HeroSkillAction
 import io.pacworx.ambrosia.hero.HeroStat
-import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
-import io.pacworx.ambrosia.hero.skills.SkillActionTarget
-import io.pacworx.ambrosia.hero.skills.SkillActionTrigger
-import io.pacworx.ambrosia.hero.skills.SkillActionType
-import io.pacworx.ambrosia.properties.DynamicProperty
+import io.pacworx.ambrosia.hero.skills.*
+import io.pacworx.ambrosia.hero.skills.SkillActionEffect.*
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
 import org.springframework.stereotype.Service
-import java.lang.RuntimeException
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
@@ -29,17 +22,7 @@ class SkillService(private val propertyService: PropertyService) {
         private val opp_positions = listOf(HeroPosition.OPP1, HeroPosition.OPP2, HeroPosition.OPP3, HeroPosition.OPP4)
     }
 
-    var battleProps = listOf<DynamicProperty>()
-
-    fun initProps() {
-        battleProps = propertyService.getProperties(PropertyType.BATTLE_ARMOR)
-        if (battleProps.isEmpty()) {
-            throw ConfigurationException("Found no properties for battle_armor")
-        }
-    }
-
     fun useSkill(battle: Battle, hero: BattleHero, skill: HeroSkill, target: BattleHero) {
-        initProps()
         battle.applyBonuses(propertyService)
         val step = BattleStep(
             battleId = battle.id,
@@ -289,6 +272,9 @@ class SkillService(private val propertyService: PropertyService) {
 
         val targetArmor = target.getTotalArmor()
         val targetHealth = target.currentHp
+        val battleProps = propertyService.getProperties(PropertyType.BATTLE_ARMOR)
+            .takeIf { it.isNotEmpty() }
+            ?: throw ConfigurationException("Found no properties of type BATTLE_ARMOR")
         val property = if (targetArmor > 0) {
             val dmgArmorRatio: Int = round(100 * (damage - armorPiercedDamage).toDouble() / targetArmor).toInt()
             battleProps.find { dmgArmorRatio <= it.level!! } ?: battleProps.last()
