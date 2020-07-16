@@ -69,7 +69,7 @@ class BattleController(
     @PostMapping
     @Transactional
     fun startTestDuellBattle(@ModelAttribute("player") player: Player, @RequestBody request: StartDuellRequest): PlayerActionResponse {
-        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+        if (battleService.getOngoingBattle(player) != null) {
             throw OngoingBattleException(player)
         }
         return afterBattleAction(player, battleService.initTestDuell(player, request))
@@ -82,7 +82,7 @@ class BattleController(
                      @PathVariable posX: Int,
                      @PathVariable posY: Int,
                      @RequestBody request: StartBattleRequest): PlayerActionResponse {
-        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+        if (battleService.getOngoingBattle(player) != null) {
             throw OngoingBattleException(player)
         }
         val mapTile = simplePlayerMapTileRepository.findPlayerMapTile(player.id, mapId, posX, posY)
@@ -105,7 +105,7 @@ class BattleController(
     fun startCampaignTest(@ModelAttribute("player") player: Player,
                           @PathVariable fightId: Long,
                           @RequestBody request: StartBattleRequest): PlayerActionResponse {
-        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+        if (battleService.getOngoingBattle(player) != null) {
             throw OngoingBattleException(player)
         }
         val fight = fightRepository.getOne(fightId)
@@ -116,7 +116,7 @@ class BattleController(
     @Transactional
     fun repeatTestBattle(@ModelAttribute("player") player: Player,
                          @PathVariable battleId: Long): PlayerActionResponse {
-        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+        if (battleService.getOngoingBattle(player) != null) {
             throw OngoingBattleException(player)
         }
         val prevBattle = battleRepository.findByIdOrNull(battleId) ?: throw EntityNotFoundException(player, "battle", battleId)

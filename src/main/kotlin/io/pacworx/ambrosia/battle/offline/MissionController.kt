@@ -1,7 +1,6 @@
 package io.pacworx.ambrosia.battle.offline
 
-import io.pacworx.ambrosia.battle.BattleRepository
-import io.pacworx.ambrosia.battle.BattleStatus
+import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.*
 import io.pacworx.ambrosia.fights.FightRepository
@@ -26,7 +25,7 @@ import javax.transaction.Transactional
 class MissionController(
     private val simplePlayerMapTileRepository: SimplePlayerMapTileRepository,
     private val missionService: MissionService,
-    private val battleRepository: BattleRepository,
+    private val battleService: BattleService,
     private val fightRepository: FightRepository,
     private val resourcesService: ResourcesService,
     private val progressRepository: ProgressRepository,
@@ -44,7 +43,7 @@ class MissionController(
     fun startMission(@ModelAttribute("player") player: Player,
                      @RequestBody request: StartMissionRequest
     ): PlayerActionResponse {
-        if (battleRepository.findTopByPlayerIdAndStatusNotIn(player.id, listOf(BattleStatus.LOST, BattleStatus.WON)) != null) {
+        if (battleService.getOngoingBattle(player) != null) {
             throw OngoingBattleException(player)
         }
         val mapTile = simplePlayerMapTileRepository.findPlayerMapTile(player.id, request.mapId, request.posX, request.posY)
