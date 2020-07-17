@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.common
 
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.battle.Buff
+import io.pacworx.ambrosia.buildings.Trade
 import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
 import io.pacworx.ambrosia.hero.skills.SkillActionEffect
 import io.pacworx.ambrosia.hero.skills.SkillActionTarget
@@ -78,6 +79,7 @@ class EnumController {
         val modifications: List<Modification> = Modification.values().asList(),
         val storyTriggers: List<StoryTrigger> = StoryTrigger.values().asList(),
         val progressStats: List<ProgressStat> = ProgressStat.values().asList(),
-        val oddJobTypes: List<OddJobType> = OddJobType.values().asList()
+        val oddJobTypes: List<OddJobType> = OddJobType.values().asList(),
+        val trades: List<Trade> = Trade.values().asList()
     )
 }

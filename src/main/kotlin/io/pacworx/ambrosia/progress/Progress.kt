@@ -52,7 +52,8 @@ data class Progress(
     var incGearRarityEnabled: Boolean = false,
     var reRollGearJewelEnabled: Boolean = false,
     var addGearJewelEnabled: Boolean = false,
-    var addGearSpecialJewelEnabled: Boolean = false
+    var addGearSpecialJewelEnabled: Boolean = false,
+    var negotiationLevel: Int = 0
 ) {
 
     fun modificationAllowed(gearRarity: Rarity, modification: Modification): Boolean {

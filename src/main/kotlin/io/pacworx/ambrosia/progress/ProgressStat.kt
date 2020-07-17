@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.progress
 
+import java.lang.Integer.min
+
 enum class ProgressStat {
     PLAYER_XP {
         override fun apply(progress: Progress, bonus: Int) {
@@ -8,7 +10,7 @@ enum class ProgressStat {
     },
     EXPEDITION_LEVEL {
         override fun apply(progress: Progress, bonus: Int) {
-            progress.expeditionLevel += bonus
+            progress.expeditionLevel = min(progress.expeditionLevel + bonus, 6)
         }
     },
     EXPEDITION_SPEED {
@@ -58,7 +60,7 @@ enum class ProgressStat {
     },
     HERO_TRAIN_LEVEL {
         override fun apply(progress: Progress, bonus: Int) {
-            progress.maxTrainingLevel += bonus
+            progress.maxTrainingLevel = min(progress.maxTrainingLevel + bonus, 60)
         }
     },
     TRAINING_XP_BOOST {
@@ -73,7 +75,7 @@ enum class ProgressStat {
     },
     VEHICLE_UPGRADE_LEVEL {
         override fun apply(progress: Progress, bonus: Int) {
-            progress.vehicleUpgradeLevel += bonus
+            progress.vehicleUpgradeLevel = min(progress.vehicleUpgradeLevel + bonus, 10)
         }
     },
     INCUBATORS {
@@ -189,6 +191,11 @@ enum class ProgressStat {
     ADD_GEAR_SPECIAL_JEWEL {
         override fun apply(progress: Progress, bonus: Int) {
             progress.addGearSpecialJewelEnabled = bonus > 0
+        }
+    },
+    NEGOTIATION_LEVEL {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.negotiationLevel = min(progress.negotiationLevel + bonus, 10)
         }
     };
 

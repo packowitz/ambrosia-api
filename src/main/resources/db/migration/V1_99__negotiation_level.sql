@@ -1,0 +1,1 @@
+alter table progress add column if not exists negotiation_level int not null default 0;
