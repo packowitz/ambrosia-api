@@ -60,6 +60,9 @@ class AcademyController(
         val deletedHeroes = heroes.filter { it.id != heroId }.map { fodder ->
             var gainedXp = propertyService.getHeroMergedXp(fodder.level)
             gainedXp += round((progress.trainingXpBoost * gainedXp) / 100.0).toInt()
+            if (fodder.heroBase.rarity.stars > 1) {
+                gainedXp *= 2 * fodder.heroBase.rarity.stars
+            }
             achievements.academyXpGained += heroService.heroGainXp(hero, gainedXp)
             if (hero.heroBase.heroClass == fodder.heroBase.heroClass) {
                 var gainedAsc = propertyService.getHeroMergedAsc(fodder.heroBase.rarity.stars)
