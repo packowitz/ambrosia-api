@@ -3,13 +3,7 @@ package io.pacworx.ambrosia.vehicle
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.transaction.Transactional
 import javax.validation.Valid
 
@@ -18,9 +12,6 @@ import javax.validation.Valid
 @RequestMapping("admin/vehicle")
 class AdminVehicleController(private val vehicleBaseRepository: VehicleBaseRepository,
                              private val auditLogService: AuditLogService) {
-
-    @GetMapping
-    fun getVehicles(): List<VehicleBase> = vehicleBaseRepository.findAll()
 
     @PostMapping
     @Transactional

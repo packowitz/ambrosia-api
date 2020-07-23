@@ -12,6 +12,7 @@ import kotlin.math.roundToInt
 data class HeroDto(val id: Long,
                    val missionId: Long?,
                    val playerExpeditionId: Long?,
+                   @JsonIgnore
                    val heroBase: HeroBase,
                    var stars: Int,
                    var level: Int,
@@ -158,6 +159,10 @@ data class HeroDto(val id: Long,
         gloves?.let { gears.add(it) }
         boots?.let { gears.add(it) }
         return gears
+    }
+
+    fun getHeroBaseId(): Long {
+        return this.heroBase.id;
     }
 
     fun getStrengthTotal(): Int =

@@ -9,12 +9,7 @@ import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -22,9 +17,13 @@ import org.springframework.web.bind.annotation.RestController
 class VehicleController(
     private val vehicleRepository: VehicleRepository,
     private val vehiclePartRepository: VehiclePartRepository,
+    private val vehicleBaseRepository: VehicleBaseRepository,
     private val vehicleService: VehicleService,
     private val auditLogService: AuditLogService
 ) {
+
+    @GetMapping
+    fun getVehicles(): List<VehicleBase> = vehicleBaseRepository.findAll()
 
     @PostMapping("{vehicleId}/activate/{slot}")
     @Transactional

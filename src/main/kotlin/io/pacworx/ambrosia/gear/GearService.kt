@@ -98,7 +98,7 @@ class GearService(
         return gear
     }
 
-    fun createGear(playerId: Long,
+    fun createGear(playerId: Long?,
                    sets: List<GearSet>,
                    gearTypes: List<GearType>,
                    legendaryChance: Int = 5,
@@ -113,7 +113,7 @@ class GearService(
                    specialSlotChance: Int = 10,
                    qualityFrom: Int = 0,
                    qualityTo: Int = 100): Gear {
-        val progress = progressRepository.getOne(playerId)
+        val progress = playerId?.let { progressRepository.getOne(it) }
         val gearSet: GearSet = sets.random()
         val rarityRandom = Random.nextInt(100)
         val rarity: Rarity = when {
@@ -127,7 +127,8 @@ class GearService(
         val type: GearType = gearTypes.random()
         val stat: HeroStat = propertyService.getPossibleGearStats(type, rarity).random()
         val valueRange = propertyService.getGearValueRange(type, rarity, stat)
-        val statQuality = Random.nextInt(min(qualityTo - 10, qualityFrom + progress.gearQualityIncrease), qualityTo + 1)
+
+        val statQuality = Random.nextInt(min(qualityTo - 10, qualityFrom + (progress?.gearQualityIncrease ?: 0)), qualityTo + 1)
         val statValue = valueRange.first + ((statQuality * (valueRange.second - valueRange.first)) / 100)
 
         val slotRandom = Random.nextInt(100)

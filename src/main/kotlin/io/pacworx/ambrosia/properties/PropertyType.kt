@@ -159,6 +159,7 @@ enum class PropertyType(
 
     ACADEMY_BUILDING(BUILDING, "Defines the bonus for upgrading the academy", showProgressStat = true),
     BARRACKS_BUILDING(BUILDING, "Defines the bonus for upgrading the barracks", showProgressStat = true),
+    BAZAAR_BUILDING(BUILDING, "Defines the bonus for upgrading the bazaar", showProgressStat = true),
     FORGE_BUILDING(BUILDING, "Defines the bonus for upgrading the forge", showProgressStat = true),
     GARAGE_BUILDING(BUILDING, "Defines the bonus for upgrading the garage", showProgressStat = true),
     JEWELRY_BUILDING(BUILDING, "Defines the bonus for upgrading the jewelry", showProgressStat = true),

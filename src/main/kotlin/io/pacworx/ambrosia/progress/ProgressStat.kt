@@ -197,6 +197,26 @@ enum class ProgressStat {
         override fun apply(progress: Progress, bonus: Int) {
             progress.negotiationLevel = min(progress.negotiationLevel + bonus, 10)
         }
+    },
+    ENABLE_TRADING {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.tradingEnabled = bonus > 0
+        }
+    },
+    ENABLE_BLACK_MARKET {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.blackMarketEnabled = bonus > 0
+        }
+    },
+    ENABLE_CAR_YARD {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.carYardEnabled = bonus > 0
+        }
+    },
+    MERCHANT_LEVEL {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.merchantLevel = min(progress.merchantLevel + bonus, 4)
+        }
     };
 
     abstract fun apply(progress: Progress, bonus: Int)

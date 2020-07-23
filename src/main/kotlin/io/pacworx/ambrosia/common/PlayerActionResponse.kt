@@ -6,6 +6,7 @@ import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.Incubator
+import io.pacworx.ambrosia.buildings.merchant.MerchantPlayerItem
 import io.pacworx.ambrosia.expedition.Expedition
 import io.pacworx.ambrosia.expedition.PlayerExpedition
 import io.pacworx.ambrosia.gear.Gear
@@ -57,5 +58,7 @@ data class PlayerActionResponse(
     val oddJobs: List<OddJob>? = null,
     val oddJobDone: Long? = null,
     val dailyActivity: DailyActivity? = null,
-    val propertyVersions: List<PropertyVersion>? = null
+    val propertyVersions: List<PropertyVersion>? = null,
+    val merchantItems: List<MerchantPlayerItem>? = null,
+    val boughtMerchantItem: MerchantPlayerItem? = null
 )

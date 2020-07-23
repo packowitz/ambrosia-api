@@ -9,6 +9,7 @@ import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.buildings.IncubatorRepository
+import io.pacworx.ambrosia.buildings.merchant.MerchantService
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.expedition.ExpeditionRepository
 import io.pacworx.ambrosia.expedition.PlayerExpeditionRepository
@@ -63,7 +64,8 @@ class PlayerService(
     private val playerExpeditionRepository: PlayerExpeditionRepository,
     private val oddJobService: OddJobService,
     private val dailyActivityRepository: DailyActivityRepository,
-    private val achievementsRepository: AchievementsRepository
+    private val achievementsRepository: AchievementsRepository,
+    private val merchantService: MerchantService
 ) {
 
     @Value("\${ambrosia.pw-salt-one}")
@@ -200,6 +202,7 @@ class PlayerService(
         val ongoingBattle = battleService.getOngoingBattle(player)
         val knownStories = storyProgressRepository.findAllByPlayerId(player.id).map { it.trigger.name }
         val dailyActivity = dailyActivityRepository.getOne(player.id).also { it.checkForReset() }
+        val merchantItems = merchantService.getItems(player, progress)
         return PlayerActionResponse(
             resources = resources,
             token = token,
@@ -222,7 +225,8 @@ class PlayerService(
             ongoingBattle = ongoingBattle,
             upgrades = upgrades,
             knownStories = knownStories,
-            dailyActivity = dailyActivity
+            dailyActivity = dailyActivity,
+            merchantItems = merchantItems
         )
     }
 

@@ -10,6 +10,7 @@ data class Vehicle(
     val playerId: Long,
     @ManyToOne
     @JoinColumn(name = "base_vehicle_id")
+    @JsonIgnore
     val baseVehicle: VehicleBase,
     var level: Int = 1,
     var upgradeTriggered: Boolean = false,
@@ -35,6 +36,8 @@ data class Vehicle(
     @JoinColumn(name = "special_part3id")
     var specialPart3: VehiclePart? = null
 ) {
+
+    fun getBaseVehicleId(): Long = baseVehicle.id
 
     @JsonIgnore
     fun getAllParts(): List<VehiclePart> {

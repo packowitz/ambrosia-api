@@ -44,12 +44,6 @@ class AdminHeroBaseController(private val heroBaseRepository: HeroBaseRepository
                               private val vehicleRepository: VehicleRepository,
                               private val auditLogService: AuditLogService) {
 
-    @GetMapping("")
-    fun getHeroBases(): List<HeroBase> = heroBaseRepository.findAll()
-
-    @GetMapping("{id}")
-    fun getHeroBase(@PathVariable id: Long): HeroBase = heroBaseRepository.getOne(id)
-
     @PostMapping("")
     @Transactional
     fun postHeroBase(@ModelAttribute("player") player: Player,

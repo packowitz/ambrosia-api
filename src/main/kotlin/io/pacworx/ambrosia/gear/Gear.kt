@@ -14,7 +14,7 @@ import javax.persistence.*
 data class Gear(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-    val playerId: Long,
+    var playerId: Long? = null,
     var equippedTo: Long? = null,
     var modificationInProgress: Boolean = false,
     var modificationPerformed: Boolean = false,
