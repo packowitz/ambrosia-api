@@ -39,6 +39,10 @@ data class Vehicle(
 
     fun getBaseVehicleId(): Long = baseVehicle.id
 
+    fun getName(): String = baseVehicle.name
+
+    fun getAvatar(): String = baseVehicle.avatar
+
     @JsonIgnore
     fun getAllParts(): List<VehiclePart> {
         return listOfNotNull(engine, frame, computer, specialPart1, specialPart2, specialPart3)

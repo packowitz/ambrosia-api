@@ -161,9 +161,13 @@ data class HeroDto(val id: Long,
         return gears
     }
 
-    fun getHeroBaseId(): Long {
-        return this.heroBase.id;
-    }
+    fun getHeroBaseId(): Long = heroBase.id
+
+    fun getName(): String = heroBase.name
+
+    fun getColor(): Color = heroBase.color
+
+    fun getAvatar(): String = heroBase.avatar
 
     fun getStrengthTotal(): Int =
             baseStrength + strengthAbsBonus + (baseStrength * (strengthPercBonus / 100.0)).roundToInt()
