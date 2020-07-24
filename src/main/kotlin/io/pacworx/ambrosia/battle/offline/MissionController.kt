@@ -88,14 +88,13 @@ class MissionController(
         )
     }
 
-
-    @PostMapping("{missionId}")
+    @GetMapping("{missionId}")
     @Transactional
-    fun checkMission(@PathVariable missionId: Long): PlayerActionResponse {
+    fun checkMission(@ModelAttribute("player") player: Player, @PathVariable missionId: Long): Mission {
         val mission = missionRepository.findByIdOrNull(missionId)
-            ?: return PlayerActionResponse(missionIdFinished = missionId)
+            ?: throw EntityNotFoundException(player, "mission", missionId)
         missionService.check(mission)
-        return PlayerActionResponse(missions = listOf(mission))
+        return mission
     }
 
     @PostMapping("{missionId}/finish")

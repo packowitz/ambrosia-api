@@ -53,7 +53,9 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
                 }
             }
             BuildingType.BAZAAR -> {
-                // TODO
+                propertyService.getProperties(PropertyType.BAZAAR_BUILDING, building.level).forEach { prop ->
+                    prop.progressStat?.apply(progress, prop.value1)
+                }
             }
             BuildingType.FORGE -> {
                 propertyService.getProperties(PropertyType.FORGE_BUILDING, building.level).forEach { prop ->

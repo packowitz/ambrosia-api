@@ -25,12 +25,7 @@ import io.pacworx.ambrosia.vehicle.PartQuality
 import io.pacworx.ambrosia.vehicle.VehiclePartRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.transaction.Transactional
@@ -163,10 +158,10 @@ class UpgradeController(
         )
     }
 
-    @PostMapping("check")
+    @GetMapping("check")
     @Transactional
-    fun checkUpgrades(@ModelAttribute("player") player: Player): PlayerActionResponse {
-        return PlayerActionResponse(upgrades = upgradeService.getAllUpgrades(player))
+    fun checkUpgrades(@ModelAttribute("player") player: Player): List<Upgrade> {
+        return upgradeService.getAllUpgrades(player)
     }
 
     @PostMapping("building/{buildingType}")
