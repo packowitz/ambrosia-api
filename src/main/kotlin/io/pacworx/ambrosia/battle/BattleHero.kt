@@ -113,6 +113,8 @@ data class BattleHero(
     @field:Transient var confuseChanceBonus: Int = 0,
     val heroDamageReduction: Int,
     @field:Transient var damageReductionBonus: Int = 0,
+    val heroCritResist: Int,
+    @field:Transient var critResistBonus: Int = 0,
 
     @field:Transient @field:JsonIgnore var willCounter: Boolean = false
 ) {
@@ -169,6 +171,7 @@ data class BattleHero(
         heroDmgPerTurn = hero.dmgPerTurn,
         heroConfuseChance = hero.confuseChance,
         heroDamageReduction = hero.damageReduction,
+        heroCritResist = hero.critResist,
         willCounter = false
     )
 
@@ -390,6 +393,9 @@ data class BattleHero(
 
     @JsonIgnore
     fun getTotalDamageReduction(): Int = heroDamageReduction + damageReductionBonus
+
+    @JsonIgnore
+    fun getTotalCritResist(): Int = heroCritResist + critResistBonus
 
     @JsonIgnore
     fun isTaunting(): Boolean = status == HeroStatus.ALIVE && buffs.any { it.buff == Buff.TAUNT_BUFF }

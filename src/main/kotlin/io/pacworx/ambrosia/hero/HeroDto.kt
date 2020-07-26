@@ -119,6 +119,7 @@ data class HeroDto(val id: Long,
     @JsonIgnore var dmgPerTurn: Int = 0
     @JsonIgnore var confuseChance: Int = 0
     @JsonIgnore var damageReduction: Int = 0
+    @JsonIgnore var critResist: Int = 0
 
     constructor(hero: Hero) : this(
         id = hero.id,

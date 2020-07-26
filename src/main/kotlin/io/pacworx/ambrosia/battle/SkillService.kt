@@ -200,7 +200,7 @@ class SkillService(private val propertyService: PropertyService) {
 
         var baseDamageText = step.baseDamageText ?: "0"
 
-        val crit = procs(damageDealer.getTotalCrit())
+        val crit = procs(damageDealer.getTotalCrit() - target.getTotalCritResist())
         val superCrit = crit && procs(damageDealer.heroSuperCritChance + damageDealer.superCritChanceBonus)
 
         var baseDamageDouble = if (action.effectValue == 100) {

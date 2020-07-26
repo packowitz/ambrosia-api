@@ -77,6 +77,7 @@ enum class PropertyType(
     ARMOR_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     COUNTERATTACK_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     CRIT_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
+    CRIT_RESIST_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     CRIT_MULT_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     DAMAGE_REDUCTION_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),
     DEXTERITY_BUFF(BUFF, "Intensity 1-5. Stat defines the granted bonus."),

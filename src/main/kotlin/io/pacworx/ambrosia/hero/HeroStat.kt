@@ -344,6 +344,17 @@ enum class HeroStat {
             hero.damageReductionBonus += bonus
         }
     },
+    CRIT_RESIST {
+        override fun desc(bonus: Int): String {
+            return "+$bonus% crit resist"
+        }
+        override fun apply(hero: HeroDto, bonus: Int) {
+            hero.critResist += bonus
+        }
+        override fun apply(hero: BattleHero, bonus: Int) {
+            hero.critResistBonus += bonus
+        }
+    },
     BUFF_RESISTANCE,
     INIT_SPEEDBAR_GAIN {
         override fun initTurn(hero: BattleHero, bonus: Int) {
