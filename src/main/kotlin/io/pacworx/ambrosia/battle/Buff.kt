@@ -21,7 +21,7 @@ enum class Buff(
     ARMOR_BUFF(BuffType.BUFF, PropertyType.ARMOR_BUFF, "Increases hero's armor"),
     COUNTERATTACK(BuffType.BUFF, PropertyType.COUNTERATTACK_BUFF, "Increases the possibility to counter an attack"),
     CRIT_BUFF(BuffType.BUFF, PropertyType.CRIT_BUFF, "Increases hero's chance to land a critical hit"),
-    CRIT_RESIST_BUFF(BuffType.BUFF, PropertyType.CRIT_BUFF, "Decreases chance to receive a critical hit"),
+    CRIT_RESIST_BUFF(BuffType.BUFF, PropertyType.CRIT_RESIST_BUFF, "Decreases chance to receive a critical hit"),
     CRIT_MULT_BUFF(BuffType.BUFF, PropertyType.CRIT_MULT_BUFF, "Increases hero's damage multiplier for critical hits"),
     DAMAGE_REDUCTION_BUFF(BuffType.BUFF, PropertyType.DAMAGE_REDUCTION_BUFF, "Increases hero's damage reduction stat"),
     DEXTERITY_BUFF(BuffType.BUFF, PropertyType.DEXTERITY_BUFF, "Increases hero's dexterity"),
