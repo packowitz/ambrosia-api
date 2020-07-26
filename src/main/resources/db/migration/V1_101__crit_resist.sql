@@ -1,0 +1,1 @@
+alter table battle_hero add column if not exists hero_crit_resist integer not null default 0;
