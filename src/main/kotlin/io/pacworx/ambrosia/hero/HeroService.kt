@@ -18,10 +18,13 @@ import kotlin.math.round
 import kotlin.random.Random
 
 @Service
-class HeroService(val heroBaseRepository: HeroBaseRepository,
-                  val heroRepository: HeroRepository,
-                  val propertyService: PropertyService,
-                  val vehicleService: VehicleService) {
+class HeroService(
+    val heroBaseRepository: HeroBaseRepository,
+    val heroRepository: HeroRepository,
+    val propertyService: PropertyService,
+    val vehicleService: VehicleService,
+    val knownHeroRepository: KnownHeroRepository
+) {
 
     fun asHeroDto(hero: Hero): HeroDto {
         val heroDto = HeroDto(hero)
@@ -52,6 +55,9 @@ class HeroService(val heroBaseRepository: HeroBaseRepository,
     }
 
     fun recruitHero(player: Player, heroBase: HeroBase, level: Int = 1): Hero {
+        if (knownHeroRepository.findByPlayerIdAndHeroBaseId(player.id, heroBase.id) == null) {
+            knownHeroRepository.save(KnownHero(playerId = player.id, heroBaseId = heroBase.id))
+        }
         return heroRepository.save(Hero(
             playerId = player.id,
             heroBase = heroBase,

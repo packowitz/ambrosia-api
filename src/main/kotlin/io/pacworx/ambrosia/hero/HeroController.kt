@@ -19,13 +19,21 @@ import javax.transaction.Transactional
 @RestController
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("hero")
-class HeroController(private val heroService: HeroService,
-                     private val heroRepository: HeroRepository,
-                     private val auditLogService: AuditLogService) {
+class HeroController(
+    private val heroService: HeroService,
+    private val heroRepository: HeroRepository,
+    private val auditLogService: AuditLogService,
+    private val knownHeroRepository: KnownHeroRepository
+) {
 
     @GetMapping("")
     fun getHeroes(@ModelAttribute("player") player: Player): List<HeroDto> {
         return heroRepository.findAllByPlayerIdOrderByLevelDescStarsDescHeroBase_IdAscIdAsc(player.id).map { heroService.asHeroDto(it) }
+    }
+
+    @GetMapping("known")
+    fun getKnownHeroes(@ModelAttribute("player") player: Player): List<Long> {
+        return knownHeroRepository.findAllByPlayerId(player.id).map { it.heroBaseId }
     }
 
     @PostMapping("{heroId}/skill_up/{skillNumber}")
