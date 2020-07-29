@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.buildings
 
+import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
@@ -103,6 +104,7 @@ class LaboratoryController(
 
         var hero: HeroDto? = null
         var incubator: Incubator? = null
+        var achievements: Achievements? = null
         if (time > 0) {
             time = (time * 100) / progress.labSpeed
             val now = Instant.now()
@@ -118,9 +120,12 @@ class LaboratoryController(
         } else {
             hero = heroService.asHeroDto(heroService.recruitHero(player, type.commonChance, type.uncommonChance, type.rareChance, type.epicChance, type.defaultRarity))
             auditLogService.log(player, "Immediate cloning of hero ${hero.heroBase.name} #${hero.id} spending ${costs.joinToString { "${it.amount} ${it.type}" }}")
+            achievements = achievementsRepository.getOne(player.id)
+            achievements.incubationDone(type)
         }
         return PlayerActionResponse(
             resources = resources,
+            achievements = achievements,
             heroes = listOfNotNull(hero),
             incubators = listOfNotNull(incubator)
         )

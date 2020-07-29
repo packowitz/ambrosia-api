@@ -67,7 +67,6 @@ class ProgressController(
         val resources = resourcesService.getResources(player)
         if (progress.vipPoints >= progress.vipMaxPoints && progress.vipLevel < 20) {
             progress.vipLevel ++
-            progress.vipPoints -= progress.vipMaxPoints
             progress.vipMaxPoints = propertyService.getPlayerVipMax(progress.level)
             propertyService.getProperties(PropertyType.VIP_LEVEL_REWARD_PLAYER, progress.vipLevel).forEach {
                 if (it.resourceType != null) {
