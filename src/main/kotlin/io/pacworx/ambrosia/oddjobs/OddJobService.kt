@@ -71,6 +71,17 @@ class OddJobService(
             }
     }
 
+    fun mapTileDiscovered(player: Player): List<OddJob> {
+        return oddJobRepository.findAllByPlayerIdOrderByCreated(player.id)
+            .filter { job ->
+                job.jobType  == OddJobType.DISCOVER_TILES
+            }
+            .also { jobs -> jobs.forEach {job ->
+                job.jobAmountDone = min(job.jobAmount, job.jobAmountDone + 1)
+                addLootItems(player, job) }
+            }
+    }
+
     fun chestOpened(player: Player): List<OddJob> {
         return oddJobRepository.findAllByPlayerIdOrderByCreated(player.id)
             .filter { job ->
@@ -85,7 +96,7 @@ class OddJobService(
     fun looted(player: Player, lootedItems: List<LootItemResult>): List<OddJob> {
         return oddJobRepository.findAllByPlayerIdOrderByCreated(player.id)
             .filter { job ->
-                job.jobType in listOf(OddJobType.LOOT_COINS, OddJobType.LOOT_GEAR, OddJobType.LOOT_PARTS)
+                job.jobType in listOf(OddJobType.LOOT_COINS, OddJobType.LOOT_GEAR, OddJobType.LOOT_PARTS, OddJobType.LOOT_JEWELS)
             }
             .also { jobs -> jobs.forEach {job ->
                 val inc =
@@ -98,6 +109,9 @@ class OddJobService(
                         }
                         OddJobType.LOOT_PARTS -> {
                             lootedItems.filter { it.vehiclePart != null }.size
+                        }
+                        OddJobType.LOOT_JEWELS -> {
+                            lootedItems.filter { it.jewelry != null }.size
                         }
                         else -> { 0 }
                     }

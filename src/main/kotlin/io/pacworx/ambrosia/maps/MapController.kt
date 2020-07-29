@@ -76,7 +76,8 @@ class MapController(
         val tile = map.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discoverable }
             ?: throw MapTileActionException(player, "discover", request.mapId, request.posX, request.posY)
         val resources = resourcesService.spendSteam(player, map.map.discoverySteamCost)
-        val oddJobsEffected = oddJobService.resourcesSpend(player, ResourceType.STEAM, map.map.discoverySteamCost)
+        val oddJobsEffected = oddJobService.mapTileDiscovered(player) +
+            oddJobService.resourcesSpend(player, ResourceType.STEAM, map.map.discoverySteamCost)
         mapService.discoverMapTile(player, map, tile)
         auditLogService.log(player, "Discover tile ${tile.posX}x${tile.posY} on map ${map.map.name} #${map.map.id} paying ${map.map.discoverySteamCost} steam")
         return PlayerActionResponse(
