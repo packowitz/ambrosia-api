@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.maps
 
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
@@ -32,7 +33,8 @@ class MapController(
     private val upgradeService: UpgradeService,
     private val progressRepository: ProgressRepository,
     private val auditLogService: AuditLogService,
-    private val oddJobService: OddJobService
+    private val oddJobService: OddJobService,
+    private val achievementsRepository: AchievementsRepository
 ) {
 
     @GetMapping("{mapId}")
@@ -76,6 +78,9 @@ class MapController(
         val tile = map.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discoverable }
             ?: throw MapTileActionException(player, "discover", request.mapId, request.posX, request.posY)
         val resources = resourcesService.spendSteam(player, map.map.discoverySteamCost)
+        val achievements = achievementsRepository.getOne(player.id)
+        achievements.resourceSpend(ResourceType.STEAM, map.map.discoverySteamCost)
+        achievements.mapTilesDiscovered ++
         val oddJobsEffected = oddJobService.mapTileDiscovered(player) +
             oddJobService.resourcesSpend(player, ResourceType.STEAM, map.map.discoverySteamCost)
         mapService.discoverMapTile(player, map, tile)
@@ -83,6 +88,7 @@ class MapController(
         return PlayerActionResponse(
             currentMap = PlayerMapResolved(playerMapRepository.save(map)),
             resources = resources,
+            achievements = achievements,
             oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
         )
     }
@@ -120,7 +126,9 @@ class MapController(
         }
         val lootBoxId = mapRepository.getOne(request.mapId).tiles.find { it.posX == request.posX && it.posY == request.posY }?.takeIf { it.lootBoxId != null }?.lootBoxId
             ?: throw MapTileActionException(player, "open chest on", request.mapId, request.posX, request.posY)
-        val result = lootService.openLootBox(player, lootBoxId)
+        val achievements = achievementsRepository.getOne(player.id)
+        achievements.chestsOpened ++
+        val result = lootService.openLootBox(player, lootBoxId, achievements)
         tile.chestOpened = true
         val oddJobsEffected = oddJobService.chestOpened(player) + oddJobService.looted(player, result.items)
 
@@ -130,6 +138,7 @@ class MapController(
 
         return PlayerActionResponse(
             currentMap = PlayerMapResolved(playerMap),
+            achievements = achievements,
             progress = if (result.items.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
             resources = resourcesService.getResources(player),
             heroes = result.items.filter { it.hero != null }.map { it.hero!! }.takeIf { it.isNotEmpty() },

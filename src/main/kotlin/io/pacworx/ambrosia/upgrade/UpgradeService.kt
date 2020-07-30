@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.upgrade
 
+import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
@@ -29,12 +30,17 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
 
     fun getAllUpgrades(player: Player): List<Upgrade> = upgradeRepository.findAllByPlayerIdOrderByPositionAsc(player.id)
 
-    fun levelUpBuilding(player: Player, buildingType: BuildingType): Building {
-        return buildingRepository.findByPlayerIdAndType(player.id, buildingType)!!.also {
-            it.level++
+    fun levelUpBuilding(player: Player, buildingType: BuildingType, achievements: Achievements): Building {
+        val allBuildings = buildingRepository.findAllByPlayerId(player.id)
+        val building = allBuildings.find { it.type == buildingType }!!
+        building.let {
+            it.level ++
             it.upgradeTriggered = false
             applyBuildingLevel(player, it)
         }
+        achievements.buildingsUpgradesDone ++
+        achievements.buildingMinLevel = allBuildings.minBy { it.level }!!.level
+        return building
     }
 
     fun applyBuildingLevel(player: Player, building: Building, progress: Progress = progressRepository.getOne(player.id)) {

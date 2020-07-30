@@ -92,11 +92,8 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             resources.steamLastProduction = LocalDateTime.now()
         }
         resources.steam -= amount
-        resources.steamUsed += amount
         if (resources.steam < 0) {
             resources.premiumSteam += resources.steam
-            resources.steamUsed += resources.steam
-            resources.premiumSteamUsed -= resources.steam
             resources.steam = 0
         }
         return resources
@@ -114,11 +111,8 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             resources.cogwheelsLastProduction = LocalDateTime.now()
         }
         resources.cogwheels -= amount
-        resources.cogwheelsUsed += amount
         if (resources.cogwheels < 0) {
             resources.premiumCogwheels += resources.cogwheels
-            resources.cogwheelsUsed += resources.cogwheels
-            resources.premiumCogwheelsUsed -= resources.cogwheels
             resources.cogwheels = 0
         }
         return resources
@@ -136,11 +130,8 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             resources.tokensLastProduction = LocalDateTime.now()
         }
         resources.tokens -= amount
-        resources.tokensUsed += amount
         if (resources.tokens < 0) {
             resources.premiumTokens += resources.tokens
-            resources.tokensUsed += resources.tokens
-            resources.premiumTokensUsed -= resources.tokens
             resources.tokens = 0
         }
         return resources
@@ -151,7 +142,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Coins", amount)
         }
         resources.coins -= amount
-        resources.coinsUsed += amount
         return resources
     }
 
@@ -160,7 +150,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Rubies", amount)
         }
         resources.rubies -= amount
-        resources.rubiesUsed += amount
         return resources
     }
 
@@ -169,7 +158,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Metal", amount)
         }
         resources.metal -= amount
-        resources.metalUsed += amount
         return resources
     }
 
@@ -178,7 +166,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Iron", amount)
         }
         resources.iron -= amount
-        resources.ironUsed += amount
         return resources
     }
 
@@ -187,7 +174,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Steel", amount)
         }
         resources.steel -= amount
-        resources.steelUsed += amount
         return resources
     }
 
@@ -196,7 +182,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Wood", amount)
         }
         resources.wood -= amount
-        resources.woodUsed += amount
         return resources
     }
 
@@ -205,7 +190,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Brown coal", amount)
         }
         resources.brownCoal -= amount
-        resources.brownCoalUsed += amount
         return resources
     }
 
@@ -214,7 +198,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Black coal", amount)
         }
         resources.blackCoal -= amount
-        resources.blackCoalUsed += amount
         return resources
     }
 
@@ -223,7 +206,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Simple genomes", amount)
         }
         resources.simpleGenome -= amount
-        resources.simpleGenomeUsed += amount
         return resources
     }
 
@@ -232,7 +214,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Common genomes", amount)
         }
         resources.commonGenome -= amount
-        resources.commonGenomeUsed += amount
         return resources
     }
 
@@ -241,7 +222,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Uncommon genomes", amount)
         }
         resources.uncommonGenome -= amount
-        resources.uncommonGenomeUsed += amount
         return resources
     }
 
@@ -250,7 +230,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Rare genomes", amount)
         }
         resources.rareGenome -= amount
-        resources.rareGenomeUsed += amount
         return resources
     }
 
@@ -259,7 +238,6 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             throw InsufficientResourcesException(resources.playerId, "Epic genomes", amount)
         }
         resources.epicGenome -= amount
-        resources.epicGenomeUsed += amount
         return resources
     }
 
@@ -270,18 +248,9 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
 
     fun gainResources(res: Resources, type: ResourceType, amount: Int): Resources {
         when (type) {
-            ResourceType.STEAM -> {
-                res.steam += amount
-                res.steamUsed -= amount
-            }
-            ResourceType.COGWHEELS -> {
-                res.cogwheels += amount
-                res.cogwheelsUsed -= amount
-            }
-            ResourceType.TOKENS -> {
-                res.tokens += amount
-                res.tokensUsed -= amount
-            }
+            ResourceType.STEAM -> res.steam += amount
+            ResourceType.COGWHEELS -> res.cogwheels += amount
+            ResourceType.TOKENS -> res.tokens += amount
             ResourceType.STEAM_MAX -> res.steamMax += amount
             ResourceType.PREMIUM_STEAM -> res.premiumSteam = min(res.premiumSteamMax, res.premiumSteam + amount)
             ResourceType.PREMIUM_STEAM_MAX -> res.premiumSteamMax += amount

@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.story
 
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.hero.Color
@@ -29,7 +30,8 @@ class StoryController(
     private val lootService: LootService,
     private val resourcesService: ResourcesService,
     private val auditLogService: AuditLogService,
-    private val progressRepository: ProgressRepository
+    private val progressRepository: ProgressRepository,
+    private val achievementsRepository: AchievementsRepository
 ) {
 
     @PostMapping("{trigger}/finish")
@@ -40,10 +42,11 @@ class StoryController(
         if (storyProgresses.any { it.trigger == trigger }) {
             throw GeneralException(player, "Cannot finish story", "You've finished story ${trigger.name} already")
         }
+        val achievements = achievementsRepository.getOne(player.id)
         val lootBoxResult = storyRepository.findStoryByTriggerAndNumber(trigger)
             ?.takeIf { it.lootBoxId != null }
             ?.let {
-                lootService.openLootBox(player, it.lootBoxId!!)
+                lootService.openLootBox(player, it.lootBoxId!!, achievements)
             }
         storyProgressRepository.save(StoryProgress(playerId = player.id, trigger = trigger))
         auditLogService.log(player, "Finished story ${trigger.name}" +

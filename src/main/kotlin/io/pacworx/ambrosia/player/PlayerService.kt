@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.player
 
 import com.google.common.hash.Hashing
+import io.pacworx.ambrosia.achievements.AchievementService
 import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.battle.BattleService
@@ -65,7 +66,8 @@ class PlayerService(
     private val oddJobService: OddJobService,
     private val dailyActivityRepository: DailyActivityRepository,
     private val achievementsRepository: AchievementsRepository,
-    private val merchantService: MerchantService
+    private val merchantService: MerchantService,
+    private val achievementService: AchievementService
 ) {
 
     @Value("\${ambrosia.pw-salt-one}")
@@ -203,6 +205,7 @@ class PlayerService(
         val knownStories = storyProgressRepository.findAllByPlayerId(player.id).map { it.trigger.name }
         val dailyActivity = dailyActivityRepository.getOne(player.id).also { it.checkForReset() }
         val merchantItems = merchantService.getItems(player, progress)
+        val achievementRewards = achievementService.getActiveAchievementRewards(player)
         return PlayerActionResponse(
             resources = resources,
             token = token,

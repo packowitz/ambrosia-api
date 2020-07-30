@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.battle.offline
 
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.*
@@ -35,7 +36,8 @@ class MissionController(
     private val lootService: LootService,
     private val heroService: HeroService,
     private val auditLogService: AuditLogService,
-    private val oddJobService: OddJobService
+    private val oddJobService: OddJobService,
+    private val achievementsRepository: AchievementsRepository
 ) {
 
     @PostMapping
@@ -107,6 +109,7 @@ class MissionController(
         }
 
         val resources = resourcesService.getResources(player)
+        val achievements = achievementsRepository.getOne(player.id)
 
         val vehicle = vehicleRepository.getOne(mission.vehicleId)
         val heroes = heroService.wonMission(mission, vehicle)
@@ -115,8 +118,9 @@ class MissionController(
             it.cancelled = true
             resourcesService.gainResources(resources, mission.fight.resourceType, mission.fight.costs)
         }
+        mission.battles.filter { it.battleFinished }.forEach { _ -> achievements.resourceSpend(mission.fight.resourceType, mission.fight.costs) }
         val lootItems = mission.battles.filter { it.isBattleSuccess() == true }.flatMap { battle ->
-            val lootBoxResult = lootService.openLootBox(player, mission.fight.lootBox, vehicle)
+            val lootBoxResult = lootService.openLootBox(player, mission.fight.lootBox, achievements, vehicle)
             battle.lootedItems = lootBoxResult.items.map { lootService.asLootedItem(it) }
             lootBoxResult.items
         }
@@ -136,6 +140,7 @@ class MissionController(
         return PlayerActionResponse(
             player = player,
             resources = resources,
+            achievements = achievements,
             progress = if (lootItems.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
             heroes = heroes + lootItems.filter { it.hero != null }.map { it.hero!! },
             gears = lootItems.filter { it.gear != null }.map { it.gear!! }.takeIf { it.isNotEmpty() },

@@ -121,6 +121,7 @@ class LaboratoryController(
             hero = heroService.asHeroDto(heroService.recruitHero(player, type.commonChance, type.uncommonChance, type.rareChance, type.epicChance, type.defaultRarity))
             auditLogService.log(player, "Immediate cloning of hero ${hero.heroBase.name} #${hero.id} spending ${costs.joinToString { "${it.amount} ${it.type}" }}")
             achievements = achievementsRepository.getOne(player.id)
+            costs.forEach { achievements.resourceSpend(it.type, it.amount) }
             achievements.incubationDone(type)
         }
         return PlayerActionResponse(
@@ -159,6 +160,7 @@ class LaboratoryController(
         auditLogService.log(player, "Finished incubator #${cube.id} and gained hero ${hero.heroBase.name} #${hero.id}")
         incubatorRepository.delete(cube)
         val achievements = achievementsRepository.getOne(player.id)
+        cube.getResourcesAsCosts().forEach { achievements.resourceSpend(it.type, it.amount) }
         achievements.incubationDone(cube.type)
         return PlayerActionResponse(
             achievements = achievements,

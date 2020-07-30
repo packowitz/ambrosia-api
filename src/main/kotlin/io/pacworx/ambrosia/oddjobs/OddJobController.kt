@@ -1,6 +1,5 @@
 package io.pacworx.ambrosia.oddjobs
 
-import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
@@ -56,10 +55,10 @@ class OddJobController(
         if (oddJob.jobAmountDone < oddJob.jobAmount) {
             throw GeneralException(player, "Cannot claim odd job", "Odd job is not completed yet.")
         }
-        lootService.openLootBox(player, oddJob.lootBoxId)
-        val dailyActivity = dailyActivityRepository.getOne(player.id)
         val achievements = achievementsRepository.getOne(player.id)
         achievements.oddJobsDone ++
+        lootService.openLootBox(player, oddJob.lootBoxId, achievements)
+        val dailyActivity = dailyActivityRepository.getOne(player.id)
         oddJobRepository.delete(oddJob)
         return PlayerActionResponse(
             resources = resourcesService.getResources(player),

@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.buildings
 
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.buildings.merchant.MerchantPlayerItem
 import io.pacworx.ambrosia.buildings.merchant.MerchantPlayerItemRepository
 import io.pacworx.ambrosia.buildings.merchant.MerchantService
@@ -35,7 +36,8 @@ class BazaarController(
     val gearRepository: GearRepository,
     val jewelryRepository: JewelryRepository,
     val vehicleService: VehicleService,
-    val merchantService: MerchantService
+    val merchantService: MerchantService,
+    val achievementsRepository: AchievementsRepository
 ) {
 
     @PostMapping("trade/{trade}")
@@ -61,9 +63,11 @@ class BazaarController(
     @Transactional
     fun renewMerchantItems(@ModelAttribute("player") player: Player): PlayerActionResponse {
         val resources = resourcesService.getResources(player)
+        val achievements = achievementsRepository.getOne(player.id)
         resourcesService.spendResource(resources, ResourceType.RUBIES, 50)
+        achievements.resourceSpend(ResourceType.RUBIES, 50)
         val newItems = merchantService.getItems(player, forceRenew = true)
-        return PlayerActionResponse(resources = resources, merchantItems = newItems)
+        return PlayerActionResponse(resources = resources, achievements = achievements, merchantItems = newItems)
     }
 
     @PostMapping("merchant/buy/{itemId}")
@@ -75,7 +79,10 @@ class BazaarController(
             throw GeneralException(player, "Cannot buy item", "Item sold out")
         }
         val resources = resourcesService.getResources(player)
+        val achievements = achievementsRepository.getOne(player.id)
         resourcesService.spendResource(resources, item.priceType, item.priceAmount)
+        achievements.resourceSpend(item.priceType, item.priceAmount)
+        achievements.merchantItemsBought ++
         item.sold = true
         return when {
             item.resourceType != null -> {
@@ -83,14 +90,14 @@ class BazaarController(
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.RESOURCE, resourceType = item.resourceType, value = item.resourceAmount?.toLong() ?: 0)
                 ))
-                PlayerActionResponse(resources = resources, boughtMerchantItem = item, looted = looted)
+                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, looted = looted)
             }
             item.heroBaseId != null -> {
                 val hero = heroService.recruitHero(player, item.heroBaseId!!, item.heroLevel!!)
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.HERO, value = hero.id)
                 ))
-                PlayerActionResponse(resources = resources, boughtMerchantItem = item, heroes = listOf(hero), looted = looted)
+                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, heroes = listOf(hero), looted = looted)
             }
             item.gearId != null -> {
                 val gear = gearRepository.findByIdOrNull(item.gearId)
@@ -99,7 +106,7 @@ class BazaarController(
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.GEAR, value = gear.id)
                 ))
-                PlayerActionResponse(resources = resources, boughtMerchantItem = item, gears = listOf(gear), looted = looted)
+                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, gears = listOf(gear), looted = looted)
             }
             item.jewelType != null -> {
                 val jewelry = jewelryRepository.findByPlayerIdAndType(player.id, item.jewelType!!)
@@ -108,21 +115,21 @@ class BazaarController(
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.JEWEL, jewelType = item.jewelType, value = item.jewelLevel?.toLong() ?: 0)
                 ))
-                PlayerActionResponse(resources = resources, boughtMerchantItem = item, jewelries = listOf(jewelry), looted = looted)
+                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, jewelries = listOf(jewelry), looted = looted)
             }
             item.vehicleBaseId != null -> {
                 val vehicle = vehicleService.gainVehicle(player, item.vehicleBaseId!!)
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.VEHICLE, value = vehicle.id)
                 ))
-                PlayerActionResponse(resources = resources, boughtMerchantItem = item, vehicles = listOf(vehicle), looted = looted)
+                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, vehicles = listOf(vehicle), looted = looted)
             }
             item.vehiclePartType != null -> {
                 val vehiclePart = vehicleService.gainVehiclePart(player, item.vehiclePartType!!, item.vehiclePartQuality!!)
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.VEHICLE_PART, value = vehiclePart.id)
                 ))
-                PlayerActionResponse(resources = resources, boughtMerchantItem = item, vehicleParts = listOf(vehiclePart), looted = looted)
+                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, vehicleParts = listOf(vehiclePart), looted = looted)
             }
             else -> throw ConfigurationException("Unknown item type to be bought")
         }

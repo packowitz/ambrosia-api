@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.upgrade
 
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.common.PlayerActionResponse
@@ -45,7 +46,8 @@ class UpgradeController(
     private val jewelryRepository: JewelryRepository,
     private val gearService: GearService,
     private val auditLogService: AuditLogService,
-    private val oddJobService: OddJobService
+    private val oddJobService: OddJobService,
+    private val achievementsRepository: AchievementsRepository
 ) {
 
     @PostMapping("{upgradeId}/finish")
@@ -59,23 +61,38 @@ class UpgradeController(
             throw GeneralException(player, "Cannot finish upgrade", "Ugrade has not been finished")
         }
         val oddJobsEffected = oddJobService.upgradeFinished(player, upgrade)
+        val achievements = achievementsRepository.getOne(player.id)
+        upgrade.getResourcesAsCosts().forEach { achievements.resourceSpend(it.type, it.amount) }
         upgradeRepository.delete(upgrade)
         currentUpgrades = currentUpgrades.filter { it.id != upgrade.id }
         currentUpgrades.filter { it.position > upgrade.position }.forEach { it.position -- }
-        val building = upgrade.buildingType?.let { upgradeService.levelUpBuilding(player, it) }
+        val building = upgrade.buildingType?.let { upgradeService.levelUpBuilding(player, it, achievements) }
             ?.also { auditLogService.log(player, "Finish ${it.type.name} upgrade to level ${it.level}") }
         val vehicle = upgrade.vehicleId?.let { upgradeService.levelUpVehicle(it) }
-            ?.also { auditLogService.log(player, "Finish ${it.baseVehicle.name} #${it.id} upgrade to level ${it.level}") }
-        val vehiclePart = upgrade.vehiclePartId?.let { upgradeService.levelUpVehiclePart(it) }
-            ?.also { auditLogService.log(player, "Finish ${it.quality.name} ${it.type.name} #${it.id} upgrade to level ${it.level}") }
+            ?.also {
+                achievements.vehiclesUpgradesDone ++
+                auditLogService.log(player, "Finish ${it.baseVehicle.name} #${it.id} upgrade to level ${it.level}")
+            }
+        val vehiclePart = upgrade.vehiclePartId?.let {upgradeService.levelUpVehiclePart(it) }
+            ?.also {
+                achievements.vehiclePartUpgradesDone ++
+                auditLogService.log(player, "Finish ${it.quality.name} ${it.type.name} #${it.id} upgrade to level ${it.level}")
+            }
         val jewelry = upgrade.jewelType?.let { jewelType ->
             jewelryRepository.findByPlayerIdAndType(player.id, jewelType)!!.also { it.increaseAmount(upgrade.jewelLevel!! + 1, 1) }
-        }?.also { auditLogService.log(player, "Finish ${it.type.name} jewel upgrade to level ${upgrade.jewelLevel!! + 1}") }
+        }?.also {
+            achievements.jewelsMerged ++
+            auditLogService.log(player, "Finish ${it.type.name} jewel upgrade to level ${upgrade.jewelLevel!! + 1}")
+        }
         val gear = upgrade.gearModification?.let { gearService.modifyGear(player, it, upgrade.gearId!!) }
-            ?.also { auditLogService.log(player, "Finish gear modification on gear #${it.id}") }
+            ?.also {
+                achievements.gearModified ++
+                auditLogService.log(player, "Finish gear modification on gear #${it.id}")
+            }
 
         return PlayerActionResponse(
             progress = progressRepository.getOne(player.id),
+            achievements = achievements,
             resources = resourcesService.getResources(player),
             buildings = listOfNotNull(building),
             vehicles = listOfNotNull(vehicle),
@@ -401,7 +418,7 @@ class UpgradeController(
         }
 
         val lastItem = currentUpgrades.maxBy { it.position }
-        val startTime = lastItem?.finishTimestamp ?: Instant.now()
+        val startTime = lastItem?.takeIf { !it.isFinished() }?.finishTimestamp ?: Instant.now()
         val upgrade = Upgrade(
             playerId = player.id,
             position = (lastItem?.position ?: 0 ) + 1,

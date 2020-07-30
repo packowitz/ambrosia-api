@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.loot
 
+import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.gear.Gear
@@ -67,13 +68,13 @@ class LootService(
             else -> throw RuntimeException("LootItemType not resolvable")
         }
 
-    fun openLootBox(player: Player, lootBoxId: Long, vehicle: Vehicle? = null): LootBoxResult {
+    fun openLootBox(player: Player, lootBoxId: Long, achievements: Achievements, vehicle: Vehicle? = null): LootBoxResult {
         val lootBox = lootBoxRepository.findByIdOrNull(lootBoxId)
             ?: throw EntityNotFoundException(player, "loot box", lootBoxId)
-        return openLootBox(player, lootBox, vehicle)
+        return openLootBox(player, lootBox, achievements, vehicle)
     }
 
-    fun openLootBox(player: Player, lootBox: LootBox, vehicle: Vehicle? = null): LootBoxResult {
+    fun openLootBox(player: Player, lootBox: LootBox, achievements: Achievements, vehicle: Vehicle? = null): LootBoxResult {
         val items: MutableList<LootItemResult> = mutableListOf()
         lootBox.items.groupBy { it.slotNumber }.forEach { _: Int, slotItems: List<LootItem> ->
             var openRandom = Random.nextInt(100)
@@ -90,7 +91,7 @@ class LootService(
         return LootBoxResult(
             lootBoxId = lootBox.id,
             items = items
-        )
+        ).also { achievements.lootBoxOpened(it) }
     }
 
     private fun openLootItem(player: Player, item: LootItem, vehicle: Vehicle?): LootItemResult {

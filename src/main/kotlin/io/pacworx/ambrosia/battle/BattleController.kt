@@ -1,5 +1,7 @@
 package io.pacworx.ambrosia.battle
 
+import io.pacworx.ambrosia.achievements.Achievements
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
@@ -49,7 +51,8 @@ class BattleController(
     private val lootService: LootService,
     private val auditLogService: AuditLogService,
     private val battleStepRepository: BattleStepRepository,
-    private val oddJobService: OddJobService
+    private val oddJobService: OddJobService,
+    private val achievementsRepository: AchievementsRepository
 ) {
 
     @GetMapping("{battleId}")
@@ -91,13 +94,15 @@ class BattleController(
         }
         val fight = fightRepository.getOne(mapTile.fightId)
         val resources = resourcesService.spendResource(player, fight.resourceType, fight.costs)
+        val achievements = achievementsRepository.getOne(player.id)
+        achievements.resourceSpend(fight.resourceType, fight.costs)
         val oddJobsEffected = oddJobService.resourcesSpend(player, fight.resourceType, fight.costs)
         val battle = battleService.initCampaign(player, mapTile, fight, request)
         auditLogService.log(player, "Started a campaign battle #${battle.id} (status: ${battle.status.name}): fight #${mapTile.fightId} on map #${mapTile.mapId} ${mapTile.posX}x${mapTile.posY} " +
                 "using ${battle.vehicle?.let { "${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} level ${it.level}" }} " +
                 "paying ${fight.costs} ${fight.resourceType.name}"
         )
-        return afterBattleAction(player, battle, resources, oddJobsEffected.toMutableList())
+        return afterBattleAction(player, battle, resources, oddJobsEffected.toMutableList(), achievements)
     }
 
     @PostMapping("campaign/test/{fightId}")
@@ -198,13 +203,14 @@ class BattleController(
         }
     }
 
-    private fun afterBattleAction(player: Player, battle: Battle, resources: Resources? = null, oddJobsEffected: MutableList<OddJob> = mutableListOf()): PlayerActionResponse {
+    private fun afterBattleAction(player: Player, battle: Battle, resources: Resources? = null, oddJobsEffected: MutableList<OddJob> = mutableListOf(), achievements: Achievements? = null): PlayerActionResponse {
         return if (battle.status == BattleStatus.WON && battle.type != BattleType.TEST) {
+            val battleAchievements = achievements ?: achievementsRepository.getOne(player.id)
             val map = battle.mapId?.let {
                 mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
             }
             val heroes = heroService.wonFight(player, battle.allPlayerHeroes().map { it.heroId }, battle.fight, battle.vehicle)
-            val loot = battle.fight?.lootBox?.let { lootService.openLootBox(player, it, battle.vehicle) }
+            val loot = battle.fight?.lootBox?.let { lootService.openLootBox(player, it, battleAchievements, battle.vehicle) }
             if (battle.type == BattleType.CAMPAIGN) {
                 auditLogService.log(player, "Won battle #${battle.id} releasing ${battle.vehicle?.let { "vehicle ${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} " +
                         "and heroes ${battle.allPlayerHeroes().joinToString { "${it.heroBase.name} level ${it.level}" }}. " +
@@ -215,6 +221,7 @@ class BattleController(
             PlayerActionResponse(
                 player = player,
                 progress = if (loot?.items?.any { it.progress != null } == true) { progressRepository.getOne(player.id) } else { null },
+                achievements = battleAchievements,
                 resources = loot?.let { resourcesService.getResources(player) } ?: resources,
                 currentMap = map,
                 heroes = (heroes ?: listOf()) + (loot?.items?.filter { it.hero != null }?.map { it.hero!! } ?: listOf()),
@@ -234,6 +241,7 @@ class BattleController(
             }
             PlayerActionResponse(
                 resources = resources,
+                achievements = achievements,
                 ongoingBattle = battle,
                 oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
             )
