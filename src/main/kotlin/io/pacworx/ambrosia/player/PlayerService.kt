@@ -229,7 +229,8 @@ class PlayerService(
             upgrades = upgrades,
             knownStories = knownStories,
             dailyActivity = dailyActivity,
-            merchantItems = merchantItems
+            merchantItems = merchantItems,
+            achievementRewards = achievementRewards
         )
     }
 
