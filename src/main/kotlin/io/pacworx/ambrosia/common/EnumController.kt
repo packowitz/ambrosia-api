@@ -1,13 +1,9 @@
 package io.pacworx.ambrosia.common
 
 import io.pacworx.ambrosia.achievements.AchievementRewardType
-import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.battle.Buff
+import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.buildings.Trade
-import io.pacworx.ambrosia.hero.skills.PassiveSkillTrigger
-import io.pacworx.ambrosia.hero.skills.SkillActionEffect
-import io.pacworx.ambrosia.hero.skills.SkillActionTarget
-import io.pacworx.ambrosia.hero.skills.SkillActionTrigger
 import io.pacworx.ambrosia.fights.stageconfig.SpeedBarChange
 import io.pacworx.ambrosia.gear.GearSet
 import io.pacworx.ambrosia.gear.GearType
@@ -16,9 +12,7 @@ import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.hero.HeroStat
 import io.pacworx.ambrosia.hero.HeroType
 import io.pacworx.ambrosia.hero.Rarity
-import io.pacworx.ambrosia.hero.skills.SkillActionType
-import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
-import io.pacworx.ambrosia.hero.skills.SkillTarget
+import io.pacworx.ambrosia.hero.skills.*
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.maps.FightIcon
 import io.pacworx.ambrosia.maps.MapBackground
@@ -29,7 +23,6 @@ import io.pacworx.ambrosia.progress.ProgressStat
 import io.pacworx.ambrosia.properties.PropertyCategory
 import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourceType
-import io.pacworx.ambrosia.story.StoryTrigger
 import io.pacworx.ambrosia.upgrade.Modification
 import io.pacworx.ambrosia.vehicle.PartQuality
 import io.pacworx.ambrosia.vehicle.PartType
@@ -78,7 +71,6 @@ class EnumController {
         val vehicleStats: List<VehicleStat> = VehicleStat.values().asList(),
         val lootItemTypes: List<LootItemType> = LootItemType.values().asList(),
         val modifications: List<Modification> = Modification.values().asList(),
-        val storyTriggers: List<StoryTrigger> = StoryTrigger.values().asList(),
         val progressStats: List<ProgressStat> = ProgressStat.values().asList(),
         val oddJobTypes: List<OddJobType> = OddJobType.values().asList(),
         val trades: List<Trade> = Trade.values().asList(),

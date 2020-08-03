@@ -168,6 +168,8 @@ data class PlayerMapResolved(
     val id: String,
     val mapId: Long,
     val name: String,
+    @Enumerated(EnumType.STRING)
+    val type: MapType,
     val background: String,
     val discoverySteamCost: Int,
     @Enumerated(EnumType.STRING)
@@ -192,6 +194,7 @@ data class PlayerMapResolved(
         "${playerMap.playerId}_${playerMap.map.id}",
         playerMap.map.id,
         playerMap.map.name,
+        playerMap.map.type,
         playerMap.map.background.name,
         playerMap.map.discoverySteamCost,
         playerMap.map.storyTrigger,

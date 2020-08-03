@@ -9,6 +9,7 @@ data class Map(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val name: String,
+    @Enumerated(EnumType.STRING) val type: MapType = MapType.CAMPAIGN,
     val startingMap: Boolean = false,
     @Enumerated(EnumType.STRING) val storyTrigger: StoryTrigger? = null,
     val discoverySteamCost: Int = 5,

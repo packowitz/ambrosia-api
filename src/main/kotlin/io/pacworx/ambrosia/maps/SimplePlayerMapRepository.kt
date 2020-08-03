@@ -12,6 +12,7 @@ interface SimplePlayerMapRepository: JpaRepository<PlayerMapResolved, String> {
         select pm.player_id || '_' || pm.map_id as id, 
             pm.map_id as map_id, 
             m.name as name,
+            m.type as type,
             m.background as background,
             m.discovery_steam_cost as discovery_steam_cost,
             m.story_trigger as story_trigger,
