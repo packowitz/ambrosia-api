@@ -42,8 +42,6 @@ class AchievementController(
             throw GeneralException(player, "Cannot claim achievement", "Achievement not fulfilled")
         }
 
-        val lootedItems = mutableListOf<LootedItem>()
-
         val result = lootService.openLootBox(player, achievementReward.lootBoxId, achievements)
         playerAchievementReward.claimed = true
         val newAchievement = achievementReward.followUpReward
@@ -59,7 +57,6 @@ class AchievementController(
             jewelries = result.items.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },
             vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
-            looted = lootedItems.takeIf { it.isNotEmpty() }?.let { Looted(LootedType.ACHIEVEMENT, it) },
             achievementRewards = listOfNotNull(newAchievement).takeIf { it.isNotEmpty() },
             claimedAchievementRewardId = achievementId
         )

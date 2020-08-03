@@ -13,6 +13,10 @@ import io.pacworx.ambrosia.exceptions.VehicleBusyException
 import io.pacworx.ambrosia.gear.GearService
 import io.pacworx.ambrosia.gear.JewelType
 import io.pacworx.ambrosia.gear.JewelryRepository
+import io.pacworx.ambrosia.loot.LootItemType
+import io.pacworx.ambrosia.loot.Looted
+import io.pacworx.ambrosia.loot.LootedItem
+import io.pacworx.ambrosia.loot.LootedType
 import io.pacworx.ambrosia.oddjobs.OddJobService
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
@@ -28,7 +32,6 @@ import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import javax.transaction.Transactional
 
 @RestController
@@ -66,27 +69,32 @@ class UpgradeController(
         upgradeRepository.delete(upgrade)
         currentUpgrades = currentUpgrades.filter { it.id != upgrade.id }
         currentUpgrades.filter { it.position > upgrade.position }.forEach { it.position -- }
+        var looted: Looted? = null
         val building = upgrade.buildingType?.let { upgradeService.levelUpBuilding(player, it, achievements) }
             ?.also { auditLogService.log(player, "Finish ${it.type.name} upgrade to level ${it.level}") }
         val vehicle = upgrade.vehicleId?.let { upgradeService.levelUpVehicle(it) }
             ?.also {
                 achievements.vehiclesUpgradesDone ++
+                looted = Looted(LootedType.UPGRADE, listOf(LootedItem(LootItemType.VEHICLE, value = it.id)))
                 auditLogService.log(player, "Finish ${it.baseVehicle.name} #${it.id} upgrade to level ${it.level}")
             }
         val vehiclePart = upgrade.vehiclePartId?.let {upgradeService.levelUpVehiclePart(it) }
             ?.also {
                 achievements.vehiclePartUpgradesDone ++
+                looted = Looted(LootedType.UPGRADE, listOf(LootedItem(LootItemType.VEHICLE_PART, value = it.id)))
                 auditLogService.log(player, "Finish ${it.quality.name} ${it.type.name} #${it.id} upgrade to level ${it.level}")
             }
         val jewelry = upgrade.jewelType?.let { jewelType ->
-            jewelryRepository.findByPlayerIdAndType(player.id, jewelType)!!.also { it.increaseAmount(upgrade.jewelLevel!! + 1, 1) }
+            jewelryRepository.findByPlayerIdAndType(player.id, jewelType)!!.also {it.increaseAmount(upgrade.jewelLevel!! + 1, 1) }
         }?.also {
             achievements.jewelsMerged ++
-            auditLogService.log(player, "Finish ${it.type.name} jewel upgrade to level ${upgrade.jewelLevel!! + 1}")
+            looted = Looted(LootedType.UPGRADE, listOf(LootedItem(LootItemType.JEWEL, jewelType = upgrade.jewelType, value = (upgrade.jewelLevel!! + 1).toLong())))
+            auditLogService.log(player, "Finish ${it.type.name} jewel upgrade to level ${upgrade.jewelLevel + 1}")
         }
         val gear = upgrade.gearModification?.let { gearService.modifyGear(player, it, upgrade.gearId!!) }
             ?.also {
                 achievements.gearModified ++
+                looted = Looted(LootedType.UPGRADE, listOf(LootedItem(LootItemType.GEAR, value = it.id)))
                 auditLogService.log(player, "Finish gear modification on gear #${it.id}")
             }
 
@@ -101,7 +109,8 @@ class UpgradeController(
             gears = listOfNotNull(gear),
             upgrades = currentUpgrades,
             upgradeRemoved = upgrade.id,
-            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
+            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() },
+            looted = looted
         )
     }
 
@@ -157,7 +166,6 @@ class UpgradeController(
         val upgradeDuration = upgrade.getDuration()
         if (swapUpgrade.isInProgress()) {
             val now = Instant.now()
-            swapUpgrade.secondsSpend = swapUpgrade.startTimestamp.until(now, ChronoUnit.SECONDS).toInt()
             upgrade.startTimestamp = now
         } else {
             upgrade.startTimestamp = swapUpgrade.startTimestamp
@@ -424,6 +432,7 @@ class UpgradeController(
             position = (lastItem?.position ?: 0 ) + 1,
             startTimestamp = startTime,
             finishTimestamp = startTime.plusSeconds(seconds),
+            origDuration = seconds,
             buildingType = buildingType,
             vehicleId = vehicleId,
             vehiclePartId = vehiclePartId,
