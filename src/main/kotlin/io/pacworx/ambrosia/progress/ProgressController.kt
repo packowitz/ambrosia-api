@@ -1,6 +1,5 @@
 package io.pacworx.ambrosia.progress
 
-import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.Looted
@@ -19,8 +18,7 @@ import javax.transaction.Transactional
 class ProgressController(
     private val progressRepository: ProgressRepository,
     private val propertyService: PropertyService,
-    private val resourcesService: ResourcesService,
-    private val achievementsRepository: AchievementsRepository
+    private val resourcesService: ResourcesService
 ) {
 
     @PostMapping("level_up")
@@ -91,29 +89,6 @@ class ProgressController(
             progress = progress,
             resources = resources,
             looted = lootedItems.takeIf { it.isNotEmpty() }?.let { Looted(LootedType.VIP_LEVEL_UP, it) }
-        )
-    }
-
-    @PostMapping("exp_level_up")
-    @Transactional
-    fun expLevelUp(@ModelAttribute("player") player: Player): PlayerActionResponse {
-        val lootedItems = mutableListOf<LootedItem>()
-        val progress = progressRepository.getOne(player.id)
-        if (progress.expeditionLevel < 6) {
-            val achievements =  achievementsRepository.getOne(player.id)
-            val expToNextLevel = propertyService.getProperties(PropertyType.EXPEDITION_PROGRESS, progress.expeditionLevel).first().value1
-            if (achievements.expeditionsDone >= expToNextLevel) {
-                ProgressStat.EXPEDITION_LEVEL.apply(progress, 1)
-                lootedItems.add(LootedItem(
-                    type = LootItemType.PROGRESS,
-                    progressStat = ProgressStat.EXPEDITION_LEVEL,
-                    value = 1
-                ))
-            }
-        }
-        return PlayerActionResponse(
-            progress = progress,
-            looted = lootedItems.takeIf { it.isNotEmpty() }?.let { Looted(LootedType.EXP_LEVEL_UP, it) }
         )
     }
 }

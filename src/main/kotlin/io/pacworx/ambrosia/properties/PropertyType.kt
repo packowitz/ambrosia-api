@@ -48,7 +48,6 @@ enum class PropertyType(
     VIP_MAX_PLAYER(PLAYER, "Defines max XP for each player level", value1name = "Max VIP"),
     VIP_LEVEL_REWARD_PLAYER(PLAYER, "Defines the rewards a player gets reaching a certain vip level", showResources = true, showProgressStat = true, value1name = "amount"),
     DAILY_REWARD(PLAYER, "Defines the rewards a player gets for being active. Level is the activity day.", showResources = true, value1name = "amount"),
-    EXPEDITION_PROGRESS(PLAYER, "Defines number of expeditions finished to progress to next expedition level.", value1name = "Expeditions needed"),
 
     XP_MAX_HERO(HERO, "Level: hero level (1-60). Value: max xp to reach next level."),
     ASC_POINTS_MAX_HERO(HERO, "Level: hero ascension level (1-??). Value: max asc points to reach next level."),
