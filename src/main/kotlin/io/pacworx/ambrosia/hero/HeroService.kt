@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.expedition.PlayerExpedition
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.hero.skills.SkillActiveTrigger
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.vehicle.Vehicle
 import io.pacworx.ambrosia.vehicle.VehicleService
@@ -106,13 +107,13 @@ class HeroService(
         return recruitHero(player, heroBaseRepository.findAllByRarityAndRecruitableIsTrue(rarity ?: default).random())
     }
 
-    fun wonMission(mission: Mission, vehicle: Vehicle): List<HeroDto> {
+    fun wonMission(mission: Mission, progress: Progress, vehicle: Vehicle): List<HeroDto> {
         vehicle.missionId = null
         return listOfNotNull(mission.hero1Id, mission.hero2Id, mission.hero3Id, mission.hero4Id)
             .map { heroRepository.getOne(it) }
             .map { hero ->
                 if (mission.wonCount > 0) {
-                    (1..mission.wonCount).forEach { _ -> gainXpAndAsc(hero, mission.fight, vehicle) }
+                    (1..mission.wonCount).forEach { _ -> gainXpAndAsc(hero, mission.fight, progress, vehicle) }
                 }
                 hero.missionId = null
                 hero
@@ -130,21 +131,21 @@ class HeroService(
             }.map { asHeroDto(it) }
     }
 
-    fun wonFight(player: Player, heroIds: List<Long>, fight: Fight?, vehicle: Vehicle?): List<HeroDto>? {
+    fun wonFight(player: Player, progress: Progress, heroIds: List<Long>, fight: Fight?, vehicle: Vehicle?): List<HeroDto>? {
         return fight?.let { _ ->
             heroIds.map { heroId ->
                 val hero = heroRepository.getOne(heroId)
                 if (hero.playerId != player.id) {
                     throw UnauthorizedException(player, "You can only gain xp for heroes you own")
                 }
-                gainXpAndAsc(hero, fight, vehicle)
+                gainXpAndAsc(hero, fight, progress, vehicle)
                 asHeroDto(hero)
             }
         }
     }
 
-    private fun gainXpAndAsc(hero: Hero, fight: Fight, vehicle: Vehicle?) {
-        val xp = fight.xp + (fight.xp * vehicleService.getStat(vehicle, VehicleStat.BATTLE_XP) / 100)
+    private fun gainXpAndAsc(hero: Hero, fight: Fight, progress: Progress, vehicle: Vehicle?) {
+        val xp = fight.xp + (fight.xp * (progress.battleXpBoost + vehicleService.getStat(vehicle, VehicleStat.BATTLE_XP)) / 100)
         val ascPoints = fight.ascPoints + (fight.ascPoints * vehicleService.getStat(vehicle, VehicleStat.BATTLE_ASC_POINTS) / 100)
 
         heroGainXp(hero, xp)

@@ -86,6 +86,10 @@ class LaboratoryController(
                     val upTime = propertyService.getProperties(PropertyType.RARE_GENOME_TIME).first().value1
                     time += (progress.uncommonIncubationUpPerMil * upTime) / 100
                 }
+                if (progress.uncommonIncubationSuperUpPerMil > 0) {
+                    val upTime = propertyService.getProperties(PropertyType.EPIC_GENOME_TIME).first().value1
+                    time += (progress.rareIncubationUpPerMil * upTime) / 100
+                }
             }
             GenomeType.RARE_GENOME -> {
                 costs = listOf(Cost(progress.rareGenomesNeeded, ResourceType.RARE_GENOME))
@@ -148,7 +152,7 @@ class LaboratoryController(
         val hero = when (cube.type) {
             GenomeType.SIMPLE_GENOME -> heroService.recruitHero(player, commonChance = asDoubleChance(progress.simpleIncubationUpPerMil), default = Rarity.SIMPLE)
             GenomeType.COMMON_GENOME -> heroService.recruitHero(player, uncommonChance = asDoubleChance(progress.commonIncubationUpPerMil), default = Rarity.COMMON)
-            GenomeType.UNCOMMON_GENOME -> heroService.recruitHero(player, rareChance = asDoubleChance(progress.uncommonIncubationUpPerMil), default = Rarity.UNCOMMON)
+            GenomeType.UNCOMMON_GENOME -> heroService.recruitHero(player, epicChance = asDoubleChance(progress.uncommonIncubationSuperUpPerMil), rareChance = asDoubleChance(progress.uncommonIncubationUpPerMil), default = Rarity.UNCOMMON)
             GenomeType.RARE_GENOME -> heroService.recruitHero(player, epicChance = asDoubleChance(progress.rareIncubationUpPerMil), default = Rarity.RARE)
             GenomeType.EPIC_GENOME -> heroService.recruitHero(player, default = Rarity.EPIC)
         }

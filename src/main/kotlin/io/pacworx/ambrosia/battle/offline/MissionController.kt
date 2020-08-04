@@ -110,9 +110,10 @@ class MissionController(
 
         val resources = resourcesService.getResources(player)
         val achievements = achievementsRepository.getOne(player.id)
+        val progress = progressRepository.getOne(player.id)
 
         val vehicle = vehicleRepository.getOne(mission.vehicleId)
-        val heroes = heroService.wonMission(mission, vehicle)
+        val heroes = heroService.wonMission(mission, progress, vehicle)
 
         mission.battles.filter { !it.battleFinished }.forEach {
             it.cancelled = true
@@ -141,7 +142,7 @@ class MissionController(
             player = player,
             resources = resources,
             achievements = achievements,
-            progress = if (lootItems.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
+            progress = progress,
             heroes = heroes + lootItems.filter { it.hero != null }.map { it.hero!! },
             gears = lootItems.filter { it.gear != null }.map { it.gear!! }.takeIf { it.isNotEmpty() },
             jewelries = lootItems.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },

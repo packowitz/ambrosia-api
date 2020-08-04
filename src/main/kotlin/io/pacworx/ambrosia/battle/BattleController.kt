@@ -209,7 +209,8 @@ class BattleController(
             val map = battle.mapId?.let {
                 mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
             }
-            val heroes = heroService.wonFight(player, battle.allPlayerHeroes().map { it.heroId }, battle.fight, battle.vehicle)
+            val progress = progressRepository.getOne(player.id)
+            val heroes = heroService.wonFight(player, progress, battle.allPlayerHeroes().map { it.heroId }, battle.fight, battle.vehicle)
             val loot = battle.fight?.lootBox?.let { lootService.openLootBox(player, it, battleAchievements, battle.vehicle) }
             if (battle.type == BattleType.CAMPAIGN) {
                 auditLogService.log(player, "Won battle #${battle.id} releasing ${battle.vehicle?.let { "vehicle ${it.baseVehicle.name} #${it.id} in slot ${it.slot}" } ?: "no vehicle"} " +
@@ -220,7 +221,7 @@ class BattleController(
             oddJobsEffected.addAll((loot?.let { oddJobService.looted(player, it.items) } ?: emptyList()))
             PlayerActionResponse(
                 player = player,
-                progress = if (loot?.items?.any { it.progress != null } == true) { progressRepository.getOne(player.id) } else { null },
+                progress = progress,
                 achievements = battleAchievements,
                 resources = loot?.let { resourcesService.getResources(player) } ?: resources,
                 currentMap = map,

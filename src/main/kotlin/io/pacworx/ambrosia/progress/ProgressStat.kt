@@ -73,6 +73,11 @@ enum class ProgressStat {
             progress.trainingAscBoost += bonus
         }
     },
+    BATTLE_XP_BOOST {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.trainingAscBoost += bonus
+        }
+    },
     VEHICLE_UPGRADE_LEVEL {
         override fun apply(progress: Progress, bonus: Int) {
             progress.vehicleUpgradeLevel = min(progress.vehicleUpgradeLevel + bonus, 10)
@@ -126,6 +131,11 @@ enum class ProgressStat {
     UNCOMMON_INCUBATION_UP_PER_MIL {
         override fun apply(progress: Progress, bonus: Int) {
             progress.uncommonIncubationUpPerMil += bonus
+        }
+    },
+    UNCOMMON_INCUBATION_SUPER_UP_PER_MIL {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.uncommonIncubationSuperUpPerMil += bonus
         }
     },
     RARE_INCUBATION_UP_PER_MIL {
