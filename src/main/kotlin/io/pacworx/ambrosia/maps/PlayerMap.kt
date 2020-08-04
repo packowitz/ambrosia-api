@@ -13,7 +13,8 @@ data class PlayerMap (
     @JoinColumn(name = "map_id", updatable = false)
     val map: Map,
     var created: LocalDateTime = LocalDateTime.now(),
-    var mapCheckedTimestamp: LocalDateTime = LocalDateTime.now()
+    var mapCheckedTimestamp: LocalDateTime = LocalDateTime.now(),
+    var lastVisited: LocalDateTime = LocalDateTime.now()
 ) {
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "player_map_id")

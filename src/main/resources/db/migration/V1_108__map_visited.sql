@@ -1,0 +1,1 @@
+alter table player_map add column if not exists last_visited timestamp not null default now();

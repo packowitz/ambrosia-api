@@ -33,6 +33,7 @@ class MapService(
     fun getCurrentPlayerMap(player: Player, progress: Progress): PlayerMapResolved {
         return progress.currentMapId?.let {
             val playerMap = getPlayerMap(player, it)
+            playerMap.lastVisited = LocalDateTime.now()
             checkMapForUpdates(player, playerMap)
             PlayerMapResolved(playerMap)
         } ?: PlayerMapResolved(discoverPlayerMap(player, progress, mapRepository.getByStartingMapTrue()))
@@ -184,9 +185,13 @@ data class PlayerMapResolved(
     @Column(name = "max_y")
     val maxY: Int,
     @JsonIgnore
+    val intervalFrom: LocalDateTime? = null,
+    @JsonIgnore
     val intervalTo: LocalDateTime? = null,
     @JsonIgnore
     val resetIntervalHours: Int? = null,
+    @JsonIgnore
+    val lastVisited: LocalDateTime,
     @Transient
     val tiles: List<PlayerMapTileResolved>? = null
 ) {
@@ -203,8 +208,10 @@ data class PlayerMapResolved(
         playerMap.map.maxX,
         playerMap.map.minY,
         playerMap.map.maxY,
+        playerMap.map.intervalFrom,
         playerMap.map.intervalTo,
         playerMap.map.resetIntervalHours,
+        playerMap.lastVisited,
         playerMap.map.tiles.filter { it.type != MapTileType.NONE }.map { tile ->
             PlayerMapTileResolved(
                 tile,
@@ -221,6 +228,18 @@ data class PlayerMapResolved(
             }
             now.until(resetTime, ChronoUnit.SECONDS) + 1
         }
+    }
+
+    fun isUnvisited(): Boolean {
+        if (resetIntervalHours != null) {
+            val resetTime = if (LocalDateTime.now().isAfter(intervalTo)) {
+                intervalTo
+            } else {
+                intervalFrom
+            }
+            return resetTime!!.isAfter(lastVisited)
+        }
+        return false
     }
 }
 

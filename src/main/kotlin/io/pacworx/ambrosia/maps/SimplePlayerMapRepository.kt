@@ -21,8 +21,10 @@ interface SimplePlayerMapRepository: JpaRepository<PlayerMapResolved, String> {
             m.max_x as max_x,
             m.min_y as min_y,
             m.max_y as max_y,
+            m.interval_from as interval_from,
             m.interval_to as interval_to,
-            m.reset_interval_hours as reset_interval_hours
+            m.reset_interval_hours as reset_interval_hours,
+            pm.last_visited as last_visited
         from player_map pm join map m on pm.map_id = m.id
         where pm.player_id = :playerId order by pm.id desc
     """, nativeQuery = true)

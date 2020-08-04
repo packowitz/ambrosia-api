@@ -18,6 +18,7 @@ import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.upgrade.UpgradeService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -156,6 +157,7 @@ class MapController(
     fun setCurrentMap(@ModelAttribute("player") player: Player, @PathVariable mapId: Long): PlayerActionResponse {
         return mapService.getPlayerMap(player, mapId).let {
             mapService.checkMapForUpdates(player, it)
+            it.lastVisited = LocalDateTime.now()
             val progress = progressRepository.getOne(player.id)
             progress.currentMapId = mapId
             auditLogService.log(player, "Set map $mapId as current map")
