@@ -24,6 +24,10 @@ class AchievementService(
         return (activeRewards + unknownRewards).also { rewards -> rewards.forEach { addLootItems(player, it) } }
     }
 
+    fun getAchievementReward(player: Player, achievementRewardId: Long): AchievementReward {
+        return achievementRewardRepository.getOne(achievementRewardId).also { addLootItems(player, it) }
+    }
+
     private fun addLootItems(player: Player, achievementReward: AchievementReward) {
         val lootBox = lootBoxRepository.findByIdOrNull(achievementReward.lootBoxId)
             ?: throw EntityNotFoundException(player, "lootBox", achievementReward.lootBoxId)

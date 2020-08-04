@@ -4,9 +4,6 @@ import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.loot.LootService
-import io.pacworx.ambrosia.loot.Looted
-import io.pacworx.ambrosia.loot.LootedItem
-import io.pacworx.ambrosia.loot.LootedType
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
@@ -23,6 +20,7 @@ class AchievementController(
     private val achievementsRepository: AchievementsRepository,
     private val playerAchievementRewardRepository: PlayerAchievementRewardRepository,
     private val achievementRewardRepository: AchievementRewardRepository,
+    private val achievementService: AchievementService,
     private val lootService: LootService
 ) {
 
@@ -45,7 +43,7 @@ class AchievementController(
         val result = lootService.openLootBox(player, achievementReward.lootBoxId, achievements)
         playerAchievementReward.claimed = true
         val newAchievement = achievementReward.followUpReward
-            ?.let { achievementRewardRepository.getOne(it) }
+            ?.let { achievementService.getAchievementReward(player, it) }
             ?.also { playerAchievementRewardRepository.save(PlayerAchievementReward(playerId = player.id, rewardId = it.id)) }
 
         return PlayerActionResponse(
