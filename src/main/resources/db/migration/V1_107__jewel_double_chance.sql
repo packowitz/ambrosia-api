@@ -1,0 +1,1 @@
+alter table progress add column if not exists jewel_merge_double_chance integer not null default 0;

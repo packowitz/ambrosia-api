@@ -143,6 +143,11 @@ enum class ProgressStat {
             progress.maxJewelUpgradingLevel += bonus
         }
     },
+    JEWEL_MERGE_DOUBLE_CHANCE {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.jewelMergeDoubleChance += bonus
+        }
+    },
     GEAR_MOD_RARITY {
         override fun apply(progress: Progress, bonus: Int) {
             progress.gearModificationRarity += bonus

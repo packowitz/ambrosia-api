@@ -4,6 +4,7 @@ import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.common.procs
 import io.pacworx.ambrosia.exceptions.ConfigurationException
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
@@ -85,11 +86,17 @@ class UpgradeController(
                 auditLogService.log(player, "Finish ${it.quality.name} ${it.type.name} #${it.id} upgrade to level ${it.level}")
             }
         val jewelry = upgrade.jewelType?.let { jewelType ->
-            jewelryRepository.findByPlayerIdAndType(player.id, jewelType)!!.also {it.increaseAmount(upgrade.jewelLevel!! + 1, 1) }
-        }?.also {
-            achievements.jewelsMerged ++
-            looted = Looted(LootedType.UPGRADE, listOf(LootedItem(LootItemType.JEWEL, jewelType = upgrade.jewelType, value = (upgrade.jewelLevel!! + 1).toLong())))
-            auditLogService.log(player, "Finish ${it.type.name} jewel upgrade to level ${upgrade.jewelLevel + 1}")
+            jewelryRepository.findByPlayerIdAndType(player.id, jewelType)!!.also {
+                val doubleJewel = procs(progressRepository.getOne(player.id).jewelMergeDoubleChance)
+                it.increaseAmount(upgrade.jewelLevel!! + 1, if (doubleJewel) { 2 } else { 1 })
+                achievements.jewelsMerged ++
+                val lootedItem = LootedItem(LootItemType.JEWEL, jewelType = upgrade.jewelType, value = (upgrade.jewelLevel + 1).toLong())
+                looted = Looted(LootedType.UPGRADE, listOfNotNull(
+                    lootedItem,
+                    if (doubleJewel) { lootedItem } else { null }
+                ))
+                auditLogService.log(player, "Finish ${it.type.name} jewel upgrade to level ${upgrade.jewelLevel + 1}")
+            }
         }
         val gear = upgrade.gearModification?.let { gearService.modifyGear(player, it, upgrade.gearId!!) }
             ?.also {

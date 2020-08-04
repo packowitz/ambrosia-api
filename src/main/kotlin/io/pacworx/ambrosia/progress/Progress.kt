@@ -43,6 +43,7 @@ data class Progress(
     var rareIncubationUpPerMil: Int = 0,
     var uncommonStartingLevel: Int = 1,
     var maxJewelUpgradingLevel: Int = 0,
+    var jewelMergeDoubleChance: Int = 0,
     var gearModificationRarity: Int = 0,
     var gearModificationSpeed: Int = 100,
     var gearBreakDownRarity: Int = 0,
