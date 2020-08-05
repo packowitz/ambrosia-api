@@ -46,6 +46,9 @@ class AdminAchievementRewardController (
         if (lootBox.items.filter { it.type == LootItemType.RESOURCE }.any { it.resourceFrom != it.resourceTo }) {
             throw GeneralException(player, "Invalid achievement reward", "Loot must not contain a range of resources to gain.")
         }
+        if (lootBox.items.filter { it.type == LootItemType.JEWEL }.any { it.jewelTypeNames!!.length != 1 }) {
+            throw GeneralException(player, "Invalid achievement reward", "Loot must not contain more than one jewel type.")
+        }
         if (achievementReward.followUpReward != null && achievementReward.followUpReward!! <= 0) {
             achievementReward.followUpReward = null
         }

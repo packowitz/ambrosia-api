@@ -36,7 +36,13 @@ class AchievementService(
                 type = it.type,
                 resourceType = it.resourceType,
                 progressStat = it.progressStat,
-                value = if (it.resourceType != null) { it.resourceFrom } else { it.progressStatBonus }?.toLong() ?: 0
+                jewelType = it.getJewelTypes().takeIf { list -> list.size == 1 }?.first(),
+                value = when {
+                    it.resourceType != null -> it.resourceFrom
+                    it.progressStatBonus != null -> it.progressStatBonus
+                    it.jewelLevel != null -> it.jewelLevel
+                    else -> 0
+                }?.toLong() ?: 0
             )
         }
     }
