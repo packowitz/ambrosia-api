@@ -37,6 +37,7 @@ class OddJobService(
             playerId = player.id,
             oddJobBaseId = oddJobBase.id,
             level = oddJobBase.level,
+            name = oddJobBase.name,
             rarity = oddJobBase.rarity,
             jobType = oddJobBase.jobType,
             jobAmount = oddJobBase.jobAmount,

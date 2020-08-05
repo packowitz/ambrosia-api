@@ -15,6 +15,7 @@ data class OddJob(
     val oddJobBaseId: Long,
     @JsonIgnore val created: Instant = Instant.now(),
     val level: Int,
+    val name: String,
     @Enumerated(EnumType.STRING) val rarity: Rarity,
     @Enumerated(EnumType.STRING) val jobType: OddJobType,
     val jobAmount: Int,

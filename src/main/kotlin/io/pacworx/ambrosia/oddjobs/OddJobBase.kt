@@ -10,6 +10,7 @@ data class OddJobBase(
     val id: Long = 0,
     val active: Boolean,
     val level: Int,
+    val name: String,
     @Enumerated(EnumType.STRING)
     val rarity: Rarity,
     @Enumerated(EnumType.STRING)
