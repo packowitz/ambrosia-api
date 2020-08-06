@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.oddjobs
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.loot.LootBoxRepository
+import io.pacworx.ambrosia.loot.LootBoxType
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
@@ -29,14 +30,8 @@ class AdminOddJobBaseController(
                        @RequestBody @Valid oddJobBase: OddJobBase): OddJobBase {
         val lootBox = lootBoxRepository.findByIdOrNull(oddJobBase.lootBoxId)
             ?: throw EntityNotFoundException(player, "lootBox", oddJobBase.lootBoxId)
-        if (lootBox.items.any { it.chance != 100 }) {
-            throw GeneralException(player, "Invalid odd job", "Loot must contain only items that are granted by 100%")
-        }
-        if (lootBox.items.filter { it.type == LootItemType.RESOURCE }.any { it.resourceFrom != it.resourceTo }) {
-            throw GeneralException(player, "Invalid odd job", "Loot must not contain a range of resources to gain.")
-        }
-        if (lootBox.items.any { it.type !in listOf(LootItemType.RESOURCE, LootItemType.PROGRESS) }) {
-            throw GeneralException(player, "Invalid odd job", "Loot must contain only resources and progress items.")
+        if (lootBox.type != LootBoxType.ODD_JOB) {
+            throw GeneralException(player, "Invalid odd job", "LootBox must be of type ODD_JOB")
         }
         return oddJobBaseRepository.save(oddJobBase).also {
             auditLogService.log(player, "Create or Update oddJobBase ${it.jobType.name} lvl ${it.level} #${it.id}", adminAction = true)

@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.achievements
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.loot.LootBoxRepository
+import io.pacworx.ambrosia.loot.LootBoxType
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
@@ -40,14 +41,8 @@ class AdminAchievementRewardController (
                               @RequestBody achievementReward: AchievementReward): AchievementReward {
         val lootBox = lootBoxRepository.findByIdOrNull(achievementReward.lootBoxId)
             ?: throw EntityNotFoundException(player, "lootBox", achievementReward.lootBoxId)
-        if (lootBox.items.any { it.chance != 100 }) {
-            throw GeneralException(player, "Invalid achievement reward", "Loot must contain only items that are granted by 100%")
-        }
-        if (lootBox.items.filter { it.type == LootItemType.RESOURCE }.any { it.resourceFrom != it.resourceTo }) {
-            throw GeneralException(player, "Invalid achievement reward", "Loot must not contain a range of resources to gain.")
-        }
-        if (lootBox.items.filter { it.type == LootItemType.JEWEL }.any { it.jewelTypeNames!!.length != 1 }) {
-            throw GeneralException(player, "Invalid achievement reward", "Loot must not contain more than one jewel type.")
+        if (lootBox.type != LootBoxType.ACHIEVEMENT) {
+            throw GeneralException(player, "Invalid achievement reward", "Loot must be of type ACHIEVEMENT")
         }
         if (achievementReward.followUpReward != null && achievementReward.followUpReward!! <= 0) {
             achievementReward.followUpReward = null

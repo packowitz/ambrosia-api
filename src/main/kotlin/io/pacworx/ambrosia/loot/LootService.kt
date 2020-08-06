@@ -2,11 +2,13 @@ package io.pacworx.ambrosia.loot
 
 import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.common.procs
+import io.pacworx.ambrosia.exceptions.ConfigurationException
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.GearService
 import io.pacworx.ambrosia.gear.Jewelry
 import io.pacworx.ambrosia.gear.JewelryRepository
+import io.pacworx.ambrosia.hero.Color
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.player.Player
@@ -68,6 +70,62 @@ class LootService(
             else -> throw RuntimeException("LootItemType not resolvable")
         }
 
+    fun asLootableBox(player: Player, lootBox: LootBox): LootableBox {
+        val items: MutableList<LootableItem> = mutableListOf()
+        lootBox.items.groupBy { it.slotNumber }.forEach { (_: Int, slotItems: List<LootItem>) ->
+            getSlotItem(slotItems, player.color)?.let {
+                items.add(asLootableItem(it))
+            }
+        }
+        return LootableBox(lootBox.type, lootBox.id, items)
+    }
+
+    fun asLootableItem(item: LootItem): LootableItem {
+        return when(item.type) {
+            LootItemType.RESOURCE -> {
+                LootableItem(
+                    type = LootItemType.RESOURCE,
+                    resourceType = item.resourceType,
+                    resourceAmount = Random.nextInt(item.resourceFrom!!, item.resourceTo!! + 1))
+            }
+            LootItemType.HERO -> {
+                LootableItem(
+                    type = LootItemType.HERO,
+                    heroBaseId = item.heroBaseId,
+                    heroLevel = item.heroLevel
+                )
+            }
+            LootItemType.JEWEL -> {
+                LootableItem(
+                    type = LootItemType.JEWEL,
+                    jewelType = item.getJewelTypes().random(),
+                    jewelLevel = item.jewelLevel
+                )
+            }
+            LootItemType.VEHICLE -> {
+                LootableItem(
+                    type = LootItemType.VEHICLE,
+                    vehicleBaseId = item.vehicleBaseId
+                )
+            }
+            LootItemType.VEHICLE_PART -> {
+                LootableItem(
+                    type = LootItemType.VEHICLE_PART,
+                    vehiclePartType = item.vehiclePartType,
+                    vehiclePartQuality = item.vehiclePartQuality
+                )
+            }
+            LootItemType.PROGRESS -> {
+                LootableItem(
+                    type = LootItemType.PROGRESS,
+                    progressStat = item.progressStat,
+                    progressBonus = item.progressStatBonus
+                )
+            }
+            LootItemType.GEAR -> throw ConfigurationException("Gear is not allowed as loot used with lootable")
+        }
+    }
+
     fun openLootBox(player: Player, lootBoxId: Long, achievements: Achievements, vehicle: Vehicle? = null): LootBoxResult {
         val lootBox = lootBoxRepository.findByIdOrNull(lootBoxId)
             ?: throw EntityNotFoundException(player, "loot box", lootBoxId)
@@ -76,22 +134,27 @@ class LootService(
 
     fun openLootBox(player: Player, lootBox: LootBox, achievements: Achievements, vehicle: Vehicle? = null): LootBoxResult {
         val items: MutableList<LootItemResult> = mutableListOf()
-        lootBox.items.groupBy { it.slotNumber }.forEach { _: Int, slotItems: List<LootItem> ->
-            var openRandom = Random.nextInt(100)
-            var proced = false
-            slotItems.filter { it.color == null || it.color == player.color }.forEach { slotItem ->
-                if (!proced && procs(slotItem.chance, openRandom)) {
-                    items.add(openLootItem(player, slotItem, vehicle))
-                    proced = true
-                } else {
-                    openRandom -= slotItem.chance
-                }
+        lootBox.items.groupBy { it.slotNumber }.forEach { (_: Int, slotItems: List<LootItem>) ->
+            getSlotItem(slotItems, player.color)?.let {
+                items.add(openLootItem(player, it, vehicle))
             }
         }
         return LootBoxResult(
             lootBoxId = lootBox.id,
             items = items
         ).also { achievements.lootBoxOpened(it) }
+    }
+
+    private fun getSlotItem(items: List<LootItem>, color: Color? = null): LootItem? {
+        var openRandom = Random.nextInt(100)
+        items.filter { it.color == null || it.color == color }.forEach { item ->
+            if (procs(item.chance, openRandom)) {
+                return item
+            } else {
+                openRandom -= item.chance
+            }
+        }
+        return null
     }
 
     private fun openLootItem(player: Player, item: LootItem, vehicle: Vehicle?): LootItemResult {
