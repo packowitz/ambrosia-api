@@ -46,7 +46,7 @@ class AdminLootController(private val gearLootRepository: GearLootRepository,
         if (lootBox.type.enforce100chance && lootBox.items.any { it.chance != 100 }) {
             throw GeneralException(player, "Invalid LootBox", "LootBox of type ${lootBox.type} must contain only items that are granted by 100%")
         }
-        if (!lootBox.type.resourceRangeAllowed && lootBox.items.any { it.resourceFrom != it.resourceTo }) {
+        if (!lootBox.type.resourceRangeAllowed && lootBox.items.any { it.type == LootItemType.RESOURCE && it.resourceFrom != it.resourceTo }) {
             throw GeneralException(player, "Invalid LootBox", "LootBox of type ${lootBox.type} does not allow ranges for resource loot items")
         }
         if (!lootBox.type.progressStatAllowed && lootBox.items.any { it.progressStat != null }) {
