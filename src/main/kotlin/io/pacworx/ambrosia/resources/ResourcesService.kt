@@ -76,6 +76,10 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             ResourceType.UNCOMMON_GENOME -> spendUncommonGenome(resources, amount)
             ResourceType.RARE_GENOME -> spendRareGenome(resources, amount)
             ResourceType.EPIC_GENOME -> spendEpicGenome(resources, amount)
+            ResourceType.WOODEN_KEYS -> spendWoodenKeys(resources, amount)
+            ResourceType.BRONZE_KEYS -> spendBronzeKeys(resources, amount)
+            ResourceType.SILVER_KEYS -> spendSilverKeys(resources, amount)
+            ResourceType.GOLDEN_KEYS -> spendGoldenKeys(resources, amount)
             else -> throw RuntimeException("Unimplemented resource to spend: $type")
         }
     }
@@ -241,6 +245,38 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
         return resources
     }
 
+    fun spendWoodenKeys(resources: Resources, amount: Int): Resources {
+        if (amount > resources.woodenKeys) {
+            throw InsufficientResourcesException(resources.playerId, "Wooden keys", amount)
+        }
+        resources.woodenKeys -= amount
+        return resources
+    }
+
+    fun spendBronzeKeys(resources: Resources, amount: Int): Resources {
+        if (amount > resources.bronzeKeys) {
+            throw InsufficientResourcesException(resources.playerId, "Bronze keys", amount)
+        }
+        resources.bronzeKeys -= amount
+        return resources
+    }
+
+    fun spendSilverKeys(resources: Resources, amount: Int): Resources {
+        if (amount > resources.silverKeys) {
+            throw InsufficientResourcesException(resources.playerId, "Silver keys", amount)
+        }
+        resources.silverKeys -= amount
+        return resources
+    }
+
+    fun spendGoldenKeys(resources: Resources, amount: Int): Resources {
+        if (amount > resources.goldenKeys) {
+            throw InsufficientResourcesException(resources.playerId, "Golden keys", amount)
+        }
+        resources.goldenKeys -= amount
+        return resources
+    }
+
     fun gainResources(player: Player, type: ResourceType, amount: Int): Resources {
         val res = getResources(player)
         return gainResources(res, type, amount)
@@ -279,6 +315,10 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             ResourceType.UNCOMMON_GENOME -> res.uncommonGenome += amount
             ResourceType.RARE_GENOME -> res.rareGenome += amount
             ResourceType.EPIC_GENOME -> res.epicGenome += amount
+            ResourceType.WOODEN_KEYS -> res.woodenKeys += amount
+            ResourceType.BRONZE_KEYS -> res.bronzeKeys += amount
+            ResourceType.SILVER_KEYS -> res.silverKeys += amount
+            ResourceType.GOLDEN_KEYS -> res.goldenKeys += amount
         }
         return res
     }

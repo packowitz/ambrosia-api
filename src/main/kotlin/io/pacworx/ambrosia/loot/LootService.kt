@@ -70,7 +70,9 @@ class LootService(
             else -> throw RuntimeException("LootItemType not resolvable")
         }
 
-    fun asLootableBox(player: Player, lootBox: LootBox): LootableBox {
+    fun getLootableBox(player: Player, lootBoxId: Long): LootableBox {
+        val lootBox = lootBoxRepository.findByIdOrNull(lootBoxId)
+            ?: throw EntityNotFoundException(player, "LootBox", lootBoxId)
         val items: MutableList<LootableItem> = mutableListOf()
         lootBox.items.groupBy { it.slotNumber }.forEach { (_: Int, slotItems: List<LootItem>) ->
             getSlotItem(slotItems, player.color)?.let {

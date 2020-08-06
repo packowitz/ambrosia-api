@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.Incubator
+import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketItem
 import io.pacworx.ambrosia.buildings.merchant.MerchantPlayerItem
 import io.pacworx.ambrosia.expedition.Expedition
 import io.pacworx.ambrosia.expedition.PlayerExpedition
@@ -61,6 +62,7 @@ data class PlayerActionResponse(
     val dailyActivity: DailyActivity? = null,
     val propertyVersions: List<PropertyVersion>? = null,
     val merchantItems: List<MerchantPlayerItem>? = null,
+    val blackMarketItems: List<BlackMarketItem>? = null,
     val boughtMerchantItem: MerchantPlayerItem? = null,
     val achievementRewards: List<AchievementReward>? = null,
     val claimedAchievementRewardId: Long? = null

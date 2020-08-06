@@ -21,12 +21,12 @@ class AdminMerchantController(
 ) {
 
     @GetMapping
-    fun getAllOddJobs(): List<MerchantItem> = merchantItemRepository.findAllByOrderByMerchantLevelDescSortOrderAsc()
+    fun getAllMerchantItems(): List<MerchantItem> = merchantItemRepository.findAllByOrderByMerchantLevelDescSortOrderAsc()
 
     @PostMapping
     @Transactional
-    fun saveOddJobBase(@ModelAttribute("player") player: Player,
-                       @RequestBody @Valid merchantItem: MerchantItem): MerchantItem {
+    fun saveMerchantItem(@ModelAttribute("player") player: Player,
+                         @RequestBody @Valid merchantItem: MerchantItem): MerchantItem {
         val lootBox = lootBoxRepository.findByIdOrNull(merchantItem.lootBoxId)
             ?: throw EntityNotFoundException(player, "lootBox", merchantItem.lootBoxId)
         if (lootBox.type != LootBoxType.MERCHANT) {

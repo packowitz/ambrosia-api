@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.buildings
 
 import io.pacworx.ambrosia.achievements.AchievementsRepository
+import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketItemRepository
 import io.pacworx.ambrosia.buildings.merchant.MerchantPlayerItem
 import io.pacworx.ambrosia.buildings.merchant.MerchantPlayerItemRepository
 import io.pacworx.ambrosia.buildings.merchant.MerchantService
@@ -12,10 +13,7 @@ import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.gear.Jewelry
 import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.hero.HeroService
-import io.pacworx.ambrosia.loot.LootItemType
-import io.pacworx.ambrosia.loot.Looted
-import io.pacworx.ambrosia.loot.LootedItem
-import io.pacworx.ambrosia.loot.LootedType
+import io.pacworx.ambrosia.loot.*
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourceType
@@ -37,7 +35,9 @@ class BazaarController(
     val jewelryRepository: JewelryRepository,
     val vehicleService: VehicleService,
     val merchantService: MerchantService,
-    val achievementsRepository: AchievementsRepository
+    val achievementsRepository: AchievementsRepository,
+    val blackMarketItemRepository: BlackMarketItemRepository,
+    val lootService: LootService
 ) {
 
     @PostMapping("trade/{trade}")
@@ -72,7 +72,7 @@ class BazaarController(
 
     @PostMapping("merchant/buy/{itemId}")
     @Transactional
-    fun buyItem(@ModelAttribute("player") player: Player, @PathVariable itemId: Long): PlayerActionResponse {
+    fun buyMerchantItem(@ModelAttribute("player") player: Player, @PathVariable itemId: Long): PlayerActionResponse {
         val item = merchantPlayerItemRepository.findByIdOrNull(itemId)
             ?: throw GeneralException(player, "Cannot buy item", "Item is not valid anymore")
         if (item.sold) {
@@ -133,5 +133,31 @@ class BazaarController(
             }
             else -> throw ConfigurationException("Unknown item type to be bought")
         }
+    }
+
+    @PostMapping("blackmarket/buy/{itemId}")
+    @Transactional
+    fun buyBlackMarketItem(@ModelAttribute("player") player: Player, @PathVariable itemId: Long): PlayerActionResponse {
+        val item = blackMarketItemRepository.findByIdOrNull(itemId)
+            ?: throw GeneralException(player, "Cannot buy item", "Item does not exist")
+        if (!item.active) {
+            throw GeneralException(player, "Cannot buy item", "Item not available anymore")
+        }
+        val resources = resourcesService.getResources(player)
+        val achievements = achievementsRepository.getOne(player.id)
+        resourcesService.spendResource(resources, item.priceType, item.priceAmount)
+
+        val result = lootService.openLootBox(player, item.lootBoxId, achievements)
+
+        return PlayerActionResponse(
+            resources = resources,
+            progress = if (result.items.any { it.progress != null }) { progressRepository.getOne(player.id) } else { null },
+            heroes = result.items.filter { it.hero != null }.map { it.hero!! }.takeIf { it.isNotEmpty() },
+            gears = result.items.filter { it.gear != null }.map { it.gear!! }.takeIf{ it.isNotEmpty() },
+            jewelries = result.items.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },
+            vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
+            vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
+            looted = Looted(LootedType.BLACK_MARKET, result.items.map { lootService.asLootedItem(it) })
+        )
     }
 }
