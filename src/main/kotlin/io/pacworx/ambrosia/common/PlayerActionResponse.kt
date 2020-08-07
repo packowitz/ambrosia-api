@@ -5,6 +5,7 @@ import io.pacworx.ambrosia.achievements.AchievementReward
 import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.offline.Mission
+import io.pacworx.ambrosia.buildings.AutoBreakdownConfiguration
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.Incubator
 import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketItem
@@ -65,5 +66,6 @@ data class PlayerActionResponse(
     val blackMarketItems: List<BlackMarketItem>? = null,
     val boughtMerchantItem: MerchantPlayerItem? = null,
     val achievementRewards: List<AchievementReward>? = null,
-    val claimedAchievementRewardId: Long? = null
+    val claimedAchievementRewardId: Long? = null,
+    val autoBreakdownConfiguration: AutoBreakdownConfiguration? = null
 )

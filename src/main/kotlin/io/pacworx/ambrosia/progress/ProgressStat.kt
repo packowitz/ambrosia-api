@@ -178,6 +178,11 @@ enum class ProgressStat {
             progress.gearBreakDownResourcesInc += bonus
         }
     },
+    AUTO_BREAKDOWN_ENABLED {
+        override fun apply(progress: Progress, bonus: Int) {
+            progress.autoBreakDownEnabled = bonus > 0
+        }
+    },
     REROLL_GEAR_QUALITY {
         override fun apply(progress: Progress, bonus: Int) {
             progress.reRollGearQualityEnabled = bonus > 0

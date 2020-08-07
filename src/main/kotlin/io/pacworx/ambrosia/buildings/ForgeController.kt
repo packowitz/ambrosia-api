@@ -1,5 +1,6 @@
 package io.pacworx.ambrosia.buildings
 
+import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.gear.*
@@ -35,7 +36,9 @@ class ForgeController(
     val resourcesService: ResourcesService,
     val auditLogService: AuditLogService,
     val gearService: GearService,
-    val oddJobService: OddJobService
+    val oddJobService: OddJobService,
+    val achievementsRepository: AchievementsRepository,
+    val autoBreakdownConfigurationRepository: AutoBreakdownConfigurationRepository
 ) {
 
     @PostMapping("breakdown")
@@ -76,13 +79,24 @@ class ForgeController(
 
         val oddJobsEffected = oddJobService.gearBreakDownGear(player, gears)
         gearRepository.deleteAll(gears)
+        val achievements = achievementsRepository.getOne(player.id)
+        achievements.gearBreakdown += gears.size
         return PlayerActionResponse(
             resources = resources,
+            achievements = achievements,
             gearIdsRemovedFromArmory = gears.map { it.id },
-            looted = Looted(LootedType.BREAKDOWN, lootedItems),
+            looted = if (request.silent) { null } else { Looted(LootedType.BREAKDOWN, lootedItems) },
             jewelries = jewelries.takeIf { it.isNotEmpty() },
             oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
         )
+    }
+
+    @PostMapping("auto")
+    @Transactional
+    fun updateAutoConfiguration(@ModelAttribute("player") player: Player,
+                                @RequestBody request: AutoBreakdownConfiguration): AutoBreakdownConfiguration {
+        request.playerId = player.id
+        return autoBreakdownConfigurationRepository.save(request)
     }
 
     private fun resolveBreakdownPropertyType(gear: Gear): PropertyType {
@@ -122,6 +136,7 @@ class ForgeController(
     }
 
     data class BreakDownRequest(
-        val gearIds: List<Long>
+        val gearIds: List<Long>,
+        val silent: Boolean = false
     )
 }

@@ -34,6 +34,7 @@ data class Achievements(
     var merchantItemsBought: Int = 0,
     var mapTilesDiscovered: Int = 0,
     var gearModified: Int = 0,
+    var gearBreakdown: Long = 0,
     var jewelsMerged: Int = 0,
     var buildingsUpgradesDone: Int = 0,
     var vehiclesUpgradesDone: Int = 0,

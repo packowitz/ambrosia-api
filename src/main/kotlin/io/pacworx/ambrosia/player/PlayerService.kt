@@ -6,10 +6,7 @@ import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.battle.offline.MissionService
-import io.pacworx.ambrosia.buildings.Building
-import io.pacworx.ambrosia.buildings.BuildingRepository
-import io.pacworx.ambrosia.buildings.BuildingType
-import io.pacworx.ambrosia.buildings.IncubatorRepository
+import io.pacworx.ambrosia.buildings.*
 import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketItemRepository
 import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketService
 import io.pacworx.ambrosia.buildings.merchant.MerchantService
@@ -70,7 +67,8 @@ class PlayerService(
     private val achievementsRepository: AchievementsRepository,
     private val merchantService: MerchantService,
     private val achievementService: AchievementService,
-    private val blackMarketService: BlackMarketService
+    private val blackMarketService: BlackMarketService,
+    private val autoBreakdownConfigurationRepository: AutoBreakdownConfigurationRepository
 ) {
 
     @Value("\${ambrosia.pw-salt-one}")
@@ -155,6 +153,7 @@ class PlayerService(
         )
         upgradeService.applyBuildingLevel(player, barracks, progress)
         progressRepository.save(progress)
+        autoBreakdownConfigurationRepository.save(AutoBreakdownConfiguration(player.id))
         dailyActivityRepository.save(DailyActivity(playerId = player.id))
         achievementsRepository.save(Achievements(player.id))
 
@@ -210,6 +209,7 @@ class PlayerService(
         val merchantItems = merchantService.getItems(player, progress)
         val blackMarketItems = blackMarketService.getPurchasableItems(player)
         val achievementRewards = achievementService.getActiveAchievementRewards(player)
+        val autoBreakdownConfiguration = autoBreakdownConfigurationRepository.getOne(player.id)
         return PlayerActionResponse(
             resources = resources,
             token = token,
@@ -235,7 +235,8 @@ class PlayerService(
             dailyActivity = dailyActivity,
             merchantItems = merchantItems,
             blackMarketItems = blackMarketItems,
-            achievementRewards = achievementRewards
+            achievementRewards = achievementRewards,
+            autoBreakdownConfiguration = autoBreakdownConfiguration
         )
     }
 

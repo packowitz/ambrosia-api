@@ -50,6 +50,7 @@ data class Progress(
     var gearModificationSpeed: Int = 100,
     var gearBreakDownRarity: Int = 0,
     var gearBreakDownResourcesInc: Int = 0,
+    var autoBreakDownEnabled: Boolean = false,
     var reRollGearQualityEnabled: Boolean = false,
     var reRollGearStatEnabled: Boolean = false,
     var incGearRarityEnabled: Boolean = false,

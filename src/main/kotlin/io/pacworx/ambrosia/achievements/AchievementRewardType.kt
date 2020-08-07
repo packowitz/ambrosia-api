@@ -73,6 +73,9 @@ enum class AchievementRewardType {
     GEAR_MODIFICATIONS {
         override fun getAmount(achievements: Achievements): Long = achievements.gearModified.toLong()
     },
+    GEAR_BREAKDOWN {
+        override fun getAmount(achievements: Achievements): Long = achievements.gearBreakdown
+    },
     JEWELS_MERGED {
         override fun getAmount(achievements: Achievements): Long = achievements.jewelsMerged.toLong()
     },
