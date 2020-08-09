@@ -517,12 +517,12 @@ class SkillService(private val propertyService: PropertyService) {
         var intensity = action.effectValue
         var duration = action.effectDuration!!
         if (action.type == SkillActionType.BUFF) {
-            intensity += hero.buffIntensityIncBonus
-            duration += hero.buffDurationIncBonus
+            intensity += hero.getTotalBuffIntesityInc()
+            duration += hero.getTotalBuffDurationInc()
         }
         if (action.type == SkillActionType.DEBUFF) {
-            intensity += hero.debuffIntensityIncBonus
-            duration += hero.debuffDurationIncBonus
+            intensity += hero.getTotalDebuffIntesityInc()
+            duration += hero.getTotalDebuffDurationInc()
         }
 
         var resisted = duration <= 0
@@ -689,8 +689,8 @@ class SkillService(private val propertyService: PropertyService) {
                         throw ConfigurationException("Reached unreachable code")
                     }
                 }
-                val intensity = action.effectValue + hero.buffIntensityIncBonus
-                val duration = action.effectDuration!! + hero.buffDurationIncBonus
+                val intensity = action.effectValue + hero.getTotalBuffIntesityInc()
+                val duration = action.effectDuration!! + hero.getTotalBuffDurationInc()
                 target.buffs.add(BattleHeroBuff(
                         buff = Buff.SHIELD,
                         intensity = intensity,

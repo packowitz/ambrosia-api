@@ -398,6 +398,18 @@ data class BattleHero(
     fun getTotalCritResist(): Int = heroCritResist + critResistBonus
 
     @JsonIgnore
+    fun getTotalBuffIntesityInc(): Int = heroBuffIntensityInc + buffIntensityIncBonus
+
+    @JsonIgnore
+    fun getTotalDebuffIntesityInc(): Int = heroDebuffIntensityInc + debuffIntensityIncBonus
+
+    @JsonIgnore
+    fun getTotalBuffDurationInc(): Int = heroBuffDurationInc + buffDurationIncBonus
+
+    @JsonIgnore
+    fun getTotalDebuffDurationInc(): Int = heroDebuffDurationInc + debuffDurationIncBonus
+
+    @JsonIgnore
     fun isTaunting(): Boolean = status == HeroStatus.ALIVE && buffs.any { it.buff == Buff.TAUNT_BUFF }
 
     @JsonIgnore
