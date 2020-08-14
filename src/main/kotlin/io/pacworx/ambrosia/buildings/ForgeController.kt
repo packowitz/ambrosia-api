@@ -78,9 +78,9 @@ class ForgeController(
         )
 
         val oddJobsEffected = oddJobService.gearBreakDownGear(player, gears)
-        gearRepository.deleteAll(gears)
         val achievements = achievementsRepository.getOne(player.id)
         achievements.gearBreakdown += gears.size
+        gearRepository.deleteAll(gears)
         return PlayerActionResponse(
             resources = resources,
             achievements = achievements,
