@@ -154,6 +154,14 @@ class SkillService(private val propertyService: PropertyService) {
                                 ?.random()
                 )
             }
+            SkillActionTarget.RANDOM_OPP_WITH_BUFF -> {
+                listOfNotNull(
+                    battle.allOtherHeroesAlive(hero)
+                        .filter { battleHero -> battleHero.buffs.any { it.buff.type == BuffType.BUFF } }
+                        .takeIf { it.isNotEmpty() }
+                        ?.random()
+                )
+            }
             SkillActionTarget.SELF -> listOf(hero)
             SkillActionTarget.ALL_ALLIES -> battle.allAlliedHeroesAlive(hero)
             SkillActionTarget.ALL_OTHER_ALLIES ->

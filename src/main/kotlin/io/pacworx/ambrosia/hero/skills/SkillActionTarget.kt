@@ -6,6 +6,7 @@ enum class SkillActionTarget {
     ALL_OTHER_OPP,
     RANDOM_OPP,
     RANDOM_OTHER_OPP,
+    RANDOM_OPP_WITH_BUFF,
     SELF,
     ALL_ALLIES,
     ALL_OTHER_ALLIES,
