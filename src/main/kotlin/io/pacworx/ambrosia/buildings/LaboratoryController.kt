@@ -10,6 +10,7 @@ import io.pacworx.ambrosia.exceptions.UnauthorizedException
 import io.pacworx.ambrosia.hero.HeroDto
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.Rarity
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -40,7 +42,8 @@ class LaboratoryController(
     private val resourcesService: ResourcesService,
     private val heroService: HeroService,
     private val auditLogService: AuditLogService,
-    private val achievementsRepository: AchievementsRepository
+    private val achievementsRepository: AchievementsRepository,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @GetMapping("incubators")
@@ -181,6 +184,7 @@ class LaboratoryController(
     @Transactional
     fun cancel(@ModelAttribute("player") player: Player,
                @PathVariable cubeId: Long): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val incubator = incubatorRepository.findByIdOrNull(cubeId)
             ?: throw EntityNotFoundException(player, "incubator", cubeId)
         if (incubator.playerId != player.id) {
@@ -199,7 +203,8 @@ class LaboratoryController(
         incubatorRepository.delete(incubator)
         return PlayerActionResponse(
             resources = resources,
-            incubatorDone = incubator.id
+            incubatorDone = incubator.id,
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 }

@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.progress
 
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedItem
@@ -10,6 +11,7 @@ import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -18,12 +20,14 @@ import javax.transaction.Transactional
 class ProgressController(
     private val progressRepository: ProgressRepository,
     private val propertyService: PropertyService,
-    private val resourcesService: ResourcesService
+    private val resourcesService: ResourcesService,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @PostMapping("level_up")
     @Transactional
     fun levelUp(@ModelAttribute("player") player: Player): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val lootedItems = mutableListOf<LootedItem>()
         val progress = progressRepository.getOne(player.id)
         val resources = resourcesService.getResources(player)
@@ -53,13 +57,15 @@ class ProgressController(
         return PlayerActionResponse(
             progress = progress,
             resources = resources,
-            looted = lootedItems.takeIf { it.isNotEmpty() }?.let { Looted(LootedType.LEVEL_UP, it) }
+            looted = lootedItems.takeIf { it.isNotEmpty() }?.let { Looted(LootedType.LEVEL_UP, it) },
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 
     @PostMapping("vip_level_up")
     @Transactional
     fun vipLevelUp(@ModelAttribute("player") player: Player): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val lootedItems = mutableListOf<LootedItem>()
         val progress = progressRepository.getOne(player.id)
         val resources = resourcesService.getResources(player)
@@ -88,7 +94,8 @@ class ProgressController(
         return PlayerActionResponse(
             progress = progress,
             resources = resources,
-            looted = lootedItems.takeIf { it.isNotEmpty() }?.let { Looted(LootedType.VIP_LEVEL_UP, it) }
+            looted = lootedItems.takeIf { it.isNotEmpty() }?.let { Looted(LootedType.VIP_LEVEL_UP, it) },
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 }

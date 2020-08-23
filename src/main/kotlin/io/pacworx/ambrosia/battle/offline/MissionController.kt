@@ -7,6 +7,7 @@ import io.pacworx.ambrosia.exceptions.*
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.maps.SimplePlayerMapTileRepository
 import io.pacworx.ambrosia.oddjobs.OddJobService
@@ -18,6 +19,7 @@ import io.pacworx.ambrosia.team.TeamType
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -37,7 +39,8 @@ class MissionController(
     private val heroService: HeroService,
     private val auditLogService: AuditLogService,
     private val oddJobService: OddJobService,
-    private val achievementsRepository: AchievementsRepository
+    private val achievementsRepository: AchievementsRepository,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @PostMapping
@@ -102,6 +105,7 @@ class MissionController(
     @PostMapping("{missionId}/finish")
     @Transactional
     fun finishMission(@ModelAttribute("player") player: Player, @PathVariable missionId: Long): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val mission = missionRepository.findByIdOrNull(missionId)
             ?: return PlayerActionResponse(missionIdFinished = missionId)
         if (mission.playerId != player.id) {
@@ -150,7 +154,8 @@ class MissionController(
             vehicleParts = lootItems.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
             missions = listOf(mission),
             missionIdFinished = missionId,
-            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
+            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() },
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 

@@ -63,5 +63,13 @@ enum class LootBoxType(
         progressStatAllowed = false,
         gearAllowed = false,
         singleJewelTypeRequired = true
+    ),
+    INBOX(
+        exactOneSlot = false,
+        enforce100chance = true,
+        resourceRangeAllowed = false,
+        progressStatAllowed = true,
+        gearAllowed = false,
+        singleJewelTypeRequired = false
     )
 }

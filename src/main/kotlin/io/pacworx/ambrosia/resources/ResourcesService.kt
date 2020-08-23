@@ -1,14 +1,21 @@
 package io.pacworx.ambrosia.resources
 
 import io.pacworx.ambrosia.exceptions.InsufficientResourcesException
+import io.pacworx.ambrosia.inbox.InboxMessage
+import io.pacworx.ambrosia.inbox.InboxMessageItem
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
+import io.pacworx.ambrosia.inbox.InboxMessageType
+import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.player.Player
 import org.springframework.stereotype.Service
-import java.lang.Integer.min
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 @Service
-class ResourcesService(private val resourcesRepository: ResourcesRepository) {
+class ResourcesService(
+    private val resourcesRepository: ResourcesRepository,
+    private val inboxMessageRepository: InboxMessageRepository
+) {
 
     fun getResources(player: Player): Resources {
         val resources = resourcesRepository.getOne(player.id)
@@ -288,27 +295,90 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             ResourceType.COGWHEELS -> res.cogwheels += amount
             ResourceType.TOKENS -> res.tokens += amount
             ResourceType.STEAM_MAX -> res.steamMax += amount
-            ResourceType.PREMIUM_STEAM -> res.premiumSteam = min(res.premiumSteamMax, res.premiumSteam + amount)
+            ResourceType.PREMIUM_STEAM -> {
+                res.premiumSteam += amount
+                if (res.premiumSteam > res.premiumSteamMax) {
+                    val overflow = res.premiumSteam - res.premiumSteamMax
+                    res.premiumSteam = res.premiumSteamMax
+                    this.resourceOverflow(res.playerId, type, overflow)
+                }
+            }
             ResourceType.PREMIUM_STEAM_MAX -> res.premiumSteamMax += amount
             ResourceType.COGWHEELS_MAX -> res.cogwheelsMax += amount
-            ResourceType.PREMIUM_COGWHEELS -> res.premiumCogwheels = min(res.premiumCogwheelsMax, res.premiumCogwheels + amount)
+            ResourceType.PREMIUM_COGWHEELS -> {
+                res.premiumCogwheels += amount
+                if (res.premiumCogwheels > res.premiumCogwheelsMax) {
+                    val overflow = res.premiumCogwheels - res.premiumCogwheelsMax
+                    res.premiumCogwheels = res.premiumCogwheelsMax
+                    this.resourceOverflow(res.playerId, type, overflow)
+                }
+            }
             ResourceType.PREMIUM_COGWHEELS_MAX -> res.premiumCogwheelsMax += amount
             ResourceType.TOKENS_MAX -> res.tokensMax += amount
-            ResourceType.PREMIUM_TOKENS -> res.premiumTokens = min(res.premiumTokensMax, res.premiumTokens + amount)
+            ResourceType.PREMIUM_TOKENS -> {
+                res.premiumTokens += amount
+                if (res.premiumTokens > res.premiumTokensMax) {
+                    val overflow = res.premiumTokens - res.premiumTokensMax
+                    res.premiumTokens = res.premiumTokensMax
+                    this.resourceOverflow(res.playerId, type, overflow)
+                }
+            }
             ResourceType.PREMIUM_TOKENS_MAX -> res.premiumTokensMax += amount
             ResourceType.COINS -> res.coins += amount
             ResourceType.RUBIES -> res.rubies += amount
-            ResourceType.METAL -> res.metal = min(res.metalMax, res.metal + amount)
+            ResourceType.METAL -> {
+                res.metal += amount
+                if (res.metal > res.metalMax) {
+                    val overflow = res.metal - res.metalMax
+                    res.metal = res.metalMax
+                    this.resourceOverflow(res.playerId, type, overflow)
+                }
+            }
             ResourceType.METAL_MAX -> res.metalMax += amount
-            ResourceType.IRON -> res.iron = min(res.ironMax, res.iron + amount)
+            ResourceType.IRON -> {
+                res.iron += amount
+                if (res.iron > res.ironMax) {
+                    val overflow = res.iron - res.ironMax
+                    res.iron = res.ironMax
+                    this.resourceOverflow(res.playerId, type, overflow)
+                }
+            }
             ResourceType.IRON_MAX -> res.ironMax += amount
-            ResourceType.STEEL -> res.steel = min(res.steelMax, res.steel + amount)
+            ResourceType.STEEL -> {
+                res.steel += amount
+                if (res.steel > res.steelMax) {
+                    val overflow = res.steel - res.steelMax
+                    res.steel = res.steelMax
+                    this.resourceOverflow(res.playerId, type, overflow)
+                }
+            }
             ResourceType.STEEL_MAX -> res.steelMax += amount
-            ResourceType.WOOD -> res.wood = min(res.woodMax, res.wood + amount)
+            ResourceType.WOOD -> {
+                res.wood += amount
+                if (res.wood > res.woodMax) {
+                    val overflow = res.wood - res.woodMax
+                    res.wood = res.woodMax
+                    this.resourceOverflow(res.playerId, type, overflow)
+                }
+            }
             ResourceType.WOOD_MAX -> res.woodMax += amount
-            ResourceType.BROWN_COAL -> res.brownCoal = min(res.brownCoalMax, res.brownCoal + amount)
+            ResourceType.BROWN_COAL -> {
+                res.brownCoal += amount
+                if (res.brownCoal > res.brownCoalMax) {
+                    val overflow = res.brownCoal - res.brownCoalMax
+                    res.brownCoal = res.brownCoalMax
+                    this.resourceOverflow(res.playerId, type, overflow)
+                }
+            }
             ResourceType.BROWN_COAL_MAX -> res.brownCoalMax += amount
-            ResourceType.BLACK_COAL -> res.blackCoal = min(res.blackCoalMax, res.blackCoal + amount)
+            ResourceType.BLACK_COAL -> {
+                res.blackCoal += amount
+                if (res.blackCoal > res.blackCoalMax) {
+                    val overflow = res.blackCoal - res.blackCoalMax
+                    res.blackCoal = res.blackCoalMax
+                    this.resourceOverflow(res.playerId, type, overflow)
+                }
+            }
             ResourceType.BLACK_COAL_MAX -> res.blackCoalMax += amount
             ResourceType.SIMPLE_GENOME -> res.simpleGenome += amount
             ResourceType.COMMON_GENOME -> res.commonGenome += amount
@@ -319,7 +389,25 @@ class ResourcesService(private val resourcesRepository: ResourcesRepository) {
             ResourceType.BRONZE_KEYS -> res.bronzeKeys += amount
             ResourceType.SILVER_KEYS -> res.silverKeys += amount
             ResourceType.GOLDEN_KEYS -> res.goldenKeys += amount
+            else -> {}
         }
         return res
+    }
+
+    private fun resourceOverflow(playerId: Long, resourceType: ResourceType, amount: Int) {
+        val now = LocalDateTime.now()
+        inboxMessageRepository.save(InboxMessage(
+            playerId = playerId,
+            messageType = InboxMessageType.GOODS,
+            sendTimestamp = now,
+            validTimestamp = now.plusDays(7),
+            message = "Storage has not enough capacity",
+            items = listOf(InboxMessageItem(
+                number = 1,
+                type = LootItemType.RESOURCE,
+                resourceType = resourceType,
+                resourceAmount = amount
+            )))
+        )
     }
 }

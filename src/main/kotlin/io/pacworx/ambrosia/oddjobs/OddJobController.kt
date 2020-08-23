@@ -5,6 +5,7 @@ import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -13,6 +14,7 @@ import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -25,7 +27,8 @@ class OddJobController(
     private val progressRepository: ProgressRepository,
     private val dailyActivityRepository: DailyActivityRepository,
     private val propertyService: PropertyService,
-    private val achievementsRepository: AchievementsRepository
+    private val achievementsRepository: AchievementsRepository,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @PostMapping("{oddJobId}/remove")
@@ -47,6 +50,7 @@ class OddJobController(
     @Transactional
     fun claimOddJob(@ModelAttribute("player") player: Player,
                     @PathVariable oddJobId: Long): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val oddJob = oddJobRepository.findByIdOrNull(oddJobId)
             ?: throw EntityNotFoundException(player, "OddJob", oddJobId)
         if (oddJob.playerId != player.id) {
@@ -65,7 +69,8 @@ class OddJobController(
             progress = progressRepository.getOne(player.id),
             achievements = achievements,
             oddJobDone = oddJobId,
-            dailyActivity = dailyActivity.takeIf { it.activityDetected() }
+            dailyActivity = dailyActivity.takeIf { it.activityDetected() },
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 
@@ -73,6 +78,7 @@ class OddJobController(
     @Transactional
     fun claimDailyActivity(@ModelAttribute("player") player: Player,
                            @PathVariable day: Int): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val dailyActivity = dailyActivityRepository.getOne(player.id)
         if (!dailyActivity.isClaimable(day)) {
             throw GeneralException(player, "Cannot claim daily", "Day $day is not claimable for you")
@@ -87,7 +93,8 @@ class OddJobController(
         return PlayerActionResponse(
             resources = resources,
             achievements = achievements,
-            dailyActivity = dailyActivity
+            dailyActivity = dailyActivity,
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 }

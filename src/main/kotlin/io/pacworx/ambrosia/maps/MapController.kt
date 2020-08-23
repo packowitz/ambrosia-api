@@ -6,6 +6,7 @@ import io.pacworx.ambrosia.buildings.BuildingRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.MapTileActionException
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedType
@@ -35,7 +36,8 @@ class MapController(
     private val progressRepository: ProgressRepository,
     private val auditLogService: AuditLogService,
     private val oddJobService: OddJobService,
-    private val achievementsRepository: AchievementsRepository
+    private val achievementsRepository: AchievementsRepository,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @GetMapping("{mapId}")
@@ -119,6 +121,7 @@ class MapController(
     @PostMapping("open_chest")
     @Transactional
     fun openChest(@ModelAttribute("player") player: Player, @RequestBody request: TileRequest): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val playerMap = mapService.getPlayerMap(player, request.mapId)
         val tile = playerMap.playerTiles.find { it.posX == request.posX && it.posY == request.posY && it.discovered}
             ?: throw MapTileActionException(player, "open chest on", request.mapId, request.posX, request.posY)
@@ -148,7 +151,8 @@ class MapController(
             vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
             looted = Looted(LootedType.CHEST, result.items.map { lootService.asLootedItem(it) }),
-            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
+            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() },
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 

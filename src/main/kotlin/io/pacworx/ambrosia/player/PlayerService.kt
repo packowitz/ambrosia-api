@@ -17,6 +17,7 @@ import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.maps.MapService
 import io.pacworx.ambrosia.oddjobs.DailyActivity
 import io.pacworx.ambrosia.oddjobs.DailyActivityRepository
@@ -68,7 +69,8 @@ class PlayerService(
     private val merchantService: MerchantService,
     private val achievementService: AchievementService,
     private val blackMarketService: BlackMarketService,
-    private val autoBreakdownConfigurationRepository: AutoBreakdownConfigurationRepository
+    private val autoBreakdownConfigurationRepository: AutoBreakdownConfigurationRepository,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @Value("\${ambrosia.pw-salt-one}")
@@ -210,6 +212,7 @@ class PlayerService(
         val blackMarketItems = blackMarketService.getPurchasableItems(player)
         val achievementRewards = achievementService.getActiveAchievementRewards(player)
         val autoBreakdownConfiguration = autoBreakdownConfigurationRepository.getOne(player.id)
+        val inboxMessages = inboxMessageRepository.findAllByPlayerIdOrderByValidTimestamp(player.id)
         return PlayerActionResponse(
             resources = resources,
             token = token,
@@ -236,7 +239,8 @@ class PlayerService(
             merchantItems = merchantItems,
             blackMarketItems = blackMarketItems,
             achievementRewards = achievementRewards,
-            autoBreakdownConfiguration = autoBreakdownConfiguration
+            autoBreakdownConfiguration = autoBreakdownConfiguration,
+            inboxMessages = inboxMessages
         )
     }
 
