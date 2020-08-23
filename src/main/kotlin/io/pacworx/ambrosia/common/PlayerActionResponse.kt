@@ -15,6 +15,7 @@ import io.pacworx.ambrosia.expedition.PlayerExpedition
 import io.pacworx.ambrosia.gear.Gear
 import io.pacworx.ambrosia.gear.Jewelry
 import io.pacworx.ambrosia.hero.HeroDto
+import io.pacworx.ambrosia.inbox.InboxMessage
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.maps.PlayerMapResolved
 import io.pacworx.ambrosia.oddjobs.DailyActivity
@@ -67,5 +68,6 @@ data class PlayerActionResponse(
     val boughtMerchantItem: MerchantPlayerItem? = null,
     val achievementRewards: List<AchievementReward>? = null,
     val claimedAchievementRewardId: Long? = null,
-    val autoBreakdownConfiguration: AutoBreakdownConfiguration? = null
+    val autoBreakdownConfiguration: AutoBreakdownConfiguration? = null,
+    val inboxMessages: List<InboxMessage>? = null
 )
