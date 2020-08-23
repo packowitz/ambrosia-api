@@ -152,7 +152,7 @@ class MapController(
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
             looted = Looted(LootedType.CHEST, result.items.map { lootService.asLootedItem(it) }),
             oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() },
-            inboxMessages = inboxMessageRepository.findAllByPlayerIdAnAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 

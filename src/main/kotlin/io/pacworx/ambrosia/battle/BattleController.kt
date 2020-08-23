@@ -12,6 +12,7 @@ import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.skills.HeroSkill
 import io.pacworx.ambrosia.hero.skills.SkillTarget
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedType
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -52,7 +54,8 @@ class BattleController(
     private val auditLogService: AuditLogService,
     private val battleStepRepository: BattleStepRepository,
     private val oddJobService: OddJobService,
-    private val achievementsRepository: AchievementsRepository
+    private val achievementsRepository: AchievementsRepository,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @GetMapping("{battleId}")
@@ -205,6 +208,7 @@ class BattleController(
 
     private fun afterBattleAction(player: Player, battle: Battle, resources: Resources? = null, oddJobsEffected: MutableList<OddJob> = mutableListOf(), achievements: Achievements? = null): PlayerActionResponse {
         return if (battle.status == BattleStatus.WON && battle.type != BattleType.TEST) {
+            val timestamp = LocalDateTime.now()
             val battleAchievements = achievements ?: achievementsRepository.getOne(player.id)
             val map = battle.mapId?.let {
                 mapService.victoriousFight(player, it, battle.mapPosX!!, battle.mapPosY!!)
@@ -232,7 +236,8 @@ class BattleController(
                 vehicleParts = loot?.items?.filter { it.vehiclePart != null }?.map { it.vehiclePart!! }?.takeIf { it.isNotEmpty() },
                 ongoingBattle = battle,
                 looted = loot?.items?.let { items -> Looted(LootedType.BATTLE, items.map { lootService.asLootedItem(it) })  },
-                oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
+                oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() },
+                inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
             )
         } else {
             if (battle.type == BattleType.CAMPAIGN && battle.status == BattleStatus.LOST) {

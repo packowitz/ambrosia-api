@@ -401,7 +401,7 @@ class ResourcesService(
             messageType = InboxMessageType.GOODS,
             sendTimestamp = now,
             validTimestamp = now.plusDays(7),
-            message = "Your storage is too small",
+            message = "Storage has not enough capacity",
             items = listOf(InboxMessageItem(
                 number = 1,
                 type = LootItemType.RESOURCE,

@@ -8,5 +8,5 @@ import java.time.LocalDateTime
 interface InboxMessageRepository: JpaRepository<InboxMessage, Long> {
     fun findAllByPlayerIdOrderByValidTimestamp(playerId: Long): List<InboxMessage>
 
-    fun findAllByPlayerIdAnAndSendTimestampIsAfter(playerId: Long, timestamp: LocalDateTime): List<InboxMessage>
+    fun findAllByPlayerIdAndSendTimestampIsAfter(playerId: Long, timestamp: LocalDateTime): List<InboxMessage>
 }

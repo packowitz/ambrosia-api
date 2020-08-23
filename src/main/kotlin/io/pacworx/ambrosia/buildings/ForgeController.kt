@@ -4,6 +4,7 @@ import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.gear.*
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedItem
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 import kotlin.math.round
 import kotlin.random.Random
@@ -38,13 +40,15 @@ class ForgeController(
     val gearService: GearService,
     val oddJobService: OddJobService,
     val achievementsRepository: AchievementsRepository,
-    val autoBreakdownConfigurationRepository: AutoBreakdownConfigurationRepository
+    val autoBreakdownConfigurationRepository: AutoBreakdownConfigurationRepository,
+    val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @PostMapping("breakdown")
     @Transactional
     fun breakDown(@ModelAttribute("player") player: Player,
                   @RequestBody request: BreakDownRequest): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val gears = gearRepository.findAllById(request.gearIds)
         val progress = progressRepository.getOne(player.id)
         gears.find { it.equippedTo != null }?.let { throw GeneralException(player, "Cannot breakdown gear", "Gear is equipped") }
@@ -87,7 +91,8 @@ class ForgeController(
             gearIdsRemovedFromArmory = gears.map { it.id },
             looted = if (request.silent) { null } else { Looted(LootedType.BREAKDOWN, lootedItems) },
             jewelries = jewelries.takeIf { it.isNotEmpty() },
-            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() }
+            oddJobs = oddJobsEffected.takeIf { it.isNotEmpty() },
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 

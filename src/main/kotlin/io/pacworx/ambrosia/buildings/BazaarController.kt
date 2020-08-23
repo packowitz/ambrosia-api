@@ -13,6 +13,7 @@ import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.gear.Jewelry
 import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.*
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
@@ -21,6 +22,7 @@ import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.vehicle.VehicleService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -37,12 +39,14 @@ class BazaarController(
     val merchantService: MerchantService,
     val achievementsRepository: AchievementsRepository,
     val blackMarketItemRepository: BlackMarketItemRepository,
-    val lootService: LootService
+    val lootService: LootService,
+    val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @PostMapping("trade/{trade}")
     @Transactional
     fun trade(@ModelAttribute("player") player: Player, @PathVariable trade: Trade): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val progress = progressRepository.getOne(player.id)
         if (!progress.tradingEnabled) {
             throw GeneralException(player, "Cannot trade", "Upgrade Bazaar to enable trading")
@@ -50,7 +54,10 @@ class BazaarController(
         val resources = resourcesService.getResources(player)
         resourcesService.spendResource(resources, trade.giveType, trade.giveAmount - (progress.negotiationLevel * trade.negotiationGiveReduction))
         resourcesService.gainResources(resources, trade.getType, trade.getAmount + (progress.negotiationLevel * trade.negotiationGetIncrease))
-        return PlayerActionResponse(resources = resources)
+        return PlayerActionResponse(
+            resources = resources,
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+        )
     }
 
     @GetMapping("merchant/items")
@@ -73,6 +80,7 @@ class BazaarController(
     @PostMapping("merchant/buy/{itemId}")
     @Transactional
     fun buyMerchantItem(@ModelAttribute("player") player: Player, @PathVariable itemId: Long): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val item = merchantPlayerItemRepository.findByIdOrNull(itemId)
             ?: throw GeneralException(player, "Cannot buy item", "Item is not valid anymore")
         if (item.sold) {
@@ -90,14 +98,27 @@ class BazaarController(
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.RESOURCE, resourceType = item.resourceType, value = item.resourceAmount?.toLong() ?: 0)
                 ))
-                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, looted = looted)
+                PlayerActionResponse(
+                    resources = resources,
+                    achievements = achievements,
+                    boughtMerchantItem = item,
+                    looted = looted,
+                    inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+                )
             }
             item.heroBaseId != null -> {
                 val hero = heroService.recruitHero(player, item.heroBaseId!!, item.heroLevel!!)
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.HERO, value = hero.id)
                 ))
-                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, heroes = listOf(hero), looted = looted)
+                PlayerActionResponse(
+                    resources = resources,
+                    achievements = achievements,
+                    boughtMerchantItem = item,
+                    heroes = listOf(hero),
+                    looted = looted,
+                    inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+                )
             }
             item.gearId != null -> {
                 val gear = gearRepository.findByIdOrNull(item.gearId)
@@ -106,7 +127,14 @@ class BazaarController(
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.GEAR, value = gear.id)
                 ))
-                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, gears = listOf(gear), looted = looted)
+                PlayerActionResponse(
+                    resources = resources,
+                    achievements = achievements,
+                    boughtMerchantItem = item,
+                    gears = listOf(gear),
+                    looted = looted,
+                    inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+                )
             }
             item.jewelType != null -> {
                 val jewelry = jewelryRepository.findByPlayerIdAndType(player.id, item.jewelType!!)
@@ -115,21 +143,42 @@ class BazaarController(
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.JEWEL, jewelType = item.jewelType, value = item.jewelLevel?.toLong() ?: 0)
                 ))
-                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, jewelries = listOf(jewelry), looted = looted)
+                PlayerActionResponse(
+                    resources = resources,
+                    achievements = achievements,
+                    boughtMerchantItem = item,
+                    jewelries = listOf(jewelry),
+                    looted = looted,
+                    inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+                )
             }
             item.vehicleBaseId != null -> {
                 val vehicle = vehicleService.gainVehicle(player, item.vehicleBaseId!!)
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.VEHICLE, value = vehicle.id)
                 ))
-                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, vehicles = listOf(vehicle), looted = looted)
+                PlayerActionResponse(
+                    resources = resources,
+                    achievements = achievements,
+                    boughtMerchantItem = item,
+                    vehicles = listOf(vehicle),
+                    looted = looted,
+                    inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+                )
             }
             item.vehiclePartType != null -> {
                 val vehiclePart = vehicleService.gainVehiclePart(player, item.vehiclePartType!!, item.vehiclePartQuality!!)
                 val looted = Looted(LootedType.MERCHANT, listOf(
                     LootedItem(LootItemType.VEHICLE_PART, value = vehiclePart.id)
                 ))
-                PlayerActionResponse(resources = resources, achievements = achievements, boughtMerchantItem = item, vehicleParts = listOf(vehiclePart), looted = looted)
+                PlayerActionResponse(
+                    resources = resources,
+                    achievements = achievements,
+                    boughtMerchantItem = item,
+                    vehicleParts = listOf(vehiclePart),
+                    looted = looted,
+                    inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+                )
             }
             else -> throw ConfigurationException("Unknown item type to be bought")
         }
@@ -138,6 +187,7 @@ class BazaarController(
     @PostMapping("blackmarket/buy/{itemId}")
     @Transactional
     fun buyBlackMarketItem(@ModelAttribute("player") player: Player, @PathVariable itemId: Long): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val item = blackMarketItemRepository.findByIdOrNull(itemId)
             ?: throw GeneralException(player, "Cannot buy item", "Item does not exist")
         if (!item.active) {
@@ -157,7 +207,8 @@ class BazaarController(
             jewelries = result.items.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },
             vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
-            looted = Looted(LootedType.BLACK_MARKET, result.items.map { lootService.asLootedItem(it) })
+            looted = Looted(LootedType.BLACK_MARKET, result.items.map { lootService.asLootedItem(it) }),
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 }

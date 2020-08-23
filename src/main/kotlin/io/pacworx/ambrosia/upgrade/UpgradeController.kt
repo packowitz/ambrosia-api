@@ -14,6 +14,7 @@ import io.pacworx.ambrosia.exceptions.VehicleBusyException
 import io.pacworx.ambrosia.gear.GearService
 import io.pacworx.ambrosia.gear.JewelType
 import io.pacworx.ambrosia.gear.JewelryRepository
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedItem
@@ -33,6 +34,7 @@ import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -51,7 +53,8 @@ class UpgradeController(
     private val gearService: GearService,
     private val auditLogService: AuditLogService,
     private val oddJobService: OddJobService,
-    private val achievementsRepository: AchievementsRepository
+    private val achievementsRepository: AchievementsRepository,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @PostMapping("{upgradeId}/finish")
@@ -125,6 +128,7 @@ class UpgradeController(
     @Transactional
     fun cancelUpgrade(@ModelAttribute("player") player: Player,
                       @PathVariable upgradeId: Long): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         var currentUpgrades = upgradeService.getAllUpgrades(player)
         val upgrade = currentUpgrades.find { it.id == upgradeId }
             ?: throw EntityNotFoundException(player, "upgrade", upgradeId)
@@ -153,7 +157,8 @@ class UpgradeController(
             jewelries = listOfNotNull(jewelry),
             gears = listOfNotNull(upgrade.gearId?.let { upgradeService.cancelGearUpgrade(it) }),
             upgrades = currentUpgrades,
-            upgradeRemoved = upgrade.id
+            upgradeRemoved = upgrade.id,
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 

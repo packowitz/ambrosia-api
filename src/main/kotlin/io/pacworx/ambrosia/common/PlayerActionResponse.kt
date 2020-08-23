@@ -69,5 +69,6 @@ data class PlayerActionResponse(
     val achievementRewards: List<AchievementReward>? = null,
     val claimedAchievementRewardId: Long? = null,
     val autoBreakdownConfiguration: AutoBreakdownConfiguration? = null,
-    val inboxMessages: List<InboxMessage>? = null
+    val inboxMessages: List<InboxMessage>? = null,
+    val inboxMessageDeleted: Long? = null
 )

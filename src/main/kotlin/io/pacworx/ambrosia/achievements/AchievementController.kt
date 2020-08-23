@@ -3,12 +3,14 @@ package io.pacworx.ambrosia.achievements
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -21,13 +23,15 @@ class AchievementController(
     private val playerAchievementRewardRepository: PlayerAchievementRewardRepository,
     private val achievementRewardRepository: AchievementRewardRepository,
     private val achievementService: AchievementService,
-    private val lootService: LootService
+    private val lootService: LootService,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @PostMapping("claim/{achievementId}")
     @Transactional
     fun claim(@ModelAttribute("player") player: Player,
               @PathVariable achievementId: Long): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val playerAchievementReward = playerAchievementRewardRepository.findByPlayerIdAndRewardId(player.id, achievementId)
             ?: throw EntityNotFoundException(player, "playerAchievementReward", achievementId)
         if (playerAchievementReward.claimed) {
@@ -56,7 +60,8 @@ class AchievementController(
             vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
             achievementRewards = listOfNotNull(newAchievement).takeIf { it.isNotEmpty() },
-            claimedAchievementRewardId = achievementId
+            claimedAchievementRewardId = achievementId,
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 }

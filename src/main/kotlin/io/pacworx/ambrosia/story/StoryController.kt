@@ -4,6 +4,7 @@ import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.hero.Color
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.loot.Looted
 import io.pacworx.ambrosia.loot.LootedType
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
@@ -31,13 +33,15 @@ class StoryController(
     private val resourcesService: ResourcesService,
     private val auditLogService: AuditLogService,
     private val progressRepository: ProgressRepository,
-    private val achievementsRepository: AchievementsRepository
+    private val achievementsRepository: AchievementsRepository,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     @PostMapping("{trigger}/finish")
     @Transactional
     fun finishStory(@ModelAttribute("player") player: Player,
                     @PathVariable trigger: StoryTrigger): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val storyProgresses = storyProgressRepository.findAllByPlayerId(player.id)
         if (storyProgresses.any { it.trigger == trigger }) {
             throw GeneralException(player, "Cannot finish story", "You've finished story ${trigger.name} already")
@@ -61,7 +65,8 @@ class StoryController(
             jewelries = lootBoxResult?.items?.filter { it.jewelry != null }?.map { it.jewelry!! }?.takeIf { it.isNotEmpty() },
             vehicles = lootBoxResult?.items?.filter { it.vehicle != null }?.map { it.vehicle!! }?.takeIf { it.isNotEmpty() },
             vehicleParts = lootBoxResult?.items?.filter { it.vehiclePart != null }?.map { it.vehiclePart!! }?.takeIf { it.isNotEmpty() },
-            looted = lootBoxResult?.items?.let { items -> Looted(LootedType.STORY, items.map { lootService.asLootedItem(it) }) }
+            looted = lootBoxResult?.items?.let { items -> Looted(LootedType.STORY, items.map { lootService.asLootedItem(it) }) },
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 

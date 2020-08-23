@@ -15,7 +15,7 @@ create index if not exists inbox_message_player_id_index on inbox_message (playe
 drop table if exists inbox_message_item;
 create table inbox_message_item (
     id bigserial primary key,
-    message_id bigint not null,
+    message_id bigint,
     number integer not null,
     type varchar(16) not null,
     resource_type varchar(32),
