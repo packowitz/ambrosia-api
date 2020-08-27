@@ -13,6 +13,7 @@ import io.pacworx.ambrosia.buildings.merchant.MerchantService
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
+import io.pacworx.ambrosia.exceptions.UnauthorizedException
 import io.pacworx.ambrosia.expedition.ExpeditionRepository
 import io.pacworx.ambrosia.expedition.PlayerExpeditionRepository
 import io.pacworx.ambrosia.gear.GearRepository
@@ -187,6 +188,7 @@ class PlayerService(
         }
         if (getHash(player.name, password) != player.password) {
             auditLogService.logError(player.id, "Login failed. Wrong password.")
+            throw UnauthorizedException(player, "Login failed. Wrong password.")
         }
         return player
     }
