@@ -11,6 +11,8 @@ import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketItemRepository
 import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketService
 import io.pacworx.ambrosia.buildings.merchant.MerchantService
 import io.pacworx.ambrosia.common.PlayerActionResponse
+import io.pacworx.ambrosia.exceptions.EntityNotFoundException
+import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.expedition.ExpeditionRepository
 import io.pacworx.ambrosia.expedition.PlayerExpeditionRepository
 import io.pacworx.ambrosia.gear.GearRepository
@@ -70,7 +72,8 @@ class PlayerService(
     private val achievementService: AchievementService,
     private val blackMarketService: BlackMarketService,
     private val autoBreakdownConfigurationRepository: AutoBreakdownConfigurationRepository,
-    private val inboxMessageRepository: InboxMessageRepository
+    private val inboxMessageRepository: InboxMessageRepository,
+    private val auditLogService: AuditLogService
 ) {
 
     @Value("\${ambrosia.pw-salt-one}")
@@ -177,8 +180,15 @@ class PlayerService(
     }
 
     fun login(email: String, password: String): Player {
-        return playerRepository.findByEmailIgnoreCase(email.trim())?.takeIf { getHash(it.name, password) == it.password }
-            ?: throw RuntimeException("Auth failed")
+        val player = playerRepository.findByEmailIgnoreCase(email.trim())
+        if (player == null) {
+            auditLogService.logError(0, "Login failed. No user with email $email")
+            throw RuntimeException("Unknown email address")
+        }
+        if (getHash(player.name, password) != player.password) {
+            auditLogService.logError(player.id, "Login failed. Wrong password.")
+        }
+        return player
     }
 
     fun save(player: Player): Player {
