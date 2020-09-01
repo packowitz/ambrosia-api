@@ -256,7 +256,7 @@ class PlayerService(
         )
     }
 
-    private fun getHash(name: String, password: String): String {
+    fun getHash(name: String, password: String): String {
         return Hashing.sha256().hashString("$name$pwSalt1$password$pwSalt2", StandardCharsets.UTF_8).toString()
     }
 

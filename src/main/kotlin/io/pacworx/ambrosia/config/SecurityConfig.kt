@@ -22,6 +22,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/health").permitAll()
                 .antMatchers(HttpMethod.GET, "/swagger/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/auth/pwhash/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/auth/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/enums").permitAll()

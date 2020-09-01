@@ -25,6 +25,12 @@ class AuthController(private val playerService: PlayerService,
         val player = playerService.login(request.email, request.password)
         return playerService.response(player, jwtService.generateToken(player))
     }
+
+    @GetMapping("pwhash/{email}/{password}")
+    fun pwHash(@PathVariable("email") email: String, @PathVariable("password") password: String): String {
+        return playerService.getHash(email, password)
+    }
+
 }
 
 data class RegisterRequest(val name: String, val email: String, val password: String)
