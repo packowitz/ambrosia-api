@@ -39,7 +39,7 @@ class UpgradeService(private val upgradeRepository: UpgradeRepository,
             applyBuildingLevel(player, it)
         }
         achievements.buildingsUpgradesDone ++
-        achievements.buildingMinLevel = allBuildings.minBy { it.level }!!.level
+        achievements.buildingMinLevel = allBuildings.filter { it.type.upgradeable }.minBy { it.level }!!.level
         return building
     }
 
