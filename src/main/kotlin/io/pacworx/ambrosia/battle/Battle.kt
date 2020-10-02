@@ -39,8 +39,10 @@ data class Battle(
     val opponentId: Long? = null,
     val opponentName: String,
     @field:CreatedDate
+    @JsonIgnore
     val started: Instant = Instant.now(),
     @field:LastModifiedDate
+    @JsonIgnore
     var lastAction: Instant = Instant.now(),
     @Enumerated(EnumType.STRING)
     var activeHero: HeroPosition = HeroPosition.NONE,

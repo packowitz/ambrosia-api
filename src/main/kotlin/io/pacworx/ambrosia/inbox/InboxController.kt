@@ -3,7 +3,9 @@ package io.pacworx.ambrosia.inbox
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
+import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.player.Player
+import io.pacworx.ambrosia.resources.ResourcesService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
@@ -14,7 +16,8 @@ import javax.transaction.Transactional
 @RequestMapping("inbox")
 class InboxController(
     private val inboxMessageRepository: InboxMessageRepository,
-    private val inboxService: InboxService
+    private val inboxService: InboxService,
+    private val resourcesService: ResourcesService
 ) {
 
     @PostMapping("claim/{messageId}")
@@ -35,6 +38,7 @@ class InboxController(
             }
 
         return PlayerActionResponse(
+            resources = resourcesService.getResources(player),
             inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1)),
             inboxMessageDeleted = deletedMessage
         )
