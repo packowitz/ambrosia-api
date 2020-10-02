@@ -3,6 +3,9 @@ package io.pacworx.ambrosia.maps
 import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.buildings.Building
 import io.pacworx.ambrosia.buildings.BuildingRepository
+import io.pacworx.ambrosia.buildings.BuildingType
+import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketService
+import io.pacworx.ambrosia.buildings.merchant.MerchantService
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.MapTileActionException
@@ -37,7 +40,9 @@ class MapController(
     private val auditLogService: AuditLogService,
     private val oddJobService: OddJobService,
     private val achievementsRepository: AchievementsRepository,
-    private val inboxMessageRepository: InboxMessageRepository
+    private val inboxMessageRepository: InboxMessageRepository,
+    private val merchantService: MerchantService,
+    private val blackMarketService: BlackMarketService
 ) {
 
     @GetMapping("{mapId}")
@@ -114,7 +119,9 @@ class MapController(
         return PlayerActionResponse(
             progress = progress,
             resources = resourcesService.getResources(player),
-            buildings = listOf(building)
+            buildings = listOf(building),
+            merchantItems = building.takeIf { it.type == BuildingType.BAZAAR }?.let { merchantService.getItems(player, progress) },
+            blackMarketItems = building.takeIf { it.type == BuildingType.BAZAAR }?.let { blackMarketService.getPurchasableItems(player) }
         )
     }
 
