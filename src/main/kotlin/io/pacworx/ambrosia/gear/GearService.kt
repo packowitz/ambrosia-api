@@ -48,7 +48,7 @@ class GearService(
                 gear.modificationAllowed = modification
             }
             Modification.REROLL_STAT -> {
-                gear.stat = propertyService.getPossibleGearStats(gear.type, gear.rarity).random()
+                gear.stat = propertyService.getPossibleGearStats(gear.type, gear.rarity).filter { it != gear.stat }.random()
                 val valueRange = propertyService.getGearValueRange(gear.type, gear.rarity, gear.stat)
                 gear.statValue = valueRange.first + ((gear.statQuality * (valueRange.second - valueRange.first)) / 100)
                 gear.modificationAllowed = modification
