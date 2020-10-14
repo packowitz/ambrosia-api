@@ -73,7 +73,8 @@ class HeroService(
                     uncommonChance: Double? = null,
                     rareChance: Double? = null,
                     epicChance: Double? = null,
-                    default: Rarity
+                    default: Rarity,
+                    ensureNoDuplicate: Boolean = false
     ): Hero {
         var chance = Random.nextDouble()
         var rarity: Rarity? = null
@@ -104,7 +105,14 @@ class HeroService(
             }
         }
 
-        return recruitHero(player, heroBaseRepository.findAllByRarityAndRecruitableIsTrue(rarity ?: default).random())
+        var recruitableHeroes = heroBaseRepository.findAllByRarityAndRecruitableIsTrue(rarity ?: default)
+        if (ensureNoDuplicate) {
+            val knownHeroes = heroRepository.findAllByPlayerIdAndHeroBase_Rarity(player.id, rarity ?: default)
+            recruitableHeroes = recruitableHeroes.filter { heroBase -> knownHeroes.none { heroBase.id == it.heroBase.id } }
+        }
+        val heroBase = recruitableHeroes.random()
+
+        return recruitHero(player, heroBase)
     }
 
     fun wonMission(mission: Mission, progress: Progress, vehicle: Vehicle): List<HeroDto> {

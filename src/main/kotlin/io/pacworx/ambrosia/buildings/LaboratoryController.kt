@@ -152,12 +152,13 @@ class LaboratoryController(
             throw GeneralException(player, "Work in progress", "The incubator cannot be finished. It still needs ${cube.getSecondsUntilDone()} seconds")
         }
         val progress = progressRepository.getOne(player.id)
+        val achievements = achievementsRepository.getOne(player.id)
         val hero = when (cube.type) {
             GenomeType.SIMPLE_GENOME -> heroService.recruitHero(player, commonChance = asDoubleChance(progress.simpleIncubationUpPerMil), default = Rarity.SIMPLE)
             GenomeType.COMMON_GENOME -> heroService.recruitHero(player, uncommonChance = asDoubleChance(progress.commonIncubationUpPerMil), default = Rarity.COMMON)
-            GenomeType.UNCOMMON_GENOME -> heroService.recruitHero(player, epicChance = asDoubleChance(progress.uncommonIncubationSuperUpPerMil), rareChance = asDoubleChance(progress.uncommonIncubationUpPerMil), default = Rarity.UNCOMMON)
-            GenomeType.RARE_GENOME -> heroService.recruitHero(player, epicChance = asDoubleChance(progress.rareIncubationUpPerMil), default = Rarity.RARE)
-            GenomeType.EPIC_GENOME -> heroService.recruitHero(player, default = Rarity.EPIC)
+            GenomeType.UNCOMMON_GENOME -> heroService.recruitHero(player, epicChance = asDoubleChance(progress.uncommonIncubationSuperUpPerMil), rareChance = asDoubleChance(progress.uncommonIncubationUpPerMil), default = Rarity.UNCOMMON, ensureNoDuplicate = achievements.uncommonIncubationsDone < 6)
+            GenomeType.RARE_GENOME -> heroService.recruitHero(player, epicChance = asDoubleChance(progress.rareIncubationUpPerMil), default = Rarity.RARE, ensureNoDuplicate = achievements.rareIncubationsDone < 8)
+            GenomeType.EPIC_GENOME -> heroService.recruitHero(player, default = Rarity.EPIC, ensureNoDuplicate = achievements.epicIncubationsDone < 6)
         }
         if (hero.heroBase.rarity == Rarity.UNCOMMON && progress.uncommonStartingLevel > 1) {
             hero.level = progress.uncommonStartingLevel
@@ -166,7 +167,6 @@ class LaboratoryController(
 
         auditLogService.log(player, "Finished incubator #${cube.id} and gained hero ${hero.heroBase.name} #${hero.id}")
         incubatorRepository.delete(cube)
-        val achievements = achievementsRepository.getOne(player.id)
         cube.getResourcesAsCosts().forEach { achievements.resourceSpend(it.type, it.amount) }
         achievements.incubationDone(cube.type)
         return PlayerActionResponse(

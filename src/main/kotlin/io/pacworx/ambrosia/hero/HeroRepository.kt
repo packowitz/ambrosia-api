@@ -9,6 +9,8 @@ interface HeroRepository: JpaRepository<Hero, Long> {
 
     fun findAllByPlayerIdOrderByLevelDescStarsDescHeroBase_IdAscIdAsc(playerId: Long): List<Hero>
 
+    fun findAllByPlayerIdAndHeroBase_Rarity(playerId: Long, rarity: Rarity): List<Hero>
+
     fun findAllByPlayerIdAndIdIn(playerId: Long, ids: List<Long>): List<Hero>
 
     fun findAllByHeroBase(heroBase: HeroBase): List<Hero>
