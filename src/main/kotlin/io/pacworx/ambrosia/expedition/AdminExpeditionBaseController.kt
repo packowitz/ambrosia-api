@@ -27,7 +27,7 @@ class AdminExpeditionBaseController(private val expeditionBaseRepository: Expedi
                            @RequestBody @Valid expeditionBase: ExpeditionBase): ExpeditionBase {
         val lootBox = lootBoxRepository.findByIdOrNull(expeditionBase.lootBoxId)
             ?: throw EntityNotFoundException(player, "lootBox", expeditionBase.lootBoxId)
-        if (lootBox.type != LootBoxType.MERCHANT) {
+        if (lootBox.type != LootBoxType.EXPEDITION) {
             throw GeneralException(player, "Invalid expedition", "Loot must be of type EXPEDITION")
         }
         return expeditionBaseRepository.save(expeditionBase).also {
