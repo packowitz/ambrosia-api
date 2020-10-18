@@ -454,6 +454,7 @@ class SkillService(private val propertyService: PropertyService) {
         if (hero.currentHp <= 0) {
             hero.status = HeroStatus.DEAD
             hero.currentHp = 0
+            hero.currentSpeedBar = 0
             hero.buffs.clear()
 
             // PassiveSkillTrigger.KILLED_OPP
