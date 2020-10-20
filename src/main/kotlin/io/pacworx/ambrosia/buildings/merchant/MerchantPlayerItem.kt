@@ -23,6 +23,7 @@ data class MerchantPlayerItem(
     val created: LocalDateTime = LocalDateTime.now(),
     val sortOrder: Int,
     val merchantLevel: Int,
+    var amountAvailable: Int,
     var sold: Boolean = false,
     @Enumerated(EnumType.STRING)
     @field:JsonFormat(shape = JsonFormat.Shape.STRING)

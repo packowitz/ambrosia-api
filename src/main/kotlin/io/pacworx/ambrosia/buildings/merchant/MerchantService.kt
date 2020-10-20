@@ -50,6 +50,7 @@ class MerchantService(
                 playerId = player.id,
                 sortOrder = merchantItem.sortOrder,
                 merchantLevel = merchantItem.merchantLevel,
+                amountAvailable = merchantItem.amount,
                 priceType = merchantItem.priceType,
                 priceAmount = merchantItem.priceAmount
             )

@@ -83,7 +83,7 @@ class BazaarController(
         val timestamp = LocalDateTime.now()
         val item = merchantPlayerItemRepository.findByIdOrNull(itemId)
             ?: throw GeneralException(player, "Cannot buy item", "Item is not valid anymore")
-        if (item.sold) {
+        if (item.amountAvailable <= 0) {
             throw GeneralException(player, "Cannot buy item", "Item sold out")
         }
         val resources = resourcesService.getResources(player)
@@ -91,7 +91,8 @@ class BazaarController(
         resourcesService.spendResource(resources, item.priceType, item.priceAmount)
         achievements.resourceSpend(item.priceType, item.priceAmount)
         achievements.merchantItemsBought ++
-        item.sold = true
+        item.amountAvailable --
+        item.sold = item.amountAvailable <= 0
         return when {
             item.resourceType != null -> {
                 resourcesService.gainResources(resources, item.resourceType!!, item.resourceAmount!!)

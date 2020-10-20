@@ -11,6 +11,7 @@ data class MerchantItem(
     val merchantLevel: Int,
     val sortOrder: Int,
     val lootBoxId: Long,
+    val amount: Int,
     @Enumerated(EnumType.STRING)
     @field:JsonFormat(shape = JsonFormat.Shape.STRING)
     val priceType: ResourceType,
