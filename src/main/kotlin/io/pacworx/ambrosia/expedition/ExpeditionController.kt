@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.transaction.Transactional
+import kotlin.math.roundToInt
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -141,7 +142,8 @@ class ExpeditionController(
         if (playerExpedition.getSecondsUntilDone() <= 2) {
             val expedition = expeditionRepository.findByIdOrNull(playerExpedition.expeditionId)
                 ?: throw EntityNotFoundException(player, "expedition", playerExpedition.expeditionId)
-            xp = expedition.expeditionBase.xp
+            val progress = progressRepository.getOne(player.id)
+            xp = (expedition.expeditionBase.xp * ((100.0 + progress.battleXpBoost) / 100.0)).roundToInt()
             val oddJob = oddJobService.createOddJob(player, playerExpedition.level)
             achievements = achievementsRepository.getOne(player.id)
             achievements.expeditionsDone ++
