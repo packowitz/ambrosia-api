@@ -17,6 +17,8 @@ import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.ResourcesService
 import io.pacworx.ambrosia.vehicle.VehicleRepository
+import io.pacworx.ambrosia.vehicle.VehicleService
+import io.pacworx.ambrosia.vehicle.VehicleStat
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
@@ -37,7 +39,8 @@ class ExpeditionController(
     private val lootService: LootService,
     private val resourcesService: ResourcesService,
     private val oddJobService: OddJobService,
-    private val achievementsRepository: AchievementsRepository
+    private val achievementsRepository: AchievementsRepository,
+    private val vehicleService: VehicleService
 ) {
 
     @GetMapping("active")
@@ -143,7 +146,7 @@ class ExpeditionController(
             val expedition = expeditionRepository.findByIdOrNull(playerExpedition.expeditionId)
                 ?: throw EntityNotFoundException(player, "expedition", playerExpedition.expeditionId)
             val progress = progressRepository.getOne(player.id)
-            xp = (expedition.expeditionBase.xp * ((100.0 + progress.battleXpBoost) / 100.0)).roundToInt()
+            xp = (expedition.expeditionBase.xp * ((100.0 + progress.battleXpBoost + vehicleService.getStat(vehicle, VehicleStat.BATTLE_XP)) / 100.0)).roundToInt()
             val oddJob = oddJobService.createOddJob(player, playerExpedition.level)
             achievements = achievementsRepository.getOne(player.id)
             achievements.expeditionsDone ++
