@@ -39,9 +39,6 @@ class GearController(
     @Transactional
     fun equipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): PlayerActionResponse {
         val hero = heroRepository.getOne(request.heroId)
-        if (!hero.isAvailable()) {
-            throw HeroBusyException(player, hero)
-        }
         val gear = gearRepository.getOne(request.gearId)
         if (hero.playerId != player.id || gear.playerId != player.id) {
             throw UnauthorizedException(player, "You are only allowed to do actions on your own heroes")
@@ -51,9 +48,6 @@ class GearController(
         }
         if (gear.equippedTo != null) {
             throw GeneralException(player, "Already equipped", "You cannot equip a gear that is already equipped")
-        }
-        if (gear.modificationInProgress) {
-            throw GeneralException(player, "Gear unavailable", "You cannot equip a gear that is currently in modification")
         }
         val unequipped = hero.equip(gear)
         auditLogService.log(player, "Equips ${gear.rarity.stars}* ${gear.set.name} ${gear.type.name} ${gear.statValue} ${gear.stat.name} #${gear.id} " +
@@ -73,9 +67,6 @@ class GearController(
     @Transactional
     fun unequipGear(@ModelAttribute("player") player: Player, @RequestBody request: EquipRequest): PlayerActionResponse {
         val hero = heroRepository.getOne(request.heroId)
-        if (!hero.isAvailable()) {
-            throw HeroBusyException(player, hero)
-        }
         val gear = gearRepository.getOne(request.gearId)
         if (hero.playerId != player.id || gear.playerId != player.id || gear.equippedTo != hero.id) {
             throw UnauthorizedException(player, "You are only allowed to do actions on your own heroes")
@@ -100,9 +91,6 @@ class GearController(
         val gear = gearRepository.getOne(request.gearId)
         if (gear.playerId != player.id) {
             throw UnauthorizedException(player, "You are only allowed to do actions on your own gear")
-        }
-        if (gear.modificationInProgress) {
-            throw GeneralException(player, "Gear unavailable", "You cannot equip a gear that is currently in modification")
         }
         val gearJewelSlot = gear.getJewelSlot(request.slot)
                 ?: throw GeneralException(player, "Wrong gear", "Gear doesn't have slot ${request.slot}")

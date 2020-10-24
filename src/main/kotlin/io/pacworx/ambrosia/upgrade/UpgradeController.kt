@@ -88,7 +88,7 @@ class UpgradeController(
                 looted = Looted(LootedType.UPGRADE, listOf(LootedItem(LootItemType.VEHICLE_PART, value = it.id)))
                 auditLogService.log(player, "Finish ${it.quality.name} ${it.type.name} #${it.id} upgrade to level ${it.level}")
             }
-        val jewelry = upgrade.jewelType?.let { jewelType ->
+        var jewelry = upgrade.jewelType?.let { jewelType ->
             jewelryRepository.findByPlayerIdAndType(player.id, jewelType)!!.also {
                 val doubleJewel = procs(progressRepository.getOne(player.id).jewelMergeDoubleChance)
                 it.increaseAmount(upgrade.jewelLevel!! + 1, if (doubleJewel) { 2 } else { 1 })
@@ -101,12 +101,27 @@ class UpgradeController(
                 auditLogService.log(player, "Finish ${it.type.name} jewel upgrade to level ${upgrade.jewelLevel + 1}")
             }
         }
-        val gear = upgrade.gearModification?.let { gearService.modifyGear(player, it, upgrade.gearId!!) }
-            ?.also {
+        val gear = upgrade.gearModification?.let { mod ->
+            gearService.modifyGear(player, mod, upgrade.gearId!!).also { gear ->
+                when (mod) {
+                    Modification.REROLL_JEWEL_1 -> 1
+                    Modification.REROLL_JEWEL_2 -> 2
+                    Modification.REROLL_JEWEL_3 -> 3
+                    Modification.REROLL_JEWEL_4 -> 4
+                    else -> null
+                }?.let { jewelSlotNr ->
+                    gear.getJewel(jewelSlotNr)?.let { jewel ->
+                        jewelry = jewelryRepository.findByPlayerIdAndType(player.id, jewel.first)!!.also { jewelry ->
+                            jewelry.increaseAmount(jewel.second, 1)
+                        }
+                    }
+                }
+
                 achievements.gearModified ++
-                looted = Looted(LootedType.UPGRADE, listOf(LootedItem(LootItemType.GEAR, value = it.id)))
-                auditLogService.log(player, "Finish gear modification on gear #${it.id}")
+                looted = Looted(LootedType.UPGRADE, listOf(LootedItem(LootItemType.GEAR, value = gear.id)))
+                auditLogService.log(player, "Finish gear modification on gear #${gear.id}")
             }
+        }
 
         return PlayerActionResponse(
             progress = progressRepository.getOne(player.id),
@@ -309,9 +324,6 @@ class UpgradeController(
         }
         if (vehiclePart.upgradeTriggered) {
             throw GeneralException(player, "Cannot upgrade part", "Upgrade for vehicle part $vehiclePartId is already in progress")
-        }
-        if (vehiclePart.equippedTo != null) {
-            throw GeneralException(player, "Cannot upgrade part", "You can only upgrade vehicle parts that are not plugged into a vehicle")
         }
         val progress = progressRepository.getOne(player.id)
         if (vehiclePart.level >= progress.vehicleUpgradeLevel) {

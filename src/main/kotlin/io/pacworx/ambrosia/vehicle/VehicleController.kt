@@ -73,9 +73,6 @@ class VehicleController(
         if (part.playerId != player.id) {
             throw UnauthorizedException(player, "You don't own part $partId")
         }
-        if (!vehicle.isAvailable()) {
-            throw VehicleBusyException(player, vehicle)
-        }
         if (part.level > vehicle.level) {
             throw GeneralException(player, "Cannot plug in part", "Part level too high. You need to level up the vehicle to plugin that part.")
         }
@@ -98,9 +95,6 @@ class VehicleController(
         val part = vehiclePartRepository.getOne(partId)
         if (part.playerId != player.id) {
             throw UnauthorizedException(player, "You don't own part $partId")
-        }
-        if (!vehicle.isAvailable()) {
-            throw VehicleBusyException(player, vehicle)
         }
         if (part.equippedTo != vehicle.id) {
             throw GeneralException(player, "Cannot unplug part", "Part is not plugged in to selected vehicle")
