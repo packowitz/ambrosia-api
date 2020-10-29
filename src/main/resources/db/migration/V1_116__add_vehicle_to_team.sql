@@ -1,0 +1,1 @@
+alter table team add column vehicle_id bigint;

@@ -15,7 +15,8 @@ import io.pacworx.ambrosia.player.AuditLogService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
-import io.pacworx.ambrosia.team.TeamType
+import io.pacworx.ambrosia.team.Team
+import io.pacworx.ambrosia.team.TeamRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
@@ -40,7 +41,8 @@ class MissionController(
     private val auditLogService: AuditLogService,
     private val oddJobService: OddJobService,
     private val achievementsRepository: AchievementsRepository,
-    private val inboxMessageRepository: InboxMessageRepository
+    private val inboxMessageRepository: InboxMessageRepository,
+    private val teamRepository: TeamRepository
 ) {
 
     @PostMapping
@@ -74,6 +76,15 @@ class MissionController(
             if (!hero.isAvailable()) {
                 throw HeroBusyException(player, hero)
             }
+        }
+
+        val team = teamRepository.findByPlayerIdAndType(player.id, request.type) ?: teamRepository.save(Team ( playerId = player.id, type = request.type))
+        team.apply {
+            hero1Id = request.hero1Id
+            hero2Id = request.hero2Id
+            hero3Id = request.hero3Id
+            hero4Id = request.hero4Id
+            vehicleId = vehicle.id
         }
 
         val mission = missionService.executeMission(player, progress, mapTile, fight, vehicle, request)
@@ -162,7 +173,7 @@ class MissionController(
 }
 
 data class StartMissionRequest(
-    val type: TeamType,
+    val type: String,
     val battleTimes: Int,
     val mapId: Long,
     val posX: Int,

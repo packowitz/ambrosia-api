@@ -97,6 +97,7 @@ class BattleService(private val playerRepository: PlayerRepository,
             hero2Id = request.hero2Id
             hero3Id = request.hero3Id
             hero4Id = request.hero4Id
+            vehicleId = request.vehicleId
         }
         val vehicle = request.vehicleId?.let { vehicleRepository.getOne(it) }?.takeIf { it.playerId == player.id }
         val fightStage = fight.stages.find { it.stage == 1 } ?: throw ConfigurationException("Fight ${fight.name} #${fight.id} has no stages defined.")

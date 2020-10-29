@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param
 interface TeamRepository : JpaRepository<Team, Long> {
     fun getAllByPlayerId(playerId: Long): List<Team>
 
-    fun findByPlayerIdAndType(playerId: Long, type: TeamType): Team?
+    fun findByPlayerIdAndType(playerId: Long, type: String): Team?
 
     @Query(value = """
         select * from team 

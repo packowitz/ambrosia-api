@@ -3,11 +3,7 @@ package io.pacworx.ambrosia.battle
 import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.achievements.AchievementsRepository
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.exceptions.EntityNotFoundException
-import io.pacworx.ambrosia.exceptions.GeneralException
-import io.pacworx.ambrosia.exceptions.MapTileActionException
-import io.pacworx.ambrosia.exceptions.OngoingBattleException
-import io.pacworx.ambrosia.exceptions.UnauthorizedException
+import io.pacworx.ambrosia.exceptions.*
 import io.pacworx.ambrosia.fights.FightRepository
 import io.pacworx.ambrosia.hero.HeroService
 import io.pacworx.ambrosia.hero.skills.HeroSkill
@@ -25,16 +21,8 @@ import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
-import io.pacworx.ambrosia.team.TeamType
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 
@@ -268,7 +256,7 @@ data class StartDuellRequest(
 )
 
 data class StartBattleRequest(
-    val type: TeamType,
+    val type: String,
     val vehicleId: Long?,
     val hero1Id: Long?,
     val hero2Id: Long?,

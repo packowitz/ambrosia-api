@@ -16,6 +16,8 @@ import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.team.Team
+import io.pacworx.ambrosia.team.TeamRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import io.pacworx.ambrosia.vehicle.VehicleService
 import io.pacworx.ambrosia.vehicle.VehicleStat
@@ -40,8 +42,11 @@ class ExpeditionController(
     private val resourcesService: ResourcesService,
     private val oddJobService: OddJobService,
     private val achievementsRepository: AchievementsRepository,
-    private val vehicleService: VehicleService
+    private val vehicleService: VehicleService,
+    private val teamRepository: TeamRepository
 ) {
+
+    private val teamType = "Expedition"
 
     @GetMapping("active")
     fun getActiveExpeditions(@ModelAttribute("player") player: Player): List<Expedition> {
@@ -90,6 +95,15 @@ class ExpeditionController(
             if (!hero.isAvailable()) {
                 throw HeroBusyException(player, hero)
             }
+        }
+
+        val team = teamRepository.findByPlayerIdAndType(player.id, teamType) ?: teamRepository.save(Team ( playerId = player.id, type = teamType))
+        team.apply {
+            hero1Id = request.hero1Id
+            hero2Id = request.hero2Id
+            hero3Id = request.hero3Id
+            hero4Id = request.hero4Id
+            vehicleId = vehicle.id
         }
 
         val now = Instant.now()
