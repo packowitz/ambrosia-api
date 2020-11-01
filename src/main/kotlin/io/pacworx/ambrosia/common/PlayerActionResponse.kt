@@ -24,6 +24,7 @@ import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.Progress
 import io.pacworx.ambrosia.properties.PropertyVersion
 import io.pacworx.ambrosia.resources.Resources
+import io.pacworx.ambrosia.team.Team
 import io.pacworx.ambrosia.upgrade.Upgrade
 import io.pacworx.ambrosia.vehicle.Vehicle
 import io.pacworx.ambrosia.vehicle.VehiclePart
@@ -70,5 +71,6 @@ data class PlayerActionResponse(
     val claimedAchievementRewardId: Long? = null,
     val autoBreakdownConfiguration: AutoBreakdownConfiguration? = null,
     val inboxMessages: List<InboxMessage>? = null,
-    val inboxMessageDeleted: Long? = null
+    val inboxMessageDeleted: Long? = null,
+    val teams: List<Team>? = null
 )
