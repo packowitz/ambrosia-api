@@ -17,7 +17,7 @@ data class ExpeditionBase(
     @Max(6)
     val level: Int,
     @Enumerated(EnumType.STRING) val rarity: Rarity,
-    val durationMinutes: Int,
+    val durationHours: Int,
     val xp: Int,
     val lootBoxId: Long
 )
