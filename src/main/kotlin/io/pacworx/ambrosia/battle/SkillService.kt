@@ -220,7 +220,7 @@ class SkillService(private val propertyService: PropertyService) {
             }
         }
         if (superCrit) {
-            baseDamageDouble += ((baseDamageDouble * (target.getTotalCritMult() + 150)) / 100).also { baseDamageText += " +$it (SUP_CR)" }
+            baseDamageDouble += ((baseDamageDouble * (target.getTotalCritMult() + 100)) / 100).also { baseDamageText += " +$it (SUP_CR)" }
         } else if (crit) {
             baseDamageDouble += ((baseDamageDouble * target.getTotalCritMult()) / 100).also { baseDamageText += " +$it (CR)" }
         }
