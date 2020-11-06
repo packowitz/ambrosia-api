@@ -2,7 +2,9 @@ package io.pacworx.ambrosia.expedition
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import javax.persistence.*
+import kotlin.math.max
 
 @Entity
 data class Expedition(
@@ -15,4 +17,8 @@ data class Expedition(
     @JsonIgnore var active: Boolean,
     @JsonIgnore val created: Instant,
     @JsonIgnore val availableUntil: Instant
-)
+) {
+    fun getSecondsUntilDisappear(): Long {
+        return max(Instant.now().until(availableUntil, ChronoUnit.SECONDS) + 2, 0)
+    }
+}
