@@ -18,7 +18,7 @@ data class Expedition(
     @JsonIgnore val created: Instant,
     @JsonIgnore val availableUntil: Instant
 ) {
-    fun getSecondsUntilDisappear(): Long {
-        return max(Instant.now().until(availableUntil, ChronoUnit.SECONDS) + 2, 0)
+    fun getSecondsAvailable(): Long {
+        return max(Instant.now().until(availableUntil.minus(1, ChronoUnit.HOURS), ChronoUnit.SECONDS) + 2, 0)
     }
 }
