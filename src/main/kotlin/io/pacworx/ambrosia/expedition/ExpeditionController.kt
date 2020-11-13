@@ -130,7 +130,8 @@ class ExpeditionController(
         return PlayerActionResponse(
             vehicles = listOf(vehicle),
             heroes = heroes.map { heroService.asHeroDto(it) },
-            playerExpeditions = listOf(playerExpedition)
+            playerExpeditions = listOf(playerExpedition),
+            teams = listOf(team)
         )
     }
 
