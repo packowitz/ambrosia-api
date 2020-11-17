@@ -6,6 +6,7 @@ import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.*
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.hero.HeroService
+import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootBoxResult
 import io.pacworx.ambrosia.loot.LootItemType
 import io.pacworx.ambrosia.loot.LootService
@@ -24,6 +25,7 @@ import io.pacworx.ambrosia.vehicle.VehicleStat
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import javax.transaction.Transactional
 import kotlin.math.roundToInt
@@ -43,7 +45,8 @@ class ExpeditionController(
     private val oddJobService: OddJobService,
     private val achievementsRepository: AchievementsRepository,
     private val vehicleService: VehicleService,
-    private val teamRepository: TeamRepository
+    private val teamRepository: TeamRepository,
+    private val inboxMessageRepository: InboxMessageRepository
 ) {
 
     private val teamType = "Expedition"
@@ -141,6 +144,7 @@ class ExpeditionController(
         @ModelAttribute("player") player: Player,
         @PathVariable playerExpeditionId: Long
     ): PlayerActionResponse {
+        val timestamp = LocalDateTime.now()
         val playerExpedition = playerExpeditionRepository.findByIdOrNull(playerExpeditionId)
             ?: throw EntityNotFoundException(player, "playerExpedition", playerExpeditionId)
         if (playerExpedition.playerId != player.id) {
@@ -192,7 +196,8 @@ class ExpeditionController(
             vehicleParts = lootItems.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
             playerExpeditions = playerExpedition.takeIf { cancelledId == null }?.let { listOf(it) },
             playerExpeditionCancelled = cancelledId,
-            oddJobs = oddJobsEffected?.takeIf { it.isNotEmpty() }
+            oddJobs = oddJobsEffected?.takeIf { it.isNotEmpty() },
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }
 
