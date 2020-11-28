@@ -1,6 +1,7 @@
 package io.pacworx.ambrosia.common
 
 import io.pacworx.ambrosia.achievements.AchievementRewardType
+import io.pacworx.ambrosia.achievements.TaskCategory
 import io.pacworx.ambrosia.battle.Buff
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.buildings.Trade
@@ -74,6 +75,7 @@ class EnumController {
         val progressStats: List<ProgressStat> = ProgressStat.values().asList(),
         val oddJobTypes: List<OddJobType> = OddJobType.values().asList(),
         val trades: List<Trade> = Trade.values().asList(),
-        val achievementRewardTypes: List<AchievementRewardType> = AchievementRewardType.values().asList()
+        val achievementRewardTypes: List<AchievementRewardType> = AchievementRewardType.values().asList(),
+        val taskCategories: List<TaskCategory> = TaskCategory.values().asList()
     )
 }

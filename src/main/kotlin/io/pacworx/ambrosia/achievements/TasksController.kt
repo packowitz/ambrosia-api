@@ -8,47 +8,44 @@ import io.pacworx.ambrosia.loot.LootService
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @RestController
 @CrossOrigin(maxAge = 3600)
-@RequestMapping("achievement")
-class AchievementController(
+@RequestMapping("tasks")
+class TasksController(
     private val progressRepository: ProgressRepository,
     private val resourcesService: ResourcesService,
     private val achievementsRepository: AchievementsRepository,
-    private val playerAchievementRewardRepository: PlayerAchievementRewardRepository,
-    private val achievementRewardRepository: AchievementRewardRepository,
-    private val achievementService: AchievementService,
     private val lootService: LootService,
-    private val inboxMessageRepository: InboxMessageRepository
+    private val inboxMessageRepository: InboxMessageRepository,
+    private val taskService: TaskService
 ) {
 
-    @PostMapping("claim/{achievementId}")
+    @GetMapping
+    fun getAll(): List<TaskCluster> = taskService.getAllClusters()
+
+    @PostMapping("claim/{taskClusterId}")
     @Transactional
     fun claim(@ModelAttribute("player") player: Player,
-              @PathVariable achievementId: Long): PlayerActionResponse {
+              @PathVariable taskClusterId: Long): PlayerActionResponse {
         val timestamp = LocalDateTime.now()
-        val playerAchievementReward = playerAchievementRewardRepository.findByPlayerIdAndRewardId(player.id, achievementId)
-            ?: throw EntityNotFoundException(player, "playerAchievementReward", achievementId)
-        if (playerAchievementReward.claimed) {
-            throw GeneralException(player, "Cannot claim achievement", "Achievement already claimed")
-        }
-        val achievementReward = achievementRewardRepository.findByIdOrNull(achievementId)
-            ?: throw EntityNotFoundException(player, "achievementReward", achievementId)
+        val playerTask = taskService.getPlayerTask(player, taskClusterId)
+            ?: throw EntityNotFoundException(player, "playerTask", taskClusterId)
+        val taskCluster = taskService.getCluster(taskClusterId)
+            ?: throw EntityNotFoundException(player, "taskCluster", taskClusterId)
+        val task = taskCluster.tasks.find { it.number == playerTask.currentTaskNumber }
+            ?: throw GeneralException(player, "Cannot claim task", "Number ${playerTask.currentTaskNumber} not defined")
+
         val achievements = achievementsRepository.getOne(player.id)
-        if (achievementReward.achievementType.getAmount(achievements) < achievementReward.achievementAmount) {
-            throw GeneralException(player, "Cannot claim achievement", "Achievement not fulfilled")
+        if (task.taskType.getAmount(achievements) < task.taskAmount) {
+            throw GeneralException(player, "Cannot claim task", "Task not fulfilled")
         }
 
-        val result = lootService.openLootBox(player, achievementReward.lootBoxId, achievements)
-        playerAchievementReward.claimed = true
-        val newAchievement = achievementReward.followUpReward
-            ?.let { achievementService.getAchievementReward(player, it) }
-            ?.also { playerAchievementRewardRepository.save(PlayerAchievementReward(playerId = player.id, rewardId = it.id)) }
+        val result = lootService.openLootBox(player, task.lootBoxId, achievements)
+        playerTask.currentTaskNumber ++
 
         return PlayerActionResponse(
             resources = resourcesService.getResources(player),
@@ -59,8 +56,7 @@ class AchievementController(
             jewelries = result.items.filter { it.jewelry != null }.map { it.jewelry!! }.takeIf { it.isNotEmpty() },
             vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
-            achievementRewards = listOfNotNull(newAchievement).takeIf { it.isNotEmpty() },
-            claimedAchievementRewardId = achievementId,
+            playerTasks = listOf(playerTask),
             inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
         )
     }

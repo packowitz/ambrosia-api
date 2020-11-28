@@ -1,8 +1,8 @@
 package io.pacworx.ambrosia.common
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.pacworx.ambrosia.achievements.AchievementReward
 import io.pacworx.ambrosia.achievements.Achievements
+import io.pacworx.ambrosia.achievements.PlayerTask
 import io.pacworx.ambrosia.battle.Battle
 import io.pacworx.ambrosia.battle.offline.Mission
 import io.pacworx.ambrosia.buildings.AutoBreakdownConfiguration
@@ -67,8 +67,7 @@ data class PlayerActionResponse(
     val merchantItems: List<MerchantPlayerItem>? = null,
     val blackMarketItems: List<BlackMarketItem>? = null,
     val boughtMerchantItem: MerchantPlayerItem? = null,
-    val achievementRewards: List<AchievementReward>? = null,
-    val claimedAchievementRewardId: Long? = null,
+    val playerTasks: List<PlayerTask>? = null,
     val autoBreakdownConfiguration: AutoBreakdownConfiguration? = null,
     val inboxMessages: List<InboxMessage>? = null,
     val inboxMessageDeleted: Long? = null,

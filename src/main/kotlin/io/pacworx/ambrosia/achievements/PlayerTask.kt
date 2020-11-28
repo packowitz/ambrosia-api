@@ -6,10 +6,10 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 
 @Entity
-data class PlayerAchievementReward(
+class PlayerTask(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val playerId: Long,
-    val rewardId: Long,
-    var claimed: Boolean = false
+    val taskClusterId: Long,
+    var currentTaskNumber: Int
 )

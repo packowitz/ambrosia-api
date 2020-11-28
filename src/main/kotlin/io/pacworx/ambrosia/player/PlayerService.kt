@@ -1,18 +1,15 @@
 package io.pacworx.ambrosia.player
 
 import com.google.common.hash.Hashing
-import io.pacworx.ambrosia.achievements.AchievementService
 import io.pacworx.ambrosia.achievements.Achievements
 import io.pacworx.ambrosia.achievements.AchievementsRepository
+import io.pacworx.ambrosia.achievements.TaskService
 import io.pacworx.ambrosia.battle.BattleService
 import io.pacworx.ambrosia.battle.offline.MissionService
 import io.pacworx.ambrosia.buildings.*
-import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketItemRepository
 import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketService
 import io.pacworx.ambrosia.buildings.merchant.MerchantService
 import io.pacworx.ambrosia.common.PlayerActionResponse
-import io.pacworx.ambrosia.exceptions.EntityNotFoundException
-import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
 import io.pacworx.ambrosia.expedition.ExpeditionRepository
 import io.pacworx.ambrosia.expedition.PlayerExpeditionRepository
@@ -71,7 +68,7 @@ class PlayerService(
     private val dailyActivityRepository: DailyActivityRepository,
     private val achievementsRepository: AchievementsRepository,
     private val merchantService: MerchantService,
-    private val achievementService: AchievementService,
+    private val taskService: TaskService,
     private val blackMarketService: BlackMarketService,
     private val autoBreakdownConfigurationRepository: AutoBreakdownConfigurationRepository,
     private val inboxMessageRepository: InboxMessageRepository,
@@ -224,7 +221,7 @@ class PlayerService(
         val dailyActivity = dailyActivityRepository.getOne(player.id).also { it.checkForReset() }
         val merchantItems = merchantService.getItems(player, progress)
         val blackMarketItems = blackMarketService.getPurchasableItems(player)
-        val achievementRewards = achievementService.getActiveAchievementRewards(player)
+        val tasks = taskService.getPlayerTasks(player)
         val autoBreakdownConfiguration = autoBreakdownConfigurationRepository.getOne(player.id)
         val inboxMessages = inboxMessageRepository.findAllByPlayerIdOrderByValidTimestamp(player.id)
         val teams = teamRepository.getAllByPlayerId(player.id)
@@ -253,7 +250,7 @@ class PlayerService(
             dailyActivity = dailyActivity,
             merchantItems = merchantItems,
             blackMarketItems = blackMarketItems,
-            achievementRewards = achievementRewards,
+            playerTasks = tasks,
             autoBreakdownConfiguration = autoBreakdownConfiguration,
             inboxMessages = inboxMessages,
             teams = teams
