@@ -5,6 +5,8 @@ import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.inbox.InboxMessageRepository
 import io.pacworx.ambrosia.loot.LootService
+import io.pacworx.ambrosia.loot.Looted
+import io.pacworx.ambrosia.loot.LootedType
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.resources.ResourcesService
@@ -57,7 +59,8 @@ class TasksController(
             vehicles = result.items.filter { it.vehicle != null }.map { it.vehicle!! }.takeIf { it.isNotEmpty() },
             vehicleParts = result.items.filter { it.vehiclePart != null }.map { it.vehiclePart!! }.takeIf { it.isNotEmpty() },
             playerTasks = listOf(playerTask),
-            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1)),
+            looted = Looted(LootedType.TASK, result.items.map { lootService.asLootedItem(it) })
         )
     }
 }
