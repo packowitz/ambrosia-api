@@ -6,7 +6,7 @@ import io.pacworx.ambrosia.exceptions.EntityNotFoundException
 import io.pacworx.ambrosia.exceptions.GeneralException
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
 import io.pacworx.ambrosia.inbox.InboxMessageRepository
-import io.pacworx.ambrosia.loot.LootService
+import io.pacworx.ambrosia.loot.*
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
@@ -61,7 +61,7 @@ class OddJobController(
         }
         val achievements = achievementsRepository.getOne(player.id)
         achievements.oddJobsDone ++
-        lootService.openLootBox(player, oddJob.lootBoxId, achievements)
+        val result = lootService.openLootBox(player, oddJob.lootBoxId, achievements)
         val dailyActivity = dailyActivityRepository.getOne(player.id)
         oddJobRepository.delete(oddJob)
         return PlayerActionResponse(
@@ -70,7 +70,8 @@ class OddJobController(
             achievements = achievements,
             oddJobDone = oddJobId,
             dailyActivity = dailyActivity.takeIf { it.activityDetected() },
-            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1)),
+            looted = Looted(LootedType.ODD_JOB, result.items.map { lootService.asLootedItem(it) })
         )
     }
 
@@ -83,9 +84,11 @@ class OddJobController(
         if (!dailyActivity.isClaimable(day)) {
             throw GeneralException(player, "Cannot claim daily", "Day $day is not claimable for you")
         }
+        val lootedItems = mutableListOf<LootedItem>()
         val resources = resourcesService.getResources(player)
         propertyService.getProperties(PropertyType.DAILY_REWARD, day).forEach {
             resourcesService.gainResources(resources, it.resourceType!!, it.value1)
+            lootedItems.add(LootedItem(LootItemType.RESOURCE, it.resourceType, value = it.value1.toLong()))
         }
         dailyActivity.claim(day)
         val achievements = achievementsRepository.getOne(player.id)
@@ -94,7 +97,8 @@ class OddJobController(
             resources = resources,
             achievements = achievements,
             dailyActivity = dailyActivity,
-            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1))
+            inboxMessages = inboxMessageRepository.findAllByPlayerIdAndSendTimestampIsAfter(player.id, timestamp.minusSeconds(1)),
+            looted = Looted(LootedType.DAILY_ACTIVITY, lootedItems)
         )
     }
 }
