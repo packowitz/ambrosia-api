@@ -34,6 +34,7 @@ import kotlin.math.roundToInt
 @CrossOrigin(maxAge = 3600)
 @RequestMapping("expedition")
 class ExpeditionController(
+    private val expeditionService: ExpeditionService,
     private val expeditionRepository: ExpeditionRepository,
     private val playerExpeditionRepository: PlayerExpeditionRepository,
     private val progressRepository: ProgressRepository,
@@ -52,20 +53,14 @@ class ExpeditionController(
     private val teamType = "Expedition"
 
     @GetMapping("active")
-    fun getActiveExpeditions(@ModelAttribute("player") player: Player): List<Expedition> {
+    fun getAvailableExpeditions(@ModelAttribute("player") player: Player): List<Expedition> {
         val progress = progressRepository.getOne(player.id)
-        if (progress.expeditionLevel > 0) {
-            val expeditions = expeditionRepository.findAllByExpeditionBase_LevelAndActiveIsTrue(progress.expeditionLevel)
-            val inProgress = playerExpeditionRepository.findAllByPlayerIdAndExpeditionIdIn(player.id, expeditions.map { it.id })
-            return expeditions.filter { exp -> inProgress.none { exp.id == it.expeditionId } }
-        } else {
-            return emptyList()
-        }
+        return expeditionService.availableExpeditions(player, progress.expeditionLevel)
     }
 
     @GetMapping("in-progress")
     fun getPlayerExpeditions(@ModelAttribute("player") player: Player): List<PlayerExpedition> {
-        return playerExpeditionRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
+        return expeditionService.getAllPlayerExpeditions(player)
     }
 
     @PostMapping("{expeditionId}/start")
@@ -128,6 +123,7 @@ class ExpeditionController(
             startTimestamp = now,
             finishTimestamp = until
         ))
+        expeditionService.enrichSpeedup(playerExpedition)
         vehicle.playerExpeditionId = playerExpedition.id
         heroes.forEach { it.playerExpeditionId = playerExpedition.id }
         return PlayerActionResponse(

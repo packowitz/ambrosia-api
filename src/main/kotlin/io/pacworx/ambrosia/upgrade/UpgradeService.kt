@@ -12,6 +12,8 @@ import io.pacworx.ambrosia.progress.ProgressRepository
 import io.pacworx.ambrosia.properties.PropertyService
 import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.speedup.SpeedupService
+import io.pacworx.ambrosia.speedup.SpeedupType
 import io.pacworx.ambrosia.vehicle.Vehicle
 import io.pacworx.ambrosia.vehicle.VehiclePart
 import io.pacworx.ambrosia.vehicle.VehiclePartRepository
@@ -19,16 +21,28 @@ import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.stereotype.Service
 
 @Service
-class UpgradeService(private val upgradeRepository: UpgradeRepository,
-                     private val buildingRepository: BuildingRepository,
-                     private val vehicleRepository: VehicleRepository,
-                     private val vehiclePartRepository: VehiclePartRepository,
-                     private val propertyService: PropertyService,
-                     private val progressRepository: ProgressRepository,
-                     private val resourcesService: ResourcesService,
-                     private val gearRepository: GearRepository) {
+class UpgradeService(
+    private val upgradeRepository: UpgradeRepository,
+    private val buildingRepository: BuildingRepository,
+    private val vehicleRepository: VehicleRepository,
+    private val vehiclePartRepository: VehiclePartRepository,
+    private val propertyService: PropertyService,
+    private val progressRepository: ProgressRepository,
+    private val resourcesService: ResourcesService,
+    private val gearRepository: GearRepository,
+    private val speedupService: SpeedupService
+) {
 
-    fun getAllUpgrades(player: Player): List<Upgrade> = upgradeRepository.findAllByPlayerIdOrderByPositionAsc(player.id)
+    fun getAllUpgrades(player: Player): List<Upgrade> =
+        upgradeRepository.findAllByPlayerIdOrderByPositionAsc(player.id).onEach { enrichSpeedup(it) }
+
+    fun enrichSpeedup(upgrade: Upgrade) {
+        if (upgrade.isInProgress()) {
+            upgrade.speedup = speedupService.speedup(SpeedupType.UPGRADE, upgrade.getDuration(), upgrade.getSecondsUntilDone())
+        } else {
+            upgrade.speedup = null
+        }
+    }
 
     fun levelUpBuilding(player: Player, buildingType: BuildingType, achievements: Achievements): Building {
         val allBuildings = buildingRepository.findAllByPlayerId(player.id)

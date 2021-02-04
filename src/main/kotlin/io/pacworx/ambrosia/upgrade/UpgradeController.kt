@@ -147,6 +147,7 @@ class UpgradeController(
         var currentUpgrades = upgradeService.getAllUpgrades(player)
         val upgrade = currentUpgrades.find { it.id == upgradeId }
             ?: throw EntityNotFoundException(player, "upgrade", upgradeId)
+        val secondsLeft = upgrade.getSecondsUntilDone()
         if (upgrade.isFinished()) {
             throw GeneralException(player, "Cannot cancel upgrade", "You cannot cancel a finished upgrade")
         }
@@ -163,7 +164,12 @@ class UpgradeController(
 
         upgradeRepository.delete(upgrade)
         currentUpgrades = currentUpgrades.filter { it.id != upgrade.id }
-        currentUpgrades.filter { it.position > upgrade.position }.forEach { it.position -- }
+        currentUpgrades.filter { it.position > upgrade.position }.forEach {
+            it.position --
+            it.startTimestamp = it.startTimestamp.minusSeconds(secondsLeft)
+            it.finishTimestamp = it.finishTimestamp.minusSeconds(secondsLeft)
+            upgradeService.enrichSpeedup(it)
+        }
         return PlayerActionResponse(
             resources = resources,
             buildings = listOfNotNull(upgrade.buildingType?.let { upgradeService.cancelBuildingUpgrade(player, it) }),
@@ -202,6 +208,8 @@ class UpgradeController(
         swapUpgrade.startTimestamp = upgrade.finishTimestamp
         upgrade.position--
         swapUpgrade.position++
+        upgradeService.enrichSpeedup(upgrade)
+        upgradeService.enrichSpeedup(swapUpgrade)
 
         auditLogService.log(player, "Move upgrade #${upgrade.id} up to position ${upgrade.position}. Upgrade #${swapUpgrade.id} is now on position ${swapUpgrade.position}")
 
@@ -466,6 +474,7 @@ class UpgradeController(
             gearId = gearId
         )
         upgrade.setResources(costs)
+        upgradeService.enrichSpeedup(upgrade)
         return upgradeRepository.save(upgrade)
     }
 }

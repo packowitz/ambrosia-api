@@ -11,8 +11,7 @@ import io.pacworx.ambrosia.buildings.blackmarket.BlackMarketService
 import io.pacworx.ambrosia.buildings.merchant.MerchantService
 import io.pacworx.ambrosia.common.PlayerActionResponse
 import io.pacworx.ambrosia.exceptions.UnauthorizedException
-import io.pacworx.ambrosia.expedition.ExpeditionRepository
-import io.pacworx.ambrosia.expedition.PlayerExpeditionRepository
+import io.pacworx.ambrosia.expedition.ExpeditionService
 import io.pacworx.ambrosia.gear.GearRepository
 import io.pacworx.ambrosia.gear.JewelryRepository
 import io.pacworx.ambrosia.hero.HeroRepository
@@ -62,8 +61,7 @@ class PlayerService(
     private val upgradeService: UpgradeService,
     private val incubatorRepository: IncubatorRepository,
     private val storyProgressRepository: StoryProgressRepository,
-    private val expeditionRepository: ExpeditionRepository,
-    private val playerExpeditionRepository: PlayerExpeditionRepository,
+    private val expeditionService: ExpeditionService,
     private val oddJobService: OddJobService,
     private val dailyActivityRepository: DailyActivityRepository,
     private val achievementsRepository: AchievementsRepository,
@@ -213,8 +211,8 @@ class PlayerService(
         val currentMap = mapService.getCurrentPlayerMap(player, progress)
         val missions = missionService.getAllMissions(player)
         val dnaCubes = incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
-        val expeditions = expeditionRepository.findAllByExpeditionBase_LevelAndActiveIsTrue(progress.expeditionLevel)
-        val playerExpeditions = playerExpeditionRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
+        val expeditions = expeditionService.expeditionsByLevel(progress.expeditionLevel)
+        val playerExpeditions = expeditionService.getAllPlayerExpeditions(player)
         val oddJobs = oddJobService.getOddJobs(player)
         val ongoingBattle = battleService.getOngoingBattle(player)
         val knownStories = storyProgressRepository.findAllByPlayerId(player.id).map { it.trigger.name }

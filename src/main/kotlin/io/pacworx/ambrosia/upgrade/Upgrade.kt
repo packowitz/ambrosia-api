@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.buildings.BuildingType
 import io.pacworx.ambrosia.gear.JewelType
 import io.pacworx.ambrosia.resources.ResourceType
+import io.pacworx.ambrosia.speedup.Speedup
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.persistence.Entity
@@ -30,6 +31,9 @@ data class Upgrade(
     val gearId: Long? = null,
     var origDuration: Long = 0
 ) {
+    @Transient
+    var speedup: Speedup? = null
+
     fun isFinished(): Boolean = finishTimestamp.isBefore(Instant.now())
 
     fun isInProgress(): Boolean = if (isFinished()) { false } else { startTimestamp.isBefore(Instant.now()) }

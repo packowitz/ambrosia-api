@@ -3,6 +3,7 @@ package io.pacworx.ambrosia.expedition
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.hero.Rarity
 import io.pacworx.ambrosia.loot.LootedItem
+import io.pacworx.ambrosia.speedup.Speedup
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.persistence.*
@@ -31,6 +32,9 @@ data class PlayerExpedition(
     @JsonIgnore val startTimestamp: Instant,
     @JsonIgnore val finishTimestamp: Instant
 ) {
+    @Transient
+    var speedup: Speedup? = null
+
     @Transient
     var lootedItems: List<LootedItem>? = null
 
