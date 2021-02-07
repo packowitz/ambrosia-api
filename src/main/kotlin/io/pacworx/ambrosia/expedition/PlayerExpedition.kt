@@ -30,7 +30,7 @@ data class PlayerExpedition(
     val level: Int,
     @Enumerated(EnumType.STRING) val rarity: Rarity,
     @JsonIgnore val startTimestamp: Instant,
-    @JsonIgnore val finishTimestamp: Instant
+    @JsonIgnore var finishTimestamp: Instant
 ) {
     @Transient
     var speedup: Speedup? = null

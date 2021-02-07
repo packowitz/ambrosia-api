@@ -139,6 +139,33 @@ class UpgradeController(
         )
     }
 
+    @PostMapping("{upgradeId}/speedup")
+    @Transactional
+    fun speedup(@ModelAttribute("player") player: Player,
+                @PathVariable upgradeId: Long): PlayerActionResponse {
+        var currentUpgrades = upgradeService.getAllUpgrades(player)
+        val upgrade = currentUpgrades.find { it.id == upgradeId }
+            ?: throw EntityNotFoundException(player, "upgrade", upgradeId)
+        if (!upgrade.isInProgress()) {
+            throw GeneralException(player, "Cannot speedup upgrade", "Upgrade is not in progress")
+        }
+        val resources = resourcesService.getResources(player)
+        resourcesService.spendRubies(resources, upgrade.speedup?.rubies ?: 0)
+        upgrade.speedup = null
+        val secondsSaved = upgrade.getSecondsUntilDone()
+        upgrade.finishTimestamp = Instant.now().minusSeconds(5)
+        currentUpgrades.filter { it.position > upgrade.position }.forEach {
+            it.startTimestamp = it.startTimestamp.minusSeconds(secondsSaved)
+            it.finishTimestamp = it.finishTimestamp.minusSeconds(secondsSaved)
+            upgradeService.enrichSpeedup(it)
+        }
+
+        return PlayerActionResponse(
+            resources = resources,
+            upgrades = currentUpgrades
+        )
+    }
+
     @PostMapping("{upgradeId}/cancel")
     @Transactional
     fun cancelUpgrade(@ModelAttribute("player") player: Player,

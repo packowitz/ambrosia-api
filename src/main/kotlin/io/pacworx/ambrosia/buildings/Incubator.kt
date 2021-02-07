@@ -2,10 +2,12 @@ package io.pacworx.ambrosia.buildings
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.resources.ResourceType
+import io.pacworx.ambrosia.speedup.Speedup
 import io.pacworx.ambrosia.upgrade.Cost
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.persistence.*
+import kotlin.jvm.Transient
 
 @Entity
 data class Incubator(
@@ -17,6 +19,9 @@ data class Incubator(
     @JsonIgnore var finishTimestamp: Instant,
     @JsonIgnore var resources: String = ""
 ) {
+    @Transient
+    var speedup: Speedup? = null
+
     fun isFinished(): Boolean = finishTimestamp.isBefore(Instant.now())
 
     fun getDuration(): Long = startTimestamp.until(finishTimestamp, ChronoUnit.SECONDS)

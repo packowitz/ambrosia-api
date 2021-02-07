@@ -20,6 +20,7 @@ import io.pacworx.ambrosia.team.TeamRepository
 import io.pacworx.ambrosia.vehicle.VehicleRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 import java.time.LocalDateTime
 import javax.transaction.Transactional
 
@@ -115,7 +116,9 @@ class MissionController(
 
     @PostMapping("{missionId}/finish")
     @Transactional
-    fun finishMission(@ModelAttribute("player") player: Player, @PathVariable missionId: Long): PlayerActionResponse {
+    fun finishMission(@ModelAttribute("player") player: Player,
+                      @PathVariable missionId: Long,
+                      @RequestParam(required = false) speedup: Boolean?): PlayerActionResponse {
         val timestamp = LocalDateTime.now()
         val mission = missionRepository.findByIdOrNull(missionId)
             ?: return PlayerActionResponse(missionIdFinished = missionId)
@@ -126,6 +129,14 @@ class MissionController(
         val resources = resourcesService.getResources(player)
         val achievements = achievementsRepository.getOne(player.id)
         val progress = progressRepository.getOne(player.id)
+
+        missionService.enrichSpeedup(mission)
+        if (speedup == true && mission.speedup?.rubies ?: 0 > 0) {
+            resourcesService.spendRubies(resources, mission.speedup!!.rubies)
+            mission.battles.forEach { it.battleFinished = true }
+            mission.speedup = null
+            mission.finishTimestamp = Instant.now().minusSeconds(1)
+        }
 
         val vehicle = vehicleRepository.getOne(mission.vehicleId)
         val heroes = heroService.wonMission(mission, progress, vehicle)

@@ -18,11 +18,17 @@ class SpeedupService {
             secondsUntilChange = secondsLeft
         )
         while ((secs + 3) <= secondsLeft) {
-            val toAdd = ((secs + duration / 100) * inc).roundToInt()
-            val mult = 2.0 / ln(Math.E + speedup.rubies)
+            val secsAdded = if (inc == 1.0) {
+                oneRubySecs.toInt()
+            } else {
+                val fixedPart = (secs * inc).roundToInt()
+                val lnPart = 2.0 / ln(Math.E + speedup.rubies)
+                (fixedPart * lnPart).roundToInt()
+            }
+
             speedup.rubies++
             speedup.secondsUntilChange = secondsLeft - secs
-            secs += (toAdd * mult).roundToInt()
+            secs += secsAdded
         }
         return speedup
     }

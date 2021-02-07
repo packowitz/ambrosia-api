@@ -1,16 +1,13 @@
 package io.pacworx.ambrosia.battle.offline
 
-import io.pacworx.ambrosia.battle.AiService
-import io.pacworx.ambrosia.battle.Battle
-import io.pacworx.ambrosia.battle.BattleRepository
-import io.pacworx.ambrosia.battle.BattleService
-import io.pacworx.ambrosia.battle.BattleStatus
-import io.pacworx.ambrosia.battle.StartBattleRequest
+import io.pacworx.ambrosia.battle.*
 import io.pacworx.ambrosia.fights.Fight
 import io.pacworx.ambrosia.hero.HeroRepository
 import io.pacworx.ambrosia.maps.SimplePlayerMapTile
 import io.pacworx.ambrosia.player.Player
 import io.pacworx.ambrosia.progress.Progress
+import io.pacworx.ambrosia.speedup.SpeedupService
+import io.pacworx.ambrosia.speedup.SpeedupType
 import io.pacworx.ambrosia.vehicle.Vehicle
 import io.pacworx.ambrosia.vehicle.VehicleService
 import io.pacworx.ambrosia.vehicle.VehicleStat
@@ -19,23 +16,26 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
-class MissionService(private val battleService: BattleService,
-                     private val aiService: AiService,
-                     private val battleRepository: BattleRepository,
-                     private val offlineBattleRepository: OfflineBattleRepository,
-                     private val missionRepository: MissionRepository,
-                     private val heroRepository: HeroRepository,
-                     private val vehicleService: VehicleService) {
+class MissionService(
+    private val battleService: BattleService,
+    private val aiService: AiService,
+    private val battleRepository: BattleRepository,
+    private val offlineBattleRepository: OfflineBattleRepository,
+    private val missionRepository: MissionRepository,
+    private val heroRepository: HeroRepository,
+    private val vehicleService: VehicleService,
+    private val speedupService: SpeedupService) {
+
     private val log = KotlinLogging.logger {}
 
     fun getAllMissions(player: Player): List<Mission> {
-        val missions = missionRepository.findAllByPlayerIdOrderBySlotNumber(player.id)
-        missions.forEach { check(it) }
-        return missions
+        return missionRepository.findAllByPlayerIdOrderBySlotNumber(player.id).onEach { check(it) }
     }
 
     fun check(mission: Mission) {
         val now = Instant.now()
+        mission.wonCount = 0
+        mission.lostCount = 0
         mission.battles.forEach { battle ->
             battle.battleStarted = battle.battleStarted || battle.startTimestamp.isBefore(now)
             if (battle.battleStarted && !battle.battleFinished) {
@@ -48,6 +48,15 @@ class MissionService(private val battleService: BattleService,
                     }
                 }
             }
+        }
+        enrichSpeedup(mission)
+    }
+
+    fun enrichSpeedup(mission: Mission) {
+        if (mission.getSecondsUntilDone() > 0) {
+            mission.speedup = speedupService.speedup(SpeedupType.MISSION, mission.getDuration(), mission.getSecondsUntilDone())
+        } else {
+            mission.speedup = null
         }
     }
 

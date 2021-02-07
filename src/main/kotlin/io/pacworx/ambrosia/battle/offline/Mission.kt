@@ -2,6 +2,7 @@ package io.pacworx.ambrosia.battle.offline
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.pacworx.ambrosia.fights.Fight
+import io.pacworx.ambrosia.speedup.Speedup
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.persistence.*
@@ -28,12 +29,15 @@ data class Mission(
     var wonCount: Int = 0,
     var lostCount: Int = 0,
     @JsonIgnore val startTimestamp: Instant,
-    @JsonIgnore val finishTimestamp: Instant
+    @JsonIgnore var finishTimestamp: Instant
 ) {
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "mission_id")
     @OrderBy("start_timestamp")
     var battles: List<OfflineBattle> = ArrayList()
+
+    @Transient
+    var speedup: Speedup? = null
 
     @Transient
     var lootCollected: Boolean? = null

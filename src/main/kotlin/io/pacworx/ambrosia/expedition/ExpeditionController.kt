@@ -134,17 +134,42 @@ class ExpeditionController(
         )
     }
 
+    @PostMapping("{playerExpeditionId}/speedup")
+    @Transactional
+    fun speedupExpedition(@ModelAttribute("player") player: Player,
+                          @PathVariable playerExpeditionId: Long): PlayerActionResponse {
+        val playerExpedition = playerExpeditionRepository.findByIdOrNull(playerExpeditionId)
+            ?: throw EntityNotFoundException(player, "playerExpedition", playerExpeditionId)
+        if (playerExpedition.playerId != player.id) {
+            throw UnauthorizedException(player, "You don't own that expedition")
+        }
+        val resources = resourcesService.getResources(player)
+        expeditionService.enrichSpeedup(playerExpedition)
+        resourcesService.spendRubies(resources, playerExpedition.speedup?.rubies ?: 0)
+        playerExpedition.speedup = null
+        val newFinishTimestamp = Instant.now().minusSeconds(5)
+        if (playerExpedition.finishTimestamp.isAfter(newFinishTimestamp)) {
+            playerExpedition.finishTimestamp = newFinishTimestamp
+        }
+
+        return PlayerActionResponse(
+            resources = resources,
+            playerExpeditions = listOf(playerExpedition)
+        )
+    }
+
     @PostMapping("{playerExpeditionId}/finish")
     @Transactional
-    fun finishExpedition(
-        @ModelAttribute("player") player: Player,
-        @PathVariable playerExpeditionId: Long
-    ): PlayerActionResponse {
+    fun finishExpedition(@ModelAttribute("player") player: Player,
+                         @PathVariable playerExpeditionId: Long): PlayerActionResponse {
         val timestamp = LocalDateTime.now()
         val playerExpedition = playerExpeditionRepository.findByIdOrNull(playerExpeditionId)
             ?: throw EntityNotFoundException(player, "playerExpedition", playerExpeditionId)
         if (playerExpedition.playerId != player.id) {
             throw UnauthorizedException(player, "You don't own that expedition")
+        }
+        if (playerExpedition.getSecondsUntilDone() > 2) {
+            throw GeneralException(player, "Expedition ongoing", "Expedition cannot get claimed when it is still ongoing")
         }
         if (playerExpedition.completed) {
             throw GeneralException(player, "Cannot finish expedition", "Expedition is already completed")

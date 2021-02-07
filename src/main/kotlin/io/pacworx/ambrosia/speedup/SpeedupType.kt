@@ -6,8 +6,16 @@ enum class SpeedupType {
 
         override fun increase(duration: Long): Double = 1.0 / (2 + (duration / 3600))
     },
-    MISSION,
-    INCUBATION,
+    MISSION {
+        override fun oneRubySeconds(duration: Long): Long = 30
+
+        override fun increase(duration: Long): Double = 1.0
+    },
+    INCUBATION {
+        override fun oneRubySeconds(duration: Long): Long = 90
+
+        override fun increase(duration: Long): Double = 0.1
+    },
     UPGRADE {
         override fun oneRubySeconds(duration: Long): Long = 50
 

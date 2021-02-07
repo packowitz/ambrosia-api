@@ -19,15 +19,11 @@ import io.pacworx.ambrosia.properties.PropertyType
 import io.pacworx.ambrosia.resources.ResourceType
 import io.pacworx.ambrosia.resources.Resources
 import io.pacworx.ambrosia.resources.ResourcesService
+import io.pacworx.ambrosia.speedup.SpeedupService
+import io.pacworx.ambrosia.speedup.SpeedupType
 import io.pacworx.ambrosia.upgrade.Cost
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDateTime
 import javax.transaction.Transactional
@@ -43,12 +39,13 @@ class LaboratoryController(
     private val heroService: HeroService,
     private val auditLogService: AuditLogService,
     private val achievementsRepository: AchievementsRepository,
-    private val inboxMessageRepository: InboxMessageRepository
+    private val inboxMessageRepository: InboxMessageRepository,
+    private val speedupService: SpeedupService
 ) {
 
     @GetMapping("incubators")
     fun incubators(@ModelAttribute("player") player: Player): List<Incubator> =
-        incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id)
+        incubatorRepository.findAllByPlayerIdOrderByStartTimestamp(player.id).onEach { enrichSpeedup(it) }
 
     @PostMapping("clone/{type}")
     @Transactional
@@ -123,6 +120,7 @@ class LaboratoryController(
             )
             cube.setResources(costs)
             incubator = incubatorRepository.save(cube)
+            enrichSpeedup(incubator)
             auditLogService.log(player, "Starts cloning in incubator #${incubator.id} spending ${costs.joinToString { "${it.amount} ${it.type}" }}")
         } else {
             hero = heroService.asHeroDto(heroService.recruitHero(player, type.commonChance, type.uncommonChance, type.rareChance, type.epicChance, type.defaultRarity))
@@ -142,13 +140,20 @@ class LaboratoryController(
     @PostMapping("open/{cubeId}")
     @Transactional
     fun open(@ModelAttribute("player") player: Player,
-             @PathVariable cubeId: Long): PlayerActionResponse {
+             @PathVariable cubeId: Long,
+             @RequestParam(required = false) speedup: Boolean?): PlayerActionResponse {
         val cube = incubatorRepository.findByIdOrNull(cubeId)
             ?: throw EntityNotFoundException(player, "incubator", cubeId)
         if (cube.playerId != player.id) {
             throw UnauthorizedException(player, "You can only open incubators you own")
         }
-        if (!cube.isFinished()) {
+        val resources = resourcesService.getResources(player)
+        enrichSpeedup(cube)
+        if (speedup == true) {
+            resourcesService.spendRubies(resources, cube.speedup?.rubies ?: 0)
+            cube.speedup = null
+            cube.finishTimestamp = Instant.now().minusSeconds(1)
+        } else if (!cube.isFinished()) {
             throw GeneralException(player, "Work in progress", "The incubator cannot be finished. It still needs ${cube.getSecondsUntilDone()} seconds")
         }
         val progress = progressRepository.getOne(player.id)
@@ -170,6 +175,7 @@ class LaboratoryController(
         cube.getResourcesAsCosts().forEach { achievements.resourceSpend(it.type, it.amount) }
         achievements.incubationDone(cube.type)
         return PlayerActionResponse(
+            resources = resources,
             achievements = achievements,
             heroes = listOfNotNull(heroService.asHeroDto(hero)),
             incubatorDone = cube.id
@@ -178,6 +184,14 @@ class LaboratoryController(
 
     private fun asDoubleChance(chancePerMil: Int): Double {
         return chancePerMil.toDouble() / 1000.0
+    }
+
+    private fun enrichSpeedup(incubator: Incubator) {
+        if (incubator.getSecondsUntilDone() > 0) {
+            incubator.speedup = speedupService.speedup(SpeedupType.INCUBATION, incubator.getDuration(), incubator.getSecondsUntilDone())
+        } else {
+            incubator.speedup = null
+        }
     }
 
     @PostMapping("cancel/{cubeId}")
